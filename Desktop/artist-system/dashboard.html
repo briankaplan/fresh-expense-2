@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic Matchmaker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #00FFFF;
+            --secondary-color: #1E1E1E;
+            --accent-color: #FF4500;
+            --text-color: #FFFFFF;
+            --slider-bg: #3D3D3D;
+            --knob-color: #4A4A4A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #00CCCC;
+        }
+
+        .project-select {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .project-select select {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .project-select textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 150px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .mixer-toggle {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 50px;
+            margin: 30px auto;
+            display: block;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .mixer-toggle:hover {
+            background-color: #FF6347;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(255, 69, 0, 0.6);
+        }
+
+        .mixer-toggle:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(255, 69, 0, 0.4);
+        }
+
+        .controls-panel {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .control-group {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .control-group h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .knob-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .knob {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--knob-color);
+            position: relative;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .knob::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background-color: var(--primary-color);
+            transform-origin: bottom;
+        }
+
+        .knob-label {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .slider-control {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .slider-control label {
+            margin-bottom: 5px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: var(--slider-bg);
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .search-button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #FF6347;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .artist-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .artist-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .artist-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .artist-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .artist-genre {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .match-percentage {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .view-profile {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .view-profile:hover {
+            background-color: #00CCCC;
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel {
+                grid-template-columns: 1fr;
+            }
+            .project-select select,
+            .project-select textarea {
+                max-width: 100%;
+            }
+            .search-container {
+                flex-direction: column;
+            }
+            .search-input {
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+            .search-button {
+                border-radius: 5px;
+            }
+            .mixer-toggle {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="./Kane-Brown/dhbig-1024x335.webp" alt="Down Home Logo" class="logo">
+            <h1>Sonic Matchmaker</h1>
+            <p>Fine-tune your search for the perfect artist match</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search for a specific artist...">
+            <button class="search-button">Search</button>
+        </div>
+
+        <div class="project-select">
+            <select id="project-dropdown">
+                <option value="">Select a project</option>
+                <option value="songscapes">Songscapes</option>
+                <option value="custom">Custom Project</option>
+            </select>
+            <textarea id="custom-project" placeholder="Enter custom project details" style="display: none;"></textarea>
+        </div>
+
+        <button class="mixer-toggle">Fine-tune Your Perfect Artist</button>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <h2>Sonic Characteristics</h2>
+                <div class="knob-control">
+                    <div class="knob" id="low-freq"></div>
+                    <span class="knob-label">Low Freq</span>
+                </div>
+                <div class="knob-control">
+                    <div class="knob" id="mid-freq"></div>
+                    <span class="knob-label">Mid Freq</span>
+                </div>
+                <div class="knob-control">
+                    <div class="knob" id="high-freq"></div>
+                    <span class="knob-label">High Freq</span>
+                </div>
+                <div class="slider-control">
+                    <label for="energy">Energy</label>
+                    <input type="range" id="energy" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="tempo">Tempo</label>
+                    <input type="range" id="tempo" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2>Lyrical Content</h2>
+                <input type="text" class="text-input" placeholder="Enter keywords or themes">
+                <div class="slider-control">
+                    <label for="narrative">Narrative Strength</label>
+                    <input type="range" id="narrative" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="metaphor">Metaphor Usage</label>
+                    <input type="range" id="metaphor" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2>Artist Characteristics</h2>
+                <div class="slider-control">
+                    <label for="authenticity">Authenticity</label>
+                    <input type="range" id="authenticity" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="versatility">Versatility</label>
+                    <input type="range" id="versatility" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="stage-presence">Stage Presence</label>
+                    <input type="range" id="stage-presence" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2>Brand Affinity</h2>
+                <input type="text" class="text-input" placeholder="Enter brand name or type">
+                <div class="slider-control">
+                    <label for="brand-alignment">Brand Alignment</label>
+                    <input type="range" id="brand-alignment" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="brand-appeal">Brand Appeal</label>
+                    <input type="range" id="brand-appeal" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2>Audience Metrics</h2>
+                <div class="slider-control">
+                    <label for="engagement">Social Media Engagement</label>
+                    <input type="range" id="engagement" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="fan-loyalty">Fan Loyalty</label>
+                    <input type="range" id="fan-loyalty" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="crossover-potential">Crossover Potential</label>
+                    <input type="range" id="crossover-potential" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2>Artist Connectivity</h2>
+                <input type="text" class="text-input" placeholder="Enter connected artist">
+                <div class="slider-control">
+                    <label for="collaboration-potential">Collaboration Potential</label>
+                    <input type="range" id="collaboration-potential" class="slider" min="0" max="100" value="50">
+                </div>
+                <div class="slider-control">
+                    <label for="genre-similarity">Genre Similarity</label>
+                    <input type="range" id="genre-similarity" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button class="search-button">Find Your Perfect Match</button>
+            </div>
+        </div>
+
+        <div class="results-grid">
+            <div class="artist-card">
+                <img src="Kane-Brown/KaneBrown.jpg" alt="Kane Brown" class="artist-image">
+                <h3 class="artist-name">Kane Brown</h3>
+                <p class="artist-genre">Country</p>
+                <p class="match-percentage">100% Match</p>
+                <a href="Kane-Brown/Kane-Brown.html" class="view-profile">View Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Project selection functionality
+        const projectDropdown = document.getElementById('project-dropdown');
+        const customProjectInput = document.getElementById('custom-project');
+
+        projectDropdown.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customProjectInput.style.display = 'block';
+            } else {
+                customProjectInput.style.display = 'none';
+            }
+        });
+
+        // Mixer toggle functionality
+        const mixerToggle = document.querySelector('.mixer-toggle');
+        const controlsPanel = document.querySelector('.controls-panel');
+
+        mixerToggle.addEventListener('click', function() {
+            if (controlsPanel.style.display === 'none' || controlsPanel.style.display === '') {
+                controlsPanel.style.display = 'grid';
+                mixerToggle.textContent = 'Hide Mixer';
+            } else {
+                controlsPanel.style.display = 'none';
+                mixerToggle.textContent = 'Fine-tune Your Perfect Artist';
+            }
+        });
+
+        // Knob functionality
+        const knobs = document.querySelectorAll('.knob');
+        knobs.forEach(knob => {
+            let rotation = 0;
+            let startY;
+
+            knob.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+
+            function startDrag(e) {
+                e.preventDefault();
+                startY = e.clientY;
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+
+            function drag(e) {
+                if (startY) {
+                    const currentY = e.clientY;
+                    const deltaY = startY - currentY;
+                    rotation += deltaY;
+                    rotation = Math.min(Math.max(rotation, -150), 150); // Limit rotation
+                    knob.style.transform = `rotate(${rotation}deg)`;
+                    startY = currentY;
+                    
+                    // Here you can add logic to update some value based on the knob rotation
+                    console.log(`${knob.id} value:`, Math.round((rotation + 150) / 3));
+                }
+            }
+
+            function stopDrag() {
+                startY = null;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+        });
+
+        // Slider functionality
+        const sliders = document.querySelectorAll('.slider');
+        sliders.forEach(slider => {
+            slider.addEventListener('input', function() {
+                console.log(`${this.id}: ${this.value}`);
+                // Add logic here to update related values or trigger searches
+            });
+        });
+
+        // Search button functionality
+        document.querySelector('.search-button').addEventListener('click', function() {
+            console.log('Search initiated');
+            // Add your search logic here
+        });
+
+        // Specific artist search functionality
+        const artistSearchInput = document.querySelector('.search-input');
+        const artistSearchButton = document.querySelector('.search-container .search-button');
+
+        artistSearchButton.addEventListener('click', function() {
+            const searchTerm = artistSearchInput.value.trim();
+            if (searchTerm) {
+                console.log('Searching for artist:', searchTerm);
+                // Add your specific artist search logic here
+            }
+        });
+
+        // Allow search on Enter key press
+        artistSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                artistSearchButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
