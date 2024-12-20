@@ -1,0 +1,19 @@
+import { useEffect } from 'react';
+import { ReceiptMatcher } from '../services/receiptMatching.js';
+
+export default function YourComponent() {
+    useEffect(() => {
+        const matcher = new ReceiptMatcher();
+        // Use matcher here
+    }, []);
+
+    // Or in an event handler
+    const handleSomething = () => {
+        const matcher = new ReceiptMatcher();
+        // Use matcher here
+    };
+
+    return (
+        // Your JSX
+    );
+} 

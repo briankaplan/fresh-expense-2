@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id          String    @id @default(cuid())
+  date        DateTime
+  description String
+  amount      Float
+  type        String    // 'debit' or 'credit'
+  category    String?
+  notes       String?
+  isReconciled Boolean  @default(false)
+  receipt     Receipt?  @relation(fields: [receiptId], references: [id])
+  receiptId   String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([date])
+  @@index([category])
+  @@index([isReconciled])
+}
+
+model Receipt {
+  id          String    @id @default(cuid())
+  url         String    // Cloud storage URL
+  date        DateTime
+  merchant    String
+  total       Float
+  tax         Float?
+  category    String?
+  items       Json?     // Structured receipt line items
+  transaction Transaction?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([date])
+  @@index([merchant])
+  @@index([category])
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  date        DateTime
+  merchant    String
+  amount      Float
+  category    String?
+  description String?
+  receiptUrl  String?
+  isReconciled Boolean  @default(false)
+  source      String    @default("manual") // 'manual', 'expensify', etc.
+  matches     Match[]   // Added relation to matches
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([date])
+  @@index([merchant])
+  @@index([category])
+  @@index([isReconciled])
+}
+
+// Optional: Add this if you want to track matching history
+model Match {
+  id            String    @id @default(cuid())
+  transactionId String
+  expenseId     String
+  expense       Expense   @relation(fields: [expenseId], references: [id])
+  confidence    Float     // Matching confidence score
+  matchedAt     DateTime  @default(now())
+  matchedBy     String?   // User who confirmed the match
+  status        String    // 'pending', 'confirmed', 'rejected'
+  
+  @@unique([transactionId, expenseId])
+  @@index([status])
+}
