@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Statement {
+  id        String    @id @default(cuid())
+  fileName  String
+  fileUrl   String
+  uploadedAt DateTime @default(now())
+  entries   StatementEntry[]
+}
+
+model StatementEntry {
+  id          String    @id @default(cuid())
+  statementId String
+  statement   Statement @relation(fields: [statementId], references: [id])
+  date        DateTime
+  amount      Float
+  description String
+  receipt     Receipt?
+  matchAttempts  Int       @default(0)
+  lastMatchAttempt DateTime?
+  matchStatus    String?   // matched, no_match, pending
+  category      String?
+  tags          Tag[]
+  notes         String?
+  source        String?   // 'teller', 'manual', etc.
+  sourceId      String?   // ID from source system
+  metadata      Json?     // Additional metadata from source
+
+  @@unique([sourceId, source])
+}
+
+model Receipt {
+  id              String         @id @default(cuid())
+  fileName        String
+  fileUrl         String
+  uploadedAt      DateTime       @default(now())
+  status          String         @default("pending")
+  amount          Float?
+  date            DateTime?
+  merchant        String?
+  category        String?
+  items           Json?
+  processedAt     DateTime?
+  taxAmount       Float?
+  currency        String?
+  confidence      Float?
+  locale          String?
+  paymentMethod   String?
+  statementEntry  StatementEntry? @relation(fields: [statementEntryId], references: [id])
+  statementEntryId String?        @unique
+  emailMessageId String?   // Gmail message ID if from email
+  emailSource    String?   // Email address source
+  matchConfidence Float?   // Confidence score of the match
+  metadata       Json?     // Store additional metadata
+  processingStatus String  @default("pending") // pending, processing, completed, failed
+  processingErrors Json?   // Store any processing errors
+  gmailAccount   GmailAccount? @relation(fields: [gmailAccountId], references: [id])
+  gmailAccountId String?
+}
+
+model GmailAccount {
+  id            String    @id @default(cuid())
+  userId        String
+  email         String
+  accessToken   String
+  refreshToken  String
+  expiryDate    BigInt
+  isActive      Boolean   @default(true)
+  lastSync      DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  receipts      Receipt[]
+
+  @@unique([userId, email])
+  @@index([userId])
+}
+
+model TellerConnection {
+  id            String    @id @default(cuid())
+  userId        String
+  accessToken   String
+  enrollmentId  String    @unique
+  institutionId String
+  status        String    @default("active")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      TellerAccount[]
+
+  @@index([userId])
+}
+
+model TellerAccount {
+  id              String    @id
+  connectionId    String
+  connection      TellerConnection @relation(fields: [connectionId], references: [id])
+  name            String
+  type            String
+  subtype         String?
+  status          String
+  lastFour        String?
+  institution     String
+  balance         Float
+  currency        String    @default("USD")
+  transactions    StatementEntry[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([connectionId])
+}
+
+model Tag {
+  id            String    @id @default(cuid())
+  name          String
+  color         String    @default("#94A3B8") // Default slate-400
+  transactions  StatementEntry[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([name])
+}
+
+model TellerSettings {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  enabled       Boolean   @default(false)
+  autoSync      Boolean   @default(true)
+  syncInterval  Int       @default(24)
+  defaultCategory String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  date        DateTime
+  amount      Float
+  description String
+  category    String?
+  merchant    String?
+  source      String    // 'teller', 'manual'
+  sourceId    String    // ID from source system
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([sourceId, source])
+  @@index([date])
+  @@index([category])
+} 
