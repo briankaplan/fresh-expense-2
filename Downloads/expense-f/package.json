@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "depcruise": "depcruise src --include-only '^src' --output-type err-long",
+    "depcruise": "npx dependency-cruiser src --include-only '^src' --output-type err-long",
     "docs": "typedoc --out docs src/main.tsx",
     "prepare": "husky install",
     "pre-commit": "lint-staged"
