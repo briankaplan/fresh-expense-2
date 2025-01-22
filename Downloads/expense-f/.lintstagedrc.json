@@ -1,0 +1,12 @@
+{
+  "src/**/*.{js,jsx,ts,tsx}": [
+    "eslint --fix",
+    "prettier --write",
+    "npm run typecheck",
+    "npm run depcruise",
+    "npm run docs"
+  ],
+  "src/**/*.{json,css,scss,md}": [
+    "prettier --write"
+  ]
+} 
