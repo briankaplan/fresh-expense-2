@@ -1,0 +1,131 @@
+.password-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.category {
+  background: var(--surface);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.category.weak { border-left: 4px solid var(--danger); }
+.category.duplicate { border-left: 4px solid var(--warning); }
+.category.old { border-left: 4px solid var(--info); }
+.category.secure { border-left: 4px solid var(--success); }
+
+.password-group {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.password-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.password-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.service {
+  font-weight: 500;
+}
+
+.account {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.password-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  border-radius: 0.25rem;
+}
+
+.btn-action:hover {
+  background: var(--background);
+  color: var(--primary);
+}
+
+.password-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: var(--surface);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.password-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-generate {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.strength-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0.5rem 0;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.strength-text {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.danger .strength-fill { background: var(--danger); }
+.warning .strength-fill { background: var(--warning); }
+.success .strength-fill { background: var(--success); } 

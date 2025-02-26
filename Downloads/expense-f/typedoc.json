@@ -1,18 +1,37 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["./src"],
-  "entryPointStrategy": "expand",
+  "entryPoints": ["src/main.tsx"],
   "out": "docs",
+  "name": "Expense Tracker Documentation",
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "node_modules/**"
+  ],
+  "theme": "default",
   "plugin": ["typedoc-plugin-markdown"],
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeExternals": true,
   "includeVersion": true,
   "categorizeByGroup": true,
-  "categoryOrder": ["Components", "Hooks", "Utils", "*"],
-  "readme": "none",
+  "categoryOrder": [
+    "Components",
+    "Hooks",
+    "Utils",
+    "Types",
+    "*"
+  ],
+  "readme": "README.md",
+  "gitRevision": "main",
+  "searchInComments": true,
   "validation": {
     "invalidLink": true,
     "notExported": true
+  },
+  "navigationLinks": {
+    "GitHub": "https://github.com/yourusername/expense-tracker"
   }
 } 
