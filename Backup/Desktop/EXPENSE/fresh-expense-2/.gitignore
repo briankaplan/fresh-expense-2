@@ -64,4 +64,3 @@ credentials/*
 *.p12
 *.pfx
 *.cer
-.DS_Store
