@@ -1,0 +1,21 @@
+{
+  "extends": "@nx/workspace/presets/core.json",
+  "npmScope": "fresh-expense",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e"]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["{projectRoot}/**/*", "!{projectRoot}/**/*.spec.ts"]
+    }
+  }
+}

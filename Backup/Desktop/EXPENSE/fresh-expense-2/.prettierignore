@@ -1,0 +1,26 @@
+# Add files here to ignore them from prettier formatting
+/dist
+/coverage
+/.nx/cache
+/.nx/workspace-data
+
+# Dependencies
+node_modules
+dist
+build
+coverage
+
+# Generated files
+*.log
+*.min.js
+*.min.css
+
+# IDE files
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

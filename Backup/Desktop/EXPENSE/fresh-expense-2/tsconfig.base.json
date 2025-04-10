@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "lib": ["es2022", "dom"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "paths": {
+      "@nestjs/*": ["./node_modules/@nestjs/*"],
+      "antd": ["./node_modules/antd"],
+      "@ant-design/icons": ["./node_modules/@ant-design/icons"],
+      "@ant-design/icons-svg": ["./node_modules/@ant-design/icons-svg"]
+    },
+    "typeRoots": ["./node_modules/@types", "./node_modules/antd/lib"],
+    "types": ["node", "antd"]
+  }
+}
