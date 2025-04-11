@@ -3,10 +3,10 @@ name: ci
 on:
   push:
     branches:
-      - "main"
+      - 'main'
   pull_request:
     branches:
-      - "main"
+      - 'main'
 
 jobs:
   docker:
@@ -25,7 +25,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver: cloud
-          endpoint: "kaplanbrian/fresh-expense-2"
+          endpoint: 'kaplanbrian/fresh-expense'
           install: true
 
       - name: Build and push
@@ -33,6 +33,6 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ vars.DOCKER_USER }}/fresh-expense-2:latest
+          tags: ${{ vars.DOCKER_USER }}/fresh-expense:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max 
+          cache-to: type=gha,mode=max

@@ -1,29 +1,38 @@
 import { StrictMode } from 'react';
-import * as ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { AuthProvider } from './context/AuthContext';
-import CssBaseline from '@mui/material/CssBaseline';
-import App from './App';
-import { darkTheme } from './theme/theme';
+import { createRoot } from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConfigProvider } from 'antd';
+import { ErrorBoundary } from 'react-error-boundary';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+import App from './app/App';
+import './styles/index.scss';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+const container = document.getElementById('root') as HTMLElement;
+const root = createRoot(container);
 
 root.render(
   <StrictMode>
-    <BrowserRouter>
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </LocalizationProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+      <QueryClientProvider client={queryClient}>
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: '#1677ff',
+            },
+          }}
+        >
+          <App />
+        </ConfigProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>
 );

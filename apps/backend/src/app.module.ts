@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -11,6 +11,7 @@ import { OCRService } from './services/ocr/ocr.service';
 import { DashboardController } from './controllers/dashboard.controller';
 import { Transaction, TransactionSchema } from './schemas/transaction.schema';
 import { Receipt, ReceiptSchema } from './app/receipts/schemas/receipt.schema';
+import { ValidateRequestMiddleware } from './middleware/validateRequest';
 
 @Module({
   imports: [
@@ -35,4 +36,10 @@ import { Receipt, ReceiptSchema } from './app/receipts/schemas/receipt.schema';
   controllers: [DashboardController],
   providers: [TellerService, ReceiptService, R2Service, OCRService],
 })
-export class AppModule {} 
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ValidateRequestMiddleware)
+      .forRoutes('*'); // Apply to all routes
+  }
+} 
