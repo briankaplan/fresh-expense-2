@@ -1,89 +1,65 @@
 #!/bin/bash
 
-# Function to check if MongoDB is running
-check_mongodb() {
-    mongosh --eval "db.runCommand({ ping: 1 })" &>/dev/null
-    return $?
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
 }
 
-# Function to wait for a service to be ready
-wait_for_service() {
-    local service=$1
-    local port=$2
-    echo "Waiting for $service to be ready..."
-    while ! nc -z localhost $port; do
-        sleep 1
-    done
-    echo "$service is ready!"
-}
-
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Store the root directory
-ROOT_DIR=$(pwd)
-
-echo -e "${YELLOW}Starting services...${NC}"
-
-# 1. Start MongoDB if not running
-echo -e "${YELLOW}Checking MongoDB status...${NC}"
-if ! check_mongodb; then
-    echo -e "${YELLOW}Starting MongoDB...${NC}"
-    brew services start mongodb-community
-    sleep 5 # Give MongoDB time to start
-fi
-
-if check_mongodb; then
-    echo -e "${GREEN}MongoDB is running${NC}"
-else
-    echo "Failed to start MongoDB"
+# Check for required commands
+if ! command_exists docker; then
+    echo "Error: docker is not installed"
     exit 1
 fi
 
-# 2. Clean and install dependencies
-echo -e "${YELLOW}Cleaning and installing dependencies...${NC}"
-rm -rf node_modules dist
-npm install
+if ! command_exists docker-compose; then
+    echo "Error: docker-compose is not installed"
+    exit 1
+fi
 
-# 3. Build and start backend
-echo -e "${YELLOW}Building and starting backend...${NC}"
-cd apps/backend
-npm install
-npm run build
-npm run start:dev &
-BACKEND_PID=$!
+# Check if .env file exists
+if [ ! -f .env ]; then
+    echo "Creating .env file from .env.example..."
+    cp .env.example .env
+    echo "Please update the .env file with your configuration values"
+    exit 1
+fi
 
-# Wait for backend to be ready
-wait_for_service "Backend" 3000
+# Stop any existing containers
+echo "Stopping any existing containers..."
+docker-compose down
 
-# 4. Build and start frontend
-echo -e "${YELLOW}Building and starting frontend...${NC}"
-cd ../frontend
-npm install
-npm run build
-npm run dev &
-FRONTEND_PID=$!
+# Remove existing volumes if --clean flag is passed
+if [ "$1" == "--clean" ]; then
+    echo "Cleaning up volumes..."
+    docker-compose down -v
+    docker volume prune -f
+fi
 
-# Wait for frontend to be ready
-wait_for_service "Frontend" 5173
+# Build and start the containers
+echo "Building and starting containers..."
+docker-compose build --no-cache
+docker-compose up -d
 
-echo -e "${GREEN}All services are running!${NC}"
-echo -e "${GREEN}Frontend: http://localhost:5173${NC}"
-echo -e "${GREEN}Backend: http://localhost:3000${NC}"
+# Wait for services to be ready
+echo "Waiting for services to be ready..."
+attempt=1
+max_attempts=30
+until docker-compose ps | grep "backend.*running" > /dev/null 2>&1; do
+    if [ $attempt -eq $max_attempts ]; then
+        echo "Error: Backend service failed to start"
+        docker-compose logs backend
+        exit 1
+    fi
+    echo "Waiting for backend service... (attempt $attempt/$max_attempts)"
+    sleep 2
+    ((attempt++))
+done
 
-# Handle cleanup on script termination
-cleanup() {
-    echo -e "${YELLOW}Shutting down services...${NC}"
-    kill $FRONTEND_PID 2>/dev/null
-    kill $BACKEND_PID 2>/dev/null
-    brew services stop mongodb-community
-    echo -e "${GREEN}All services stopped${NC}"
-    exit 0
-}
+echo "Services are ready!"
+echo "Frontend: http://localhost:4200"
+echo "Backend: http://localhost:3000"
+echo "MongoDB: mongodb://localhost:27017"
 
-trap cleanup SIGINT SIGTERM
-
-# Keep the script running
-wait 
+# Show logs
+echo "Showing logs (Ctrl+C to exit)..."
+docker-compose logs -f 

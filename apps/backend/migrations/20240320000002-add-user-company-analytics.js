@@ -1,5 +1,10 @@
 module.exports = {
   async up(db) {
+    // Create collections if they don't exist
+    await db.createCollection('users');
+    await db.createCollection('companies');
+    await db.createCollection('analytics');
+
     // User Schema Validation
     await db.command({
       collMod: 'users',
@@ -18,28 +23,11 @@ module.exports = {
             isActive: { bsonType: 'bool' },
             role: { enum: ['admin', 'user'] },
             lastLoginAt: { bsonType: 'date' },
-            refreshTokens: { 
-              bsonType: 'array',
-              items: { bsonType: 'string' }
-            },
-            preferences: {
-              bsonType: 'object',
-              properties: {
-                theme: { enum: ['light', 'dark'] },
-                currency: { bsonType: 'string' },
-                notifications: {
-                  bsonType: 'object',
-                  properties: {
-                    email: { bsonType: 'bool' },
-                    push: { bsonType: 'bool' }
-                  }
-                }
-              }
-            }
+            createdAt: { bsonType: 'date' },
+            updatedAt: { bsonType: 'date' }
           }
         }
-      },
-      validationLevel: 'moderate'
+      }
     });
 
     // Company Schema Validation
@@ -48,79 +36,17 @@ module.exports = {
       validator: {
         $jsonSchema: {
           bsonType: 'object',
-          required: ['userId', 'name'],
+          required: ['name', 'ownerId'],
           properties: {
-            userId: { bsonType: 'string' },
             name: { bsonType: 'string' },
+            ownerId: { bsonType: 'objectId' },
             description: { bsonType: 'string' },
-            industry: { bsonType: 'string' },
-            location: {
-              bsonType: 'object',
-              properties: {
-                address: { bsonType: 'string' },
-                city: { bsonType: 'string' },
-                state: { bsonType: 'string' },
-                country: { bsonType: 'string' },
-                postalCode: { bsonType: 'string' },
-                coordinates: {
-                  bsonType: 'array',
-                  items: { bsonType: 'double' }
-                }
-              }
-            },
-            contact: {
-              bsonType: 'object',
-              properties: {
-                phone: { bsonType: 'string' },
-                email: { bsonType: 'string' },
-                website: { bsonType: 'string' }
-              }
-            },
-            settings: {
-              bsonType: 'object',
-              required: ['currency', 'timezone', 'dateFormat'],
-              properties: {
-                currency: { bsonType: 'string' },
-                timezone: { bsonType: 'string' },
-                dateFormat: { bsonType: 'string' },
-                fiscalYearStart: { bsonType: 'date' },
-                fiscalYearEnd: { bsonType: 'date' }
-              }
-            },
-            status: { enum: ['active', 'inactive', 'archived'] },
-            integrations: {
-              bsonType: 'object',
-              properties: {
-                teller: {
-                  bsonType: 'object',
-                  properties: {
-                    enabled: { bsonType: 'bool' },
-                    lastSync: { bsonType: 'date' },
-                    syncStatus: { bsonType: 'string' }
-                  }
-                },
-                email: {
-                  bsonType: 'object',
-                  properties: {
-                    enabled: { bsonType: 'bool' },
-                    lastSync: { bsonType: 'date' },
-                    syncStatus: { bsonType: 'string' }
-                  }
-                },
-                storage: {
-                  bsonType: 'object',
-                  properties: {
-                    enabled: { bsonType: 'bool' },
-                    lastSync: { bsonType: 'date' },
-                    syncStatus: { bsonType: 'string' }
-                  }
-                }
-              }
-            }
+            isActive: { bsonType: 'bool' },
+            createdAt: { bsonType: 'date' },
+            updatedAt: { bsonType: 'date' }
           }
         }
-      },
-      validationLevel: 'moderate'
+      }
     });
 
     // Analytics Schema Validation
@@ -129,53 +55,15 @@ module.exports = {
       validator: {
         $jsonSchema: {
           bsonType: 'object',
-          required: ['userId', 'companyId', 'startDate', 'endDate', 'period', 'summary', 'spendingByCategory'],
+          required: ['userId', 'type', 'data'],
           properties: {
-            userId: { bsonType: 'string' },
-            companyId: { bsonType: 'string' },
-            startDate: { bsonType: 'date' },
-            endDate: { bsonType: 'date' },
-            period: { enum: ['daily', 'weekly', 'monthly', 'yearly'] },
-            summary: {
-              bsonType: 'object',
-              required: ['totalSpent', 'averageTransaction', 'largestTransaction', 'smallestTransaction', 'transactionCount'],
-              properties: {
-                totalSpent: { bsonType: 'double' },
-                averageTransaction: { bsonType: 'double' },
-                largestTransaction: { bsonType: 'double' },
-                smallestTransaction: { bsonType: 'double' },
-                transactionCount: { bsonType: 'int' }
-              }
-            },
-            spendingByCategory: {
-              bsonType: 'array',
-              items: {
-                bsonType: 'object',
-                required: ['category', 'amount', 'percentage', 'count'],
-                properties: {
-                  category: { bsonType: 'string' },
-                  amount: { bsonType: 'double' },
-                  percentage: { bsonType: 'double' },
-                  count: { bsonType: 'int' }
-                }
-              }
-            },
-            topMerchants: {
-              bsonType: 'array',
-              items: {
-                bsonType: 'object',
-                required: ['merchant', 'amount', 'count'],
-                properties: {
-                  merchant: { bsonType: 'string' },
-                  amount: { bsonType: 'double' },
-                  count: { bsonType: 'int' }
-                }
-              }
-            }
+            userId: { bsonType: 'objectId' },
+            type: { enum: ['login', 'action', 'error'] },
+            data: { bsonType: 'object' },
+            createdAt: { bsonType: 'date' }
           }
         }
-      },
-      validationLevel: 'moderate'
+      }
     });
 
     // Create indexes
@@ -199,16 +87,8 @@ module.exports = {
   },
 
   async down(db) {
-    // Remove validations
-    const collections = ['users', 'companies', 'analytics'];
-    for (const collection of collections) {
-      await db.command({
-        collMod: collection,
-        validator: {},
-        validationLevel: 'off'
-      });
-      // Drop indexes
-      await db.collection(collection).dropIndexes();
-    }
+    await db.dropCollection('users');
+    await db.dropCollection('companies');
+    await db.dropCollection('analytics');
   }
 }; 

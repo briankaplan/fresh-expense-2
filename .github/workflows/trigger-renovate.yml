@@ -1,0 +1,20 @@
+name: Trigger Renovate
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for triggering Renovate'
+        required: true
+        default: 'Manual trigger'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Renovate
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/briankaplan/fresh-expense-2/dispatches \
+            -d '{"event_type":"renovate"}' 

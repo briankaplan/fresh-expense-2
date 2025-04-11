@@ -1,0 +1,41 @@
+{
+  "extends": [
+    "config:base",
+    ":preserveSemverRanges",
+    ":maintainLockFilesMonthly",
+    ":rebaseStalePrs",
+    ":semanticCommits"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["@nestjs/*"],
+      "groupName": "nestjs packages"
+    },
+    {
+      "matchPackagePatterns": ["@types/*"],
+      "groupName": "type definitions"
+    },
+    {
+      "matchPackagePatterns": ["eslint*"],
+      "groupName": "eslint packages"
+    }
+  ],
+  "schedule": ["every weekend"],
+  "labels": ["dependencies"],
+  "prHourlyLimit": 4,
+  "prConcurrentLimit": 16,
+  "rangeStrategy": "pin",
+  "semanticCommits": true,
+  "semanticCommitType": "fix",
+  "semanticCommitScope": "deps",
+  "platform": "github",
+  "username": "briankaplan",
+  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "onboarding": false,
+  "requireConfig": false
+} 

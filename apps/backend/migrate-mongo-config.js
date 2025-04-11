@@ -3,8 +3,8 @@ require('dotenv').config();
 
 const config = {
   mongodb: {
-    url: process.env.DATABASE_URL || "mongodb://localhost:27017/expense-tracker",
-    databaseName: process.env.MONGODB_DB || "expense-v2",
+    url: process.env.MONGODB_URI || "mongodb+srv://kaplanbrian:G51AbXtGbwSsOXvo@expenses.kytpick.mongodb.net/?retryWrites=true&w=majority&appName=Expenses",
+    databaseName: process.env.MONGODB_DB || "expenses",
     options: {
       useNewUrlParser: true,
       useUnifiedTopology: true,

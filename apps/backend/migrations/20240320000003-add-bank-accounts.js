@@ -1,65 +1,60 @@
 module.exports = {
   async up(db) {
-    // Bank Account Schema Validation
+    // Create collections if they don't exist
+    await db.createCollection('bankAccounts');
+    await db.createCollection('transactions');
+
+    // Bank Accounts Schema Validation
     await db.command({
       collMod: 'bankAccounts',
       validator: {
         $jsonSchema: {
           bsonType: 'object',
-          required: ['userId', 'name', 'type', 'institution', 'lastFour', 'status'],
+          required: ['userId', 'accountId', 'name', 'type', 'balance'],
           properties: {
-            userId: { bsonType: 'string' },
+            userId: { bsonType: 'objectId' },
+            accountId: { bsonType: 'string' },
             name: { bsonType: 'string' },
-            type: { enum: ['checking', 'savings', 'credit', 'investment', 'loan', 'other'] },
-            subtype: { bsonType: 'string' },
-            institution: {
-              bsonType: 'object',
-              required: ['name', 'id'],
-              properties: {
-                name: { bsonType: 'string' },
-                id: { bsonType: 'string' },
-                logo: { bsonType: 'string' }
-              }
-            },
-            lastFour: { bsonType: 'string' },
-            status: { enum: ['active', 'inactive', 'error'] },
-            balance: {
-              bsonType: 'object',
-              required: ['current', 'available', 'lastUpdated'],
-              properties: {
-                current: { bsonType: 'number' },
-                available: { bsonType: 'number' },
-                lastUpdated: { bsonType: 'date' }
-              }
-            },
-            tellerData: {
-              bsonType: 'object',
-              properties: {
-                accountId: { bsonType: 'string' },
-                enrollmentId: { bsonType: 'string' },
-                status: { bsonType: 'string' },
-                lastSynced: { bsonType: 'date' }
-              }
-            },
-            metadata: {
-              bsonType: 'object',
-              properties: {
-                lastTransactionSync: { bsonType: 'date' },
-                transactionCount: { bsonType: 'int' },
-                error: {
-                  bsonType: 'object',
-                  properties: {
-                    code: { bsonType: 'string' },
-                    message: { bsonType: 'string' },
-                    timestamp: { bsonType: 'date' }
-                  }
-                }
-              }
-            }
+            type: { enum: ['checking', 'savings', 'credit', 'investment'] },
+            balance: { bsonType: 'double' },
+            currency: { bsonType: 'string' },
+            institution: { bsonType: 'string' },
+            isActive: { bsonType: 'bool' },
+            lastSync: { bsonType: 'date' },
+            createdAt: { bsonType: 'date' },
+            updatedAt: { bsonType: 'date' }
           }
         }
-      },
-      validationLevel: 'moderate'
+      }
+    });
+
+    // Transactions Schema Validation
+    await db.command({
+      collMod: 'transactions',
+      validator: {
+        $jsonSchema: {
+          bsonType: 'object',
+          required: ['userId', 'accountId', 'amount', 'date', 'description'],
+          properties: {
+            userId: { bsonType: 'objectId' },
+            accountId: { bsonType: 'string' },
+            amount: { bsonType: 'double' },
+            date: { bsonType: 'date' },
+            description: { bsonType: 'string' },
+            category: { bsonType: 'string' },
+            merchant: { bsonType: 'string' },
+            type: { enum: ['debit', 'credit'] },
+            status: { enum: ['pending', 'posted', 'cancelled'] },
+            notes: { bsonType: 'string' },
+            attachments: {
+              bsonType: 'array',
+              items: { bsonType: 'string' }
+            },
+            createdAt: { bsonType: 'date' },
+            updatedAt: { bsonType: 'date' }
+          }
+        }
+      }
     });
 
     // Create indexes for Bank Accounts
@@ -74,14 +69,7 @@ module.exports = {
   },
 
   async down(db) {
-    // Remove validations
-    await db.command({
-      collMod: 'bankAccounts',
-      validator: {},
-      validationLevel: 'off'
-    });
-    
-    // Drop indexes
-    await db.collection('bankAccounts').dropIndexes();
+    await db.dropCollection('bankAccounts');
+    await db.dropCollection('transactions');
   }
 }; 
