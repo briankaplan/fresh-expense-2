@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+dist
+build
+coverage
+
+# Generated files
+*.log
+*.min.js
+*.min.css
+
+# IDE files
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build output
+dist/
+build/
+out/
+.next/
+.cache/
+
+# Test coverage
+coverage/
+
+# Environment files
+.env*
+!.env.example
+
+# Misc
+.DS_Store
+Thumbs.db 
