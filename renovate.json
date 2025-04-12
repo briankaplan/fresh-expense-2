@@ -4,28 +4,43 @@
     ":preserveSemverRanges",
     ":maintainLockFilesMonthly",
     ":rebaseStalePrs",
-    ":semanticCommits"
+    ":semanticCommits",
+    ":dependencyDashboard"
   ],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
       "matchCurrentVersion": "!/^0/",
-      "automerge": true
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     },
     {
       "matchPackagePatterns": ["@nestjs/*"],
-      "groupName": "nestjs packages"
+      "groupName": "nestjs packages",
+      "schedule": ["before 5am on monday"]
     },
     {
       "matchPackagePatterns": ["@types/*"],
-      "groupName": "type definitions"
+      "groupName": "type definitions",
+      "automerge": true
     },
     {
       "matchPackagePatterns": ["eslint*"],
-      "groupName": "eslint packages"
+      "groupName": "eslint packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["@nx/*"],
+      "groupName": "nx packages",
+      "schedule": ["before 5am on monday"]
+    },
+    {
+      "matchPackageNames": ["typescript"],
+      "schedule": ["before 5am on monday"]
     }
   ],
-  "schedule": ["every weekend"],
+  "schedule": ["every weekday"],
   "labels": ["dependencies"],
   "prHourlyLimit": 4,
   "prConcurrentLimit": 16,
@@ -37,5 +52,14 @@
   "username": "briankaplan",
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
   "onboarding": false,
-  "requireConfig": false
+  "requireConfig": false,
+  "enabledManagers": ["npm", "github-actions"],
+  "ignorePaths": ["**/node_modules/**", "**/bower_components/**"],
+  "baseBranches": ["main"],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "rebaseWhen": "behind-base-branch",
+  "rebaseLabel": "rebase",
+  "assignees": ["briankaplan"],
+  "reviewers": ["briankaplan"]
 } 

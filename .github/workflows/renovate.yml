@@ -1,25 +1,59 @@
 name: Renovate
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Run every Sunday at midnight
+    - cron: '0 */6 * * *'  # Run every 6 hours
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
   contents: write
   pull-requests: write
   issues: write
+  checks: write
+  packages: read
 
 jobs:
   renovate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for Renovate to work properly
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Install Renovate
-        run: npm install -g renovate
+        run: npm install -g renovate@latest
+
       - name: Run Renovate
         env:
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
-        run: renovate 
+          LOG_LEVEL: debug
+          RENOVATE_CONFIG_FILE: renovate.json
+          RENOVATE_REPOSITORIES: briankaplan/fresh-expense-2
+        run: |
+          renovate \
+            --platform=github \
+            --token=${{ secrets.RENOVATE_TOKEN }} \
+            --git-author="Renovate Bot <bot@renovateapp.com>" \
+            --onboarding=false \
+            --require-config=false \
+            --base-dir=/tmp/renovate \
+            --log-file=/tmp/renovate/renovate.log \
+            --log-file-level=debug \
+            briankaplan/fresh-expense-2
+
+      - name: Upload Renovate logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: renovate-logs
+          path: /tmp/renovate/renovate.log
+          retention-days: 7 
