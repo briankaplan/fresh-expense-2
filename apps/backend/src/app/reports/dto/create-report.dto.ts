@@ -5,7 +5,7 @@ import { ReportType, ReportFormat } from '../schemas/report.schema';
 class ScheduleDto {
   @IsNotEmpty()
   @IsString()
-  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  frequency!: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
 
   @IsOptional()
   @IsString()
@@ -23,19 +23,19 @@ class ScheduleDto {
 export class CreateReportDto {
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  userId!: string;
 
   @IsNotEmpty()
   @IsString()
-  companyId: string;
+  companyId!: string;
 
   @IsNotEmpty()
   @IsEnum(ReportType)
-  type: ReportType;
+  type!: ReportType;
 
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   @IsOptional()
   @IsString()
@@ -44,12 +44,12 @@ export class CreateReportDto {
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsOptional()
   @IsObject()
@@ -57,7 +57,7 @@ export class CreateReportDto {
 
   @IsNotEmpty()
   @IsEnum(ReportFormat)
-  format: ReportFormat;
+  format!: ReportFormat;
 
   @IsOptional()
   @IsBoolean()

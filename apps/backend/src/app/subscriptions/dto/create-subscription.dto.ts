@@ -1,24 +1,23 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDate, IsNumber, IsBoolean, IsMongoId } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDate, IsNumber, IsBoolean, IsMongoId, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { SubscriptionStatus, BillingCycle } from '../schemas/subscription.schema';
 
 export class CreateSubscriptionDto {
   @IsNotEmpty()
   @IsMongoId()
-  userId: string;
+  userId!: string;
 
   @IsNotEmpty()
   @IsMongoId()
-  @IsOptional()
-  companyId?: string;
+  companyId!: string;
 
   @IsNotEmpty()
   @IsMongoId()
-  merchantId: string;
+  merchantId!: string;
 
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -26,15 +25,15 @@ export class CreateSubscriptionDto {
 
   @IsNotEmpty()
   @IsNumber()
-  amount: number;
+  amount!: number;
 
   @IsNotEmpty()
   @IsString()
-  currency: string;
+  currency!: string;
 
   @IsNotEmpty()
   @IsEnum(BillingCycle)
-  billingCycle: BillingCycle;
+  billingCycle!: BillingCycle;
 
   @IsOptional()
   @IsNumber()
@@ -43,7 +42,7 @@ export class CreateSubscriptionDto {
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsOptional()
   @IsDate()
@@ -52,7 +51,7 @@ export class CreateSubscriptionDto {
 
   @IsNotEmpty()
   @IsEnum(SubscriptionStatus)
-  status: SubscriptionStatus;
+  status!: SubscriptionStatus;
 
   @IsOptional()
   @IsDate()
@@ -65,6 +64,15 @@ export class CreateSubscriptionDto {
   nextBillingDate?: Date;
 
   @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  cancellationDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  cancellationReason?: string;
+
+  @IsOptional()
   @IsBoolean()
   autoRenew?: boolean;
 
@@ -75,13 +83,9 @@ export class CreateSubscriptionDto {
 
   @IsNotEmpty()
   @IsString()
-  paymentMethodId: string;
+  paymentMethodId!: string;
 
-  @IsString()
   @IsOptional()
-  paymentMethod?: string;
-
-  @IsString()
-  @IsOptional()
-  notes?: string;
+  @IsObject()
+  metadata?: Record<string, any>;
 } 

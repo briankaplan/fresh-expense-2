@@ -1,35 +1,49 @@
-import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, IsMongoId } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, IsMongoId, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+
+export enum ExpenseStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  REIMBURSED = 'reimbursed'
+}
+
+export enum PaymentMethod {
+  CASH = 'cash',
+  CARD = 'card',
+  BANK_TRANSFER = 'bank_transfer',
+  OTHER = 'other'
+}
 
 export class CreateExpenseDto {
   @IsNotEmpty()
   @IsMongoId()
-  userId: string;
+  userId!: string;
 
   @IsNotEmpty()
   @IsMongoId()
-  companyId: string;
+  companyId!: string;
 
   @IsNotEmpty()
   @IsNumber()
-  amount: number;
+  amount!: number;
 
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
-  date: Date;
+  date!: Date;
 
   @IsNotEmpty()
   @IsMongoId()
-  merchantId: string;
+  merchantId!: string;
 
   @IsNotEmpty()
   @IsMongoId()
-  categoryId: string;
+  categoryId!: string;
 
   @IsNotEmpty()
   @IsString()
-  currency: string;
+  currency!: string;
 
   @IsOptional()
   @IsString()
@@ -37,7 +51,7 @@ export class CreateExpenseDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
+  @IsMongoId({ each: true })
   tags?: string[];
 
   @IsOptional()
@@ -49,19 +63,29 @@ export class CreateExpenseDto {
   transactionId?: string;
 
   @IsNotEmpty()
-  @IsString()
-  status: string;
+  @IsEnum(ExpenseStatus)
+  status!: ExpenseStatus;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsEnum(PaymentMethod)
+  paymentMethod?: PaymentMethod;
+
+  @IsOptional()
   @IsString()
-  paymentMethod: string;
+  notes?: string;
 
   @IsOptional()
   location?: {
-    type: string;
+    address: string;
     coordinates: number[];
   };
 
   @IsOptional()
-  metadata?: Record<string, any>;
+  metadata?: {
+    originalAmount?: number;
+    originalCurrency?: string;
+    exchangeRate?: number;
+    isRecurring?: boolean;
+    subscriptionId?: string;
+  };
 } 

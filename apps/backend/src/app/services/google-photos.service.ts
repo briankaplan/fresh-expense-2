@@ -6,6 +6,7 @@ import { R2Service } from '../services/r2/r2.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Receipt } from '../receipts/schemas/receipt.schema';
+import { TokenManagerService } from './token-manager.service';
 
 interface SearchFilters {
   dateFilter?: {
@@ -30,7 +31,8 @@ export class GooglePhotosService {
     private readonly configService: ConfigService,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
-    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>
+    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
+    private readonly tokenManagerService: TokenManagerService,
   ) {
     this.initializeService().catch(err => 
       this.logger.error('Failed to initialize Google Photos service', err)

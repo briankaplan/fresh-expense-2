@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcryptjs';
+import * as argon2 from 'argon2';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Request, Response } from 'express';
@@ -23,7 +23,7 @@ export class AuthService {
       throw new BadRequestException('Email already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await argon2.hash(createUserDto.password);
     const user = await this.usersService.create({
       ...createUserDto,
       password: hashedPassword,
@@ -38,7 +38,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    const isPasswordValid = await argon2.verify(user.password, loginDto.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -104,12 +104,12 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await argon2.verify(user.password, currentPassword);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await argon2.hash(newPassword);
     await this.usersService.update(user._id.toString(), { password: hashedPassword });
   }
 

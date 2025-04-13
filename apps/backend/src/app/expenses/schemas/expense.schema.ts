@@ -1,48 +1,49 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { ExpenseStatus, PaymentMethod } from '../dto/create-expense.dto';
 
 export type ExpenseDocument = Expense & Document;
 
 @Schema({ timestamps: true })
 export class Expense {
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'User' })
-  userId: MongooseSchema.Types.ObjectId;
+  userId!: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Company' })
-  companyId: MongooseSchema.Types.ObjectId;
+  companyId!: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true })
-  amount: number;
+  amount!: number;
 
   @Prop({ required: true })
-  date: Date;
+  date!: Date;
 
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Merchant' })
-  merchantId: MongooseSchema.Types.ObjectId;
+  merchantId!: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Category' })
-  categoryId: MongooseSchema.Types.ObjectId;
+  categoryId!: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true, default: 'USD' })
-  currency: string;
+  currency!: string;
 
   @Prop()
-  description: string;
+  description?: string;
 
   @Prop([String])
-  tags: string[];
+  tags?: string[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Receipt' })
-  receiptId: MongooseSchema.Types.ObjectId;
+  receiptId?: MongooseSchema.Types.ObjectId;
 
   @Prop()
-  transactionId: string;
+  transactionId?: string;
 
-  @Prop({ required: true, default: 'pending' })
-  status: string;
+  @Prop({ required: true, enum: ExpenseStatus, default: ExpenseStatus.PENDING })
+  status!: ExpenseStatus;
 
-  @Prop({ required: true })
-  paymentMethod: string;
+  @Prop({ required: true, enum: PaymentMethod })
+  paymentMethod!: PaymentMethod;
 
   @Prop({
     type: {
@@ -55,13 +56,13 @@ export class Expense {
       default: [0, 0]
     }
   })
-  location: {
+  location!: {
     type: string;
     coordinates: number[];
   };
 
   @Prop({ type: Object })
-  metadata: Record<string, any>;
+  metadata?: Record<string, any>;
 }
 
 export const ExpenseSchema = SchemaFactory.createForClass(Expense);

@@ -30,7 +30,7 @@ class LocationDto {
 export class CreateMerchantDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -38,7 +38,7 @@ export class CreateMerchantDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  categoryId: string;
+  categoryId!: string;
 
   @IsOptional()
   @IsString()

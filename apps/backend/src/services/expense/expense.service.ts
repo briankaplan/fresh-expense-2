@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, UpdateQuery, FilterQuery, UpdateWriteOpResult } from 'mongoose';
 import { Expense } from './expense.schema';
@@ -44,16 +44,24 @@ export class ExpenseService {
         query.status = { $in: options.status };
       }
 
-      return this.expenseModel.find(query).sort({ date: -1 }).exec();
+      const expenses = await this.expenseModel.find(query).sort({ date: -1 }).exec();
+      if (!expenses) {
+        return [];
+      }
+      return expenses;
     } catch (error) {
       this.logger.error('Error finding expenses:', error);
       throw error;
     }
   }
 
-  async findOne(query: FilterQuery<Expense>): Promise<Expense | null> {
+  async findOne(query: FilterQuery<Expense>): Promise<Expense> {
     try {
-      return this.expenseModel.findOne(query).exec();
+      const expense = await this.expenseModel.findOne(query).exec();
+      if (!expense) {
+        throw new NotFoundException('Expense not found');
+      }
+      return expense;
     } catch (error) {
       this.logger.error('Error finding expense:', error);
       throw error;
@@ -65,7 +73,11 @@ export class ExpenseService {
     update: UpdateQuery<Expense>
   ): Promise<UpdateWriteOpResult> {
     try {
-      return this.expenseModel.updateOne(query, update).exec();
+      const result = await this.expenseModel.updateOne(query, update).exec();
+      if (result.matchedCount === 0) {
+        throw new NotFoundException('No expense found to update');
+      }
+      return result;
     } catch (error) {
       this.logger.error('Error updating expense:', error);
       throw error;
@@ -77,7 +89,11 @@ export class ExpenseService {
     update: UpdateQuery<Expense>
   ): Promise<UpdateWriteOpResult> {
     try {
-      return this.expenseModel.updateMany(query, update).exec();
+      const result = await this.expenseModel.updateMany(query, update).exec();
+      if (result.matchedCount === 0) {
+        throw new NotFoundException('No expenses found to update');
+      }
+      return result;
     } catch (error) {
       this.logger.error('Error updating expenses:', error);
       throw error;

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 
 export type UserDocument = User & Document;
 
@@ -53,8 +53,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', async function(next) {
   try {
     if (this.isModified('password')) {
-      const salt = await bcrypt.genSalt(10);
-      this['password'] = await bcrypt.hash(this['password'], salt);
+      this['password'] = await argon2.hash(this['password']);
     }
     next();
   } catch (error) {
@@ -63,5 +62,5 @@ UserSchema.pre('save', async function(next) {
 });
 
 UserSchema.methods['comparePassword'] = async function(candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this['password']);
+  return argon2.verify(this['password'], candidatePassword);
 }; 

@@ -6,33 +6,48 @@ import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+interface SubscriptionQuery {
+  userId?: string;
+  companyId?: string;
+  status?: SubscriptionStatus;
+  merchantId?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+const VALID_STATUS_TRANSITIONS: Record<SubscriptionStatus, SubscriptionStatus[]> = {
+  [SubscriptionStatus.ACTIVE]: [SubscriptionStatus.PAUSED, SubscriptionStatus.CANCELLED, SubscriptionStatus.EXPIRED],
+  [SubscriptionStatus.PAUSED]: [SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED],
+  [SubscriptionStatus.CANCELLED]: [],
+  [SubscriptionStatus.EXPIRED]: [SubscriptionStatus.ACTIVE],
+};
+
 @Injectable()
 export class SubscriptionsService {
   constructor(
     @InjectModel(Subscription.name) private subscriptionModel: Model<SubscriptionDocument>,
   ) {}
 
-  async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Subscription> {
-    // Validate that the subscription doesn't already exist for this merchant and user
+  async create(createSubscriptionDto: CreateSubscriptionDto): Promise<SubscriptionDocument> {
     const existingSubscription = await this.subscriptionModel.findOne({
       userId: createSubscriptionDto.userId,
       merchantId: createSubscriptionDto.merchantId,
-      status: { $ne: SubscriptionStatus.CANCELLED }
+      status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PAUSED] }
     }).exec();
 
     if (existingSubscription) {
-      throw new BadRequestException('A subscription for this merchant already exists');
+      throw new Error('Active subscription already exists for this merchant');
     }
 
-    const subscription = new this.subscriptionModel(createSubscriptionDto);
-    return subscription.save();
+    const createdSubscription = new this.subscriptionModel(createSubscriptionDto);
+    return createdSubscription.save();
   }
 
-  async findAll(userId: string): Promise<Subscription[]> {
+  async findAll(userId: string): Promise<SubscriptionDocument[]> {
     return this.subscriptionModel.find({ userId }).exec();
   }
 
-  async findOne(id: string, userId: string): Promise<Subscription> {
+  async findOne(id: string, userId: string): Promise<SubscriptionDocument> {
     const subscription = await this.subscriptionModel.findOne({ _id: id, userId }).exec();
     if (!subscription) {
       throw new NotFoundException(`Subscription with ID ${id} not found`);
@@ -40,34 +55,46 @@ export class SubscriptionsService {
     return subscription;
   }
 
-  async update(id: string, userId: string, updateSubscriptionDto: UpdateSubscriptionDto): Promise<Subscription> {
-    const subscription = await this.subscriptionModel.findOne({ _id: id, userId }).exec();
-    if (!subscription) {
-      throw new NotFoundException(`Subscription with ID ${id} not found`);
-    }
+  async update(id: string, userId: string, updateSubscriptionDto: UpdateSubscriptionDto): Promise<SubscriptionDocument> {
+    const subscription = await this.findOne(id, userId);
 
     // Handle status transitions
-    if (updateSubscriptionDto.status) {
+    if (updateSubscriptionDto.status && subscription.status !== updateSubscriptionDto.status) {
       this.validateStatusTransition(subscription.status, updateSubscriptionDto.status);
+
+      // Update dates based on status change
+      if (updateSubscriptionDto.status === SubscriptionStatus.PAUSED) {
+        updateSubscriptionDto.lastBillingDate = new Date();
+      } else if (updateSubscriptionDto.status === SubscriptionStatus.ACTIVE && subscription.status === SubscriptionStatus.PAUSED) {
+        updateSubscriptionDto.nextBillingDate = new Date();
+      } else if (updateSubscriptionDto.status === SubscriptionStatus.CANCELLED) {
+        updateSubscriptionDto.cancellationDate = new Date();
+      }
     }
 
-    // Update the subscription
-    Object.assign(subscription, updateSubscriptionDto);
-    return subscription.save();
+    const updatedSubscription = await this.subscriptionModel
+      .findOneAndUpdate({ _id: id, userId }, updateSubscriptionDto, { new: true })
+      .exec();
+    
+    if (!updatedSubscription) {
+      throw new NotFoundException(`Subscription with ID ${id} not found`);
+    }
+    
+    return updatedSubscription;
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const result = await this.subscriptionModel.deleteOne({ _id: id, userId }).exec();
-    if (result.deletedCount === 0) {
+    const result = await this.subscriptionModel.findOneAndDelete({ _id: id, userId }).exec();
+    if (!result) {
       throw new NotFoundException(`Subscription with ID ${id} not found`);
     }
   }
 
-  async findByUserId(userId: string, query: any = {}): Promise<Subscription[]> {
+  async findByUserId(userId: string, query: SubscriptionQuery = {}): Promise<SubscriptionDocument[]> {
     return this.subscriptionModel.find({ userId, ...query }).exec();
   }
 
-  async findByCompanyId(companyId: string, query: any = {}): Promise<Subscription[]> {
+  async findByCompanyId(companyId: string, query: SubscriptionQuery = {}): Promise<SubscriptionDocument[]> {
     return this.subscriptionModel.find({ companyId, ...query }).exec();
   }
 
@@ -192,16 +219,9 @@ export class SubscriptionsService {
   }
 
   private validateStatusTransition(currentStatus: SubscriptionStatus, newStatus: SubscriptionStatus): void {
-    const validTransitions = {
-      [SubscriptionStatus.ACTIVE]: [SubscriptionStatus.PAUSED, SubscriptionStatus.CANCELLED],
-      [SubscriptionStatus.PAUSED]: [SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED],
-      [SubscriptionStatus.CANCELLED]: [],
-    };
-
-    if (!validTransitions[currentStatus].includes(newStatus)) {
-      throw new BadRequestException(
-        `Invalid status transition from ${currentStatus} to ${newStatus}`,
-      );
+    const validTransitions = VALID_STATUS_TRANSITIONS[currentStatus];
+    if (!validTransitions.includes(newStatus)) {
+      throw new Error(`Invalid status transition from ${currentStatus} to ${newStatus}`);
     }
   }
 } 

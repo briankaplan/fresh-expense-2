@@ -10,6 +10,10 @@ interface SubscriptionInfo {
   typicalAmount?: number;
   lastRenewalDate?: Date;
   nextRenewalDate?: Date;
+  billingCycle: string;
+  nextBillingDate: Date;
+  amount: number;
+  currency: string;
 }
 
 interface PurchaseHistory {
@@ -17,55 +21,73 @@ interface PurchaseHistory {
   firstPurchaseDate: Date;
   lastPurchaseDate: Date;
   averageAmount: number;
-  frequency: 'one-time' | 'recurring' | 'sporadic';
+  frequency: 'one-time' | 'recurring' | 'sporadic' | 'monthly';
   commonCategories: string[];
   monthlyTotals: Array<{
     month: Date;
     total: number;
     count: number;
   }>;
+  totalAmount: number;
+  lastAmount: number;
 }
 
 @Schema({ timestamps: true })
 export class Merchant {
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true })
-  category: keyof typeof TRANSACTION_CATEGORIES;
+  category!: keyof typeof TRANSACTION_CATEGORIES;
 
   @Prop([String])
-  aliases?: string[];
+  aliases: string[] = [];
 
   @Prop([String])
-  tags?: string[];
+  tags: string[] = [];
 
   @Prop()
-  description?: string;
+  description: string = '';
 
   @Prop()
-  businessType?: string;
+  businessType: string = '';
 
   @Prop([String])
-  acceptedPaymentMethods?: string[];
+  acceptedPaymentMethods: string[] = [];
 
   @Prop()
-  returnsPolicy?: string;
+  returnsPolicy: string = '';
 
   @Prop([String])
-  contactChannels?: string[];
+  contactChannels: string[] = [];
 
   @Prop({ type: Object })
-  subscription?: SubscriptionInfo;
+  subscription: SubscriptionInfo = {
+    isSubscription: false,
+    billingCycle: 'monthly',
+    nextBillingDate: new Date(),
+    amount: 0,
+    currency: 'USD'
+  };
 
   @Prop({ type: Object })
-  purchaseHistory?: PurchaseHistory;
+  purchaseHistory: PurchaseHistory = {
+    totalTransactions: 0,
+    firstPurchaseDate: new Date(),
+    lastPurchaseDate: new Date(),
+    averageAmount: 0,
+    totalAmount: 0,
+    lastAmount: 0,
+    frequency: 'one-time',
+    commonCategories: [],
+    monthlyTotals: []
+  };
 
   @Prop()
   lastEnrichmentDate?: Date;
 
   @Prop()
-  enrichmentSource?: string;
+  enrichmentSource: string = '';
 
   @Prop()
   createdAt?: Date;

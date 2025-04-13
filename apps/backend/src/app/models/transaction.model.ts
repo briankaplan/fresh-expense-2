@@ -1,5 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
+import { 
+  TransactionType, 
+  TransactionStatus, 
+  TransactionProcessingStatus, 
+  TransactionSource,
+  TransactionCompany,
+  TransactionPaymentMethod,
+  TransactionPaymentProcessor,
+  TransactionReimbursementStatus
+} from '../transactions/enums/transaction.enums';
 
 export type TransactionDocument = Transaction & Document;
 export type TransactionModel = Model<TransactionDocument>;
@@ -49,16 +59,16 @@ export class Transaction {
   merchantId?: string;
 
   @Prop({
-    enum: ['credit', 'debit', 'transfer'],
+    enum: TransactionType,
     required: true,
   })
-  type!: string;
+  type!: TransactionType;
 
   @Prop({
-    enum: ['pending', 'posted', 'cancelled'],
-    default: 'posted',
+    enum: TransactionStatus,
+    default: TransactionStatus.POSTED,
   })
-  status!: string;
+  status!: TransactionStatus;
 
   @Prop()
   runningBalance?: number;
@@ -78,9 +88,9 @@ export class Transaction {
   subcategory?: string;
 
   @Prop({
-    enum: ['credit_card', 'debit_card', 'cash', 'check', 'bank_transfer', 'other'],
+    enum: TransactionPaymentMethod,
   })
-  paymentMethod?: string;
+  paymentMethod?: TransactionPaymentMethod;
 
   @Prop({
     default: false,
@@ -91,12 +101,12 @@ export class Transaction {
     name: String,
     type: {
       type: String,
-      enum: ['apple', 'google', 'other'],
+      enum: TransactionPaymentProcessor,
     },
   })
   paymentProcessor?: {
     name: string;
-    type: string;
+    type: TransactionPaymentProcessor;
   };
 
   @Prop({
@@ -140,8 +150,8 @@ export class Transaction {
       },
       company: {
         type: String,
-        enum: ['Down Home', 'Music City Rodeo', 'Personal'],
-        default: 'Personal',
+        enum: TransactionCompany,
+        default: TransactionCompany.PERSONAL,
       },
     },
   ])
@@ -156,7 +166,7 @@ export class Transaction {
       isPersonal: boolean;
     };
     amount: number;
-    company: string;
+    company: TransactionCompany;
   }> = [];
 
   @Prop({
@@ -205,25 +215,25 @@ export class Transaction {
   isReimbursable!: boolean;
 
   @Prop({
-    enum: ['not_reimbursable', 'pending', 'reimbursed', 'denied'],
-    default: 'not_reimbursable',
+    enum: TransactionReimbursementStatus,
+    default: TransactionReimbursementStatus.NOT_REIMBURSABLE,
   })
-  reimbursementStatus!: string;
+  reimbursementStatus!: TransactionReimbursementStatus;
 
   @Prop({
     type: String,
-    enum: ['Down Home', 'Music City Rodeo', 'Personal'],
-    default: 'Personal',
+    enum: TransactionCompany,
+    default: TransactionCompany.PERSONAL,
     index: true,
   })
-  company!: string;
+  company!: TransactionCompany;
 
   @Prop({
     type: String,
-    enum: ['teller', 'csv_import', 'receipt', 'manual'],
+    enum: TransactionSource,
     required: true,
   })
-  source!: string;
+  source!: TransactionSource;
 
   @Prop()
   sourceId?: string;

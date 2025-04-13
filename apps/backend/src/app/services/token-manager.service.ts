@@ -25,18 +25,20 @@ interface AccountConfig {
 @Injectable()
 export class TokenManagerService implements OnModuleInit {
   private readonly logger = new Logger(TokenManagerService.name);
-  private initialized = false;
-  private accounts = new Map<string, AccountConfig>();
-  private tokenCache = new Map<string, TokenCache>();
-
-  // Define OAuth scopes
   private readonly SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/photoslibrary',
-    'https://www.googleapis.com/auth/photoslibrary.readonly',
-    'https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata',
-    'https://www.googleapis.com/auth/photoslibrary.readonly.originals'
+    'https://www.googleapis.com/auth/photoslibrary.readonly'
   ];
+  private readonly accounts = new Map<string, {
+    clientId: string;
+    clientSecret: string;
+    refreshToken: string;
+    scopes: string[];
+    oAuth2Client: any | null;
+    credentials: any | null;
+  }>();
+  private initialized = false;
+  private tokenCache = new Map<string, TokenCache>();
 
   // Token refresh buffer (5 minutes before expiry)
   private readonly TOKEN_REFRESH_BUFFER = 5 * 60 * 1000;
@@ -44,15 +46,15 @@ export class TokenManagerService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit() {
-    await this.init();
+    await this.setupAccounts();
   }
 
   private setupAccounts() {
     // Account 1
     this.accounts.set('kaplan.brian@gmail.com', {
-      clientId: this.configService.get<string>('GMAIL_CLIENT_ID_1'),
-      clientSecret: this.configService.get<string>('GMAIL_CLIENT_SECRET_1'),
-      refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_1'),
+      clientId: this.configService.get<string>('GMAIL_CLIENT_ID_1')!,
+      clientSecret: this.configService.get<string>('GMAIL_CLIENT_SECRET_1')!,
+      refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_1')!,
       scopes: this.SCOPES,
       oAuth2Client: null,
       credentials: null
@@ -60,9 +62,9 @@ export class TokenManagerService implements OnModuleInit {
 
     // Account 2
     this.accounts.set('brian@downhome.com', {
-      clientId: this.configService.get<string>('GMAIL_CLIENT_ID_2'),
-      clientSecret: this.configService.get<string>('GMAIL_CLIENT_SECRET_2'),
-      refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_2'),
+      clientId: this.configService.get<string>('GMAIL_CLIENT_ID_2')!,
+      clientSecret: this.configService.get<string>('GMAIL_CLIENT_SECRET_2')!,
+      refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_2')!,
       scopes: this.SCOPES,
       oAuth2Client: null,
       credentials: null
@@ -70,9 +72,9 @@ export class TokenManagerService implements OnModuleInit {
 
     // Google Photos (using account 1 credentials)
     this.accounts.set('photos', {
-      clientId: this.configService.get<string>('GMAIL_CLIENT_ID_1'),
-      clientSecret: this.configService.get<string>('GMAIL_CLIENT_SECRET_1'),
-      refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_1'),
+      clientId: this.configService.get<string>('GMAIL_CLIENT_ID_1')!,
+      clientSecret: this.configService.get<string>('GMAIL_CLIENT_SECRET_1')!,
+      refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_1')!,
       scopes: this.SCOPES,
       oAuth2Client: null,
       credentials: null
@@ -83,8 +85,6 @@ export class TokenManagerService implements OnModuleInit {
     if (this.initialized) return;
 
     try {
-      this.setupAccounts();
-
       for (const [email, account] of this.accounts) {
         // Create OAuth2 client for this account
         account.oAuth2Client = new OAuth2Client(

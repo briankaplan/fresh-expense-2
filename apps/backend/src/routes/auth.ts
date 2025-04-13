@@ -1,47 +1,47 @@
-import express, { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import { Router } from 'express';
+import { User } from '../auth/schemas/user.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
-const router = express.Router();
+const router: Router = Router();
 
-router.post('/reset-password', async (req: Request, res: Response) => {
+router.post('/register', async (req, res) => {
   try {
-    const { token, newPassword } = req.body;
-
-    if (!token || !newPassword) {
-      return res.status(400).json({ message: 'Token and new password are required' });
+    const { email, password, name } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Verify the reset token
-    const decoded = jwt.verify(token, process.env['JWT_SECRET']!) as { userId: string };
-    
-    // Find the user
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      name,
     });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedPassword },
-    });
-
-    return res.status(200).json({ message: 'Password reset successful' });
+    const { password: _, ...result } = user.toObject();
+    res.status(201).json(result);
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    res.status(500).json({ message: 'Error creating user' });
+  }
+});
+
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
-    console.error('Password reset error:', error);
-    return res.status(500).json({ message: 'Failed to reset password' });
+
+    const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET || '');
+    const { password: _, ...result } = user.toObject();
+    res.json({ user: result, token });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging in' });
   }
 });
 

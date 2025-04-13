@@ -1,57 +1,74 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Document } from 'mongoose';
 import { Report, ReportDocument, ReportType, ReportFormat } from './schemas/report.schema';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+interface ReportQuery {
+  userId?: string;
+  companyId?: string;
+  type?: string;
+  status?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
 @Injectable()
 export class ReportsService {
+  private readonly logger = new Logger(ReportsService.name);
+
   constructor(
-    @InjectModel(Report.name) private reportModel: Model<ReportDocument>,
+    @InjectModel(Report.name) private readonly reportModel: Model<ReportDocument>,
   ) {}
 
-  async create(createReportDto: CreateReportDto): Promise<Report> {
+  async create(createReportDto: CreateReportDto): Promise<ReportDocument> {
     const createdReport = new this.reportModel(createReportDto);
     return createdReport.save();
   }
 
-  async findAll(query: any = {}): Promise<Report[]> {
+  async findAll(query: ReportQuery = {}): Promise<ReportDocument[]> {
     return this.reportModel.find(query).exec();
   }
 
-  async findOne(id: string): Promise<Report> {
-    return this.reportModel.findById(id).exec();
+  async findOne(id: string): Promise<ReportDocument> {
+    const report = await this.reportModel.findById(id).exec();
+    if (!report) {
+      throw new NotFoundException(`Report with ID ${id} not found`);
+    }
+    return report;
   }
 
-  async update(id: string, updateReportDto: UpdateReportDto): Promise<Report> {
-    return this.reportModel
-      .findByIdAndUpdate(id, updateReportDto, { new: true })
-      .exec();
+  async update(id: string, updateReportDto: UpdateReportDto): Promise<ReportDocument> {
+    const report = await this.reportModel.findByIdAndUpdate(id, updateReportDto, { new: true }).exec();
+    if (!report) {
+      throw new NotFoundException(`Report with ID ${id} not found`);
+    }
+    return report;
   }
 
-  async remove(id: string): Promise<Report> {
-    return this.reportModel.findByIdAndDelete(id).exec();
+  async remove(id: string): Promise<void> {
+    const result = await this.reportModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`Report with ID ${id} not found`);
+    }
   }
 
-  async findByUserId(userId: string, query: any = {}): Promise<Report[]> {
+  async findByUserId(userId: string, query: ReportQuery = {}): Promise<ReportDocument[]> {
     return this.reportModel.find({ userId, ...query }).exec();
   }
 
-  async findByCompanyId(companyId: string, query: any = {}): Promise<Report[]> {
+  async findByCompanyId(companyId: string, query: ReportQuery = {}): Promise<ReportDocument[]> {
     return this.reportModel.find({ companyId, ...query }).exec();
   }
 
-  async generateReport(reportId: string): Promise<Report> {
-    const report = await this.findOne(reportId);
-    if (!report) {
-      throw new Error('Report not found');
-    }
-
+  async generateReport(id: string): Promise<ReportDocument> {
+    const report = await this.findOne(id);
+    
     try {
       // Update status to processing
-      await this.update(reportId, { status: 'processing' });
+      await this.update(id, { status: 'processing' } as UpdateReportDto);
 
       // Generate report based on type
       let summary;
@@ -77,16 +94,16 @@ export class ReportsService {
       const fileUrl = await this.generateReportFile(report, summary);
 
       // Update report with results
-      return this.update(reportId, {
+      return this.update(id, {
         status: 'completed',
         summary,
         fileUrl,
-      });
+      } as UpdateReportDto);
     } catch (error) {
-      await this.update(reportId, {
+      await this.update(id, {
         status: 'failed',
-        error: error.message,
-      });
+        error: error instanceof Error ? error.message : 'Unknown error',
+      } as UpdateReportDto);
       throw error;
     }
   }
@@ -150,7 +167,7 @@ export class ReportsService {
     };
   }
 
-  private async generateReportFile(report: Report, summary: any): Promise<string> {
+  private async generateReportFile(report: ReportDocument, summary: any): Promise<string> {
     // Implementation for file generation based on format
     return 'https://example.com/reports/' + report._id + '.' + report.format;
   }

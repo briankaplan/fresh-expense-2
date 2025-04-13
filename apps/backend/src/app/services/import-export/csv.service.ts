@@ -3,8 +3,8 @@ const { parse } = require('csv-parse/sync');
 const { stringify } = require('csv-stringify/sync');
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Receipt } from '../../receipts/schemas/receipt.schema';
-import { Transaction } from '../../../schemas/transaction.schema';
+import { Receipt, ReceiptDocument } from '../../receipts/schemas/receipt.schema';
+import { Transaction, TransactionDocument } from '../../transactions/schemas/transaction.schema';
 
 interface CSVExpense {
   merchant: string;
@@ -43,8 +43,8 @@ export class CSVService {
   private readonly logger = new Logger(CSVService.name);
 
   constructor(
-    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
-    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>
+    @InjectModel(Receipt.name) private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>,
   ) {}
 
   /**
