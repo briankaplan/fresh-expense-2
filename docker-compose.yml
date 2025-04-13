@@ -1,74 +1,25 @@
-services:
-  mongodb:
-    image: mongo:6.0
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGODB_DB}
-    command: mongod --bind_ip_all
-    restart: always
-    healthcheck:
-      test: mongosh --eval "db.adminCommand('ping')"
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-    networks:
-      - app-network
+version: "3.8"
 
+services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: production
+      dockerfile: apps/backend/Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      - ./credentials:/app/credentials:ro
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
-      - PORT=3000
-      - MONGODB_URI=mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@mongodb:27017/${MONGODB_DB}?authSource=admin&retryWrites=true&w=majority
-      - MONGODB_DB=${MONGODB_DB}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - ENCRYPTION_IV=${ENCRYPTION_IV}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
-      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
-      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
-      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
-      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
-      - R2_PUBLIC_URL=${R2_PUBLIC_URL}
-      - R2_ENDPOINT=${R2_ENDPOINT}
-      - R2_JURISDICTION=${R2_JURISDICTION}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - EMAIL_FROM=${EMAIL_FROM}
-      - TELLER_APPLICATION_ID=${TELLER_APPLICATION_ID}
-      - TELLER_API_URL=${TELLER_API_URL}
-      - TELLER_API_VERSION=${TELLER_API_VERSION}
-      - TELLER_ENVIRONMENT=${TELLER_ENVIRONMENT}
-      - TELLER_CERT_PATH=${TELLER_CERT_PATH}
-      - TELLER_KEY_PATH=${TELLER_KEY_PATH}
-      - TELLER_SIGNING_SECRET=${TELLER_SIGNING_SECRET}
-      - TELLER_SIGNING_KEY=${TELLER_SIGNING_KEY}
-    command: node dist/main.js
-    restart: always
+      - MONGODB_URI=mongodb://mongodb:27017/expense
+    volumes:
+      - ./credentials:/app/credentials:ro
+    restart: unless-stopped
     depends_on:
       mongodb:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health" ]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -79,17 +30,33 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: frontend
+      dockerfile: apps/frontend/Dockerfile
     ports:
-      - "4200:4200"
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
-    command: npm run start:frontend
+      - "8080:80"
     depends_on:
       - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGODB_DB}
+    restart: unless-stopped
+    healthcheck:
+      test: mongosh --eval "db.adminCommand('ping')"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     networks:
       - app-network
 
@@ -99,4 +66,3 @@ networks:
 
 volumes:
   mongodb_data:
-    driver: local

@@ -1,13 +1,9 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "extends": "@nx/workspace/presets/core.json",
-  "npmScope": "fresh-expense",
-  "affected": {
-    "defaultBase": "main"
-  },
+  "extends": "nx/presets/core.json",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx/tasks-runners/default",
+      "runner": "@nx/devkit/tasks-runners/default",
       "options": {
         "cacheableOperations": ["build", "lint", "test", "e2e"]
       }
@@ -18,18 +14,20 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
-    "serve": {
-      "executor": "@nx/webpack:dev-server",
-      "options": {
-        "buildTarget": "backend:build"
-      }
+    "test": {
+      "inputs": ["default", "^production"]
     }
   },
   "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
-      "{projectRoot}/src/**/*",
-      "!{projectRoot}/**/*.spec.ts",
-      "!{projectRoot}/src/test-setup.[jt]s"
-    ]
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx|mdx)"
+    ],
+    "sharedGlobals": []
   }
 }

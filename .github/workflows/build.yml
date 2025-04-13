@@ -2,27 +2,48 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 env:
-  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_REGISTRY: ghcr.io
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          username: ${{ env.DOCKER_USER }}
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
-          
-      - name: Build and push
-        uses: docker/build-push-action@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_USER }}/fresh-expense:latest
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/fresh-expense:latest
