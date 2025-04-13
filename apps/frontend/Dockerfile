@@ -10,8 +10,9 @@ RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy package files first (for better caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/frontend/package.json ./apps/frontend/
 COPY nx.json ./
+COPY apps/frontend/package.json ./apps/frontend/
+COPY apps/shared/package.json ./apps/shared/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
