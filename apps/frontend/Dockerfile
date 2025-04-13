@@ -11,12 +11,14 @@ RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 # Copy package files first (for better caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/frontend/package.json ./apps/frontend/
+COPY nx.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY apps/frontend/ ./apps/frontend/
+COPY apps/shared/ ./apps/shared/
 
 # Build the application
 WORKDIR /app/apps/frontend
