@@ -19,15 +19,17 @@ RUN apt-get update && apt-get install -y \
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
-ENV PATH="/root/.local/share/pnpm:$PATH"
+ENV PNPM_HOME=/root/.local/share/pnpm
+ENV PATH=$PNPM_HOME:$PATH
 
 # Copy package files
 COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY nx.json tsconfig*.json ./
 COPY apps/backend/package.json ./apps/backend/
+COPY apps/shared/package.json ./apps/shared/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
 # Copy source code
 COPY apps/backend ./apps/backend
