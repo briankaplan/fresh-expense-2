@@ -2,7 +2,7 @@
 FROM node:20-alpine as builder
 WORKDIR /app
 
-ARG PNPM_VERSION=8
+ARG PNPM_VERSION=8.15.4
 ARG NODE_VERSION=20
 
 # Install pnpm
@@ -13,7 +13,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/frontend/package.json ./apps/frontend/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy source code
 COPY apps/frontend/ ./apps/frontend/
