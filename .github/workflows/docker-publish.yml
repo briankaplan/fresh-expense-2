@@ -56,8 +56,16 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install pnpm
-        run: npm install -g pnpm@8
+      - name: Enable corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8.15.4
+          run_install: false
 
       - name: Build and push backend image
         uses: docker/build-push-action@v5
