@@ -31,10 +31,11 @@ RUN pnpm install --frozen-lockfile
 # Step 7: Copy source code
 COPY . .
 
-# Step 8: Build the backend application
+# Step 8: Build the applications
 RUN pnpm run build:backend
+RUN pnpm run build:frontend
 
-# Production stage
+# Production stage for backend
 FROM node:20.11.1-slim AS production
 
 # Install runtime dependencies

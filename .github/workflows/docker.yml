@@ -24,7 +24,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 8.15.4
           run_install: false
 
       - name: Set up Docker Buildx
@@ -41,24 +41,24 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/backend/Dockerfile
+          file: Dockerfile
+          target: production
           push: true
           tags: ghcr.io/briankaplan/fresh-expense-2/backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            PNPM_VERSION=8
-            NODE_VERSION=20
+            NODE_ENV=production
 
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/frontend/Dockerfile
+          file: Dockerfile
+          target: frontend
           push: true
           tags: ghcr.io/briankaplan/fresh-expense-2/frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            PNPM_VERSION=8
-            NODE_VERSION=20
+            NODE_ENV=production
