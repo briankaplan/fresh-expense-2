@@ -2,6 +2,8 @@
 FROM node:18-alpine as builder
 WORKDIR /app
 
+ARG PNPM_VERSION=8
+
 # Install system dependencies
 RUN apk add --no-cache \
     python3 \
@@ -16,7 +18,7 @@ RUN apk add --no-cache \
     libc6-compat
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy package files
 COPY apps/backend/package.json ./
@@ -37,6 +39,8 @@ RUN pnpm run build
 FROM node:18-alpine
 WORKDIR /app
 
+ARG PNPM_VERSION=8
+
 # Install runtime dependencies
 RUN apk add --no-cache \
     cairo \
@@ -47,7 +51,7 @@ RUN apk add --no-cache \
     libc6-compat
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy package files
 COPY --from=builder /app/package.json ./package.json

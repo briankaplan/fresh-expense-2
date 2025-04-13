@@ -15,6 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -34,6 +40,8 @@ jobs:
           tags: ghcr.io/briankaplan/fresh-expense-2/backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            PNPM_VERSION=8
 
       - name: Build and push frontend
         uses: docker/build-push-action@v5
@@ -44,3 +52,5 @@ jobs:
           tags: ghcr.io/briankaplan/fresh-expense-2/frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            PNPM_VERSION=8

@@ -2,8 +2,10 @@
 FROM node:18-alpine as builder
 WORKDIR /app
 
+ARG PNPM_VERSION=8
+
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy all workspace files
 COPY . .
