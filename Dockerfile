@@ -88,6 +88,11 @@ RUN pnpm install --frozen-lockfile --prod
 # Copy built frontend application
 COPY --from=builder /app/dist/apps/frontend ./dist
 
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=4200
+
 EXPOSE 4200
 
+# Start the application
 CMD ["pnpm", "run", "start:frontend"] 
