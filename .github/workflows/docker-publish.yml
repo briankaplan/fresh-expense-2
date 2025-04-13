@@ -1,5 +1,6 @@
 name: Docker Build and Push
 
+# Workflow for building and pushing Docker images
 on:
   push:
     branches: [main]
