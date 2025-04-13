@@ -40,8 +40,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile
-          target: production
+          file: apps/backend/Dockerfile
           push: true
           tags: ghcr.io/briankaplan/fresh-expense-2/backend:latest
           cache-from: type=gha
@@ -53,8 +52,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile
-          target: frontend
+          file: apps/frontend/Dockerfile
           push: true
           tags: ghcr.io/briankaplan/fresh-expense-2/frontend:latest
           cache-from: type=gha

@@ -1,70 +1,65 @@
-# Build step
-FROM node:20-alpine as builder
+# Build stage
+FROM node:20.11.1-slim AS builder
+
 WORKDIR /app
 
-ARG PNPM_VERSION=8
-ARG NODE_VERSION=20
-
-# Install system dependencies
-RUN apk add --no-cache \
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
-    pkgconfig \
-    cairo-dev \
-    jpeg-dev \
-    pango-dev \
-    giflib-dev \
-    pixman-dev \
-    libc6-compat
+    build-essential \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-2 \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+ENV PATH="/root/.local/share/pnpm:$PATH"
 
 # Copy package files
-COPY apps/backend/package.json ./
-COPY package.json ./package.json
-COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY pnpm-lock.yaml ./pnpm-lock.yaml
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY nx.json tsconfig*.json ./
+COPY apps/backend/package.json ./apps/backend/
 
 # Install dependencies
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
-COPY apps/backend/ ./
+COPY apps/backend ./apps/backend
+COPY apps/shared ./apps/shared
 
 # Build the application
-RUN pnpm run build
+RUN pnpm run build:backend
 
 # Production stage
-FROM node:20-alpine
-WORKDIR /app
-
-ARG PNPM_VERSION=8
-ARG NODE_VERSION=20
+FROM node:20.11.1-slim AS production
 
 # Install runtime dependencies
-RUN apk add --no-cache \
-    cairo \
-    jpeg \
-    pango \
-    giflib \
-    pixman \
-    libc6-compat
+RUN apt-get update && apt-get install -y \
+    libcairo2 \
+    libpango1.0-0 \
+    libjpeg62-turbo \
+    libgif7 \
+    librsvg2-2 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+WORKDIR /app
 
-# Copy only necessary files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+# Copy built application and credentials
+COPY --from=builder /app/dist/apps/backend ./dist
+COPY credentials ./credentials
 
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
 
-# Expose port
+# Expose the application port
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "dist/main"] 
+CMD ["node", "dist/main.js"] 

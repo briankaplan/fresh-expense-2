@@ -1,16 +1,23 @@
-# Build step
-FROM node:20-alpine as builder
+# Build stage
+FROM node:20.11.1-slim AS builder
+
 WORKDIR /app
 
-ARG PNPM_VERSION=8.15.4
-ARG NODE_VERSION=20
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+ENV PATH="/root/.local/share/pnpm:$PATH"
 
-# Copy package files first (for better caching)
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY nx.json ./
+# Copy package files
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY nx.json tsconfig*.json ./
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/shared/package.json ./apps/shared/
 
@@ -18,15 +25,23 @@ COPY apps/shared/package.json ./apps/shared/
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
-COPY apps/frontend/ ./apps/frontend/
-COPY apps/shared/ ./apps/shared/
+COPY apps/frontend ./apps/frontend
+COPY apps/shared ./apps/shared
 
 # Build the application
-WORKDIR /app/apps/frontend
-RUN pnpm run build
+RUN pnpm run build:frontend
 
-# Serve with nginx
-FROM nginx:stable-alpine
-COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
+# Production stage
+FROM nginx:stable-alpine AS production
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built frontend application
+COPY --from=builder /app/dist/apps/frontend /usr/share/nginx/html
+
+# Expose port
 EXPOSE 80
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"] 
