@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Step 4: Install pnpm
-RUN npm install -g pnpm@8.15.4
+RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
 
 # Step 5: Copy package files for caching
 COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -48,7 +48,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
-RUN npm install -g pnpm@8.15.4
+RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
 
 WORKDIR /app
 
@@ -76,7 +76,7 @@ CMD ["node", "dist/main.js"]
 FROM node:20.11.1-slim AS frontend
 
 # Install pnpm
-RUN npm install -g pnpm@8.15.4
+RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
 
 WORKDIR /app
 
