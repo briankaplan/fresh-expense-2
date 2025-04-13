@@ -18,19 +18,21 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Step 4: Copy package files for caching
-COPY package*.json ./
+# Step 4: Install pnpm
+RUN npm install -g pnpm@8.15.4
+
+# Step 5: Copy package files for caching
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY nx.json tsconfig*.json ./
 
-# Step 5: Install dependencies with specific npm version
-RUN npm install -g npm@10.2.4
-RUN npm install
+# Step 6: Install dependencies
+RUN pnpm install --frozen-lockfile
 
-# Step 6: Copy source code
+# Step 7: Copy source code
 COPY . .
 
-# Step 7: Build the backend application
-RUN npm run build:backend
+# Step 8: Build the backend application
+RUN pnpm run build:backend
 
 # Production stage
 FROM node:20.11.1-slim AS production
@@ -44,14 +46,16 @@ RUN apt-get update && apt-get install -y \
     librsvg2-2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install pnpm
+RUN npm install -g pnpm@8.15.4
+
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install production dependencies only
-RUN npm install -g npm@10.2.4
-RUN npm install --omit=dev
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built application and credentials
 COPY --from=builder /app/dist/apps/backend ./dist
@@ -70,18 +74,20 @@ CMD ["node", "dist/main.js"]
 # Production stage for frontend
 FROM node:20.11.1-slim AS frontend
 
+# Install pnpm
+RUN npm install -g pnpm@8.15.4
+
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install production dependencies only
-RUN npm install -g npm@10.2.4
-RUN npm install --omit=dev
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built frontend application
 COPY --from=builder /app/dist/apps/frontend ./dist
 
 EXPOSE 4200
 
-CMD ["npm", "run", "start:frontend"] 
+CMD ["pnpm", "run", "start:frontend"] 
