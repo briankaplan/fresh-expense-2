@@ -1,0 +1,54 @@
+version: 2
+updates:
+  # Root package.json
+  - package-ecosystem: 'pnpm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    versioning-strategy: increase
+    groups:
+      nx:
+        patterns:
+          - '@nx/*'
+      typescript-eslint:
+        patterns:
+          - '@typescript-eslint/*'
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+
+  # Frontend package.json
+  - package-ecosystem: 'pnpm'
+    directory: '/apps/frontend'
+    schedule:
+      interval: 'weekly'
+    versioning-strategy: increase
+    groups:
+      mui:
+        patterns:
+          - '@mui/*'
+      testing:
+        patterns:
+          - '@testing-library/*'
+    ignore:
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+
+  # Docker
+  - package-ecosystem: 'docker'
+    directory: '/apps/backend'
+    schedule:
+      interval: 'weekly'
+
+  - package-ecosystem: 'docker'
+    directory: '/apps/frontend'
+    schedule:
+      interval: 'weekly'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
