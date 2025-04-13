@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     libpango1.0-dev \
     libjpeg-dev \
     libgif-dev \
-    librsvg2-dev \
+    librsvg2-2 \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
@@ -47,16 +47,7 @@ RUN apt-get update && apt-get install -y \
     librsvg2-2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
-
 WORKDIR /app
-
-# Copy package files
-COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
 
 # Copy built application and credentials
 COPY --from=builder /app/dist/apps/backend ./dist
@@ -73,27 +64,16 @@ EXPOSE 3000
 CMD ["node", "dist/main.js"]
 
 # Production stage for frontend
-FROM node:20.11.1-slim AS frontend
+FROM nginx:stable-alpine AS frontend
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built frontend application
-COPY --from=builder /app/dist/apps/frontend ./dist
+COPY --from=builder /app/dist/apps/frontend /usr/share/nginx/html
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=4200
+# Expose port
+EXPOSE 80
 
-EXPOSE 4200
-
-# Start the application
-CMD ["pnpm", "run", "start:frontend"] 
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"] 
