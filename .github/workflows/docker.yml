@@ -52,17 +52,51 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
           STORAGE_URL: ${{ secrets.STORAGE_URL }}
         run: |
+          # Filter out system and GitHub-specific environment variables
+          required_secrets=(
+            "JWT_SECRET"
+            "ENCRYPTION_KEY"
+            "ENCRYPTION_IV"
+            "GMAIL_CLIENT_ID_1"
+            "GMAIL_CLIENT_SECRET_1"
+            "GMAIL_REFRESH_TOKEN_1"
+            "GOOGLE_REDIRECT_URI_1"
+            "GMAIL_CLIENT_ID_2"
+            "GMAIL_CLIENT_SECRET_2"
+            "GMAIL_REFRESH_TOKEN_2"
+            "GOOGLE_REDIRECT_URI_2"
+            "GOOGLE_PHOTOS_REDIRECT_URI"
+            "R2_ACCOUNT_ID"
+            "R2_ACCESS_KEY_ID"
+            "R2_SECRET_ACCESS_KEY"
+            "R2_BUCKET_NAME"
+            "R2_PUBLIC_URL"
+            "TELLER_APPLICATION_ID"
+            "TELLER_SIGNING_SECRET"
+            "TELLER_SIGNING_KEY"
+            "HUGGINGFACE_API_TOKEN"
+            "HUGGINGFACE_OCR_TOKEN"
+            "MONGODB_URI"
+            "SENDGRID_API_KEY"
+            "RECEIPT_EMAIL"
+            "API_URL"
+            "STORAGE_URL"
+          )
+
           missing_secrets=()
-          for var in $(env | grep -v '^_'); do
-            if [ -z "${!var}" ]; then
-              missing_secrets+=("$var")
+          for secret in "${required_secrets[@]}"; do
+            if [ -z "${!secret}" ]; then
+              missing_secrets+=("$secret")
             fi
           done
+
           if [ ${#missing_secrets[@]} -ne 0 ]; then
             echo "Error: The following required secrets are missing:"
             printf '%s\n' "${missing_secrets[@]}"
             exit 1
           fi
+
+          echo "All required secrets are present"
 
   build-and-push:
     needs: validate-secrets
