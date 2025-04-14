@@ -1,12 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
-import { OCRService } from '../services/ocr/ocr.service';
-import { R2Service } from '../services/r2/r2.service';
+import { OCRService } from '../../services/ocr/ocr.service';
+import { R2Service } from '../../services/r2/r2.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Receipt } from '../receipts/schemas/receipt.schema';
 import { TokenManagerService } from './token-manager.service';
+import { RateLimiter } from 'limiter';
+import { retry } from 'ts-retry-promise';
+import { GoogleService } from './google.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { GaxiosResponse } from 'gaxios';
 
 interface SearchFilters {
   dateFilter?: {
@@ -21,77 +26,117 @@ interface SearchFilters {
   };
 }
 
+interface GooglePhoto {
+  id: string;
+  baseUrl: string;
+  filename: string;
+}
+
+interface OCRResult {
+  text: string;
+  confidence: number;
+  blocks: {
+    text: string;
+    confidence: number;
+    bbox: {
+      x0: number;
+      y0: number;
+      x1: number;
+      y1: number;
+    };
+  }[];
+}
+
+interface MediaItemsResponse {
+  mediaItems?: Array<{
+    id: string;
+    baseUrl: string;
+    filename?: string;
+  }>;
+}
+
 @Injectable()
-export class GooglePhotosService {
-  private readonly logger = new Logger(GooglePhotosService.name);
-  private photos: any;
-  private initialized = false;
+export class GooglePhotosService extends GoogleService {
+  protected readonly logger = new Logger(GooglePhotosService.name);
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY = 1000;
 
   constructor(
-    private readonly configService: ConfigService,
+    protected readonly configService: ConfigService,
+    protected readonly tokenManager: TokenManagerService,
+    protected readonly eventEmitter: EventEmitter2,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
     @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
-    private readonly tokenManagerService: TokenManagerService,
   ) {
-    this.initializeService().catch(err => 
-      this.logger.error('Failed to initialize Google Photos service', err)
-    );
+    super(configService, tokenManager, eventEmitter);
   }
 
-  private async initializeService() {
-    try {
-      const auth = new google.auth.GoogleAuth({
-        credentials: this.configService.get('google.credentials'),
-        scopes: ['https://www.googleapis.com/auth/photoslibrary.readonly'],
-      });
-
-      this.photos = google.photoslibrary({ version: 'v1', auth });
-      this.initialized = true;
-      this.logger.log('Google Photos service initialized successfully');
-    } catch (error) {
-      this.logger.error('Failed to initialize Google Photos service', error);
-      throw error;
-    }
+  private async withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
+    return retry(fn, {
+      retries: this.MAX_RETRIES,
+      delay: this.RETRY_DELAY,
+      backoff: 'LINEAR',
+    });
   }
 
-  async searchPhotos(filters: SearchFilters = {}) {
-    try {
-      if (!this.initialized) {
-        await this.initializeService();
+  override async searchPhotos(startDate: Date, endDate: Date): Promise<GooglePhoto[]> {
+    const filters: SearchFilters = {
+      dateFilter: {
+        startDate,
+        endDate,
+      },
+    };
+    return this.searchPhotosWithFilters(filters);
+  }
+
+  private async searchPhotosWithFilters(filters: SearchFilters = {}): Promise<GooglePhoto[]> {
+    const results: GooglePhoto[] = [];
+    const accounts = Array.from(this.accounts.keys());
+
+    for (const email of accounts) {
+      try {
+        const photos = await this.withAuth(email, async (oauth2Client) => {
+          const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+          const response = await this.withRateLimit(() =>
+            photos.mediaItems.search({
+              requestBody: {
+                filters: {
+                  dateFilter: filters.dateFilter ? {
+                    ranges: [{
+                      startDate: {
+                        year: filters.dateFilter.startDate?.getFullYear(),
+                        month: filters.dateFilter.startDate?.getMonth()! + 1,
+                        day: filters.dateFilter.startDate?.getDate(),
+                      },
+                      endDate: {
+                        year: filters.dateFilter.endDate?.getFullYear(),
+                        month: filters.dateFilter.endDate?.getMonth()! + 1,
+                        day: filters.dateFilter.endDate?.getDate(),
+                      },
+                    }],
+                  } : undefined,
+                  contentFilter: filters.contentFilter,
+                  mediaTypeFilter: filters.mediaTypeFilter,
+                },
+              },
+            })
+          ) as GaxiosResponse<MediaItemsResponse>;
+          
+          return response.data.mediaItems || [];
+        });
+
+        results.push(...photos.map((photo) => ({
+          id: photo.id,
+          baseUrl: photo.baseUrl,
+          filename: photo.filename || `photo-${photo.id}.jpg`,
+        })));
+      } catch (error) {
+        this.logger.error(`Error searching photos for ${email}:`, error);
       }
-
-      const searchParams = {
-        pageSize: 25,
-        filters: {
-          contentFilter: {
-            includedContentCategories: ['RECEIPTS'],
-            ...filters.contentFilter,
-          },
-          mediaTypeFilter: {
-            mediaTypes: ['PHOTO'],
-            ...filters.mediaTypeFilter,
-          },
-          ...(filters.dateFilter && {
-            dateFilter: {
-              ranges: [{
-                startDate: this.formatDateForApi(filters.dateFilter.startDate),
-                endDate: this.formatDateForApi(filters.dateFilter.endDate),
-              }],
-            },
-          }),
-        },
-      };
-
-      const response = await this.photos.mediaItems.search({
-        requestBody: searchParams,
-      });
-
-      return response.data.mediaItems || [];
-    } catch (error) {
-      this.logger.error('Error searching photos:', error);
-      throw error;
     }
+
+    return results;
   }
 
   async findReceiptsByExpense(expenseData: {
@@ -99,109 +144,77 @@ export class GooglePhotosService {
     amount: number;
     date: Date;
     userId: string;
-  }) {
-    try {
-      // Search for photos within a date range (7 days before to 3 days after)
-      const startDate = new Date(expenseData.date);
-      startDate.setDate(startDate.getDate() - 7);
-      const endDate = new Date(expenseData.date);
-      endDate.setDate(endDate.getDate() + 3);
+  }): Promise<GooglePhoto[]> {
+    const { merchant, amount, date, userId } = expenseData;
+    const results: GooglePhoto[] = [];
+    const accounts = Array.from(this.accounts.keys());
 
-      const photos = await this.searchPhotos({
-        dateFilter: {
-          startDate,
-          endDate,
-        },
-      });
-
-      if (!photos.length) {
-        return [];
-      }
-
-      const matchedReceipts = [];
-
-      for (const photo of photos) {
-        try {
-          // Download the photo
-          const photoBuffer = await this.downloadPhoto(photo.baseUrl);
-          
-          // Process with OCR
-          const ocrResult = await this.ocrService.processImage(photoBuffer);
-          
-          // Calculate match score
-          const matchScore = this.calculateMatchScore({
-            text: ocrResult.text.join(' '),
-            merchant: expenseData.merchant,
-            amount: expenseData.amount,
-            date: expenseData.date,
-          });
-
-          if (matchScore > 0.7) { // Good match threshold
-            // Store in R2
-            const r2Key = this.r2Service.generateKey(expenseData.userId, photo.filename);
-            const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
-
-            await this.r2Service.uploadReceipt(photoBuffer, r2Key, 'image/jpeg');
-            
-            // Generate and upload thumbnail
-            const thumbnail = await this.r2Service.generateThumbnail(photoBuffer);
-            await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
-
-            // Get signed URLs
-            const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
-            const thumbnailUrl = await this.r2Service.getSignedUrl(r2ThumbnailKey);
-
-            // Create receipt record
-            const receipt = await this.receiptModel.create({
-              filename: photo.filename,
-              thumbnailUrl,
-              fullImageUrl,
-              merchant: expenseData.merchant,
-              amount: expenseData.amount,
-              userId: expenseData.userId,
-              r2Key,
-              r2ThumbnailKey,
-              source: 'GOOGLE_PHOTOS',
-              ocrData: {
-                text: ocrResult.text,
-                confidence: ocrResult.confidence,
-                metadata: ocrResult.metadata,
-                processedAt: new Date(),
+    for (const email of accounts) {
+      try {
+        const photos = await this.withAuth(email, async (oauth2Client) => {
+          const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+          const response = await this.withRateLimit(() =>
+            photos.mediaItems.search({
+              requestBody: {
+                filters: {
+                  dateFilter: {
+                    ranges: [{
+                      startDate: {
+                        year: date.getFullYear(),
+                        month: date.getMonth() + 1,
+                        day: date.getDate(),
+                      },
+                      endDate: {
+                        year: date.getFullYear(),
+                        month: date.getMonth() + 1,
+                        day: date.getDate(),
+                      },
+                    }],
+                  },
+                },
               },
-              metadata: {
-                mimeType: 'image/jpeg',
-                size: photoBuffer.length,
-                googlePhotosId: photo.id,
-                matchScore,
-              },
+            })
+          ) as GaxiosResponse<MediaItemsResponse>;
+          
+          return response.data.mediaItems || [];
+        });
+
+        for (const photo of photos) {
+          try {
+            const imageBuffer = await this.downloadPhoto(photo.baseUrl);
+            const ocrResult = await this.ocrService.processReceipt(imageBuffer);
+            const matchScore = this.calculateMatchScore({
+              text: ocrResult.text,
+              merchant,
+              amount,
+              date,
             });
 
-            matchedReceipts.push(receipt);
+            if (matchScore > 0.7) { // 70% match threshold
+              results.push({
+                id: photo.id,
+                baseUrl: photo.baseUrl,
+                filename: photo.filename || `receipt-${photo.id}.jpg`,
+              });
+            }
+          } catch (error) {
+            this.logger.error(`Error processing photo ${photo.id}:`, error);
           }
-        } catch (photoError) {
-          this.logger.warn(`Error processing photo ${photo.id}:`, photoError);
-          continue;
         }
+      } catch (error) {
+        this.logger.error(`Error searching photos for ${email}:`, error);
       }
-
-      return matchedReceipts;
-    } catch (error) {
-      this.logger.error('Error finding receipts:', error);
-      throw error;
     }
+
+    return results;
   }
 
   private async downloadPhoto(baseUrl: string): Promise<Buffer> {
-    try {
-      const response = await fetch(`${baseUrl}=d`);
-      if (!response.ok) {
-        throw new Error(`Failed to download photo: ${response.statusText}`);
-      }
-      return Buffer.from(await response.arrayBuffer());
-    } catch (error) {
-      this.logger.error('Error downloading photo:', error);
-      throw error;
+    const response = await fetch(baseUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to download photo: ${response.statusText}`);
     }
+    return Buffer.from(await response.arrayBuffer());
   }
 
   private calculateMatchScore({
@@ -216,75 +229,14 @@ export class GooglePhotosService {
     date: Date;
   }): number {
     let score = 0;
-    const normalizedText = text.toLowerCase();
-    const normalizedMerchant = merchant.toLowerCase();
+    const merchantMatch = text.toLowerCase().includes(merchant.toLowerCase());
+    const amountMatch = text.includes(amount.toFixed(2));
+    const dateMatch = text.includes(date.toLocaleDateString());
 
-    // Merchant name match (40%)
-    if (this.fuzzyMatchMerchant(normalizedText, normalizedMerchant)) {
-      score += 0.4;
-    }
-
-    // Amount match (40%)
-    if (this.fuzzyMatchAmount(normalizedText, amount)) {
-      score += 0.4;
-    }
-
-    // Date match (20%)
-    if (this.fuzzyMatchDate(normalizedText, date)) {
-      score += 0.2;
-    }
+    if (merchantMatch) score += 0.4;
+    if (amountMatch) score += 0.4;
+    if (dateMatch) score += 0.2;
 
     return score;
-  }
-
-  private fuzzyMatchMerchant(text: string, merchant: string): boolean {
-    // Handle short merchant names (like "CVS") with exact match
-    if (merchant.length <= 3) {
-      return new RegExp(`\\b${merchant}\\b`, 'i').test(text);
-    }
-
-    // Split merchant into words and filter out short/common words
-    const merchantWords = merchant
-      .split(/\s+/)
-      .filter(word => word.length > 2)
-      .filter(word => !['the', 'and', 'or', 'in', 'at', 'of', 'to'].includes(word));
-
-    if (merchantWords.length === 0) return false;
-
-    // Count matching words
-    const matchCount = merchantWords.filter(word => text.includes(word)).length;
-    return matchCount / merchantWords.length >= 0.5; // At least 50% of words must match
-  }
-
-  private fuzzyMatchAmount(text: string, amount: number): boolean {
-    const amountStr = amount.toFixed(2);
-    const patterns = [
-      new RegExp(`\\$${amountStr}\\b`),
-      new RegExp(`\\$\\s*${amountStr}\\b`),
-      new RegExp(`total\\s*[:=]?\\s*\\$?\\s*${amountStr}\\b`, 'i'),
-      new RegExp(`amount\\s*[:=]?\\s*\\$?\\s*${amountStr}\\b`, 'i'),
-    ];
-
-    return patterns.some(pattern => pattern.test(text));
-  }
-
-  private fuzzyMatchDate(text: string, date: Date): boolean {
-    const datePatterns = [
-      date.toLocaleDateString(),
-      `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
-      `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`,
-      `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`,
-    ];
-
-    return datePatterns.some(pattern => text.includes(pattern));
-  }
-
-  private formatDateForApi(date?: Date) {
-    if (!date) return undefined;
-    return {
-      year: date.getFullYear(),
-      month: date.getMonth() + 1,
-      day: date.getDate(),
-    };
   }
 } 

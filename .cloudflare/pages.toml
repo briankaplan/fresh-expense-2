@@ -1,0 +1,22 @@
+[build]
+command = "pnpm install && pnpm build:frontend"
+publish = "dist/apps/frontend"
+
+[build.environment]
+NODE_VERSION = "20.11.1"
+PNPM_VERSION = "8.15.4"
+
+[env]
+PROD_API_URL = "https://api.yourdomain.com"
+PROD_MONGODB_URI = "your-mongodb-uri"
+PROD_JWT_SECRET = "your-jwt-secret"
+
+[[redirects]]
+from = "/api/*"
+to = "https://api.yourdomain.com/:splat"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200 

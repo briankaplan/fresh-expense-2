@@ -20,11 +20,13 @@ on:
       - 'docker-compose.yml'
       - '.github/workflows/docker-publish.yml'
       - 'pnpm-lock.yaml'
+  workflow_dispatch: # Allow manual triggering
 
 env:
   REGISTRY: ghcr.io
   BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
   FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
+  DOCKER_BUILDKIT: 1 # Enable BuildKit for better caching
 
 jobs:
   build-and-push:
@@ -32,10 +34,13 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for better caching
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -54,7 +59,12 @@ jobs:
           echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -70,7 +80,11 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
             type=sha,format=short
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Extract Docker metadata (Frontend)
         id: meta-frontend
@@ -79,7 +93,11 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
             type=sha,format=short
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Build and push backend image
         uses: docker/build-push-action@v5
@@ -89,10 +107,12 @@ jobs:
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          builder: ${{ steps.buildx.outputs.name }}
+          build-args: |
+            NODE_ENV=production
+            PNPM_VERSION=8.15.4
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -102,7 +122,32 @@ jobs:
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          builder: ${{ steps.buildx.outputs.name }}
+          build-args: |
+            NODE_ENV=production
+            PNPM_VERSION=8.15.4
+
+      - name: Generate SBOM for backend
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest
+          format: spdx-json
+          output-file: backend-sbom.json
+
+      - name: Generate SBOM for frontend
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+          format: spdx-json
+          output-file: frontend-sbom.json
+
+      - name: Upload SBOM results
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-results
+          path: |
+            backend-sbom.json
+            frontend-sbom.json
+          retention-days: 7

@@ -1,0 +1,38 @@
+name = "expense-api"
+main = "dist/main.js"
+compatibility_date = "2024-04-13"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+JWT_SECRET = "{{ secrets.JWT_SECRET }}"
+MONGODB_URI = "{{ secrets.MONGODB_URI }}"
+API_URL = "https://api.tallyup.com"
+DOCKER_WEB_HOST = "https://tallyup.com"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "{{ secrets.CF_KV_NAMESPACE_ID }}"
+preview_id = "{{ secrets.CF_KV_PREVIEW_ID }}"
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "expense-files"
+preview_bucket_name = "expense-files-dev"
+
+[triggers]
+crons = ["0 * * * *"]  # Run every hour
+
+[env.production]
+workers_dev = false
+route = "api.tallyup.com/*"
+zone_id = "{{ secrets.CF_ZONE_ID }}"
+
+# Configure reverse proxy to Docker Web
+[[routes]]
+pattern = "api.tallyup.com/*"
+script = "expense-api"
+action = "reverse_proxy"
+target = "https://tallyup.com"
+
+[env.staging]
+workers_dev = true 

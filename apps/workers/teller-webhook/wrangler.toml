@@ -1,0 +1,22 @@
+name = "teller-webhook"
+type = "webpack"
+main = "src/index.ts"
+zone_id = ''
+usage_model = ''
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+compatibility_date = "2024-04-13"
+
+[vars]
+TELLER_API_KEY = ""
+TELLER_ENV = "sandbox"
+TELLER_WEBHOOK_SECRET = ""
+TELLER_WEBHOOK_KEY = ""
+
+[triggers]
+crons = []
+
+[[kv_namespaces]]
+binding = "TRANSACTIONS"
+id = ""
+preview_id = ""

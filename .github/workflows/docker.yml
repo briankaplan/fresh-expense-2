@@ -12,6 +12,7 @@ env:
   FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
   NODE_VERSION: '20.x'
   PNPM_VERSION: '8.15.4'
+  HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
 
 permissions:
   contents: read
@@ -43,6 +44,8 @@ jobs:
           [ -z "${{ secrets.GMAIL_CLIENT_ID_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_5")
           [ -z "${{ secrets.GMAIL_CLIENT_SECRET_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_5")
           [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_5 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_5")
+          [ -z "${{ secrets.PROD_HUGGINGFACE_API_KEY }}" ] && missing_secrets+=("PROD_HUGGINGFACE_API_KEY")
+          [ -z "${{ secrets.SENDGRID_API_KEY }}" ] && missing_secrets+=("SENDGRID_API_KEY")
 
           if [ ${#missing_secrets[@]} -ne 0 ]; then
             echo "Error: The following required secrets are missing:"
@@ -51,6 +54,14 @@ jobs:
           fi
 
           echo "All required secrets are present."
+
+      - name: Validate Hugging Face API Key
+        run: |
+          if ! curl -s -H "Authorization: Bearer ${{ secrets.PROD_HUGGINGFACE_API_KEY }}" https://api.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2 > /dev/null; then
+            echo "Error: Invalid Hugging Face API key"
+            exit 1
+          fi
+          echo "Hugging Face API key is valid"
 
   build-and-push:
     needs: validate-secrets
@@ -110,6 +121,9 @@ jobs:
           GMAIL_CLIENT_ID_5: ${{ secrets.GMAIL_CLIENT_ID_5 }}
           GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
           GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
+          PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+          HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -139,7 +153,7 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: apps/backend
+          context: .
           file: ./apps/backend/Dockerfile
           push: true
           tags: ${{ steps.meta-api.outputs.tags }}
@@ -164,14 +178,22 @@ jobs:
             GMAIL_CLIENT_ID_5=${{ secrets.GMAIL_CLIENT_ID_5 }}
             GMAIL_CLIENT_SECRET_5=${{ secrets.GMAIL_CLIENT_SECRET_5 }}
             GMAIL_REFRESH_TOKEN_5=${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
+            PROD_HUGGINGFACE_API_KEY=${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+            HUGGINGFACE_API_KEY=${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+            SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
         with:
-          context: apps/frontend
+          context: .
           file: ./apps/frontend/Dockerfile
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VITE_API_URL=https://fresh-expense-api.workers.dev
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.GMAIL_CLIENT_ID_1 }}
+            VITE_GOOGLE_CLIENT_SECRET=${{ secrets.GMAIL_CLIENT_SECRET_1 }}
+            VITE_JWT_STORAGE_KEY=jwt_token

@@ -1,0 +1,76 @@
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.15.4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm run build:backend
+
+      - name: Configure Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Create KV Namespace
+        run: |
+          wrangler kv:namespace create "CACHE" --preview
+          wrangler kv:namespace create "CACHE" --preview --preview-name "CACHE_PREVIEW"
+
+      - name: Create R2 Bucket
+        run: |
+          wrangler r2 bucket create "expense-files"
+          wrangler r2 bucket create "expense-files-dev"
+
+      - name: Deploy to Cloudflare
+        run: |
+          # Set up environment variables
+          echo "Setting up environment variables..."
+          wrangler secret put JWT_SECRET <<< "${{ secrets.JWT_SECRET }}"
+          wrangler secret put MONGODB_URI <<< "${{ secrets.MONGODB_URI }}"
+          wrangler secret put R2_ACCOUNT_ID <<< "${{ secrets.R2_ACCOUNT_ID }}"
+          wrangler secret put R2_ACCESS_KEY_ID <<< "${{ secrets.R2_ACCESS_KEY_ID }}"
+          wrangler secret put R2_SECRET_ACCESS_KEY <<< "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+          wrangler secret put R2_BUCKET_NAME <<< "${{ secrets.R2_BUCKET_NAME }}"
+          wrangler secret put R2_PUBLIC_URL <<< "${{ secrets.R2_PUBLIC_URL }}"
+          wrangler secret put R2_ENDPOINT <<< "${{ secrets.R2_ENDPOINT }}"
+          wrangler secret put R2_JURISDICTION <<< "${{ secrets.R2_JURISDICTION }}"
+          wrangler secret put GOOGLE_CLIENT_ID <<< "${{ secrets.GOOGLE_CLIENT_ID }}"
+          wrangler secret put GOOGLE_CLIENT_SECRET <<< "${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          wrangler secret put GOOGLE_REDIRECT_URI <<< "${{ secrets.GOOGLE_REDIRECT_URI }}"
+          wrangler secret put GOOGLE_PHOTOS_REDIRECT_URI <<< "${{ secrets.GOOGLE_PHOTOS_REDIRECT_URI }}"
+          wrangler secret put SMTP_HOST <<< "${{ secrets.SMTP_HOST }}"
+          wrangler secret put SMTP_PORT <<< "${{ secrets.SMTP_PORT }}"
+          wrangler secret put SMTP_USER <<< "${{ secrets.SMTP_USER }}"
+          wrangler secret put SMTP_PASSWORD <<< "${{ secrets.SMTP_PASSWORD }}"
+          wrangler secret put EMAIL_FROM <<< "${{ secrets.EMAIL_FROM }}"
+          wrangler secret put TALLYUP_APPLICATION_ID <<< "${{ secrets.TALLYUP_APPLICATION_ID }}"
+          wrangler secret put TALLYUP_API_URL <<< "${{ secrets.TALLYUP_API_URL }}"
+          wrangler secret put TALLYUP_API_VERSION <<< "${{ secrets.TALLYUP_API_VERSION }}"
+          wrangler secret put TALLYUP_ENVIRONMENT <<< "${{ secrets.TALLYUP_ENVIRONMENT }}"
+          wrangler secret put TALLYUP_WEBHOOK_URL <<< "${{ secrets.TALLYUP_WEBHOOK_URL }}"
+          wrangler secret put TALLYUP_SIGNING_SECRET <<< "${{ secrets.TALLYUP_SIGNING_SECRET }}"
+          wrangler secret put TALLYUP_SIGNING_KEY <<< "${{ secrets.TALLYUP_SIGNING_KEY }}"
+
+          # Deploy the worker
+          wrangler deploy

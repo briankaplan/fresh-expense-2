@@ -1,0 +1,23 @@
+name = "expense-api"
+main = "src/index.ts"
+compatibility_date = "2024-04-14"
+
+[env.production]
+name = "expense-api"
+route = "api.tallyup.com/*"
+zone_id = { secret = true }
+
+[vars]
+ENVIRONMENT = "production"
+API_URL = "https://api.tallyup.com"
+WEBHOOK_URL = "https://api.tallyup.com/webhooks/tallyup"
+
+[triggers]
+crons = ["0 * * * *", "0 0 * * *"]
+
+[build]
+command = "npm run build"
+cwd = "./"
+
+[site]
+bucket = "./dist" 

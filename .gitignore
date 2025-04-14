@@ -7,6 +7,8 @@ out-tsc
 
 # dependencies
 node_modules
+.pnpm-store/
+.pnpm-debug.log
 
 # IDEs and editors
 /.idea
@@ -64,3 +66,16 @@ credentials/*
 *.p12
 *.pfx
 *.cer
+
+# testing
+coverage
+.nyc_output
+
+# production
+build
+out
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

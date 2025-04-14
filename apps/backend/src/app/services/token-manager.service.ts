@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client, Credentials } from 'google-auth-library';
+import { Auth } from 'googleapis';
 
 interface TokenCache {
   token: string;
@@ -38,7 +39,7 @@ export class TokenManagerService implements OnModuleInit {
     credentials: any | null;
   }>();
   private initialized = false;
-  private tokenCache = new Map<string, TokenCache>();
+  private tokenCache = new Map<string, Auth.Credentials>();
 
   // Token refresh buffer (5 minutes before expiry)
   private readonly TOKEN_REFRESH_BUFFER = 5 * 60 * 1000;
@@ -143,10 +144,7 @@ export class TokenManagerService implements OnModuleInit {
       account.oAuth2Client.setCredentials(account.credentials);
       
       // Update cache
-      this.tokenCache.set(email, {
-        token: account.credentials.access_token,
-        expiry: account.credentials.expiry_date
-      });
+      this.tokenCache.set(email, account.credentials as Auth.Credentials);
 
       return account.credentials.access_token;
     } catch (error) {
@@ -205,5 +203,14 @@ export class TokenManagerService implements OnModuleInit {
 
   clearAllTokenCaches(): void {
     this.tokenCache.clear();
+  }
+
+  async updateToken(email: string, credentials: Auth.Credentials): Promise<void> {
+    this.tokenCache.set(email, credentials);
+    this.logger.debug(`Updated token for ${email}`);
+  }
+
+  async getToken(email: string): Promise<Auth.Credentials | null> {
+    return this.tokenCache.get(email) || null;
   }
 } 

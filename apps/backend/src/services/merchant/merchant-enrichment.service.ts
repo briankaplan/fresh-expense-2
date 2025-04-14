@@ -1,35 +1,110 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Document, Types } from 'mongoose';
 import { HfInference } from '@huggingface/inference';
-import { Transaction } from '../../schemas/transaction.schema';
+import { Transaction, TransactionDocument } from '../../schemas/transaction.schema';
 import { Merchant, MerchantDocument } from '../../schemas/merchant.schema';
 import { TRANSACTION_CATEGORIES, TransactionCategory } from '../../types/transaction.types';
+import { NotificationService } from '../notification/notification.service';
+import { TransactionService } from '../transaction/transaction.service';
+import { v4 as uuidv4 } from 'uuid';
+import { TransactionType, TransactionStatus, TransactionSource, TransactionCompany, TransactionReimbursementStatus } from '../../app/transactions/enums/transaction.enums';
+import { RateLimiterService } from '../rate-limiter.service';
+import { ErrorHandlerService, ErrorType } from '../error-handler.service';
+import { LoggingService } from '../logging.service';
+import { BaseService } from '../base.service';
+
+interface TransactionData {
+  id: string;
+  accountId: string;
+  date: Date;
+  description: string;
+  amount: number;
+  type: 'debit' | 'credit';
+  status: 'pending' | 'posted' | 'canceled';
+  category: string[];
+  merchantName?: string;
+  merchantCategory?: string;
+  location?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+}
+
+interface TransactionAnalysis {
+  amount: number;
+  date: Date;
+  category: string;
+  description?: string;
+}
 
 interface SubscriptionInfo {
   isSubscription: boolean;
   frequency?: string;
-  typicalAmount?: number;
-  lastRenewalDate?: Date;
-  nextRenewalDate?: Date;
+  nextPaymentDate?: Date;
 }
 
 interface PurchaseHistory {
-  totalTransactions: number;
-  firstPurchaseDate: Date;
-  lastPurchaseDate: Date;
-  averageAmount: number;
-  frequency: 'one-time' | 'recurring' | 'sporadic';
-  commonCategories: TransactionCategory[];
-  monthlyTotals: Array<{
-    month: Date;
-    total: number;
-    count: number;
-  }>;
+  amount: number;
+  date: Date;
+  category: string;
+  description: string;
 }
 
-type CategoryCount = Partial<Record<TransactionCategory, number>>;
+interface EnrichedData {
+  category?: string;
+  tags?: string[];
+  subscription?: SubscriptionInfo;
+  industry?: string;
+  subIndustry?: string;
+  businessType?: string;
+  paymentMethods?: string[];
+  returnsPolicy?: string;
+  contactInfo?: {
+    supportUrl?: string;
+  };
+  lastEnrichmentDate?: Date;
+  enrichmentSource?: string;
+}
+
+interface MerchantData {
+  name: string;
+  category?: string;
+  tags?: string[];
+  aliases?: string[];
+  subscription?: SubscriptionInfo;
+  purchaseHistory?: PurchaseHistory;
+  enrichedData?: EnrichedData;
+}
+
+interface EnrichedTransaction {
+  id: string;
+  amount: number;
+  date: Date;
+  description: string;
+  category: string[];
+  merchantName?: string;
+  merchantCategory?: string;
+  location?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+  enrichedData: {
+    id: string;
+    amount: number;
+    date: Date;
+    description: string;
+    category: string;
+  };
+}
 
 const VALID_CATEGORIES = new Set([
   'FOOD_AND_DINING',
@@ -80,51 +155,70 @@ const getTransactionCategoryFromDisplay = (displayValue: string): TransactionCat
 };
 
 @Injectable()
-export class MerchantEnrichmentService {
-  private readonly logger = new Logger(MerchantEnrichmentService.name);
-  private hf: HfInference;
+export class MerchantEnrichmentService extends BaseService {
+  protected logger: Logger;
+  private hf!: HfInference;
+  private initialized = false;
 
   constructor(
+    notificationService: NotificationService,
+    eventEmitter: EventEmitter2,
     private readonly configService: ConfigService,
-    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
-    @InjectModel(Merchant.name) private merchantModel: Model<MerchantDocument>
+    private readonly rateLimiter: RateLimiterService,
+    private readonly errorHandler: ErrorHandlerService,
+    @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>,
+    @InjectModel(Merchant.name) private readonly merchantModel: Model<MerchantDocument>,
+    private readonly loggingService: LoggingService
   ) {
-    const hfToken = this.configService.get<string>('HUGGINGFACE_API_TOKEN');
-    if (!hfToken) {
-      this.logger.warn('No HuggingFace API token found, AI enrichment will be limited');
-    } else {
-      this.hf = new HfInference(hfToken);
-      this.logger.log('HuggingFace API client initialized');
+    super(notificationService, eventEmitter, MerchantEnrichmentService.name);
+    this.logger = new Logger(MerchantEnrichmentService.name);
+    const hfApiKey = this.configService.get<string>('HUGGINGFACE_API_KEY');
+    if (hfApiKey) {
+      this.hf = new HfInference(hfApiKey);
     }
   }
 
-  /**
-   * Detect subscription patterns in transactions
-   */
-  async detectSubscription(merchant: string, transactions: Transaction[]): Promise<SubscriptionInfo | null> {
+  async initialize() {
+    if (this.initialized) return;
+
     try {
-      if (!transactions || transactions.length < 3) {
-        return null;
+      if (!this.hf) {
+        throw new Error('HuggingFace API key not configured');
       }
 
-      // Sort transactions by date
-      const sortedTransactions = [...transactions].sort((a, b) => a.date.getTime() - b.date.getTime());
+      this.initialized = true;
+      this.logger.log('Merchant Enrichment Service initialized');
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Failed to initialize Merchant Enrichment Service:', err);
+      await this.notificationService.notifyError(err, 'Merchant Enrichment');
+      throw err;
+    }
+  }
+
+  async detectSubscription(merchant: string, transactions: TransactionData[]): Promise<SubscriptionInfo | null> {
+    try {
+      // Analyze transaction patterns
+      const amounts = transactions.map(t => t.amount);
+      const dates = transactions.map(t => new Date(t.date));
       
+      // Sort dates chronologically
+      dates.sort((a, b) => a.getTime() - b.getTime());
+
       // Calculate intervals between transactions
       const intervals = [];
-      for (let i = 1; i < sortedTransactions.length; i++) {
-        const days = (sortedTransactions[i].date.getTime() - sortedTransactions[i-1].date.getTime()) / (1000 * 60 * 60 * 24);
+      for (let i = 1; i < dates.length; i++) {
+        const days = (dates[i].getTime() - dates[i-1].getTime()) / (1000 * 60 * 60 * 24);
         intervals.push(days);
       }
 
-      // Analyze patterns
+      // Calculate statistics
       const averageInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
       const standardDeviation = Math.sqrt(
-        intervals.reduce((a, b) => a + Math.pow(b - averageInterval, 2), 0) / intervals.length
+        intervals.reduce((a, b) => a + Math.pow(b - averageInterval, 2), 0) / intervals.length,
       );
 
       // Check for consistent amounts
-      const amounts = sortedTransactions.map(t => t.amount);
       const uniqueAmounts = new Set(amounts);
       const hasConsistentAmount = uniqueAmounts.size === 1;
 
@@ -134,250 +228,343 @@ export class MerchantEnrichmentService {
         standardDeviation < 5 && // Consistent intervals (within 5 days)
         hasConsistentAmount; // Same amount each time
 
-      if (!isSubscription) {
-        return { isSubscription: false };
-      }
-
       // Determine frequency
-      let frequency: string;
-      if (averageInterval >= 25 && averageInterval <= 35) frequency = 'monthly';
-      else if (averageInterval >= 85 && averageInterval <= 95) frequency = 'quarterly';
-      else if (averageInterval >= 350 && averageInterval <= 380) frequency = 'annual';
-      else frequency = `every ${Math.round(averageInterval)} days`;
+      let frequency: string | undefined;
+      if (isSubscription) {
+        if (averageInterval >= 25 && averageInterval <= 35) frequency = 'monthly';
+        else if (averageInterval >= 85 && averageInterval <= 95) frequency = 'quarterly';
+        else if (averageInterval >= 350 && averageInterval <= 380) frequency = 'annual';
+        else frequency = `every ${Math.round(averageInterval)} days`;
+      }
 
-      const lastTransaction = sortedTransactions[sortedTransactions.length - 1];
-      
       return {
-        isSubscription: true,
+        isSubscription,
         frequency,
-        typicalAmount: hasConsistentAmount ? amounts[0] : undefined,
-        lastRenewalDate: lastTransaction.date,
-        nextRenewalDate: new Date(lastTransaction.date.getTime() + (averageInterval * 24 * 60 * 60 * 1000))
+        nextPaymentDate: dates[dates.length - 1],
       };
     } catch (error) {
-      this.logger.error('Error detecting subscription:', error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Error detecting subscription:', err);
+      await this.notificationService.notifyError(err, 'Subscription Detection');
       return null;
     }
   }
 
-  /**
-   * Analyze purchase history for a merchant
-   */
-  async analyzePurchaseHistory(merchant: string): Promise<PurchaseHistory | null> {
+  async analyzePurchaseHistory(
+    merchant: string,
+    transactions: TransactionData[]
+  ): Promise<PurchaseHistory> {
     try {
-      if (!this.hf) {
-        this.logger.warn('HuggingFace client not initialized');
-        return null;
+      const totalSpent = transactions.reduce((sum, t) => sum + t.amount, 0);
+      const averageTransaction = totalSpent / transactions.length;
+      const frequency = this.calculateFrequency(transactions);
+      const category = this.determineCategory(transactions);
+
+      return {
+        amount: averageTransaction,
+        date: transactions[transactions.length - 1]?.date || new Date(),
+        category,
+        description: transactions[transactions.length - 1]?.description || '',
+      };
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Error analyzing purchase history:', err);
+      throw err;
+    }
+  }
+
+  private determineCategory(transactions: TransactionData[]): string {
+    // Count occurrences of each category
+    const categoryCounts = new Map<string, number>();
+    transactions.forEach(t => {
+      if (t.category && t.category.length > 0) {
+        t.category.forEach(cat => {
+          const count = categoryCounts.get(cat) || 0;
+          categoryCounts.set(cat, count + 1);
+        });
       }
+    });
 
-      const transactions = await this.transactionModel
-        .find({ merchant })
-        .sort({ date: 1 })
-        .exec();
-
-      if (!transactions || transactions.length === 0) {
-        return null;
+    // Find the most common category
+    let maxCount = 0;
+    let dominantCategory = '';
+    categoryCounts.forEach((count, category) => {
+      if (count > maxCount) {
+        maxCount = count;
+        dominantCategory = category;
       }
+    });
 
-      const totalTransactions = transactions.length;
-      const firstPurchaseDate = transactions[0].date;
-      const lastPurchaseDate = transactions[transactions.length - 1].date;
-      const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
-      const averageAmount = totalAmount / totalTransactions;
+    return dominantCategory || 'OTHER';
+  }
 
-      const monthlyTotals = transactions.reduce((acc, t) => {
-        const month = new Date(t.date);
-        month.setDate(1);
-        month.setHours(0, 0, 0, 0);
+  private calculateFrequency(transactions: TransactionData[]): 'one-time' | 'recurring' | 'sporadic' {
+    if (transactions.length === 1) return 'one-time';
+
+    // Sort transactions by date
+    const sortedDates = transactions
+      .map(t => new Date(t.date).getTime())
+      .sort((a, b) => a - b);
+
+    // Calculate intervals between transactions
+    const intervals = [];
+    for (let i = 1; i < sortedDates.length; i++) {
+      intervals.push(sortedDates[i] - sortedDates[i-1]);
+    }
+
+    // Calculate standard deviation of intervals
+    const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const stdDev = Math.sqrt(
+      intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length
+    );
+
+    // If standard deviation is low relative to average interval, it's recurring
+    return stdDev / avgInterval < 0.2 ? 'recurring' : 'sporadic';
+  }
+
+  async enrichMerchantData(merchant: string): Promise<EnrichedData | null> {
+    if (!this.initialized) {
+      await this.initialize();
+    }
+
+    try {
+      const prompt = `
+        Analyze this merchant: ${merchant}
         
-        const key = month.toISOString();
-        if (!acc[key]) {
-          acc[key] = { month, total: 0, count: 0 };
-        }
-        acc[key].total += t.amount;
-        acc[key].count += 1;
-        return acc;
-      }, {} as Record<string, { month: Date; total: number; count: number; }>);
+        Provide structured information about:
+        1. Industry and sub-industry
+        2. Business type (B2C, B2B, etc.)
+        3. Common payment methods
+        4. Returns policy (if applicable)
+        5. Support contact information
+        
+        Format the response as:
+        Industry: [main industry]
+        SubIndustry: [specific category]
+        BusinessType: [type]
+        PaymentMethods: [list]
+        ReturnsPolicy: [policy]
+        SupportUrl: [url]
+      `;
 
-      const daysBetween = (lastPurchaseDate.getTime() - firstPurchaseDate.getTime()) / (1000 * 60 * 60 * 24);
-      const purchasesPerMonth = (totalTransactions / daysBetween) * 30;
-      
-      let frequency: 'one-time' | 'recurring' | 'sporadic';
-      if (totalTransactions === 1) frequency = 'one-time';
-      else if (purchasesPerMonth >= 0.95 && purchasesPerMonth <= 1.05) frequency = 'recurring';
-      else frequency = 'sporadic';
-
-      const categoryCount = transactions.reduce((acc, t) => {
-        if (t.category && Array.isArray(t.category)) {
-          t.category.forEach(cat => {
-            if (typeof cat === 'string') {
-              const normalizedCategory = normalizeCategory(cat);
-              acc[normalizedCategory] = (acc[normalizedCategory] || 0) + 1;
-            }
-          });
-        }
-        return acc;
-      }, {} as CategoryCount);
-
-      const commonCategories = Object.entries(categoryCount)
-        .sort(([, a], [, b]) => (Number(b) || 0) - (Number(a) || 0))
-        .slice(0, 3)
-        .map(([category]) => category as TransactionCategory)
-        .filter(isTransactionCategory);
-
-      return {
-        totalTransactions,
-        firstPurchaseDate,
-        lastPurchaseDate,
-        averageAmount,
-        frequency,
-        commonCategories,
-        monthlyTotals: Object.values(monthlyTotals)
-      };
-    } catch (error) {
-      this.logger.error('Error analyzing purchase history:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Enrich merchant data using AI
-   */
-  async enrichMerchantData(merchant: MerchantDocument): Promise<Partial<Merchant> | null> {
-    try {
-      if (!this.hf) {
-        return null;
-      }
-
-      const displayCategory = isValidCategory(merchant.category)
-        ? getCategoryDisplayName(merchant.category)
-        : TRANSACTION_CATEGORIES.OTHER;
-
-      const tags = Array.isArray(merchant.tags) ? merchant.tags.join(', ') : 'None';
-
-      const prompt = `Analyze this merchant:
-Name: ${merchant.name}
-Category: ${displayCategory}
-Tags: ${tags}
-
-Please provide:
-1. Most likely industry from these options: ${Object.values(TRANSACTION_CATEGORIES).join(', ')}
-2. Business type (B2B, B2C, or both)
-3. Common payment methods
-4. Typical returns policy
-5. Likely contact channels`;
-
-      const response = await this.hf.textGeneration({
-        model: 'gpt2' as const,  // Explicitly type as const to satisfy strict type checking
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 50,
-          temperature: 0.7,
-          return_full_text: false
-        }
+      const response = await this.rateLimiter.withRateLimit('AI_INFERENCE', async () => {
+        return this.hf.textGeneration({
+          model: 'gpt2',
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 200,
+            temperature: 0.7,
+          },
+        });
       });
 
-      if (!response.generated_text) {
-        throw new Error('No response from AI model');
-      }
-
-      // Parse and structure the enriched data
       const enrichedData = this.parseAIResponse(response.generated_text);
-      
-      return {
-        ...enrichedData,
-        lastEnrichmentDate: new Date(),
-        enrichmentSource: 'huggingface_ai'
-      };
+      enrichedData.lastEnrichmentDate = new Date();
+      enrichedData.enrichmentSource = 'AI_INFERENCE';
+
+      return enrichedData;
     } catch (error) {
-      this.logger.error('Error enriching merchant data:', error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Error enriching merchant data:', err);
+      await this.notificationService.notifyError(err, 'Merchant Enrichment');
       return null;
     }
   }
 
-  /**
-   * Parse AI response into structured data
-   */
-  private parseAIResponse(text: string): Partial<Merchant> {
-    const lines = text.split('\n');
-    const data: Partial<Merchant> = {};
+  private parseAIResponse(text: string): EnrichedData {
+    const lines = text.split('\n').map(line => line.trim());
+    const data: EnrichedData = {};
 
     for (const line of lines) {
-      if (line.includes('industry:')) {
-        const industry = line.split(':')[1]?.trim();
-        if (industry) {
-          data.category = getTransactionCategoryFromDisplay(industry);
-        }
-      }
-      if (line.includes('business type:')) {
-        data.businessType = line.split(':')[1]?.trim() || undefined;
-      }
-      if (line.includes('payment methods:')) {
-        data.acceptedPaymentMethods = line.split(':')[1]?.split(',').map(m => m.trim()) || [];
-      }
-      if (line.includes('returns policy:')) {
-        data.returnsPolicy = line.split(':')[1]?.trim() || undefined;
-      }
-      if (line.includes('contact channels:')) {
-        data.contactChannels = line.split(':')[1]?.split(',').map(c => c.trim()) || [];
+      const [key, ...valueParts] = line.split(':');
+      const value = valueParts.join(':').trim();
+
+      switch (key.toLowerCase()) {
+        case 'industry':
+          data.industry = value;
+          break;
+        case 'subindustry':
+          data.subIndustry = value;
+          break;
+        case 'businesstype':
+          data.businessType = value;
+          break;
+        case 'paymentmethods':
+          data.paymentMethods = value
+            .split(',')
+            .map(method => method.trim())
+            .filter(method => method.length > 0);
+          break;
+        case 'returnspolicy':
+          data.returnsPolicy = value;
+          break;
+        case 'supporturl':
+          if (value && value !== 'N/A') {
+            data.contactInfo = {
+              ...data.contactInfo,
+              supportUrl: value,
+            };
+          }
+          break;
       }
     }
 
     return data;
   }
 
-  /**
-   * Process all merchants for enrichment
-   */
   async processAllMerchants(): Promise<void> {
     try {
-      const merchants = await this.merchantModel.find().exec();
-      
+      // Get all unique merchant names from transactions
+      const merchants = await this.transactionModel.distinct('merchantName');
+
       for (const merchant of merchants) {
-        // Skip if recently enriched (within last 7 days)
-        if (merchant.lastEnrichmentDate && 
-            (new Date().getTime() - merchant.lastEnrichmentDate.getTime()) < 7 * 24 * 60 * 60 * 1000) {
-          continue;
-        }
+        try {
+          // Get all transactions for this merchant
+          const transactions = await this.transactionModel.find({ merchantName: merchant });
 
-        // Get all transactions for this merchant
-        const transactions = await this.transactionModel
-          .find({ merchant: merchant.name })
-          .sort({ date: 1 })
-          .exec();
-
-        // Skip if no transactions
-        if (!transactions.length) continue;
-
-        // Detect subscription patterns
-        const subscription = await this.detectSubscription(merchant.name, transactions);
-        
-        // Analyze purchase history
-        const purchaseHistory = await this.analyzePurchaseHistory(merchant.name);
-        
-        // Get enriched merchant data
-        const enrichedData = await this.enrichMerchantData(merchant);
-
-        // Update merchant record
-        if (subscription || purchaseHistory || enrichedData) {
-          await this.merchantModel.updateOne(
-            { _id: merchant._id },
-            {
-              $set: {
-                ...(subscription && { subscription }),
-                ...(purchaseHistory && { purchaseHistory }),
-                ...(enrichedData && enrichedData),
-                updatedAt: new Date()
-              }
-            }
+          // Process merchant data
+          const merchantData = await this.processMerchant(
+            merchant,
+            transactions.map(t => ({
+              id: t.id,
+              accountId: t.accountId,
+              amount: t.amount,
+              date: t.date,
+              description: t.description,
+              type: t.type as 'debit' | 'credit',
+              status: t.status as 'pending' | 'posted' | 'canceled',
+              category: t.category,
+              merchantName: t.merchantName,
+              merchantCategory: t.merchantCategory,
+              location: typeof t.location === 'string' ? undefined : t.location
+            }))
           );
 
-          this.logger.log(`Updated merchant: ${merchant.name}`);
+          // Update or create merchant record
+          await this.merchantModel.findOneAndUpdate(
+            { name: merchant },
+            { $set: merchantData },
+            { upsert: true }
+          );
+
+          this.logger.log(`Processed merchant: ${merchant}`);
+        } catch (error) {
+          const err = error instanceof Error ? error : new Error(String(error));
+          this.logger.error(`Error processing merchant ${merchant}:`, err);
+          await this.notificationService.notifyError(err, 'Merchant Processing');
         }
       }
     } catch (error) {
-      this.logger.error('Error processing merchants:', error);
-      throw error;
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Error processing all merchants:', err);
+      await this.notificationService.notifyError(err, 'Merchant Processing');
+      throw err;
     }
+  }
+
+  async processMerchant(merchant: string, transactions: TransactionData[]): Promise<MerchantData> {
+    try {
+      const [subscription, purchaseHistory, enrichedData] = await Promise.all([
+        this.detectSubscription(merchant, transactions),
+        this.analyzePurchaseHistory(merchant, transactions),
+        this.enrichMerchantData(merchant),
+      ]);
+
+      const merchantData: MerchantData = {
+        name: merchant,
+        category: purchaseHistory.category?.toString(),
+        subscription: subscription === null ? undefined : subscription,
+        purchaseHistory,
+        enrichedData: enrichedData === null ? undefined : enrichedData,
+      };
+
+      return merchantData;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error processing merchant ${merchant}:`, err);
+      throw err;
+    }
+  }
+
+  async getPurchaseHistory(merchantId: string): Promise<PurchaseHistory> {
+    try {
+      const merchant = await this.merchantModel.findById(merchantId);
+      if (!merchant) {
+        throw new NotFoundException(`Merchant with ID ${merchantId} not found`);
+      }
+
+      const transactions = await this.transactionModel.find({
+        merchantName: merchant.name,
+      });
+
+      return this.analyzePurchaseHistory(
+        merchant.name,
+        transactions.map(t => ({
+          id: t.id,
+          accountId: t.accountId,
+          amount: t.amount,
+          date: t.date,
+          description: t.description,
+          type: t.type as 'debit' | 'credit',
+          status: t.status as 'pending' | 'posted' | 'canceled',
+          category: t.category,
+          merchantName: t.merchantName,
+          merchantCategory: t.merchantCategory,
+          location: typeof t.location === 'string' ? undefined : t.location
+        }))
+      );
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error getting purchase history for merchant ${merchantId}:`, err);
+      throw err;
+    }
+  }
+
+  private async analyzeTransactions(transactions: TransactionData[]): Promise<TransactionAnalysis> {
+    const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
+    
+    const analysis: TransactionAnalysis = {
+      amount: totalAmount,
+      date: new Date(),
+      category: 'UNCATEGORIZED',
+      description: undefined
+    };
+
+    return analysis;
+  }
+
+  async processTransactions(transactions: TransactionData[]): Promise<EnrichedTransaction[]> {
+    try {
+      const analysis = await this.analyzeTransactions(transactions);
+      
+      return Promise.all(transactions.map(async (transaction: TransactionData) => {
+        const enriched: EnrichedTransaction = {
+          id: transaction.id,
+          amount: transaction.amount,
+          date: transaction.date,
+          description: transaction.description || 'No description',
+          category: Array.isArray(transaction.category) ? transaction.category : ['UNCATEGORIZED'],
+          merchantName: transaction.merchantName,
+          merchantCategory: transaction.merchantCategory,
+          location: transaction.location,
+          enrichedData: {
+            id: transaction.id,
+            amount: analysis.amount,
+            date: analysis.date,
+            description: analysis.description || transaction.description || 'No description',
+            category: analysis.category
+          }
+        };
+        return enriched;
+      }));
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Error processing transactions:', err);
+      throw err;
+    }
+  }
+
+  private async analyzeTransactionHistory(transactions: PurchaseHistory[]): Promise<void> {
+    // ... existing code ...
   }
 } 

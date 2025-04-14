@@ -9,6 +9,8 @@ on:
 env:
   NODE_VERSION: '20.x'
   PNPM_VERSION: '8.15.4'
+  HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+  SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
 jobs:
   validate-secrets:
@@ -38,6 +40,8 @@ jobs:
           [ -z "${{ secrets.GMAIL_CLIENT_ID_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_5")
           [ -z "${{ secrets.GMAIL_CLIENT_SECRET_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_5")
           [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_5 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_5")
+          [ -z "${{ secrets.PROD_HUGGINGFACE_API_KEY }}" ] && missing_secrets+=("PROD_HUGGINGFACE_API_KEY")
+          [ -z "${{ secrets.SENDGRID_API_KEY }}" ] && missing_secrets+=("SENDGRID_API_KEY")
 
           if [ ${#missing_secrets[@]} -ne 0 ]; then
             echo "Error: The following required secrets are missing:"
@@ -46,6 +50,14 @@ jobs:
           fi
 
           echo "All required secrets are present."
+
+      - name: Validate Hugging Face API Key
+        run: |
+          if ! curl -s -H "Authorization: Bearer ${{ secrets.PROD_HUGGINGFACE_API_KEY }}" https://api.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2 > /dev/null; then
+            echo "Error: Invalid Hugging Face API key"
+            exit 1
+          fi
+          echo "Hugging Face API key is valid"
 
   deploy-frontend:
     needs: validate-secrets
@@ -84,6 +96,10 @@ jobs:
         run: pnpm nx build frontend
         env:
           NODE_ENV: production
+          VITE_API_URL: https://fresh-expense-api.workers.dev
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID_1 }}
+          VITE_GOOGLE_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET_1 }}
+          VITE_JWT_STORAGE_KEY: jwt_token
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
@@ -146,6 +162,9 @@ jobs:
           GMAIL_CLIENT_ID_5: ${{ secrets.GMAIL_CLIENT_ID_5 }}
           GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
           GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
+          PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+          HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
@@ -153,3 +172,24 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy apps/backend/dist/index.js --name=fresh-expense-api
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          GMAIL_CLIENT_ID_1: ${{ secrets.GMAIL_CLIENT_ID_1 }}
+          GMAIL_CLIENT_SECRET_1: ${{ secrets.GMAIL_CLIENT_SECRET_1 }}
+          GMAIL_REFRESH_TOKEN_1: ${{ secrets.GMAIL_REFRESH_TOKEN_1 }}
+          GMAIL_CLIENT_ID_2: ${{ secrets.GMAIL_CLIENT_ID_2 }}
+          GMAIL_CLIENT_SECRET_2: ${{ secrets.GMAIL_CLIENT_SECRET_2 }}
+          GMAIL_REFRESH_TOKEN_2: ${{ secrets.GMAIL_REFRESH_TOKEN_2 }}
+          GMAIL_CLIENT_ID_3: ${{ secrets.GMAIL_CLIENT_ID_3 }}
+          GMAIL_CLIENT_SECRET_3: ${{ secrets.GMAIL_CLIENT_SECRET_3 }}
+          GMAIL_REFRESH_TOKEN_3: ${{ secrets.GMAIL_REFRESH_TOKEN_3 }}
+          GMAIL_CLIENT_ID_4: ${{ secrets.GMAIL_CLIENT_ID_4 }}
+          GMAIL_CLIENT_SECRET_4: ${{ secrets.GMAIL_CLIENT_SECRET_4 }}
+          GMAIL_REFRESH_TOKEN_4: ${{ secrets.GMAIL_REFRESH_TOKEN_4 }}
+          GMAIL_CLIENT_ID_5: ${{ secrets.GMAIL_CLIENT_ID_5 }}
+          GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
+          GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
+          PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+          HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}

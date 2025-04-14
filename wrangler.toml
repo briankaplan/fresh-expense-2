@@ -1,0 +1,65 @@
+name = "expense-api"
+main = "src/index.ts"
+compatibility_date = "2024-04-14"
+
+[env.production]
+name = "expense-api"
+route = "api.tallyup.com/*"
+zone_id = { secret = true }
+
+[vars]
+ENVIRONMENT = "production"
+API_URL = "https://api.tallyup.com"
+WEBHOOK_URL = "https://api.tallyup.com/webhooks/tallyup"
+MONGODB_URI = { secret = true }
+MONGODB_DB = "expense_db"
+
+[[kv_namespaces]]
+binding = "RECEIPTS"
+id = ""
+
+[[kv_namespaces]]
+binding = "TRANSACTIONS"
+id = ""
+
+[[kv_namespaces]]
+binding = "MERCHANTS"
+id = ""
+
+[[kv_namespaces]]
+binding = "USERS"
+id = ""
+
+[[kv_namespaces]]
+binding = "REPORTS"
+id = ""
+
+[[kv_namespaces]]
+binding = "TEMPLATES"
+id = ""
+
+[[kv_namespaces]]
+binding = "SCHEDULES"
+id = ""
+
+[[kv_namespaces]]
+binding = "SETTINGS"
+id = ""
+
+[[kv_namespaces]]
+binding = "LOGS"
+id = ""
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = ""
+
+[triggers]
+crons = ["0 * * * *", "0 0 * * *"]
+
+[build]
+command = "npm run build"
+cwd = "./"
+
+[site]
+bucket = "./dist" 

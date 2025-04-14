@@ -9,36 +9,53 @@ import { Transaction, TransactionDocument } from '../../schemas/transaction.sche
 import { TransactionDto } from '../../dto/transaction.dto';
 import { plainToClass } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 export interface TellerAccount {
   id: string;
-  type: string;
-  subtype: string;
-  name: string;
   institution: {
-    name: string;
     id: string;
+    name: string;
   };
+  currency: string;
+  enrollment_id: string;
   last_four: string;
   links: {
     self: string;
-    transactions: string;
+    institution: string;
   };
+  name: string;
+  status: 'open' | 'closed';
+  subtype: string;
+  type: string;
 }
 
-interface TellerTransaction {
+export interface TellerTransaction {
   id: string;
   account_id: string;
   date: string;
   description: string;
-  details: {
-    processing_status: string;
-    category: string[];
+  amount: number;
+  type: 'debit' | 'credit';
+  status: 'pending' | 'posted' | 'canceled';
+  running_balance: number;
+  links: {
+    self: string;
+    account: string;
   };
-  amount: string;
-  running_balance: string;
-  type: string;
-  status: string;
+  details?: {
+    category?: string[];
+    counterparty?: string;
+    processing_status?: string;
+  };
+}
+
+interface TellerQuery {
+  from?: string;
+  to?: string;
+  count?: number;
+  offset?: number;
 }
 
 @Injectable()
@@ -48,11 +65,21 @@ export class TellerService {
   private lastSyncTime: { [accountId: string]: Date } = {};
   private readonly HISTORICAL_START_DATE = new Date('2024-01-01');
   private readonly PAGE_SIZE = 100;
+  private readonly webhookSecret: string;
+  private readonly webhookKey: string;
+  private readonly apiKey: string;
+  private readonly environment: string;
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectModel('Transaction') private transactionModel: Model<Transaction>
+    @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
+    private readonly httpService: HttpService
   ) {
+    this.apiKey = this.configService.get<string>('TELLER_API_KEY') || '';
+    this.environment = this.configService.get<string>('TELLER_ENV') || 'sandbox';
+    this.webhookSecret = this.configService.get<string>('TELLER_WEBHOOK_SECRET') || '';
+    this.webhookKey = this.configService.get<string>('TELLER_WEBHOOK_KEY') || '';
+    
     // Initialize axios instance with mTLS
     const certPath = this.configService.get<string>('TELLER_CERTIFICATE_PATH');
     const keyPath = this.configService.get<string>('TELLER_PRIVATE_KEY_PATH');
@@ -199,12 +226,12 @@ export class TellerService {
       accountId: tellerTransaction.account_id,
       date: new Date(tellerTransaction.date),
       description: tellerTransaction.description,
-      amount: parseFloat(tellerTransaction.amount),
-      type: parseFloat(tellerTransaction.amount) < 0 ? 'debit' : 'credit',
+      amount: parseFloat(tellerTransaction.amount.toString()),
+      type: parseFloat(tellerTransaction.amount.toString()) < 0 ? 'debit' : 'credit',
       status: tellerTransaction.status,
       category: tellerTransaction.details?.category || [],
       processingStatus: tellerTransaction.details?.processing_status || 'processed',
-      runningBalance: parseFloat(tellerTransaction.running_balance),
+      runningBalance: this.parseRunningBalance(tellerTransaction.running_balance),
       source: 'teller',
       lastUpdated: new Date(),
       merchantName: merchantInfo.name,
@@ -252,6 +279,11 @@ export class TellerService {
     );
   }
 
+  private parseRunningBalance(balance: string | undefined): number {
+    if (!balance) return 0;
+    return parseFloat(balance) || 0;
+  }
+
   private async upsertTransaction(tellerTransaction: TellerTransaction) {
     try {
       const validatedTransaction = await this.mapAndValidateTransaction(tellerTransaction);
@@ -287,16 +319,108 @@ export class TellerService {
     }
   }
 
-  async getTransactions(query: any = {}, limit = 100, offset = 0) {
-    return this.transactionModel
-      .find(query)
-      .sort({ date: -1 })
-      .limit(limit)
-      .skip(offset)
-      .exec();
+  async getTransactions(accountId: string, query?: TellerQuery): Promise<TellerTransaction[]> {
+    try {
+      const response = await this.axiosInstance.get(`/accounts/${accountId}/transactions`, {
+        params: query
+      });
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        this.logger.error(`Failed to fetch transactions: ${error.message}`);
+      } else {
+        this.logger.error('Unknown error fetching transactions');
+      }
+      throw error;
+    }
   }
 
-  async countTransactions(query: any = {}) {
-    return this.transactionModel.countDocuments(query);
+  async getAccount(accountId: string): Promise<TellerAccount> {
+    try {
+      const response = await this.axiosInstance.get(`/accounts/${accountId}`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        this.logger.error(`Failed to fetch account: ${error.message}`);
+      } else {
+        this.logger.error('Unknown error fetching account');
+      }
+      throw error;
+    }
+  }
+
+  async countTransactions(query: TellerQuery = {}): Promise<number> {
+    try {
+      const response = await this.axiosInstance.get('/transactions/count', {
+        params: query
+      });
+      return response.data.count;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        this.logger.error('Error counting transactions:', error.message);
+      } else {
+        this.logger.error('Unknown error counting transactions');
+      }
+      throw error;
+    }
+  }
+
+  async verifyWebhookSignature(signature: string, payload: string): Promise<boolean> {
+    if (!this.webhookSecret || !this.webhookKey) {
+      this.logger.warn('Webhook secret or key not configured');
+      return false;
+    }
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(this.webhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify'],
+    );
+
+    const signatureBytes = this.hexToArrayBuffer(signature);
+    const payloadBytes = encoder.encode(payload);
+
+    return crypto.subtle.verify('HMAC', key, signatureBytes, payloadBytes);
+  }
+
+  private hexToArrayBuffer(hex: string): ArrayBuffer {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) {
+      bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    }
+    return bytes.buffer;
+  }
+
+  async handleTransactionCreated(payload: TellerTransaction): Promise<void> {
+    try {
+      this.logger.log('Handling transaction created webhook');
+      // TODO: Implement transaction creation logic
+    } catch (error) {
+      this.logger.error('Error handling transaction created webhook', error);
+      throw error;
+    }
+  }
+
+  async handleTransactionUpdated(payload: TellerTransaction): Promise<void> {
+    try {
+      this.logger.log('Handling transaction updated webhook');
+      // TODO: Implement transaction update logic
+    } catch (error) {
+      this.logger.error('Error handling transaction updated webhook', error);
+      throw error;
+    }
+  }
+
+  async handleAccountUpdated(payload: TellerAccount): Promise<void> {
+    try {
+      this.logger.log('Handling account updated webhook');
+      // TODO: Implement account update logic
+    } catch (error) {
+      this.logger.error('Error handling account updated webhook', error);
+      throw error;
+    }
   }
 } 

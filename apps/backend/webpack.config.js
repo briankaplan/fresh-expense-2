@@ -11,6 +11,7 @@ module.exports = composePlugins(withNx(), (config) => {
     output: {
       path: path.resolve(__dirname, '../../dist/apps/backend'),
       filename: 'main.js',
+      module: true,
     },
     resolve: {
       extensions: ['.ts', '.js'],
@@ -27,6 +28,12 @@ module.exports = composePlugins(withNx(), (config) => {
         '@controllers': path.resolve(__dirname, 'src/controllers'),
         '@middleware': path.resolve(__dirname, 'src/middleware'),
         '@types': path.resolve(__dirname, 'src/types')
+      },
+      fallback: {
+        ...config.resolve?.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
       },
     },
     externals: [nodeExternals()],

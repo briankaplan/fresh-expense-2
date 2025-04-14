@@ -1,0 +1,114 @@
+[build]
+command = "pnpm install && pnpm build"
+publish = "dist"
+
+[build.environment]
+NODE_VERSION = "20.11.1"
+PNPM_VERSION = "8.15.4"
+
+[env]
+# API Configuration
+API_URL = "https://api.yourdomain.com"
+API_VERSION = "v1"
+
+# Security
+JWT_SECRET = ""
+ENCRYPTION_KEY = ""
+
+# Storage
+R2_BUCKET = "expense-files"
+KV_NAMESPACE = "expense-cache"
+
+# External Services
+MONGODB_URI = ""
+TELLER_API_KEY = ""
+TELLER_ENV = "sandbox"
+
+# Performance
+CACHE_TTL = "3600"  # 1 hour
+RATE_LIMIT = "100"  # requests per minute
+
+[[redirects]]
+from = "/api/*"
+to = "https://api.yourdomain.com/:splat"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+X-XSS-Protection = "1; mode=block"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+[[headers]]
+for = "/api/*"
+[headers.values]
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+[[rules]]
+expression = "http.request.uri.path contains '/api/'"
+action = "route"
+action_parameters = { "origin": { "host": "api.yourdomain.com" } }
+
+[[rules]]
+expression = "http.request.uri.path contains '/static/'"
+action = "cache"
+action_parameters = { "edge_ttl": 3600, "browser_ttl": 3600 }
+
+[[rules]]
+expression = "http.request.uri.path contains '/images/'"
+action = "cache"
+action_parameters = { "edge_ttl": 86400, "browser_ttl": 86400 }
+
+[[rules]]
+expression = "http.request.uri.path contains '/api/auth'"
+action = "bypass-cache"
+
+[[rules]]
+expression = "http.request.uri.path contains '/api/webhook'"
+action = "bypass-cache"
+
+[[workers]]
+name = "api-gateway"
+route = "api.yourdomain.com/*"
+script = "apps/workers/api-gateway/src/index.ts"
+
+[[workers]]
+name = "teller-webhook"
+route = "api.yourdomain.com/webhook/teller"
+script = "apps/workers/teller-webhook/src/index.ts"
+
+[[workers]]
+name = "file-upload"
+route = "api.yourdomain.com/upload/*"
+script = "apps/workers/file-upload/src/index.ts"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = ""
+preview_id = ""
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "expense-files"
+preview_bucket_name = "expense-files-dev"
+
+[triggers]
+crons = ["0 * * * *"]  # Run every hour
+
+[env.production]
+workers_dev = false
+route = "*.yourdomain.com/*"
+zone_id = ""
+
+[env.staging]
+workers_dev = true 

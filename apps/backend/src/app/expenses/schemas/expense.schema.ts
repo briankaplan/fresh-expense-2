@@ -27,8 +27,8 @@ export class Expense {
   @Prop({ required: true, default: 'USD' })
   currency!: string;
 
-  @Prop()
-  description?: string;
+  @Prop({ required: true })
+  description!: string;
 
   @Prop([String])
   tags?: string[];
@@ -63,6 +63,32 @@ export class Expense {
 
   @Prop({ type: Object })
   metadata?: Record<string, any>;
+
+  @Prop({ default: 'expense' })
+  type: 'income' | 'expense';
+
+  @Prop()
+  notes?: string;
+
+  @Prop({ type: [String] })
+  receipt?: string;
+
+  @Prop({ default: false })
+  isRecurring: boolean;
+
+  @Prop({
+    type: {
+      frequency: { type: String, enum: ['daily', 'weekly', 'monthly', 'yearly'] },
+      nextDate: Date,
+      endDate: { type: Date, required: false },
+    },
+    required: false,
+  })
+  recurringDetails?: {
+    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    nextDate: Date;
+    endDate?: Date;
+  };
 }
 
 export const ExpenseSchema = SchemaFactory.createForClass(Expense);

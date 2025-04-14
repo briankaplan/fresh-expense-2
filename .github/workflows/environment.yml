@@ -1,0 +1,92 @@
+name: Environment Setup
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20.11.1'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  setup-environments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@8.15.4
+
+      - name: Validate Secrets
+        env:
+          DEV_JWT_SECRET: ${{ secrets.DEV_JWT_SECRET }}
+          DEV_MONGODB_URI: ${{ secrets.DEV_MONGODB_URI }}
+          TEST_JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+          PROD_JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          PROD_MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
+        run: |
+          missing_secrets=()
+          for var in $(env | grep -v '^_'); do
+            if [ -z "${!var}" ]; then
+              missing_secrets+=("$var")
+            fi
+          done
+          if [ ${#missing_secrets[@]} -ne 0 ]; then
+            echo "Error: The following required secrets are missing:"
+            printf '%s\n' "${missing_secrets[@]}"
+            exit 1
+          fi
+
+      - name: Setup Development Environment
+        env:
+          DEV_JWT_SECRET: ${{ secrets.DEV_JWT_SECRET }}
+          DEV_MONGODB_URI: ${{ secrets.DEV_MONGODB_URI }}
+        run: |
+          echo "Setting up development environment variables..."
+          cp apps/backend/config/development.env apps/backend/.env
+          sed -i "s/\${JWT_SECRET}/$DEV_JWT_SECRET/g" apps/backend/.env
+          sed -i "s/\${MONGODB_URI}/$DEV_MONGODB_URI/g" apps/backend/.env
+
+      - name: Setup Test Environment
+        env:
+          TEST_JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+        run: |
+          echo "Setting up test environment variables..."
+          cp apps/backend/config/test.env apps/backend/.env.test
+          sed -i "s/\${JWT_SECRET}/$TEST_JWT_SECRET/g" apps/backend/.env.test
+          sed -i "s/\${MONGODB_URI}/$TEST_MONGODB_URI/g" apps/backend/.env.test
+
+      - name: Setup Production Environment
+        env:
+          PROD_JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          PROD_MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
+        run: |
+          echo "Setting up production environment variables..."
+          cp apps/backend/config/production.env apps/backend/.env.production
+          sed -i "s/\${JWT_SECRET}/$PROD_JWT_SECRET/g" apps/backend/.env.production
+          sed -i "s/\${MONGODB_URI}/$PROD_MONGODB_URI/g" apps/backend/.env.production
+
+      - name: Verify Environment Files
+        run: |
+          echo "Verifying environment files..."
+          ls -la apps/backend/.env*
+          echo "Development environment:"
+          cat apps/backend/.env
+          echo "Test environment:"
+          cat apps/backend/.env.test
+          echo "Production environment:"
+          cat apps/backend/.env.production

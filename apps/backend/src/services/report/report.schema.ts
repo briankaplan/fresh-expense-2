@@ -1,93 +1,160 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
-export type ReportFormat = 'pdf' | 'csv' | 'excel';
-export type ReportType = 'receipt' | 'expense';
-export type ReportStatus = 'running' | 'completed' | 'failed' | 'scheduled';
-export type ReportFrequency = 'daily' | 'weekly' | 'monthly';
+export type ReportTemplateDocument = ReportTemplate & Document;
+export type ReportScheduleDocument = ReportSchedule & Document;
+export type ReportDocument = Report & Document;
 
 @Schema({ timestamps: true })
-export class ReportTemplate extends Document {
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
-  userId: MongooseSchema.Types.ObjectId;
+export class ReportTemplate {
+  @Prop({ required: true, type: Types.ObjectId })
+  userId!: Types.ObjectId;
 
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
-  @Prop({ required: true, enum: ['receipt', 'expense'] })
-  type: ReportType;
+  @Prop()
+  description?: string;
+
+  @Prop({ required: true, enum: ['expense', 'receipt', 'custom'] })
+  type!: 'expense' | 'receipt' | 'custom';
 
   @Prop({ required: true, enum: ['pdf', 'csv', 'excel'] })
-  format: ReportFormat;
+  format!: 'pdf' | 'csv' | 'excel';
 
-  @Prop({ type: Object })
-  customization: {
-    headers?: string[];
-    groupBy?: string[];
-    sortBy?: string[];
-    filters?: Record<string, any>;
-    template?: string;
+  @Prop({
+    type: {
+      dateRange: {
+        type: { type: String, enum: ['fixed', 'relative'] },
+        start: Date,
+        end: Date,
+        relativePeriod: { type: String, enum: ['week', 'month', 'quarter', 'year'] }
+      },
+      categories: [String],
+      merchants: [String],
+      minAmount: Number,
+      maxAmount: Number,
+      tags: [String],
+      hasReceipt: Boolean,
+      customFilters: Object
+    }
+  })
+  filters!: {
+    dateRange?: {
+      type: 'fixed' | 'relative';
+      start?: Date | string;
+      end?: Date | string;
+      relativePeriod?: 'week' | 'month' | 'quarter' | 'year';
+    };
+    categories?: string[];
+    merchants?: string[];
+    minAmount?: number;
+    maxAmount?: number;
+    tags?: string[];
+    hasReceipt?: boolean;
+    customFilters?: Record<string, any>;
   };
 
-  @Prop({ type: Object })
-  scheduling?: {
-    frequency?: ReportFrequency;
-    recipients?: string[];
-    nextRun?: Date;
+  @Prop({ type: [String], enum: ['date', 'category', 'merchant', 'tag'] })
+  groupBy?: ('date' | 'category' | 'merchant' | 'tag')[];
+
+  @Prop({
+    type: {
+      field: String,
+      order: { type: String, enum: ['asc', 'desc'] }
+    }
+  })
+  sortBy?: {
+    field: string;
+    order: 'asc' | 'desc';
+  };
+
+  @Prop([{
+    field: String,
+    title: String,
+    type: { type: String, enum: ['text', 'number', 'date', 'currency', 'boolean'] },
+    format: String,
+    width: Number
+  }])
+  columns!: Array<{
+    field: string;
+    title: string;
+    type: 'text' | 'number' | 'date' | 'currency' | 'boolean';
+    format?: string;
+    width?: number;
+  }>;
+
+  @Prop({
+    type: {
+      frequency: { type: String, enum: ['daily', 'weekly', 'monthly'] },
+      dayOfWeek: Number,
+      dayOfMonth: Number,
+      time: String,
+      timezone: String,
+      recipients: [String]
+    }
+  })
+  schedule?: {
+    frequency: 'daily' | 'weekly' | 'monthly';
+    dayOfWeek?: number;
+    dayOfMonth?: number;
+    time: string;
+    timezone: string;
+    recipients: string[];
   };
 }
 
 @Schema({ timestamps: true })
-export class ReportSchedule extends Document {
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
-  userId: MongooseSchema.Types.ObjectId;
+export class Report {
+  @Prop({ required: true, type: Types.ObjectId })
+  userId!: Types.ObjectId;
 
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
-  templateId: MongooseSchema.Types.ObjectId;
+  @Prop({ required: true, type: Types.ObjectId, ref: 'ReportTemplate' })
+  templateId!: Types.ObjectId;
 
-  @Prop({ required: true, enum: ['daily', 'weekly', 'monthly'] })
-  frequency: ReportFrequency;
+  @Prop({ required: true })
+  generatedAt!: Date;
 
-  @Prop({ type: [String] })
-  recipients: string[];
+  @Prop({ required: true, enum: ['pending', 'processing', 'completed', 'failed'] })
+  status!: 'pending' | 'processing' | 'completed' | 'failed';
 
-  @Prop({ type: Date })
-  nextRun: Date;
+  @Prop()
+  fileUrl?: string;
 
-  @Prop({ type: Date })
-  lastRun: Date;
-
-  @Prop({ default: true })
-  active: boolean;
-
-  @Prop({ required: true, enum: ['scheduled', 'paused'] })
-  status: string;
-}
-
-@Schema({ timestamps: true })
-export class Report extends Document {
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
-  userId: MongooseSchema.Types.ObjectId;
-
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
-  templateId: MongooseSchema.Types.ObjectId;
-
-  @Prop({ required: true, enum: ['running', 'completed', 'failed'] })
-  status: ReportStatus;
-
-  @Prop({ type: String })
+  @Prop()
   error?: string;
 
-  @Prop({ type: String })
+  @Prop()
   r2Key?: string;
 
-  @Prop({ type: String })
+  @Prop()
   downloadUrl?: string;
 
-  @Prop({ type: Date })
+  @Prop()
   completedAt?: Date;
 }
 
+@Schema({ timestamps: true })
+export class ReportSchedule {
+  @Prop({ required: true, type: Types.ObjectId })
+  userId!: Types.ObjectId;
+
+  @Prop({ required: true, type: Types.ObjectId, ref: 'ReportTemplate' })
+  templateId!: Types.ObjectId;
+
+  @Prop({ required: true, enum: ['scheduled', 'running', 'completed', 'failed'] })
+  status!: 'scheduled' | 'running' | 'completed' | 'failed';
+
+  @Prop({ required: true })
+  nextRunAt!: Date;
+
+  @Prop()
+  lastRunAt?: Date;
+
+  @Prop()
+  error?: string;
+}
+
 export const ReportTemplateSchema = SchemaFactory.createForClass(ReportTemplate);
-export const ReportScheduleSchema = SchemaFactory.createForClass(ReportSchedule);
-export const ReportSchema = SchemaFactory.createForClass(Report); 
+export const ReportSchema = SchemaFactory.createForClass(Report);
+export const ReportScheduleSchema = SchemaFactory.createForClass(ReportSchedule); 

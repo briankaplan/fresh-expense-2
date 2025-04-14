@@ -18,8 +18,9 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Step 4: Install pnpm
+# Step 4: Enable corepack and install pnpm
 RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+ENV PATH="/root/.local/share/pnpm:$PATH"
 
 # Step 5: Copy package files for caching
 COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./

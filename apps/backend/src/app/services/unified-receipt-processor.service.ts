@@ -4,8 +4,11 @@ import { Model, Schema as MongooseSchema } from 'mongoose';
 import { Receipt, ReceiptDocument } from '../receipts/schemas/receipt.schema';
 import { OCRService } from '../../services/ocr/ocr.service';
 import { R2Service } from '../../services/r2/r2.service';
-import { GooglePhotosService } from '../../services/google-photos/google-photos.service';
-import { ReceiptConverterService } from '../services/receipt/receipt-converter.service';
+import { GooglePhotosService } from '../services/google-photos.service';
+import { ReceiptConverterService } from './receipt/receipt-converter.service';
+import { RateLimiter } from 'limiter';
+import { retry } from 'ts-retry-promise';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 interface ProcessReceiptOptions {
   source: 'CSV' | 'EMAIL' | 'GOOGLE_PHOTOS' | 'MANUAL' | 'UPLOAD';
@@ -34,9 +37,21 @@ interface ReceiptMatch {
   };
 }
 
+interface ProcessingProgress {
+  source: string;
+  status: 'initializing' | 'processing' | 'completed' | 'error';
+  progress: number;
+  total: number;
+  error?: string;
+}
+
 @Injectable()
 export class UnifiedReceiptProcessorService {
   private readonly logger = new Logger(UnifiedReceiptProcessorService.name);
+  private readonly rateLimiter: RateLimiter;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY = 1000;
+  private readonly progressMap = new Map<string, ProcessingProgress>();
 
   constructor(
     @InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>,
@@ -44,145 +59,90 @@ export class UnifiedReceiptProcessorService {
     private readonly r2Service: R2Service,
     private readonly googlePhotosService: GooglePhotosService,
     private readonly receiptConverter: ReceiptConverterService,
-  ) {}
+    private readonly eventEmitter: EventEmitter2,
+  ) {
+    // Allow 50 requests per minute
+    this.rateLimiter = new RateLimiter({ tokensPerInterval: 50, interval: 'minute' });
+  }
+
+  private async withRateLimit<T>(fn: () => Promise<T>): Promise<T> {
+    await this.rateLimiter.removeTokens(1);
+    return fn();
+  }
+
+  private async withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
+    return retry(
+      async () => {
+        try {
+          return await fn();
+        } catch (error) {
+          this.logger.warn(`Retrying ${context} due to error:`, error);
+          throw error;
+        }
+      },
+      {
+        retries: this.MAX_RETRIES,
+        delay: this.RETRY_DELAY,
+        backoff: 'LINEAR',
+      }
+    );
+  }
+
+  private updateProgress(source: string, progress: Partial<ProcessingProgress>) {
+    const current = this.progressMap.get(source) || {
+      source,
+      status: 'initializing',
+      progress: 0,
+      total: 1,
+    };
+    
+    const updated = { ...current, ...progress };
+    this.progressMap.set(source, updated);
+    
+    this.eventEmitter.emit('receipt.processing.progress', updated);
+  }
 
   async processReceipt(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     try {
-      this.logger.log(`Processing receipt from source: ${options.source}`);
+      this.updateProgress(options.source, { status: 'processing' });
 
       let receipt: ReceiptDocument;
 
       switch (options.source) {
-        case 'MANUAL':
-          receipt = await this.processManualUpload(options);
-          break;
         case 'GOOGLE_PHOTOS':
           receipt = await this.processGooglePhotos(options);
           break;
         case 'EMAIL':
-          receipt = await this.processEmailReceipt(options);
-          break;
-        case 'CSV':
-          receipt = await this.processCSVReceipt(options);
+          receipt = await this.processEmail(options);
           break;
         case 'UPLOAD':
-          if (!options.file) {
-            throw new Error('File is required for upload processing');
-          }
-          receipt = await this.createInitialReceipt({
-            userId: new MongooseSchema.Types.ObjectId(options.userId),
-            originalFilename: options.file.filename,
-            source: 'UPLOAD',
-            metadata: {
-              r2Keys: {},
-              processingStatus: 'PROCESSING',
-              version: 1,
-              importDate: new Date(),
-              source: 'UPLOAD',
-              lastProcessed: new Date()
-            }
-          });
+          receipt = await this.processUpload(options);
+          break;
+        case 'CSV':
+          receipt = await this.processCSV(options);
+          break;
+        case 'MANUAL':
+          receipt = await this.processManual(options);
           break;
         default:
-          throw new Error(`Unsupported receipt source: ${options.source}`);
+          throw new Error(`Unsupported source: ${options.source}`);
       }
 
-      // Perform OCR if we have a file
-      if (options.file) {
-        const ocrResult = await this.ocrService.processImage(options.file.buffer);
-        const extractedData = await this.ocrService.extractReceiptData(
-          Array.isArray(ocrResult.text) ? ocrResult.text.join('\n') : ocrResult.text
-        );
-
-        // Update receipt with OCR data
-        receipt = await this.receiptModel.findByIdAndUpdate(
-          receipt._id,
-          {
-            $set: {
-              ocrData: {
-                text: Array.isArray(ocrResult.text) ? ocrResult.text.join('\n') : ocrResult.text,
-                confidence: ocrResult.confidence,
-                metadata: extractedData,
-                processedAt: new Date(),
-              },
-            },
-          },
-          { new: true }
-        );
-      }
-
-      // If we have expense data, try to match it
-      if (options.expenseData) {
-        const matchScore = await this.calculateMatchScore(receipt, options.expenseData);
-        if (matchScore.confidence > 0.7) {
-          receipt = await this.receiptModel.findByIdAndUpdate(
-            receipt._id,
-            {
-              $set: {
-                expenseId: new MongooseSchema.Types.ObjectId(options.expenseData.transactionId),
-                matchScore: matchScore.confidence,
-                matchDetails: matchScore.matchDetails,
-              },
-            },
-            { new: true }
-          );
-        }
-      }
+      this.updateProgress(options.source, { 
+        status: 'completed',
+        progress: 1,
+        total: 1
+      });
 
       return receipt;
     } catch (error) {
-      this.logger.error('Error processing receipt:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.updateProgress(options.source, {
+        status: 'error',
+        error: errorMessage
+      });
       throw error;
     }
-  }
-
-  private async processManualUpload(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
-    if (!options.file) {
-      throw new Error('File is required for manual upload');
-    }
-
-    const r2Key = this.r2Service.generateKey(options.userId, options.file.filename);
-    const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
-
-    // Upload original file
-    await this.r2Service.uploadReceipt(options.file.buffer, r2Key, options.file.mimeType);
-
-    // Generate and upload thumbnail
-    const thumbnail = await this.r2Service.generateThumbnail(options.file.buffer);
-    await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
-
-    // Get signed URLs
-    const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
-    const thumbnailUrl = await this.r2Service.getSignedUrl(r2ThumbnailKey);
-
-    const receiptData: Partial<Receipt> = {
-      originalFilename: options.file.filename,
-      urls: {
-        original: fullImageUrl,
-        thumbnail: thumbnailUrl
-      },
-      merchant: options.expenseData?.merchant,
-      amount: options.expenseData?.amount,
-      userId: new MongooseSchema.Types.ObjectId(options.userId),
-      source: options.source,
-      mimeType: options.file.mimeType,
-      fileSize: options.file.buffer.length,
-      metadata: {
-        r2Keys: {
-          original: r2Key,
-          thumbnail: r2ThumbnailKey
-        },
-        processingStatus: 'completed',
-        version: 1,
-        importDate: new Date(),
-        source: options.source,
-        lastProcessed: new Date()
-      }
-    };
-
-    const receipt = await this.receiptModel.create(receiptData);
-    const populatedReceipt = await receipt.populate('userId');
-    return populatedReceipt;
   }
 
   private async processGooglePhotos(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
@@ -190,129 +150,161 @@ export class UnifiedReceiptProcessorService {
       throw new Error('Expense data is required for Google Photos processing');
     }
 
-    const matchedReceipts = await this.googlePhotosService.findReceiptsByExpense({
-      merchant: options.expenseData.merchant,
-      amount: options.expenseData.amount,
-      date: options.expenseData.date,
-      userId: options.userId,
-    });
+    return await this.withRetry(async () => {
+      const matchedReceipts = await this.googlePhotosService.findReceiptsByExpense({
+        merchant: options.expenseData!.merchant,
+        amount: options.expenseData!.amount,
+        date: options.expenseData!.date,
+        userId: options.userId,
+      });
 
-    if (matchedReceipts.length === 0) {
-      throw new Error('No matching receipts found in Google Photos');
-    }
+      if (matchedReceipts.length === 0) {
+        throw new Error('No matching receipts found in Google Photos');
+      }
 
-    // Return the best match
-    return matchedReceipts[0];
+      // Return the best match
+      return matchedReceipts[0];
+    }, 'Google Photos processing');
   }
 
-  private async processEmailReceipt(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
+  private async processEmail(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     if (!options.file) {
-      throw new Error('File is required for email receipt processing');
+      throw new Error('File data is required for email processing');
     }
 
-    // For HTML content, convert to PDF first
-    if (options.file.mimeType === 'text/html') {
-      const pdfBuffer = await this.receiptConverter.htmlToPdf(
-        options.file.buffer.toString(),
-        { width: 800, height: 1200 }
+    return await this.withRetry(async () => {
+      // Process the email attachment
+      const processedData = await this.receiptConverter.processEmailAttachment(
+        options.file!.buffer,
+        options.file!.filename
       );
+
+      // Store in R2
+      const r2Key = this.r2Service.generateKey(options.userId, options.file!.filename);
+      const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
+
+      await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
       
-      options = {
-        ...options,
-        file: {
-          ...options.file,
-          buffer: pdfBuffer,
-          mimeType: 'application/pdf'
-        }
-      };
-    }
-
-    // For PDF files, generate a preview image
-    if (options.file.mimeType === 'application/pdf') {
-      const { buffer: imageBuffer } = await this.receiptConverter.pdfToImage(
-        options.file.buffer,
-        { width: 800, quality: 300 }
-      );
-      
-      // Store both PDF and image
-      const r2Key = this.r2Service.generateKey(options.userId, options.file.filename);
-      const r2ImageKey = this.r2Service.generateKey(options.userId, options.file.filename.replace('.pdf', '.png'));
-      const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2ImageKey);
-
-      await Promise.all([
-        this.r2Service.uploadReceipt(options.file.buffer, r2Key, options.file.mimeType),
-        this.r2Service.uploadReceipt(imageBuffer, r2ImageKey, 'image/png')
-      ]);
-
       // Generate and upload thumbnail
-      const thumbnail = await this.r2Service.generateThumbnail(imageBuffer);
+      const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
       await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
 
       // Get signed URLs
-      const [pdfUrl, imageUrl, thumbnailUrl] = await Promise.all([
-        this.r2Service.getSignedUrl(r2Key),
-        this.r2Service.getSignedUrl(r2ImageKey),
-        this.r2Service.getSignedUrl(r2ThumbnailKey)
-      ]);
+      const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
+      const thumbnailUrl = await this.r2Service.getSignedUrl(r2ThumbnailKey);
 
-      const receiptData: Partial<Receipt> = {
-        originalFilename: options.file.filename,
-        urls: {
-          original: imageUrl,
-          thumbnail: thumbnailUrl,
-          converted: pdfUrl
-        },
-        merchant: options.expenseData?.merchant || 'Unknown',
-        amount: options.expenseData?.amount || 0,
-        date: options.expenseData?.date || new Date(),
-        category: options.expenseData?.category || 'Uncategorized',
-        userId: new MongooseSchema.Types.ObjectId(options.userId),
-        source: options.source,
-        mimeType: options.file.mimeType,
-        fileSize: options.file.buffer.length,
+      // Create receipt record
+      return await this.receiptModel.create({
+        filename: options.file!.filename,
+        thumbnailUrl,
+        fullImageUrl,
+        merchant: options.expenseData?.merchant,
+        amount: options.expenseData?.amount,
+        userId: options.userId,
+        r2Key,
+        r2ThumbnailKey,
+        source: 'EMAIL',
         metadata: {
-          r2Keys: {
-            original: r2Key,
-            converted: r2ImageKey,
-            thumbnail: r2ThumbnailKey
-          },
-          processingStatus: 'completed',
-          version: 1,
-          importDate: new Date(),
-          source: options.source,
-          lastProcessed: new Date()
-        }
-      };
-
-      const receipt = await this.receiptModel.create(receiptData);
-      return receipt;
-    }
-
-    // For other types, process as usual
-    return this.processManualUpload(options);
+          mimeType: options.file!.mimeType,
+          size: options.file!.buffer.length,
+        },
+        ...processedData,
+      });
+    }, 'Email processing');
   }
 
-  private async processCSVReceipt(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
-    if (!options.expenseData) {
-      throw new Error('Expense data is required for CSV receipt processing');
+  private async processUpload(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
+    if (!options.file) {
+      throw new Error('File data is required for upload processing');
     }
 
-    // Create a basic receipt record for CSV imports
-    const csvReceipt = new this.receiptModel({
-      merchant: options.expenseData.merchant,
-      amount: options.expenseData.amount,
-      userId: new MongooseSchema.Types.ObjectId(options.userId),
-      source: 'CSV',
-      metadata: {
-        r2Keys: {},
-        importDate: new Date(),
-        source: 'csv_import',
-        processingStatus: 'completed',
-        version: 1
-      }
-    });
+    return await this.withRetry(async () => {
+      // Process the uploaded file
+      const processedData = await this.receiptConverter.processUploadedFile(
+        options.file!.buffer,
+        options.file!.filename
+      );
 
-    return csvReceipt.save();
+      // Store in R2
+      const r2Key = this.r2Service.generateKey(options.userId, options.file!.filename);
+      const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
+
+      await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
+      
+      // Generate and upload thumbnail
+      const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
+      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
+
+      // Get signed URLs
+      const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
+      const thumbnailUrl = await this.r2Service.getSignedUrl(r2ThumbnailKey);
+
+      // Create receipt record
+      return await this.receiptModel.create({
+        filename: options.file!.filename,
+        thumbnailUrl,
+        fullImageUrl,
+        merchant: options.expenseData?.merchant,
+        amount: options.expenseData?.amount,
+        userId: options.userId,
+        r2Key,
+        r2ThumbnailKey,
+        source: 'UPLOAD',
+        metadata: {
+          mimeType: options.file!.mimeType,
+          size: options.file!.buffer.length,
+        },
+        ...processedData,
+      });
+    }, 'Upload processing');
+  }
+
+  private async processCSV(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
+    if (!options.file) {
+      throw new Error('File data is required for CSV processing');
+    }
+
+    return await this.withRetry(async () => {
+      // Process the CSV file
+      const processedData = await this.receiptConverter.processCSVFile(
+        options.file!.buffer,
+        options.file!.filename
+      );
+
+      // Create receipt record
+      return await this.receiptModel.create({
+        filename: options.file!.filename,
+        merchant: options.expenseData?.merchant,
+        amount: options.expenseData?.amount,
+        userId: options.userId,
+        source: 'CSV',
+        metadata: {
+          mimeType: options.file!.mimeType,
+          size: options.file!.buffer.length,
+        },
+        ...processedData,
+      });
+    }, 'CSV processing');
+  }
+
+  private async processManual(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
+    if (!options.expenseData) {
+      throw new Error('Expense data is required for manual processing');
+    }
+
+    return await this.withRetry(async () => {
+      // Create receipt record
+      return await this.receiptModel.create({
+        merchant: options.expenseData!.merchant,
+        amount: options.expenseData!.amount,
+        date: options.expenseData!.date,
+        userId: options.userId,
+        source: 'MANUAL',
+        metadata: {
+          processedAt: new Date(),
+        },
+      });
+    }, 'Manual processing');
   }
 
   private async calculateMatchScore(receipt: ReceiptDocument, expenseData: {

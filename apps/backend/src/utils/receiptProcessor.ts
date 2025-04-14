@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import fetch, { Response } from 'node-fetch';
 import { createHash } from 'crypto';
 import { lookup } from 'mime-types';
@@ -43,7 +43,7 @@ interface ReceiptProcessingResult {
 
 const s3Client = new S3Client({
   region: process.env['AWS_REGION'] || 'auto',
-  endpoint: process.env['R2_ENDPOINT'],
+  endpoint: process.env['R2_ENDPOINT'] || undefined,
   credentials: {
     accessKeyId: process.env['R2_ACCESS_KEY_ID'] || '',
     secretAccessKey: process.env['R2_SECRET_ACCESS_KEY'] || '',
@@ -62,13 +62,13 @@ export class ReceiptProcessor {
 
   private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   private static readonly DOWNLOAD_TIMEOUT = 30000; // 30 seconds
-  private static readonly OCR_ENDPOINT = process.env['OCR_API_ENDPOINT'];
-  private static readonly OCR_API_KEY = process.env['OCR_API_KEY'];
+  private static readonly OCR_ENDPOINT = process.env['OCR_API_ENDPOINT'] || '';
+  private static readonly OCR_API_KEY = process.env['OCR_API_KEY'] || '';
 
   private static async checkIfReceiptExists(key: string): Promise<{ exists: boolean; metadata?: any }> {
     try {
       const result = await s3Client.send(new HeadObjectCommand({
-        Bucket: process.env['R2_BUCKET_NAME'],
+        Bucket: process.env['R2_BUCKET_NAME'] || '',
         Key: key,
       }));
       return { 
@@ -169,12 +169,12 @@ export class ReceiptProcessor {
     return this.ALLOWED_MIME_TYPES.has(contentType.toLowerCase());
   }
 
-  private static async streamToBuffer(stream: NodeJS.ReadableStream | ReadableStream): Promise<Buffer> {
+  private static async streamToBuffer(stream: NodeJS.ReadableStream | ReadableStream<any>): Promise<Buffer> {
     let nodeStream: NodeJS.ReadableStream;
     
     // Check if it's a web ReadableStream by checking for getReader method
     if ('getReader' in stream) {
-      const reader = (stream as ReadableStream).getReader();
+      const reader = (stream as ReadableStream<any>).getReader();
       nodeStream = new Readable({
         async read() {
           try {
@@ -226,9 +226,9 @@ export class ReceiptProcessor {
           originalUrl: url,
           unifiedReceipt: JSON.parse(metadata.unifiedReceipt),
           metadata: {
-            ocrConfidence: parseFloat(metadata.ocrConfidence),
-            processedAt: metadata.processedAt,
-            source: metadata.source,
+            ocrConfidence: parseFloat(metadata.ocrConfidence || '0'),
+            processedAt: metadata.processedAt || new Date().toISOString(),
+            source: metadata.source || 'cache',
           },
         };
       }
@@ -248,38 +248,36 @@ export class ReceiptProcessor {
       const finalKey = `${baseKey}.${extension}`;
 
       // Convert to buffer and perform OCR
-      const buffer = await this.streamToBuffer(response.body);
+      const buffer = await this.streamToBuffer(response.body as NodeJS.ReadableStream);
       const unifiedReceipt = await this.performOCR(buffer, contentType || 'application/pdf');
 
-      // Upload to R2 with metadata
-      await s3Client.send(new PutObjectCommand({
-        Bucket: process.env['R2_BUCKET_NAME'],
+      // Upload to S3
+      const putObjectParams: PutObjectCommandInput = {
+        Bucket: process.env['R2_BUCKET_NAME'] || '',
         Key: finalKey,
         Body: buffer,
-        ContentType: contentType,
+        ContentType: contentType || undefined,
         Metadata: {
-          originalUrl: url,
-          processedAt: new Date().toISOString(),
-          source: 'ocr',
           unifiedReceipt: unifiedReceipt ? JSON.stringify(unifiedReceipt) : '',
-          ocrConfidence: unifiedReceipt ? '0.85' : '0',
-        },
-      }));
-
-      return {
-        success: true,
-        url: `${process.env['R2_PUBLIC_URL']}/${finalKey}`,
-        originalUrl: url,
-        unifiedReceipt,
-        metadata: {
-          ocrConfidence: 0.85,
           processedAt: new Date().toISOString(),
           source: 'ocr',
         },
       };
 
+      await s3Client.send(new PutObjectCommand(putObjectParams));
+
+      return {
+        success: true,
+        url: `${process.env['R2_PUBLIC_URL']}/${finalKey}`,
+        originalUrl: url,
+        unifiedReceipt: unifiedReceipt || undefined,
+        metadata: {
+          processedAt: new Date().toISOString(),
+          source: 'ocr',
+        },
+      };
     } catch (error) {
-      console.error('Receipt processing error:', error);
+      console.error('Error processing receipt:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -289,17 +287,6 @@ export class ReceiptProcessor {
   }
 
   public static async processReceiptBatch(urls: string[]): Promise<ReceiptProcessingResult[]> {
-    const batchSize = 5;
-    const results: ReceiptProcessingResult[] = [];
-    
-    for (let i = 0; i < urls.length; i += batchSize) {
-      const batch = urls.slice(i, i + batchSize);
-      const batchResults = await Promise.all(
-        batch.map(url => this.processReceipt(url))
-      );
-      results.push(...batchResults);
-    }
-
-    return results;
+    return Promise.all(urls.map(url => this.processReceipt(url)));
   }
 } 

@@ -1,0 +1,29 @@
+{
+  "name": "teller-webhook",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for handling Teller.com webhooks",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cloudflare",
+    "worker",
+    "teller",
+    "webhook"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.28.1"
+  },
+  "dependencies": {
+    "@nestjs/axios": "^4.0.0",
+    "axios": "1.6.7"
+  }
+}

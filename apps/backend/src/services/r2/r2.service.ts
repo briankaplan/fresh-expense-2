@@ -5,11 +5,14 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  S3ClientConfig,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { HfInference } from '@huggingface/inference';
+import { RateLimits } from '../rateLimiter';
 
 interface UploadResult {
   key: string;
@@ -18,39 +21,71 @@ interface UploadResult {
   thumbnailUrl?: string;
 }
 
+interface HuggingFaceOCRResult {
+  text: string;
+  confidence: number;
+}
+
+interface HuggingFaceClassificationResult {
+  label: string;
+  score: number;
+}
+
 @Injectable()
 export class R2Service {
   private readonly logger = new Logger(R2Service.name);
   private readonly s3Client: S3Client;
   private readonly bucket: string;
   private readonly publicUrl: string;
+  private readonly hf: HfInference;
+  private readonly rateLimiter: RateLimits;
 
   constructor(private readonly configService: ConfigService) {
-    this.bucket = this.configService.get<string>('R2_BUCKET_NAME');
-    this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL');
+    const bucketName = this.configService.get<string>('R2_BUCKET_NAME');
+    const publicUrl = this.configService.get<string>('R2_PUBLIC_URL');
+    const endpoint = this.configService.get<string>('R2_ENDPOINT');
+    const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
+    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
+    const huggingfaceApiKey = this.configService.get<string>('HUGGINGFACE_API_KEY');
 
-    this.s3Client = new S3Client({
+    if (!bucketName || !publicUrl || !endpoint || !accessKeyId || !secretAccessKey || !huggingfaceApiKey) {
+      throw new Error('Missing required configuration for R2Service');
+    }
+
+    this.bucket = bucketName;
+    this.publicUrl = publicUrl;
+
+    const s3Config: S3ClientConfig = {
       region: 'auto',
-      endpoint: this.configService.get<string>('R2_ENDPOINT'),
+      endpoint,
       credentials: {
-        accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID'),
-        secretAccessKey: this.configService.get<string>('R2_SECRET_ACCESS_KEY'),
+        accessKeyId,
+        secretAccessKey,
+      },
+    };
+
+    this.s3Client = new S3Client(s3Config);
+    this.hf = new HfInference(huggingfaceApiKey);
+    this.rateLimiter = new RateLimits({
+      'huggingface-api': {
+        maxRequests: 100,
+        timeWindow: 60 * 1000, // 1 minute
       },
     });
   }
 
-  generateKey(userId: string, filename: string): string {
+  private generateKey(userId: string, filename: string): string {
     const ext = path.extname(filename);
     return `receipts/${userId}/${uuidv4()}${ext}`;
   }
 
-  generateThumbnailKey(originalKey: string): string {
+  private generateThumbnailKey(originalKey: string): string {
     const ext = path.extname(originalKey);
     const baseKey = originalKey.slice(0, -ext.length);
     return `${baseKey}_thumb${ext}`;
   }
 
-  async generateThumbnail(buffer: Buffer): Promise<Buffer> {
+  private async generateThumbnail(buffer: Buffer): Promise<Buffer> {
     try {
       return await sharp(buffer)
         .resize(300, 300, {
@@ -64,108 +99,126 @@ export class R2Service {
     }
   }
 
-  async uploadReceipt(
-    buffer: Buffer,
-    mimeType: string,
-    originalFilename: string
-  ): Promise<UploadResult> {
+  private async handleS3Operation<T>(
+    operation: () => Promise<T>,
+    operationName: string
+  ): Promise<T> {
     try {
-      const ext = path.extname(originalFilename);
-      const baseKey = `receipts/${uuidv4()}`;
-      const key = `${baseKey}${ext}`;
-      const thumbnailKey = `${baseKey}_thumb${ext}`;
-
-      // Generate thumbnail
-      const thumbnail = await this.generateThumbnail(buffer);
-
-      // Upload original file
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-          Body: buffer,
-          ContentType: mimeType,
-        })
-      );
-
-      // Upload thumbnail
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucket,
-          Key: thumbnailKey,
-          Body: thumbnail,
-          ContentType: mimeType,
-        })
-      );
-
-      // Get signed URLs
-      const url = await this.getSignedUrl(key);
-      const thumbnailUrl = await this.getSignedUrl(thumbnailKey);
-
-      return {
-        key,
-        thumbnailKey,
-        url,
-        thumbnailUrl,
-      };
+      return await operation();
     } catch (error) {
-      this.logger.error('Error uploading receipt to R2:', error);
+      this.logger.error(`Error in ${operationName}:`, error);
       throw error;
     }
+  }
+
+  private async uploadToS3(
+    buffer: Buffer,
+    key: string,
+    contentType: string
+  ): Promise<void> {
+    await this.handleS3Operation(
+      () =>
+        this.s3Client.send(
+          new PutObjectCommand({
+            Bucket: this.bucket,
+            Key: key,
+            Body: buffer,
+            ContentType: contentType,
+          })
+        ),
+      'uploading to S3'
+    );
+  }
+
+  private async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
+    return this.handleS3Operation(
+      async () => {
+        const command = new GetObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+        });
+        return getSignedUrl(this.s3Client, command, { expiresIn });
+      },
+      'generating signed URL'
+    );
   }
 
   async uploadFile(
     buffer: Buffer,
-    key: string,
-    contentType: string,
+    options: {
+      userId: string;
+      filename: string;
+      mimeType: string;
+      generateThumbnail?: boolean;
+    }
   ): Promise<UploadResult> {
-    try {
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-          Body: buffer,
-          ContentType: contentType,
-        }),
-      );
+    const key = this.generateKey(options.userId, options.filename);
+    const thumbnailKey = options.generateThumbnail ? this.generateThumbnailKey(key) : undefined;
 
-      const url = await this.getSignedUrl(key);
-      return { key, url };
-    } catch (error) {
-      this.logger.error(`Error uploading file to R2: ${error}`);
-      throw error;
+    // Upload original file
+    await this.uploadToS3(buffer, key, options.mimeType);
+
+    let thumbnailUrl: string | undefined;
+    if (options.generateThumbnail && thumbnailKey) {
+      // Generate and upload thumbnail
+      const thumbnail = await this.generateThumbnail(buffer);
+      await this.uploadToS3(thumbnail, thumbnailKey, options.mimeType);
+      thumbnailUrl = await this.getSignedUrl(thumbnailKey);
     }
-  }
 
-  async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    try {
-      const command = new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
+    const url = await this.getSignedUrl(key);
 
-      return await getSignedUrl(this.s3Client, command, { expiresIn });
-    } catch (error) {
-      this.logger.error(`Error generating signed URL: ${error}`);
-      throw error;
-    }
+    return {
+      key,
+      url,
+      thumbnailKey,
+      thumbnailUrl,
+    };
   }
 
   async deleteFile(key: string): Promise<void> {
-    try {
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`Error deleting file from R2: ${error}`);
-      throw error;
-    }
+    await this.handleS3Operation(
+      () =>
+        this.s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: this.bucket,
+            Key: key,
+          })
+        ),
+      'deleting file from S3'
+    );
   }
 
   getPublicUrl(key: string): string {
     return `${this.publicUrl}/${key}`;
   }
-} 
+
+  async processReceiptWithHuggingFace(file: Buffer): Promise<{
+    text: string;
+    confidence: number;
+    category: string;
+  }> {
+    await this.rateLimiter.check('huggingface-api');
+
+    // OCR text extraction
+    const ocrResult = await this.hf.imageToText({
+      data: file,
+      model: 'impira/layoutlm-document-qa',
+    }) as unknown as HuggingFaceOCRResult;
+
+    // Category classification
+    const classificationResult = await this.hf.textClassification({
+      model: 'facebook/bart-large-mnli',
+      inputs: ocrResult.text,
+      parameters: {
+        candidate_labels: ['food', 'transportation', 'entertainment', 'utilities', 'shopping'],
+      },
+    }) as unknown as HuggingFaceClassificationResult[];
+
+    return {
+      text: ocrResult.text,
+      confidence: ocrResult.confidence,
+      category: classificationResult[0].label,
+    };
+  }
+}

@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, IsMongoId, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, IsMongoId, IsEnum, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum ExpenseStatus {
   PENDING = 'pending',

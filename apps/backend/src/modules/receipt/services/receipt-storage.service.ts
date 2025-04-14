@@ -1,58 +1,47 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { R2Service } from '../../../services/r2/r2.service';
-
-export interface StoredReceipt {
-  r2Key: string;
-  r2ThumbnailKey: string;
-  fullImageUrl: string;
-  thumbnailUrl: string;
-  metadata: {
-    mimeType: string;
-    size: number;
-    processedAt: Date;
-  };
-}
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ReceiptStorageService {
   private readonly logger = new Logger(ReceiptStorageService.name);
 
-  constructor(private r2Service: R2Service) {}
+  constructor(
+    private readonly r2Service: R2Service,
+    private readonly configService: ConfigService,
+  ) {}
 
-  async store(
-    file: Buffer,
-    options: {
-      userId: string;
-      filename: string;
-      mimeType: string;
-      thumbnail?: Buffer;
-    }
-  ): Promise<StoredReceipt> {
+  async storeReceipt(file: Buffer, userId: string): Promise<{
+    url: string;
+    thumbnailUrl: string;
+    processedData: {
+      text: string;
+      confidence: number;
+      category: string;
+    };
+  }> {
     try {
-      const r2Key = this.r2Service.generateKey(options.userId, options.filename);
-      const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
-
-      // Upload original file
-      await this.r2Service.uploadReceipt(file, r2Key, options.mimeType);
-
-      // Upload thumbnail if provided, otherwise generate and upload
-      const thumbnail = options.thumbnail || await this.r2Service.generateThumbnail(file);
-      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
-
-      // Get signed URLs
-      const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
-      const thumbnailUrl = await this.r2Service.getSignedUrl(r2ThumbnailKey);
+      const filename = `${Date.now()}.jpg`;
+      
+      // Upload file with thumbnail
+      const uploadResult = await this.r2Service.uploadFile(file, {
+        userId,
+        filename,
+        mimeType: 'image/jpeg',
+        generateThumbnail: true,
+      });
+      
+      if (!uploadResult.thumbnailUrl) {
+        throw new Error('Failed to generate thumbnail');
+      }
+      
+      // Process with HuggingFace
+      const processedData = await this.r2Service.processReceiptWithHuggingFace(file);
 
       return {
-        r2Key,
-        r2ThumbnailKey,
-        fullImageUrl,
-        thumbnailUrl,
-        metadata: {
-          mimeType: options.mimeType,
-          size: file.length,
-          processedAt: new Date(),
-        },
+        url: uploadResult.url,
+        thumbnailUrl: uploadResult.thumbnailUrl,
+        processedData,
       };
     } catch (error) {
       this.logger.error('Error storing receipt:', error);
@@ -60,20 +49,20 @@ export class ReceiptStorageService {
     }
   }
 
-  async refreshUrls(receipt: { r2Key: string; r2ThumbnailKey: string }): Promise<{ fullImageUrl: string; thumbnailUrl: string }> {
-    const fullImageUrl = await this.r2Service.getSignedUrl(receipt.r2Key);
-    const thumbnailUrl = await this.r2Service.getSignedUrl(receipt.r2ThumbnailKey);
-    return { fullImageUrl, thumbnailUrl };
+  async getReceiptUrl(key: string): Promise<string> {
+    return this.r2Service.getSignedUrl(key);
   }
 
-  async delete(receipt: { r2Key: string; r2ThumbnailKey: string }): Promise<void> {
+  async deleteReceipt(key: string): Promise<void> {
     try {
-      await Promise.all([
-        this.r2Service.deleteFile(receipt.r2Key),
-        this.r2Service.deleteFile(receipt.r2ThumbnailKey),
-      ]);
+      await this.r2Service.deleteFile(key);
+      // Also delete thumbnail if it exists
+      const thumbnailKey = key.replace(/\.[^.]+$/, '_thumb$&');
+      await this.r2Service.deleteFile(thumbnailKey).catch(() => {
+        // Ignore error if thumbnail doesn't exist
+      });
     } catch (error) {
-      this.logger.error('Error deleting receipt files:', error);
+      this.logger.error('Error deleting receipt:', error);
       throw error;
     }
   }

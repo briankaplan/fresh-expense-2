@@ -18,10 +18,12 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vitest/globals", "node"],
+    "types": ["vitest/globals", "node", "multer"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist", "build"],
