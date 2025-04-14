@@ -9,7 +9,7 @@ on:
 env:
   NODE_VERSION: '20.x'
   PNPM_VERSION: '8.15.4'
-  HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
+  PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
   SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
 jobs:
@@ -173,7 +173,6 @@ jobs:
           GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
           GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
           PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
-          HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
       - name: Deploy to Cloudflare Workers
@@ -201,5 +200,4 @@ jobs:
           GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
           GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
           PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
-          HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
