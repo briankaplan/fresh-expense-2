@@ -5,90 +5,44 @@ on:
     branches: ['main']
   pull_request:
     branches: ['main']
-  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  NODE_ENV: production
+  BACKEND_IMAGE_NAME: ${{ github.repository }}-api
+  FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
+  NODE_VERSION: '20.x'
+  PNPM_VERSION: '8.15.4'
 
 permissions:
   contents: read
   packages: write
-  actions: read
-  id-token: write
 
 jobs:
   validate-secrets:
     runs-on: ubuntu-latest
     steps:
       - name: Check required secrets
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-          ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
-          GMAIL_CLIENT_ID_1: ${{ secrets.GMAIL_CLIENT_ID_1 }}
-          GMAIL_CLIENT_SECRET_1: ${{ secrets.GMAIL_CLIENT_SECRET_1 }}
-          GMAIL_REFRESH_TOKEN_1: ${{ secrets.GMAIL_REFRESH_TOKEN_1 }}
-          GOOGLE_REDIRECT_URI_1: ${{ secrets.GOOGLE_REDIRECT_URI_1 }}
-          GMAIL_CLIENT_ID_2: ${{ secrets.GMAIL_CLIENT_ID_2 }}
-          GMAIL_CLIENT_SECRET_2: ${{ secrets.GMAIL_CLIENT_SECRET_2 }}
-          GMAIL_REFRESH_TOKEN_2: ${{ secrets.GMAIL_REFRESH_TOKEN_2 }}
-          GOOGLE_REDIRECT_URI_2: ${{ secrets.GOOGLE_REDIRECT_URI_2 }}
-          GOOGLE_PHOTOS_REDIRECT_URI: ${{ secrets.GOOGLE_PHOTOS_REDIRECT_URI }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
-          TELLER_APPLICATION_ID: ${{ secrets.TELLER_APPLICATION_ID }}
-          TELLER_SIGNING_SECRET: ${{ secrets.TELLER_SIGNING_SECRET }}
-          TELLER_SIGNING_KEY: ${{ secrets.TELLER_SIGNING_KEY }}
-          HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
-          HUGGINGFACE_OCR_TOKEN: ${{ secrets.HUGGINGFACE_OCR_TOKEN }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          RECEIPT_EMAIL: ${{ secrets.RECEIPT_EMAIL }}
-          API_URL: ${{ secrets.API_URL }}
-          STORAGE_URL: ${{ secrets.STORAGE_URL }}
         run: |
-          # Filter out system and GitHub-specific environment variables
-          required_secrets=(
-            "JWT_SECRET"
-            "ENCRYPTION_KEY"
-            "ENCRYPTION_IV"
-            "GMAIL_CLIENT_ID_1"
-            "GMAIL_CLIENT_SECRET_1"
-            "GMAIL_REFRESH_TOKEN_1"
-            "GOOGLE_REDIRECT_URI_1"
-            "GMAIL_CLIENT_ID_2"
-            "GMAIL_CLIENT_SECRET_2"
-            "GMAIL_REFRESH_TOKEN_2"
-            "GOOGLE_REDIRECT_URI_2"
-            "GOOGLE_PHOTOS_REDIRECT_URI"
-            "R2_ACCOUNT_ID"
-            "R2_ACCESS_KEY_ID"
-            "R2_SECRET_ACCESS_KEY"
-            "R2_BUCKET_NAME"
-            "R2_PUBLIC_URL"
-            "TELLER_APPLICATION_ID"
-            "TELLER_SIGNING_SECRET"
-            "TELLER_SIGNING_KEY"
-            "HUGGINGFACE_API_TOKEN"
-            "HUGGINGFACE_OCR_TOKEN"
-            "MONGODB_URI"
-            "SENDGRID_API_KEY"
-            "RECEIPT_EMAIL"
-            "API_URL"
-            "STORAGE_URL"
-          )
-
           missing_secrets=()
-          for secret in "${required_secrets[@]}"; do
-            if [ -z "${!secret}" ]; then
-              missing_secrets+=("$secret")
-            fi
-          done
+
+          # Check for required secrets
+          [ -z "${{ secrets.JWT_SECRET }}" ] && missing_secrets+=("JWT_SECRET")
+          [ -z "${{ secrets.ENCRYPTION_KEY }}" ] && missing_secrets+=("ENCRYPTION_KEY")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_1 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_1")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_1 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_1")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_1 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_1")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_2 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_2")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_2 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_2")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_2 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_2")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_3 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_3")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_3 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_3")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_3 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_3")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_4 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_4")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_4 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_4")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_4 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_4")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_5")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_5")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_5 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_5")
 
           if [ ${#missing_secrets[@]} -ne 0 ]; then
             echo "Error: The following required secrets are missing:"
@@ -96,7 +50,7 @@ jobs:
             exit 1
           fi
 
-          echo "All required secrets are present"
+          echo "All required secrets are present."
 
   build-and-push:
     needs: validate-secrets
@@ -105,15 +59,63 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: |
+          pnpm nx build shared
+          pnpm nx build backend
+          pnpm nx build frontend
+        env:
+          NODE_ENV: production
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          GMAIL_CLIENT_ID_1: ${{ secrets.GMAIL_CLIENT_ID_1 }}
+          GMAIL_CLIENT_SECRET_1: ${{ secrets.GMAIL_CLIENT_SECRET_1 }}
+          GMAIL_REFRESH_TOKEN_1: ${{ secrets.GMAIL_REFRESH_TOKEN_1 }}
+          GMAIL_CLIENT_ID_2: ${{ secrets.GMAIL_CLIENT_ID_2 }}
+          GMAIL_CLIENT_SECRET_2: ${{ secrets.GMAIL_CLIENT_SECRET_2 }}
+          GMAIL_REFRESH_TOKEN_2: ${{ secrets.GMAIL_REFRESH_TOKEN_2 }}
+          GMAIL_CLIENT_ID_3: ${{ secrets.GMAIL_CLIENT_ID_3 }}
+          GMAIL_CLIENT_SECRET_3: ${{ secrets.GMAIL_CLIENT_SECRET_3 }}
+          GMAIL_REFRESH_TOKEN_3: ${{ secrets.GMAIL_REFRESH_TOKEN_3 }}
+          GMAIL_CLIENT_ID_4: ${{ secrets.GMAIL_CLIENT_ID_4 }}
+          GMAIL_CLIENT_SECRET_4: ${{ secrets.GMAIL_CLIENT_SECRET_4 }}
+          GMAIL_REFRESH_TOKEN_4: ${{ secrets.GMAIL_REFRESH_TOKEN_4 }}
+          GMAIL_CLIENT_ID_5: ${{ secrets.GMAIL_CLIENT_ID_5 }}
+          GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
+          GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: |
-            image=moby/buildkit:master
-            network=host
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -122,57 +124,54 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata (tags, labels) for API
+        id: meta-api
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
+
+      - name: Extract metadata (tags, labels) for Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
 
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/backend
+          context: apps/backend
+          file: ./apps/backend/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:latest
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
-            NODE_ENV=${{ env.NODE_ENV }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
-            ENCRYPTION_IV=${{ secrets.ENCRYPTION_IV }}
             GMAIL_CLIENT_ID_1=${{ secrets.GMAIL_CLIENT_ID_1 }}
             GMAIL_CLIENT_SECRET_1=${{ secrets.GMAIL_CLIENT_SECRET_1 }}
             GMAIL_REFRESH_TOKEN_1=${{ secrets.GMAIL_REFRESH_TOKEN_1 }}
-            GOOGLE_REDIRECT_URI_1=${{ secrets.GOOGLE_REDIRECT_URI_1 }}
             GMAIL_CLIENT_ID_2=${{ secrets.GMAIL_CLIENT_ID_2 }}
             GMAIL_CLIENT_SECRET_2=${{ secrets.GMAIL_CLIENT_SECRET_2 }}
             GMAIL_REFRESH_TOKEN_2=${{ secrets.GMAIL_REFRESH_TOKEN_2 }}
-            GOOGLE_REDIRECT_URI_2=${{ secrets.GOOGLE_REDIRECT_URI_2 }}
-            GOOGLE_PHOTOS_REDIRECT_URI=${{ secrets.GOOGLE_PHOTOS_REDIRECT_URI }}
-            R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}
-            R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}
-            R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}
-            R2_BUCKET_NAME=${{ secrets.R2_BUCKET_NAME }}
-            R2_PUBLIC_URL=${{ secrets.R2_PUBLIC_URL }}
-            TELLER_APPLICATION_ID=${{ secrets.TELLER_APPLICATION_ID }}
-            TELLER_SIGNING_SECRET=${{ secrets.TELLER_SIGNING_SECRET }}
-            TELLER_SIGNING_KEY=${{ secrets.TELLER_SIGNING_KEY }}
-            HUGGINGFACE_API_TOKEN=${{ secrets.HUGGINGFACE_API_TOKEN }}
-            HUGGINGFACE_OCR_TOKEN=${{ secrets.HUGGINGFACE_OCR_TOKEN }}
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
-            RECEIPT_EMAIL=${{ secrets.RECEIPT_EMAIL }}
+            GMAIL_CLIENT_ID_3=${{ secrets.GMAIL_CLIENT_ID_3 }}
+            GMAIL_CLIENT_SECRET_3=${{ secrets.GMAIL_CLIENT_SECRET_3 }}
+            GMAIL_REFRESH_TOKEN_3=${{ secrets.GMAIL_REFRESH_TOKEN_3 }}
+            GMAIL_CLIENT_ID_4=${{ secrets.GMAIL_CLIENT_ID_4 }}
+            GMAIL_CLIENT_SECRET_4=${{ secrets.GMAIL_CLIENT_SECRET_4 }}
+            GMAIL_REFRESH_TOKEN_4=${{ secrets.GMAIL_REFRESH_TOKEN_4 }}
+            GMAIL_CLIENT_ID_5=${{ secrets.GMAIL_CLIENT_ID_5 }}
+            GMAIL_CLIENT_SECRET_5=${{ secrets.GMAIL_CLIENT_SECRET_5 }}
+            GMAIL_REFRESH_TOKEN_5=${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
 
-      - name: Build and push frontend image
+      - name: Build and push Frontend image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/frontend
+          context: apps/frontend
+          file: ./apps/frontend/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
-          build-args: |
-            NODE_ENV=${{ env.NODE_ENV }}
-            API_URL=${{ secrets.API_URL }}
-            STORAGE_URL=${{ secrets.STORAGE_URL }}
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

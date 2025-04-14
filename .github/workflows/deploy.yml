@@ -1,121 +1,155 @@
-name: Deploy to Production
+name: Deploy to Cloudflare
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
 
 env:
-  NODE_VERSION: '20.11.1'
+  NODE_VERSION: '20.x'
   PNPM_VERSION: '8.15.4'
-
-permissions:
-  contents: read
-  deployments: write
 
 jobs:
   validate-secrets:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for required secrets
+      - name: Check required secrets
         run: |
-          # Cloudflare Secrets
-          if [ -z "${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}" ]; then
-            echo "Error: PROD_CLOUDFLARE_API_TOKEN is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}" ]; then
-            echo "Error: PROD_CLOUDFLARE_ACCOUNT_ID is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.PROD_CLOUDFLARE_ZONE_ID }}" ]; then
-            echo "Error: PROD_CLOUDFLARE_ZONE_ID is not set"
+          missing_secrets=()
+
+          # Check for required secrets
+          [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] && missing_secrets+=("CLOUDFLARE_API_TOKEN")
+          [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ] && missing_secrets+=("CLOUDFLARE_ACCOUNT_ID")
+          [ -z "${{ secrets.JWT_SECRET }}" ] && missing_secrets+=("JWT_SECRET")
+          [ -z "${{ secrets.ENCRYPTION_KEY }}" ] && missing_secrets+=("ENCRYPTION_KEY")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_1 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_1")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_1 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_1")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_1 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_1")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_2 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_2")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_2 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_2")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_2 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_2")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_3 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_3")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_3 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_3")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_3 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_3")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_4 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_4")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_4 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_4")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_4 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_4")
+          [ -z "${{ secrets.GMAIL_CLIENT_ID_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_ID_5")
+          [ -z "${{ secrets.GMAIL_CLIENT_SECRET_5 }}" ] && missing_secrets+=("GMAIL_CLIENT_SECRET_5")
+          [ -z "${{ secrets.GMAIL_REFRESH_TOKEN_5 }}" ] && missing_secrets+=("GMAIL_REFRESH_TOKEN_5")
+
+          if [ ${#missing_secrets[@]} -ne 0 ]; then
+            echo "Error: The following required secrets are missing:"
+            printf '%s\n' "${missing_secrets[@]}"
             exit 1
           fi
 
-          # Application Secrets
-          if [ -z "${{ secrets.PROD_JWT_SECRET }}" ]; then
-            echo "Error: PROD_JWT_SECRET is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.PROD_MONGODB_URI }}" ]; then
-            echo "Error: PROD_MONGODB_URI is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.PROD_API_URL }}" ]; then
-            echo "Error: PROD_API_URL is not set"
-            exit 1
-          fi
-
-          echo "All required secrets are present"
+          echo "All required secrets are present."
 
   deploy-frontend:
     needs: validate-secrets
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
         run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build frontend
-        run: pnpm build:frontend
+        run: pnpm nx build frontend
         env:
-          API_URL: ${{ secrets.PROD_API_URL }}
+          NODE_ENV: production
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
-          projectName: expense-frontend
-          directory: dist/apps/frontend
-          branch: main
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/frontend/dist --project-name=fresh-expense
 
   deploy-backend:
     needs: validate-secrets
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
         run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build backend
-        run: pnpm build:backend
+        run: pnpm nx build backend
         env:
-          JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
-          MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
-          API_URL: ${{ secrets.PROD_API_URL }}
+          NODE_ENV: production
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          GMAIL_CLIENT_ID_1: ${{ secrets.GMAIL_CLIENT_ID_1 }}
+          GMAIL_CLIENT_SECRET_1: ${{ secrets.GMAIL_CLIENT_SECRET_1 }}
+          GMAIL_REFRESH_TOKEN_1: ${{ secrets.GMAIL_REFRESH_TOKEN_1 }}
+          GMAIL_CLIENT_ID_2: ${{ secrets.GMAIL_CLIENT_ID_2 }}
+          GMAIL_CLIENT_SECRET_2: ${{ secrets.GMAIL_CLIENT_SECRET_2 }}
+          GMAIL_REFRESH_TOKEN_2: ${{ secrets.GMAIL_REFRESH_TOKEN_2 }}
+          GMAIL_CLIENT_ID_3: ${{ secrets.GMAIL_CLIENT_ID_3 }}
+          GMAIL_CLIENT_SECRET_3: ${{ secrets.GMAIL_CLIENT_SECRET_3 }}
+          GMAIL_REFRESH_TOKEN_3: ${{ secrets.GMAIL_REFRESH_TOKEN_3 }}
+          GMAIL_CLIENT_ID_4: ${{ secrets.GMAIL_CLIENT_ID_4 }}
+          GMAIL_CLIENT_SECRET_4: ${{ secrets.GMAIL_CLIENT_SECRET_4 }}
+          GMAIL_REFRESH_TOKEN_4: ${{ secrets.GMAIL_REFRESH_TOKEN_4 }}
+          GMAIL_CLIENT_ID_5: ${{ secrets.GMAIL_CLIENT_ID_5 }}
+          GMAIL_CLIENT_SECRET_5: ${{ secrets.GMAIL_CLIENT_SECRET_5 }}
+          GMAIL_REFRESH_TOKEN_5: ${{ secrets.GMAIL_REFRESH_TOKEN_5 }}
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
-          command: publish
-          workingDirectory: apps/backend
-          environment: production
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy apps/backend/dist/index.js --name=fresh-expense-api
