@@ -1,0 +1,119 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.11.1'
+  PNPM_VERSION: '8.15.4'
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  validate-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for required secrets
+        run: |
+          # Cloudflare Secrets
+          if [ -z "${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "Error: PROD_CLOUDFLARE_API_TOKEN is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}" ]; then
+            echo "Error: PROD_CLOUDFLARE_ACCOUNT_ID is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PROD_CLOUDFLARE_ZONE_ID }}" ]; then
+            echo "Error: PROD_CLOUDFLARE_ZONE_ID is not set"
+            exit 1
+          fi
+
+          # Application Secrets
+          if [ -z "${{ secrets.PROD_JWT_SECRET }}" ]; then
+            echo "Error: PROD_JWT_SECRET is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PROD_MONGODB_URI }}" ]; then
+            echo "Error: PROD_MONGODB_URI is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PROD_API_URL }}" ]; then
+            echo "Error: PROD_API_URL is not set"
+            exit 1
+          fi
+
+          echo "All required secrets are present"
+
+  deploy-frontend:
+    needs: validate-secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm build:frontend
+        env:
+          API_URL: ${{ secrets.PROD_API_URL }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
+          projectName: expense-frontend
+          directory: dist/apps/frontend
+          branch: main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-backend:
+    needs: validate-secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build backend
+        run: pnpm build:backend
+        env:
+          JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
+          API_URL: ${{ secrets.PROD_API_URL }}
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
+          command: publish
+          workingDirectory: apps/backend
+          environment: production
