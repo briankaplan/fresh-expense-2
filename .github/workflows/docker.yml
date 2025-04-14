@@ -3,9 +3,72 @@ name: Docker Build and Push
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NODE_ENV: production
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
+  validate-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required secrets
+        run: |
+          # Authentication
+          if [ -z "${{ secrets.PROD_JWT_SECRET }}" ]; then echo "Error: PROD_JWT_SECRET is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_ENCRYPTION_KEY }}" ]; then echo "Error: PROD_ENCRYPTION_KEY is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_ENCRYPTION_IV }}" ]; then echo "Error: PROD_ENCRYPTION_IV is not set"; exit 1; fi
+
+          # Google OAuth
+          if [ -z "${{ secrets.PROD_GMAIL_CLIENT_ID_1 }}" ]; then echo "Error: PROD_GMAIL_CLIENT_ID_1 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GMAIL_CLIENT_SECRET_1 }}" ]; then echo "Error: PROD_GMAIL_CLIENT_SECRET_1 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GMAIL_REFRESH_TOKEN_1 }}" ]; then echo "Error: PROD_GMAIL_REFRESH_TOKEN_1 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GOOGLE_REDIRECT_URI_1 }}" ]; then echo "Error: PROD_GOOGLE_REDIRECT_URI_1 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GMAIL_CLIENT_ID_2 }}" ]; then echo "Error: PROD_GMAIL_CLIENT_ID_2 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GMAIL_CLIENT_SECRET_2 }}" ]; then echo "Error: PROD_GMAIL_CLIENT_SECRET_2 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GMAIL_REFRESH_TOKEN_2 }}" ]; then echo "Error: PROD_GMAIL_REFRESH_TOKEN_2 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GOOGLE_REDIRECT_URI_2 }}" ]; then echo "Error: PROD_GOOGLE_REDIRECT_URI_2 is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_GOOGLE_PHOTOS_REDIRECT_URI }}" ]; then echo "Error: PROD_GOOGLE_PHOTOS_REDIRECT_URI is not set"; exit 1; fi
+
+          # Cloudflare R2
+          if [ -z "${{ secrets.PROD_R2_ACCOUNT_ID }}" ]; then echo "Error: PROD_R2_ACCOUNT_ID is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_R2_ACCESS_KEY_ID }}" ]; then echo "Error: PROD_R2_ACCESS_KEY_ID is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_R2_SECRET_ACCESS_KEY }}" ]; then echo "Error: PROD_R2_SECRET_ACCESS_KEY is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_R2_BUCKET_NAME }}" ]; then echo "Error: PROD_R2_BUCKET_NAME is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_R2_PUBLIC_URL }}" ]; then echo "Error: PROD_R2_PUBLIC_URL is not set"; exit 1; fi
+
+          # Cloudflare
+          if [ -z "${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}" ]; then echo "Error: PROD_CLOUDFLARE_API_TOKEN is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}" ]; then echo "Error: PROD_CLOUDFLARE_ACCOUNT_ID is not set"; exit 1; fi
+
+          # Teller API
+          if [ -z "${{ secrets.PROD_TELLER_APPLICATION_ID }}" ]; then echo "Error: PROD_TELLER_APPLICATION_ID is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_TELLER_SIGNING_SECRET }}" ]; then echo "Error: PROD_TELLER_SIGNING_SECRET is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_TELLER_SIGNING_KEY }}" ]; then echo "Error: PROD_TELLER_SIGNING_KEY is not set"; exit 1; fi
+
+          # AI Services
+          if [ -z "${{ secrets.PROD_HUGGINGFACE_API_TOKEN }}" ]; then echo "Error: PROD_HUGGINGFACE_API_TOKEN is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_HUGGINGFACE_OCR_TOKEN }}" ]; then echo "Error: PROD_HUGGINGFACE_OCR_TOKEN is not set"; exit 1; fi
+
+          # Database
+          if [ -z "${{ secrets.PROD_MONGODB_URI }}" ]; then echo "Error: PROD_MONGODB_URI is not set"; exit 1; fi
+
+          # Email
+          if [ -z "${{ secrets.PROD_SENDGRID_API_KEY }}" ]; then echo "Error: PROD_SENDGRID_API_KEY is not set"; exit 1; fi
+          if [ -z "${{ secrets.PROD_RECEIPT_EMAIL }}" ]; then echo "Error: PROD_RECEIPT_EMAIL is not set"; exit 1; fi
+
+          echo "All required secrets are present"
+
   build-and-push:
+    needs: validate-secrets
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -15,47 +78,66 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.15.4 --activate
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
+      - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push backend
-        uses: docker/build-push-action@v5
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          context: .
-          file: apps/backend/Dockerfile
-          push: true
-          tags: ghcr.io/briankaplan/fresh-expense-2/backend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            NODE_ENV=production
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push frontend
+      - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: apps/frontend/Dockerfile
+          context: ./apps/backend
           push: true
-          tags: ghcr.io/briankaplan/fresh-expense-2/frontend:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:latest
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NODE_ENV=${{ env.NODE_ENV }}
+            JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
+            ENCRYPTION_KEY=${{ secrets.PROD_ENCRYPTION_KEY }}
+            ENCRYPTION_IV=${{ secrets.PROD_ENCRYPTION_IV }}
+            GMAIL_CLIENT_ID_1=${{ secrets.PROD_GMAIL_CLIENT_ID_1 }}
+            GMAIL_CLIENT_SECRET_1=${{ secrets.PROD_GMAIL_CLIENT_SECRET_1 }}
+            GMAIL_REFRESH_TOKEN_1=${{ secrets.PROD_GMAIL_REFRESH_TOKEN_1 }}
+            GOOGLE_REDIRECT_URI_1=${{ secrets.PROD_GOOGLE_REDIRECT_URI_1 }}
+            GMAIL_CLIENT_ID_2=${{ secrets.PROD_GMAIL_CLIENT_ID_2 }}
+            GMAIL_CLIENT_SECRET_2=${{ secrets.PROD_GMAIL_CLIENT_SECRET_2 }}
+            GMAIL_REFRESH_TOKEN_2=${{ secrets.PROD_GMAIL_REFRESH_TOKEN_2 }}
+            GOOGLE_REDIRECT_URI_2=${{ secrets.PROD_GOOGLE_REDIRECT_URI_2 }}
+            GOOGLE_PHOTOS_REDIRECT_URI=${{ secrets.PROD_GOOGLE_PHOTOS_REDIRECT_URI }}
+            R2_ACCOUNT_ID=${{ secrets.PROD_R2_ACCOUNT_ID }}
+            R2_ACCESS_KEY_ID=${{ secrets.PROD_R2_ACCESS_KEY_ID }}
+            R2_SECRET_ACCESS_KEY=${{ secrets.PROD_R2_SECRET_ACCESS_KEY }}
+            R2_BUCKET_NAME=${{ secrets.PROD_R2_BUCKET_NAME }}
+            R2_PUBLIC_URL=${{ secrets.PROD_R2_PUBLIC_URL }}
+            TELLER_APPLICATION_ID=${{ secrets.PROD_TELLER_APPLICATION_ID }}
+            TELLER_SIGNING_SECRET=${{ secrets.PROD_TELLER_SIGNING_SECRET }}
+            TELLER_SIGNING_KEY=${{ secrets.PROD_TELLER_SIGNING_KEY }}
+            HUGGINGFACE_API_TOKEN=${{ secrets.PROD_HUGGINGFACE_API_TOKEN }}
+            HUGGINGFACE_OCR_TOKEN=${{ secrets.PROD_HUGGINGFACE_OCR_TOKEN }}
+            MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
+            SENDGRID_API_KEY=${{ secrets.PROD_SENDGRID_API_KEY }}
+            RECEIPT_EMAIL=${{ secrets.PROD_RECEIPT_EMAIL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NODE_ENV=production
+            NODE_ENV=${{ env.NODE_ENV }}
+            API_URL=${{ secrets.PROD_API_URL }}
+            R2_PUBLIC_URL=${{ secrets.PROD_R2_PUBLIC_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
