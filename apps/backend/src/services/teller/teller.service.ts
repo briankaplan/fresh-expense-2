@@ -10,7 +10,6 @@ import { TransactionDto } from '../../dto/transaction.dto';
 import { plainToClass } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 
 export interface TellerAccount {
   id: string;
