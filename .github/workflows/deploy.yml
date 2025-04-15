@@ -40,7 +40,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        run: |
+          pnpm build backend
+          pnpm build frontend
 
       - name: Deploy to Cloudflare
         if: github.ref == 'refs/heads/main'
