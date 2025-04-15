@@ -3,77 +3,80 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
-export default defineConfig({
-  root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/utils',
+export default defineConfig(async () => {
+  const { viteStaticCopy } = await import('vite-plugin-static-copy');
 
-  plugins: [
-    nxViteTsPaths(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: '*.md',
-          dest: '../../dist/packages/utils'
-        }
-      ]
-    }),
-    dts({
-      entryRoot: 'src',
-      tsconfigPath: resolve(__dirname, 'tsconfig.lib.json'),
-    }),
-  ],
+  return {
+    root: __dirname,
+    cacheDir: '../../node_modules/.vite/packages/utils',
 
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+    plugins: [
+      nxViteTsPaths(),
+      viteStaticCopy({
+        targets: [
+          {
+            src: '*.md',
+            dest: '../../dist/packages/utils'
+          }
+        ]
+      }),
+      dts({
+        entryRoot: 'src',
+        tsconfigPath: resolve(__dirname, 'tsconfig.lib.json'),
+      }),
+    ],
 
-  // Configuration for building your library.
-  // See: https://vitejs.dev/guide/build.html#library-mode
-  build: {
-    outDir: '../../dist/packages/utils',
-    emptyOutDir: true,
-    reportCompressedSize: true,
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
-    lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'utils',
-      fileName: 'index',
-      formats: ['es', 'cjs'],
-    },
-    rollupOptions: {
-      external: ['sharp', 'pdf-img-convert', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'],
-      output: {
-        globals: {
-          sharp: 'sharp',
-          'pdf-img-convert': 'pdfImgConvert',
+    // Uncomment this if you are using workers.
+    // worker: {
+    //  plugins: [ nxViteTsPaths() ],
+    // },
+
+    // Configuration for building your library.
+    // See: https://vitejs.dev/guide/build.html#library-mode
+    build: {
+      outDir: '../../dist/packages/utils',
+      emptyOutDir: true,
+      reportCompressedSize: true,
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
+      lib: {
+        entry: resolve(__dirname, 'src/index.ts'),
+        name: 'utils',
+        fileName: 'index',
+        formats: ['es', 'cjs'],
+      },
+      rollupOptions: {
+        external: ['sharp', 'pdf-img-convert', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'],
+        output: {
+          globals: {
+            sharp: 'sharp',
+            'pdf-img-convert': 'pdfImgConvert',
+          },
         },
       },
+      sourcemap: true,
+      minify: 'esbuild',
     },
-    sourcemap: true,
-    minify: 'esbuild',
-  },
 
-  test: {
-    watch: false,
-    globals: true,
-    environment: 'node',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    test: {
+      watch: false,
+      globals: true,
+      environment: 'node',
+      include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
 
-    reporters: ['default'],
-    coverage: {
-      reportsDirectory: '../../coverage/packages/utils',
-      provider: 'v8',
+      reporters: ['default'],
+      coverage: {
+        reportsDirectory: '../../coverage/packages/utils',
+        provider: 'v8',
+      },
     },
-  },
 
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+      },
     },
-  },
+  };
 });
