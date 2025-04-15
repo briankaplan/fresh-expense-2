@@ -44,7 +44,7 @@
   "plugins": ["@nx/webpack", "@nx/node", "@nx/vite"],
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nx/tasks-runners/default",
+      "runner": "nx/tasks-runners/default",
       "options": {
         "cacheableOperations": ["build", "test", "lint", "e2e"],
         "cacheDirectory": "node_modules/.cache/nx",
