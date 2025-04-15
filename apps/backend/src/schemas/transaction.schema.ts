@@ -6,10 +6,10 @@ export type TransactionDocument = Transaction & Document;
 @Schema({ timestamps: true })
 export class Transaction {
   @Prop({ required: true })
-  accountId!: string;
+  externalId!: string;
 
   @Prop({ required: true })
-  externalId!: string;
+  accountId!: string;
 
   @Prop({ required: true })
   date!: Date;
@@ -26,8 +26,20 @@ export class Transaction {
   @Prop({ required: true, enum: ['pending', 'posted', 'canceled'] })
   status!: string;
 
-  @Prop()
+  @Prop({ type: [String], default: [] })
+  category!: string[];
+
+  @Prop({ default: 'processed' })
+  processingStatus!: string;
+
+  @Prop({ required: true })
   runningBalance!: number;
+
+  @Prop({ required: true, default: 'teller' })
+  source!: string;
+
+  @Prop({ required: true })
+  lastUpdated!: Date;
 
   @Prop()
   merchantName?: string;
@@ -36,28 +48,13 @@ export class Transaction {
   merchantCategory?: string;
 
   @Prop()
-  merchantLocation?: string;
+  location?: string;
 
   @Prop({ default: false })
   isRecurring!: boolean;
 
-  @Prop()
-  category?: string[];
-
-  @Prop()
-  counterparty?: string;
-
-  @Prop()
-  processingStatus?: string;
-
-  @Prop()
-  source?: string;
-
-  @Prop()
-  lastUpdated?: Date;
-
-  @Prop()
-  originalPayload?: any;
+  @Prop({ type: Object })
+  originalPayload!: Record<string, any>;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction); 

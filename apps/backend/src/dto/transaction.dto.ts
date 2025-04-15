@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsDate, IsOptional, IsEnum, IsArray, IsBoolean, IsObject } from 'class-validator';
+import { IsString, IsNumber, IsDate, IsBoolean, IsOptional, IsArray, IsEnum, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TransactionDto {
@@ -26,16 +26,14 @@ export class TransactionDto {
 
   @IsArray()
   @IsString({ each: true })
-  @IsOptional()
-  category: string[] = [];
+  category!: string[];
 
+  @IsString()
   @IsEnum(['processed', 'pending', 'failed'])
-  @IsOptional()
-  processingStatus: string = 'processed';
+  processingStatus!: string;
 
   @IsNumber()
-  @IsOptional()
-  runningBalance?: number;
+  runningBalance!: number;
 
   @IsString()
   source!: string;
@@ -44,46 +42,28 @@ export class TransactionDto {
   @IsDate()
   lastUpdated!: Date;
 
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  matchedReceiptId?: string;
-
-  @IsOptional()
-  @IsObject()
-  metadata: Record<string, any> = {};
-
-  @IsOptional()
-  @IsObject()
-  originalPayload: Record<string, any> = {};
-
-  @IsString()
-  @IsOptional()
   merchantName?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   merchantCategory?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   location?: string;
 
   @IsBoolean()
-  @IsOptional()
-  isRecurring: boolean = false;
+  isRecurring!: boolean;
+
+  @IsObject()
+  originalPayload!: Record<string, any>;
 
   @Type(() => Date)
   @IsDate()
   @IsOptional()
   clearedDate?: Date;
-
-  @IsString()
-  @IsOptional()
-  notes?: string;
-
-  @IsString()
-  @IsOptional()
-  fullImageUrl?: string;
 
   @IsString()
   @IsOptional()

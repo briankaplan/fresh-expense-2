@@ -19,6 +19,10 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
     "paths": {
       "@fresh-expense/shared": ["../../libs/shared/src"],
       "@fresh-expense/types": ["../../libs/types/src"]

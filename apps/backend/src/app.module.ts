@@ -15,6 +15,7 @@ import { DashboardController } from './controllers/dashboard.controller';
 import { ValidateRequestMiddleware } from './middleware/validateRequest';
 import { NotificationModule } from './services/notification/notification.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { RateLimiterModule } from './rate-limiter/rate-limiter.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     ReportsModule,
     SubscriptionsModule,
     NotificationModule,
+    RateLimiterModule,
   ],
   controllers: [DashboardController],
   providers: [TellerService, ReceiptService, R2Service, OCRService],

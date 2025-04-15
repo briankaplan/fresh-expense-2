@@ -11,42 +11,36 @@ import { plainToClass } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { Throttle } from '@nestjs/throttler';
 
-export interface TellerAccount {
+interface TellerAccount {
   id: string;
-  institution: {
-    id: string;
-    name: string;
-  };
-  currency: string;
-  enrollment_id: string;
-  last_four: string;
-  links: {
-    self: string;
-    institution: string;
-  };
   name: string;
-  status: 'open' | 'closed';
-  subtype: string;
-  type: string;
+  currency: string;
+  balance: number;
+  lastUpdated: Date;
 }
 
-export interface TellerTransaction {
+interface TellerTransaction {
   id: string;
   account_id: string;
   date: string;
   description: string;
   amount: number;
-  type: 'debit' | 'credit';
-  status: 'pending' | 'posted' | 'canceled';
-  running_balance: number;
-  links: {
-    self: string;
-    account: string;
-  };
+  type: string;
+  status: string;
+  running_balance: string;
+  merchant_name?: string;
+  merchant_category?: string;
+  location?: string;
+  is_recurring: boolean;
+  category?: string[];
+  counterparty?: string;
+  processing_status?: string;
+  source?: string;
+  last_updated: string;
   details?: {
     category?: string[];
-    counterparty?: string;
     processing_status?: string;
   };
 }
@@ -69,16 +63,31 @@ export class TellerService {
   private readonly webhookKey: string;
   private readonly apiKey: string;
   private readonly environment: string;
+  private readonly baseUrl: string;
+  private readonly signingKey: string;
+  private readonly signingSecret: string;
 
   constructor(
     private readonly configService: ConfigService,
     @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
     private readonly httpService: HttpService
   ) {
-    this.apiKey = this.configService.get<string>('TELLER_API_KEY') || '';
+    const apiKey = this.configService.get<string>('TELLER_APPLICATION_ID');
+    if (!apiKey) throw new Error('TELLER_APPLICATION_ID is required');
+    this.apiKey = apiKey;
+
     this.environment = this.configService.get<string>('TELLER_ENV') || 'sandbox';
     this.webhookSecret = this.configService.get<string>('TELLER_WEBHOOK_SECRET') || '';
     this.webhookKey = this.configService.get<string>('TELLER_WEBHOOK_KEY') || '';
+    this.baseUrl = 'https://api.teller.io';
+
+    const signingKey = this.configService.get<string>('TELLER_SIGNING_KEY');
+    if (!signingKey) throw new Error('TELLER_SIGNING_KEY is required');
+    this.signingKey = signingKey;
+
+    const signingSecret = this.configService.get<string>('TELLER_SIGNING_SECRET');
+    if (!signingSecret) throw new Error('TELLER_SIGNING_SECRET is required');
+    this.signingSecret = signingSecret;
     
     // Initialize axios instance with mTLS
     const certPath = this.configService.get<string>('TELLER_CERTIFICATE_PATH');
@@ -158,67 +167,61 @@ export class TellerService {
     }
   }
 
-  async syncTransactions(accountId: string, forceHistorical: boolean = false): Promise<void> {
+  @Throttle({ default: { ttl: 60, limit: 30 } })
+  async syncTransactions(accountId: string): Promise<void> {
     try {
-      if (!forceHistorical && !await this.shouldSyncAccount(accountId)) {
-        this.logger.log(`Skipping sync for account ${accountId} - last sync was less than 24 hours ago`);
-        return;
-      }
+      const response = await firstValueFrom(
+        this.httpService.get<TellerTransaction[]>(
+          `${this.baseUrl}/accounts/${accountId}/transactions`,
+          {
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+            },
+          },
+        ),
+      );
 
-      let fromDate: Date;
-      if (forceHistorical) {
-        fromDate = this.HISTORICAL_START_DATE;
-        this.logger.log(`Starting historical sync for account ${accountId} from ${fromDate.toISOString()}`);
-      } else {
-        const lastSyncedDate = await this.getLastSyncedTransaction(accountId);
-        fromDate = lastSyncedDate || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // Default to 7 days ago
-      }
+      const transactions = response.data.map((tellerTransaction: TellerTransaction) =>
+        plainToClass(Transaction, {
+          externalId: tellerTransaction.id,
+          accountId: tellerTransaction.account_id,
+          date: new Date(tellerTransaction.date),
+          description: tellerTransaction.description,
+          amount: tellerTransaction.amount,
+          type: tellerTransaction.type,
+          status: tellerTransaction.status,
+          runningBalance: this.parseRunningBalance(tellerTransaction.running_balance),
+          merchantName: tellerTransaction.merchant_name,
+          merchantCategory: tellerTransaction.merchant_category,
+          location: tellerTransaction.location,
+          isRecurring: tellerTransaction.is_recurring,
+          category: tellerTransaction.category,
+          counterparty: tellerTransaction.counterparty,
+          processingStatus: tellerTransaction.processing_status || 'processed',
+          source: tellerTransaction.source || 'teller',
+          lastUpdated: new Date(tellerTransaction.last_updated),
+          originalPayload: tellerTransaction,
+        }),
+      );
 
-      let hasMore = true;
-      let totalSynced = 0;
+      await this.transactionModel.bulkWrite(
+        transactions.map((transaction: Transaction) => ({
+          updateOne: {
+            filter: { externalId: transaction.externalId },
+            update: { $set: transaction },
+            upsert: true,
+          },
+        })),
+      );
 
-      while (hasMore) {
-        const transactions = await this.fetchTransactionsPage(accountId, fromDate);
-        
-        if (transactions.length === 0) {
-          hasMore = false;
-          continue;
-        }
-
-        for (const transaction of transactions) {
-          await this.upsertTransaction(transaction);
-        }
-
-        totalSynced += transactions.length;
-        this.logger.log(`Synced ${transactions.length} transactions for account ${accountId}`);
-
-        if (transactions.length < this.PAGE_SIZE) {
-          hasMore = false;
-        } else {
-          // Update fromDate to the date of the last transaction
-          const lastTransactionDate = new Date(transactions[transactions.length - 1].date);
-          fromDate = new Date(lastTransactionDate.getTime() + 1); // Add 1ms to avoid duplication
-        }
-
-        // Add a small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      this.lastSyncTime[accountId] = new Date();
-      this.logger.log(`Successfully synced ${totalSynced} total transactions for account ${accountId}`);
+      this.logger.log(`Synced ${transactions.length} transactions for account ${accountId}`);
     } catch (error) {
-      const axiosError = error as AxiosError;
-      this.logger.error(`Error syncing transactions for account ${accountId}:`, {
-        status: axiosError.response?.status,
-        message: axiosError.message,
-        data: axiosError.response?.data
-      });
+      this.logger.error(`Error syncing transactions for account ${accountId}:`, error);
       throw error;
     }
   }
 
   private async mapAndValidateTransaction(tellerTransaction: TellerTransaction): Promise<TransactionDto> {
-    // Extract merchant info from description (if available)
     const merchantInfo = this.extractMerchantInfo(tellerTransaction.description);
     
     const transaction = plainToClass(TransactionDto, {
@@ -229,8 +232,8 @@ export class TellerService {
       amount: parseFloat(tellerTransaction.amount.toString()),
       type: parseFloat(tellerTransaction.amount.toString()) < 0 ? 'debit' : 'credit',
       status: tellerTransaction.status,
-      category: tellerTransaction.details?.category || [],
-      processingStatus: tellerTransaction.details?.processing_status || 'processed',
+      category: tellerTransaction.category || [],
+      processingStatus: tellerTransaction.processing_status || 'processed',
       runningBalance: this.parseRunningBalance(tellerTransaction.running_balance),
       source: 'teller',
       lastUpdated: new Date(),
@@ -279,9 +282,9 @@ export class TellerService {
     );
   }
 
-  private parseRunningBalance(balance: string | undefined): number {
+  private parseRunningBalance(balance: string | number | undefined): number {
     if (!balance) return 0;
-    return parseFloat(balance) || 0;
+    return typeof balance === 'string' ? parseFloat(balance) : balance;
   }
 
   private async upsertTransaction(tellerTransaction: TellerTransaction) {
@@ -304,7 +307,7 @@ export class TellerService {
       const accounts = await this.getAccounts();
       
       for (const account of accounts) {
-        await this.syncTransactions(account.id, forceHistorical);
+        await this.syncTransactions(account.id);
       }
       
       this.logger.log(`Completed syncing all accounts${forceHistorical ? ' (historical)' : ''}`);

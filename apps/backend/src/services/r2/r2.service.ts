@@ -13,6 +13,9 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { HfInference } from '@huggingface/inference';
 import { RateLimits } from '../rateLimiter';
+import { S3 } from 'aws-sdk';
+import axios from 'axios';
+import { Throttle } from '@nestjs/throttler';
 
 interface UploadResult {
   key: string;
@@ -39,6 +42,10 @@ export class R2Service {
   private readonly publicUrl: string;
   private readonly hf: HfInference;
   private readonly rateLimiter: RateLimits;
+  private s3: S3;
+  private readonly huggingFaceApiKey: string;
+  private readonly huggingFaceOcrEndpoint: string;
+  private readonly huggingFaceClassificationEndpoint: string;
 
   constructor(private readonly configService: ConfigService) {
     const bucketName = this.configService.get<string>('R2_BUCKET_NAME');
@@ -54,6 +61,7 @@ export class R2Service {
 
     this.bucket = bucketName;
     this.publicUrl = publicUrl;
+    this.huggingFaceApiKey = huggingfaceApiKey;
 
     const s3Config: S3ClientConfig = {
       region: 'auto',
@@ -72,6 +80,16 @@ export class R2Service {
         timeWindow: 60 * 1000, // 1 minute
       },
     });
+
+    this.s3 = new S3({
+      endpoint,
+      accessKeyId,
+      secretAccessKey,
+      region: 'auto',
+    });
+
+    this.huggingFaceOcrEndpoint = 'https://api-inference.huggingface.co/models/microsoft/trocr-base-handwritten';
+    this.huggingFaceClassificationEndpoint = 'https://api-inference.huggingface.co/models/google/vit-base-patch16-224';
   }
 
   private generateKey(userId: string, filename: string): string {
@@ -193,18 +211,19 @@ export class R2Service {
     return `${this.publicUrl}/${key}`;
   }
 
+  @Throttle({ default: { ttl: 60, limit: 30 } }) // 30 requests per minute for OCR
   async processReceiptWithHuggingFace(file: Buffer): Promise<{
     text: string;
     confidence: number;
     category: string;
   }> {
-    await this.rateLimiter.check('huggingface-api');
+    await this.rateLimiter.checkLimit('huggingface-api');
 
     // OCR text extraction
     const ocrResult = await this.hf.imageToText({
       data: file,
       model: 'impira/layoutlm-document-qa',
-    }) as unknown as HuggingFaceOCRResult;
+    });
 
     // Category classification
     const classificationResult = await this.hf.textClassification({
@@ -213,12 +232,57 @@ export class R2Service {
       parameters: {
         candidate_labels: ['food', 'transportation', 'entertainment', 'utilities', 'shopping'],
       },
-    }) as unknown as HuggingFaceClassificationResult[];
+    });
 
     return {
       text: ocrResult.text,
       confidence: ocrResult.confidence,
       category: classificationResult[0].label,
+    };
+  }
+
+  public async processImage(file: Buffer): Promise<Buffer> {
+    return sharp(file)
+      .resize(800, 800, { fit: 'inside' })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+  }
+
+  @Throttle({ default: { ttl: 60, limit: 30 } }) // 30 requests per minute for OCR
+  public async ocrImage(file: Buffer): Promise<HuggingFaceOCRResult> {
+    const response = await axios.post(
+      this.huggingFaceOcrEndpoint,
+      file,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.huggingFaceApiKey}`,
+          'Content-Type': 'image/jpeg',
+        },
+      }
+    );
+
+    return {
+      text: response.data[0].generated_text,
+      confidence: response.data[0].score,
+    };
+  }
+
+  @Throttle({ default: { ttl: 60, limit: 30 } }) // 30 requests per minute for classification
+  public async classifyImage(file: Buffer): Promise<HuggingFaceClassificationResult> {
+    const response = await axios.post(
+      this.huggingFaceClassificationEndpoint,
+      file,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.huggingFaceApiKey}`,
+          'Content-Type': 'image/jpeg',
+        },
+      }
+    );
+
+    return {
+      label: response.data[0].label,
+      score: response.data[0].score,
     };
   }
 }
