@@ -48,11 +48,7 @@
       "options": {
         "cacheableOperations": ["build", "test", "lint", "e2e"],
         "cacheDirectory": "node_modules/.cache/nx",
-        "parallel": 3,
-        "remoteCache": {
-          "read": true,
-          "write": true
-        }
+        "parallel": 3
       }
     }
   },
