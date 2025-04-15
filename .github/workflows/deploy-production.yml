@@ -6,18 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: ${{ github.repository }}-api
-  FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
   NODE_VERSION: '20.11.1'
   PNPM_VERSION: '8.15.4'
-  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-
-permissions:
-  contents: read
-  packages: write
-  deployments: write
 
 jobs:
   validate:
@@ -27,35 +17,46 @@ jobs:
         run: |
           missing_secrets=()
           required_secrets=(
-            "CF_API_TOKEN"
-            "CLOUDFLARE_API_URL"
-            "CLOUDFLARE_ZONE_ID"
-            "CLOUDFLARE_ACCOUNT_ID"
-            "KV_NAMESPACE_ID"
-            "MONGODB_URI"
-            "JWT_SECRET"
-            "R2_ACCOUNT_ID"
-            "R2_ACCESS_KEY_ID"
-            "R2_SECRET_ACCESS_KEY"
-            "HUGGINGFACE_API_KEY"
+            "PROD_CLOUDFLARE_API_TOKEN"
+            "PROD_API_URL"
+            "PROD_CLOUDFLARE_ZONE_ID"
+            "PROD_CLOUDFLARE_ACCOUNT_ID"
+            "PROD_MONGODB_URI"
+            "PROD_JWT_SECRET"
+            "PROD_R2_ACCOUNT_ID"
+            "PROD_R2_ACCESS_KEY_ID"
+            "PROD_R2_SECRET_ACCESS_KEY"
+            "PROD_HUGGINGFACE_API_KEY"
           )
-          
+
           for secret_name in "${required_secrets[@]}"; do
             if [[ -z "${!secret_name}" ]]; then
               missing_secrets+=("$secret_name")
             fi
           done
-          
+
           if [ ${#missing_secrets[@]} -ne 0 ]; then
             echo "Error: Missing required secrets: ${missing_secrets[*]}"
             exit 1
           fi
+        env:
+          PROD_CLOUDFLARE_API_TOKEN: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
+          PROD_API_URL: ${{ secrets.PROD_API_URL }}
+          PROD_CLOUDFLARE_ZONE_ID: ${{ secrets.PROD_CLOUDFLARE_ZONE_ID }}
+          PROD_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
+          PROD_MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
+          PROD_JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          PROD_R2_ACCOUNT_ID: ${{ secrets.PROD_R2_ACCOUNT_ID }}
+          PROD_R2_ACCESS_KEY_ID: ${{ secrets.PROD_R2_ACCESS_KEY_ID }}
+          PROD_R2_SECRET_ACCESS_KEY: ${{ secrets.PROD_R2_SECRET_ACCESS_KEY }}
+          PROD_HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
 
-  build-and-deploy:
+  deploy:
     needs: validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -66,67 +67,43 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build applications
+      - name: Build
         run: |
-          pnpm run build:backend
-          VITE_API_URL=${{ secrets.CLOUDFLARE_API_URL }} pnpm run build:frontend
+          pnpm build:backend
+          pnpm build:frontend
         env:
-          NODE_ENV: production
+          JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
+          API_URL: ${{ secrets.PROD_API_URL }}
+          R2_ACCOUNT_ID: ${{ secrets.PROD_R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.PROD_R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.PROD_R2_SECRET_ACCESS_KEY }}
+          HUGGINGFACE_API_KEY: ${{ secrets.PROD_HUGGINGFACE_API_KEY }}
 
-      # Deploy to Cloudflare
-      - name: Deploy Backend to Cloudflare Workers
+      - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env production
-          preCommands: |
-            echo "Setting up Cloudflare Worker..."
-            wrangler kv:namespace create CACHE
-            wrangler r2 bucket create expense-files
-          postCommands: |
-            echo "Configuring environment variables..."
-            wrangler secret put JWT_SECRET "${{ secrets.JWT_SECRET }}"
-            wrangler secret put MONGODB_URI "${{ secrets.MONGODB_URI }}"
-            wrangler secret put R2_ACCOUNT_ID "${{ secrets.R2_ACCOUNT_ID }}"
-            wrangler secret put R2_ACCESS_KEY_ID "${{ secrets.R2_ACCESS_KEY_ID }}"
-            wrangler secret put R2_SECRET_ACCESS_KEY "${{ secrets.R2_SECRET_ACCESS_KEY }}"
-            wrangler secret put HUGGINGFACE_API_KEY "${{ secrets.HUGGINGFACE_API_KEY }}"
-
-      - name: Deploy Frontend to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          workingDirectory: dist/apps/frontend
-          command: pages publish . --project-name expense-app
-
-      - name: Configure Custom Domain
-        run: |
-          # Set up custom domain for Cloudflare Pages
-          curl -X POST "https://api.cloudflare.com/client/v4/accounts/${{ env.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/expense-app/domains" \
-            -H "Authorization: Bearer ${{ env.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{"name":"tallyup.com"}'
-
-          # Verify domain was added successfully
-          echo "Waiting for domain to be added..."
-          sleep 10
-
-          # Check domain status
-          curl "https://api.cloudflare.com/client/v4/accounts/${{ env.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/expense-app/domains" \
-            -H "Authorization: Bearer ${{ env.CLOUDFLARE_API_TOKEN }}"
-
-      - name: Create Docker Images
-        if: success()
-        run: |
-          # Tag Docker images with the commit SHA
-          echo "Creating Docker images for version control..."
-          docker build -t ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} -f ./apps/backend/Dockerfile .
-          docker build -t ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} -f ./apps/frontend/Dockerfile .
-          
-          # Also tag as latest
-          docker tag ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest
-          docker tag ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest 
+          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+          workingDirectory: dist
+          environment: production 
