@@ -8,6 +8,9 @@ module.exports = composePlugins(withNx(), (config) => {
     target: 'node',
     mode: 'production',
     entry: path.resolve(__dirname, 'src/main.ts'),
+    experiments: {
+      outputModule: true
+    },
     output: {
       path: path.resolve(__dirname, '../../dist/apps/backend'),
       filename: 'main.js',
