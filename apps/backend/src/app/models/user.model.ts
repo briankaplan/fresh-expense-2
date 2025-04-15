@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, CallbackError } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as argon2 from 'argon2';
 import { Exclude } from 'class-transformer';
 import * as crypto from 'crypto';
 
@@ -8,8 +8,17 @@ export type UserDocument = User & Document;
 
 type PublicProfile = Omit<User, 'password'> & { _id: string };
 
-@Schema({ timestamps: true })
-export class User {
+@Schema({
+  timestamps: true,
+  toJSON: {
+    transform: (_, ret) => {
+      delete ret.password;
+      delete ret.__v;
+      return ret;
+    },
+  },
+})
+export class User extends Document {
   @Prop({
     required: true,
     unique: true,
@@ -20,8 +29,6 @@ export class User {
 
   @Prop({
     required: true,
-    minlength: 8,
-    select: false,
   })
   @Exclude()
   password!: string;
@@ -90,30 +97,43 @@ export class User {
       push: false,
     },
   };
+
+  @Prop({ default: false })
+  isEmailVerified: boolean;
+
+  @Prop()
+  resetPasswordToken?: string;
+
+  @Prop()
+  resetPasswordExpires?: Date;
+
+  @Prop({ default: [] })
+  roles: string[];
+
+  @Prop({ default: Date.now })
+  lastLoginAt: Date;
+
+  @Prop()
+  refreshToken?: string;
+
+  async comparePassword(candidatePassword: string): Promise<boolean> {
+    return argon2.verify(this.password, candidatePassword);
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Hash password before saving
 UserSchema.pre('save', async function (next: (err?: CallbackError) => void) {
   if (!this.isModified('password')) {
     return next();
   }
   try {
-    const salt = await bcrypt.genSalt(10);
-    this['password'] = await bcrypt.hash(this['password'], salt);
+    this['password'] = await argon2.hash(this['password']);
     next();
   } catch (err) {
     next(err as CallbackError);
   }
 });
-
-// Method to compare passwords
-UserSchema.methods['comparePassword'] = async function (
-  candidatePassword: string
-): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this['password']);
-};
 
 // Method to get public profile
 UserSchema.methods['getPublicProfile'] = function (): PublicProfile {

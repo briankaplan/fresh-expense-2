@@ -1,11 +1,14 @@
-name = "expense-api"
+name = "fresh-expense"
 main = "src/index.ts"
-compatibility_date = "2024-04-14"
+compatibility_date = "2024-03-01"
 
 [env.production]
-name = "expense-api"
-route = "api.tallyup.com/*"
-zone_id = { secret = true }
+workers_dev = true
+route = "fresh-expense.com/*"
+
+[env.staging]
+workers_dev = true
+route = "staging.fresh-expense.com/*"
 
 [vars]
 ENVIRONMENT = "production"
@@ -15,19 +18,21 @@ MONGODB_URI = { secret = true }
 MONGODB_DB = "expense_db"
 
 [[kv_namespaces]]
+binding = "USERS"
+id = "users"
+preview_id = "users"
+
+[[kv_namespaces]]
+binding = "TRANSACTIONS"
+id = "transactions"
+preview_id = "transactions"
+
+[[kv_namespaces]]
 binding = "RECEIPTS"
 id = ""
 
 [[kv_namespaces]]
-binding = "TRANSACTIONS"
-id = ""
-
-[[kv_namespaces]]
 binding = "MERCHANTS"
-id = ""
-
-[[kv_namespaces]]
-binding = "USERS"
 id = ""
 
 [[kv_namespaces]]
@@ -58,8 +63,13 @@ id = ""
 crons = ["0 * * * *", "0 0 * * *"]
 
 [build]
-command = "npm run build"
-cwd = "./"
+command = "pnpm build"
+watch_dir = "src"
 
 [site]
-bucket = "./dist" 
+bucket = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fresh-expense-db"
+database_id = "fresh-expense-db-id" 

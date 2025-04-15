@@ -1,23 +1,29 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../schemas/user.schema';
-import { Model } from 'mongoose';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { EmailService } from './email.service';
-import * as bcrypt from 'bcrypt';
-import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto } from '../dto/auth.dto';
+import { Model } from 'mongoose';
+import * as argon2 from 'argon2';
+import { User } from '../../app/models/user.model';
+import { RegisterDto } from '../dto/register.dto';
+import { LoginDto } from '../dto/login.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { EmailService } from '../../services/email/email.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
+    private configService: ConfigService,
     private emailService: EmailService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && await argon2.verify(user.password, password)) {
       const { password, ...result } = user.toObject();
       return result;
     }
@@ -30,35 +36,27 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.isEmailVerified) {
-      throw new UnauthorizedException('Please verify your email first');
-    }
-
+    const payload = { email: user.email, sub: user._id };
     return {
+      access_token: this.jwtService.sign(payload),
       user,
-      accessToken: this.jwtService.sign({ sub: user._id }),
-      refreshToken: this.jwtService.sign(
-        { sub: user._id },
-        { expiresIn: '7d' },
-      ),
     };
   }
 
   async register(registerDto: RegisterDto) {
     const existingUser = await this.userModel.findOne({ email: registerDto.email });
     if (existingUser) {
-      throw new BadRequestException('Email already registered');
+      throw new BadRequestException('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.userModel.create({
-      email: registerDto.email,
+    const hashedPassword = await argon2.hash(registerDto.password);
+
+    const user = new this.userModel({
+      ...registerDto,
       password: hashedPassword,
-      name: registerDto.name,
-      isEmailVerified: false,
     });
 
-    await this.emailService.sendVerificationEmail(user);
+    await user.save();
 
     const { password, ...result } = user.toObject();
     return result;
@@ -79,83 +77,78 @@ export class AuthService {
     }
   }
 
-  async initiatePasswordReset(resetPasswordDto: ResetPasswordDto) {
-    const user = await this.userModel.findOne({ email: resetPasswordDto.email });
+  async initiatePasswordReset(email: string) {
+    const user = await this.userModel.findOne({ email });
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
-    const resetToken = this.jwtService.sign(
-      { userId: user._id },
-      { expiresIn: '1h' },
-    );
+    const resetToken = uuidv4();
+    const resetTokenExpiry = new Date();
+    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1); // Token valid for 1 hour
 
-    await this.emailService.sendPasswordResetEmail(user, resetToken);
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpiry;
+    await user.save();
+
+    await this.emailService.sendPasswordResetEmail(email, resetToken);
+
     return { message: 'Password reset email sent' };
   }
 
-  async resetPassword(token: string, newPassword: string) {
-    try {
-      const payload = this.jwtService.verify(token);
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      
-      const user = await this.userModel.findByIdAndUpdate(
-        payload.userId,
-        { password: hashedPassword },
-        { new: true }
-      );
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.userModel.findOne({
+      resetPasswordToken: resetPasswordDto.token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
 
-      const { password, ...result } = user.toObject();
-      return result;
-    } catch (error) {
+    if (!user) {
       throw new BadRequestException('Invalid or expired reset token');
     }
+
+    const hashedPassword = await argon2.hash(resetPasswordDto.newPassword);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return { message: 'Password reset successful' };
   }
 
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
     const user = await this.userModel.findById(userId);
     if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const isPasswordValid = await argon2.verify(
+      user.password,
+      changePasswordDto.currentPassword
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedPassword = await argon2.hash(changePasswordDto.newPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return { message: 'Password changed successfully' };
+  }
+
+  async refreshToken(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      changePasswordDto.currentPassword,
-      user.password,
-    );
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Current password is incorrect');
-    }
-
-    const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
-    const updatedUser = await this.userModel.findByIdAndUpdate(
-      userId,
-      { password: hashedPassword },
-      { new: true }
-    );
-
-    const { password, ...result } = updatedUser.toObject();
-    return result;
-  }
-
-  async refreshToken(token: string) {
-    try {
-      const payload = this.jwtService.verify(token);
-      const user = await this.userModel.findById(payload.sub);
-
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-
-      return {
-        accessToken: this.jwtService.sign({ sub: user._id }),
-        refreshToken: this.jwtService.sign(
-          { sub: user._id },
-          { expiresIn: '7d' },
-        ),
-      };
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
+    const payload = { email: user.email, sub: user._id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
   async updateUser(userId: string, updateUserDto: any) {
@@ -181,17 +174,17 @@ export class AuthService {
   }
 
   async updatePassword(userId: string, newPassword: string) {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updatedUser = await this.userModel.findByIdAndUpdate(
-      userId,
-      { password: hashedPassword },
-      { new: true }
-    );
-    if (!updatedUser) {
-      throw new Error('User not found');
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
     }
-    const { password, ...result } = updatedUser.toObject();
-    return result;
+
+    const hashedPassword = await argon2.hash(newPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return { message: 'Password updated successfully' };
   }
 
   async findUserByEmail(email: string) {

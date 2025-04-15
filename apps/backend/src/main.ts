@@ -8,6 +8,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import compression from 'compression';
+import { rateLimit } from 'express-rate-limit';
 import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NotificationExceptionFilter } from './services/notification/filters/notification-exception.filter';
@@ -20,11 +21,36 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
 
+  // Rate limiting
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // limit each IP to 100 requests per windowMs
+      message: {
+        status: 429,
+        message: 'Too many requests, please try again later.',
+      },
+      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    })
+  );
+
   // Validation
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     transform: true,
     forbidNonWhitelisted: true,
+    exceptionFactory: (errors) => {
+      const result = errors.map((error) => ({
+        property: error.property,
+        message: error.constraints ? error.constraints[Object.keys(error.constraints)[0]] : 'Invalid value',
+      }));
+      return {
+        status: 422,
+        message: 'Validation failed',
+        details: result,
+      };
+    },
   }));
 
   // Global exception filter
