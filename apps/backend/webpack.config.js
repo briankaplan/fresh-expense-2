@@ -12,6 +12,7 @@ module.exports = composePlugins(withNx(), (config) => {
       path: path.resolve(__dirname, '../../dist/apps/backend'),
       filename: 'main.js',
       module: true,
+      chunkFormat: 'module',
     },
     resolve: {
       extensions: ['.ts', '.js'],
