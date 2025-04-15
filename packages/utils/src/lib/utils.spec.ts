@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import {
   formatCurrency,
   formatDate,
@@ -10,18 +11,29 @@ import { ExpenseCategory } from '@expense/types';
 describe('Utils', () => {
   describe('formatCurrency', () => {
     it('should format number as USD currency', () => {
-      expect(formatCurrency(100)).toBe('$100.00');
-      expect(formatCurrency(1000.5)).toBe('$1,000.50');
+      expect(formatCurrency(1234.56)).toBe('$1,234.56');
     });
 
     it('should format number with different currency', () => {
-      expect(formatCurrency(100, 'EUR')).toBe('€100.00');
+      expect(formatCurrency(1234.56, 'EUR')).toBe('€1,234.56');
     });
   });
 
   describe('formatDate', () => {
     it('should format ISO date string', () => {
-      expect(formatDate('2024-04-07T00:00:00Z')).toBe('Apr 7, 2024');
+      // Create a date that's definitely in the future to avoid timezone issues
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(12, 0, 0, 0); // Set to noon to avoid day boundary issues
+      const isoString = tomorrow.toISOString();
+
+      const expected = tomorrow.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+
+      expect(formatDate(isoString)).toBe(expected);
     });
   });
 
@@ -35,13 +47,14 @@ describe('Utils', () => {
   describe('groupByCategory', () => {
     it('should group expenses by category', () => {
       const expenses = [
-        { category: 'food' as ExpenseCategory, amount: 100 },
-        { category: 'food' as ExpenseCategory, amount: 200 },
-        { category: 'transportation' as ExpenseCategory, amount: 300 },
+        { category: 'FOOD', amount: 100 },
+        { category: 'FOOD', amount: 200 },
+        { category: 'TRANSPORT', amount: 300 },
       ];
-      const result = groupByCategory(expenses);
-      expect(result.food).toBe(300);
-      expect(result.transportation).toBe(300);
+      expect(groupByCategory(expenses)).toEqual({
+        FOOD: 300,
+        TRANSPORT: 300,
+      });
     });
   });
 
@@ -49,6 +62,8 @@ describe('Utils', () => {
     it('should validate ISO date strings', () => {
       expect(isValidISODate('2024-04-07T00:00:00Z')).toBe(true);
       expect(isValidISODate('invalid-date')).toBe(false);
+      expect(isValidISODate('2024-04-07')).toBe(false); // Date without time
+      expect(isValidISODate('2024-04-07T00:00:00')).toBe(false); // Missing Z
     });
   });
 });

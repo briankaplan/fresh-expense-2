@@ -7,7 +7,7 @@ interface LoadingOverlayProps {
 }
 
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message }) => {
-  const isLoading = useUIStore((state) => state.isLoading);
+  const isLoading = useUIStore(state => state.isLoading);
 
   if (!isLoading) return null;
 
@@ -15,7 +15,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message }) => {
     <Backdrop
       sx={{
         color: '#fff',
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        zIndex: theme => theme.zIndex.drawer + 1,
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
@@ -35,4 +35,4 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message }) => {
   );
 };
 
-export default LoadingOverlay; 
+export default LoadingOverlay;

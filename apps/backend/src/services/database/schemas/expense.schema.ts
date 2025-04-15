@@ -83,4 +83,4 @@ export interface BudgetSchema extends BaseSchema {
 }
 
 export const EXPENSE_COLLECTION = 'expenses';
-export const BUDGET_COLLECTION = 'budgets'; 
+export const BUDGET_COLLECTION = 'budgets';

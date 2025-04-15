@@ -22,23 +22,18 @@ export class PDFService {
 
       // Add logo if provided
       if (customization.logoPath) {
-        doc.image(customization.logoPath, 50, 45, { width: 50 })
-           .moveDown();
+        doc.image(customization.logoPath, 50, 45, { width: 50 }).moveDown();
       }
 
       // Add title
-      doc.fontSize(20)
-         .text(customization.title, { align: 'center' })
-         .moveDown();
+      doc.fontSize(20).text(customization.title, { align: 'center' }).moveDown();
 
       // Group data if requested
       if (customization.groupBy) {
         const groupedData = this.groupData(data, customization.groupBy);
         for (const [group, items] of Object.entries(groupedData)) {
-          doc.fontSize(16)
-             .text(group)
-             .moveDown(0.5);
-          
+          doc.fontSize(16).text(group).moveDown(0.5);
+
           await this.addTable(doc, items, customization);
           doc.moveDown();
 
@@ -68,12 +63,16 @@ export class PDFService {
       const key = item[groupBy]?.toString() || 'Ungrouped';
       return {
         ...groups,
-        [key]: [...(groups[key] || []), item]
+        [key]: [...(groups[key] || []), item],
       };
     }, {});
   }
 
-  private async addTable(doc: PDFKit.PDFDocument, data: any[], customization: ReportCustomization): Promise<void> {
+  private async addTable(
+    doc: PDFKit.PDFDocument,
+    data: any[],
+    customization: ReportCustomization
+  ): Promise<void> {
     if (!data.length) return;
 
     const columns = Object.keys(data[0]);
@@ -81,24 +80,20 @@ export class PDFService {
 
     if (customization.includeHeaders) {
       columns.forEach((header, i) => {
-        doc.text(
-          header.charAt(0).toUpperCase() + header.slice(1),
-          50 + (i * columnWidth),
-          doc.y,
-          { width: columnWidth, align: 'left' }
-        );
+        doc.text(header.charAt(0).toUpperCase() + header.slice(1), 50 + i * columnWidth, doc.y, {
+          width: columnWidth,
+          align: 'left',
+        });
       });
       doc.moveDown();
     }
 
     data.forEach(row => {
       columns.forEach((col, i) => {
-        doc.text(
-          row[col]?.toString() || '',
-          50 + (i * columnWidth),
-          doc.y,
-          { width: columnWidth, align: 'left' }
-        );
+        doc.text(row[col]?.toString() || '', 50 + i * columnWidth, doc.y, {
+          width: columnWidth,
+          align: 'left',
+        });
       });
       doc.moveDown(0.5);
     });
@@ -107,19 +102,14 @@ export class PDFService {
   private async addGroupSummary(doc: PDFKit.PDFDocument, data: any[]): Promise<void> {
     if (!data.length) return;
 
-    const numericColumns = Object.keys(data[0]).filter(key => 
-      typeof data[0][key] === 'number'
-    );
+    const numericColumns = Object.keys(data[0]).filter(key => typeof data[0][key] === 'number');
 
     if (numericColumns.length) {
-      doc.fontSize(12)
-         .text('Summary:', { underline: true })
-         .moveDown(0.5);
+      doc.fontSize(12).text('Summary:', { underline: true }).moveDown(0.5);
 
       numericColumns.forEach(col => {
         const sum = data.reduce((acc, curr) => acc + (curr[col] || 0), 0);
-        doc.text(`${col} Total: ${sum.toFixed(2)}`)
-           .moveDown(0.5);
+        doc.text(`${col} Total: ${sum.toFixed(2)}`).moveDown(0.5);
       });
     }
   }
@@ -127,15 +117,10 @@ export class PDFService {
   private async addSummary(doc: PDFKit.PDFDocument, data: any[]): Promise<void> {
     if (!data.length) return;
 
-    doc.moveDown()
-       .fontSize(14)
-       .text('Report Summary', { underline: true })
-       .moveDown();
+    doc.moveDown().fontSize(14).text('Report Summary', { underline: true }).moveDown();
 
-    doc.fontSize(12)
-       .text(`Total Records: ${data.length}`)
-       .moveDown(0.5);
+    doc.fontSize(12).text(`Total Records: ${data.length}`).moveDown(0.5);
 
     await this.addGroupSummary(doc, data);
   }
-} 
+}

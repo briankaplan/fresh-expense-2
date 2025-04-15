@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { NotificationSchema } from '../database/schemas/notification.schema';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -69,4 +80,4 @@ export class NotificationController {
   ): Promise<NotificationSchema[]> {
     return this.notificationService.getRecentNotifications(userId, limit);
   }
-} 
+}

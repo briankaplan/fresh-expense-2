@@ -1,21 +1,44 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Receipt, ReceiptDocument } from '@schemas/receipt.schema';
+import { Receipt, ReceiptDocument } from '../../app/receipts/schemas/receipt.schema';
 import { R2Service } from '../r2/r2.service';
 import { OCRService } from '../ocr/ocr.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import {
+  calculateReceiptMatchScore,
+  calculateMerchantMatchScore,
+  calculateAmountMatchScore,
+  calculateDateMatchScore,
+  MatchScoreDetails,
+  findBestReceiptMatch,
+  ReceiptMatchingOptions,
+  ReceiptMatchScore,
+} from '@packages/utils';
+import { BaseTransactionData } from '@packages/utils/src/types/transaction.types';
+import { OCRResult } from '../../app/receipts/types/ocr.types';
 
 interface MatchResult {
   receipt: ReceiptDocument;
-  transaction: any; // Replace with your Transaction type
+  transaction: BaseTransactionData;
   confidence: number;
-  matchDetails: {
-    amountMatch: number;
-    dateMatch: number;
-    merchantMatch: number;
-    totalConfidence: number;
-  };
+  matchDetails: MatchScoreDetails;
+}
+
+interface ReceiptData {
+  merchantName: string;
+  amount: number;
+  date: Date;
+}
+
+// Add new types for receipt-specific transactions
+type ReceiptTransactionType = 'debit' | 'credit' | 'receipt';
+type ReceiptTransactionStatus = 'pending' | 'posted' | 'canceled' | 'unmatched';
+
+// Extend BaseTransactionData for receipts
+interface ReceiptTransactionData extends Omit<BaseTransactionData, 'type' | 'status'> {
+  type: ReceiptTransactionType;
+  status: ReceiptTransactionStatus;
 }
 
 @Injectable()
@@ -25,15 +48,13 @@ export class ReceiptBankService {
   constructor(
     @InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>,
     private readonly r2Service: R2Service,
-    private readonly ocrService: OCRService,
-  ) {}
+    private readonly ocrService: OCRService
+  ) { }
 
   @Cron(CronExpression.EVERY_HOUR)
   async processUnmatchedReceipts() {
     try {
-      const unmatchedReceipts = await this.receiptModel
-        .find({ status: 'unmatched' })
-        .exec();
+      const unmatchedReceipts = await this.receiptModel.find({ status: 'unmatched' }).exec();
 
       this.logger.log(`Processing ${unmatchedReceipts.length} unmatched receipts`);
 
@@ -48,11 +69,14 @@ export class ReceiptBankService {
   async processNewReceipt(file: Buffer, userId: string, mimeType: string, filename: string) {
     try {
       // 1. Upload to R2
-      const { key: r2Key, thumbnailKey: r2ThumbnailKey } = await this.r2Service.uploadReceipt(
-        file,
+      const uploadResult = await this.r2Service.uploadFile(file, {
+        userId,
+        filename,
         mimeType,
-        filename
-      );
+        generateThumbnail: true
+      });
+
+      const { key: r2Key, thumbnailKey: r2ThumbnailKey } = uploadResult;
 
       // 2. Perform OCR
       const ocrResult = await this.ocrService.processReceipt(file);
@@ -69,9 +93,9 @@ export class ReceiptBankService {
           processedAt: new Date(),
         },
         ocrData: ocrResult,
-        merchant: ocrResult.merchant || 'Unknown Merchant',
-        amount: ocrResult.totalAmount || 0,
-        date: ocrResult.date || new Date(),
+        merchant: ocrResult.structuredData.merchantName || 'Unknown Merchant',
+        amount: ocrResult.structuredData.total || 0,
+        date: ocrResult.structuredData.date ? new Date(ocrResult.structuredData.date) : new Date(),
       });
 
       await receipt.save();
@@ -99,18 +123,19 @@ export class ReceiptBankService {
       const transactions = await this.findTransactionsInDateRange(
         receipt.userId.toString(),
         startDate,
-        endDate,
+        endDate
       );
 
       const matches: MatchResult[] = [];
 
       for (const transaction of transactions) {
         const confidence = this.calculateMatchConfidence(receipt, transaction);
-        if (confidence.totalConfidence >= 0.8) { // 80% confidence threshold
+        if (confidence.totalScore >= 0.8) {
+          // 80% confidence threshold
           matches.push({
             receipt,
             transaction,
-            confidence: confidence.totalConfidence,
+            confidence: confidence.totalScore,
             matchDetails: confidence,
           });
         }
@@ -126,7 +151,7 @@ export class ReceiptBankService {
 
       // Update receipt status
       await this.receiptModel.findByIdAndUpdate(receipt._id, {
-        status: matches.length > 0 ? 'matched' : 'unmatched'
+        status: matches.length > 0 ? 'matched' : 'unmatched',
       });
 
       return matches;
@@ -136,88 +161,46 @@ export class ReceiptBankService {
     }
   }
 
-  private calculateMatchConfidence(receipt: ReceiptDocument, transaction: any) {
-    // Amount match (weighted 40%)
-    const amountDiff = Math.abs(receipt.amount - transaction.amount);
-    const amountMatch = amountDiff === 0 ? 1 :
-      amountDiff <= 0.01 ? 0.9 :
-      amountDiff <= 0.1 ? 0.8 :
-      amountDiff <= 1 ? 0.6 : 0;
+  private calculateMatchConfidence(receipt: ReceiptDocument, transaction: BaseTransactionData): MatchScoreDetails {
+    const receiptData: ReceiptData = {
+      merchantName: receipt.merchant || 'Unknown',
+      amount: receipt.amount,
+      date: new Date(receipt.date)
+    };
 
-    // Date match (weighted 30%)
-    const daysDiff = Math.abs(
-      (new Date(receipt.date).getTime() - new Date(transaction.date).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    const dateMatch = daysDiff === 0 ? 1 :
-      daysDiff <= 1 ? 0.9 :
-      daysDiff <= 2 ? 0.7 :
-      daysDiff <= 3 ? 0.5 : 0;
-
-    // Merchant match (weighted 30%)
-    const merchantMatch = this.calculateMerchantSimilarity(
-      receipt.merchant,
-      transaction.merchant
-    );
-
-    // Calculate total confidence
-    const totalConfidence = (
-      amountMatch * 0.4 +
-      dateMatch * 0.3 +
-      merchantMatch * 0.3
-    );
-
+    const result = calculateReceiptMatchScore(receiptData, transaction);
     return {
-      amountMatch,
-      dateMatch,
-      merchantMatch,
-      totalConfidence,
+      merchantScore: result.merchantScore,
+      amountScore: result.amountScore,
+      dateScore: result.dateScore,
+      totalScore: result.score
     };
   }
 
-  private calculateMerchantSimilarity(merchant1: string, merchant2: string): number {
-    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const m1 = normalize(merchant1);
-    const m2 = normalize(merchant2);
-
-    if (m1 === m2) return 1;
-    if (m1.includes(m2) || m2.includes(m1)) return 0.9;
-
-    // Levenshtein distance for fuzzy matching
-    const distance = this.levenshteinDistance(m1, m2);
-    const maxLength = Math.max(m1.length, m2.length);
-    return 1 - (distance / maxLength);
-  }
-
-  private levenshteinDistance(str1: string, str2: string): number {
-    const matrix = Array(str1.length + 1).fill(null).map(() =>
-      Array(str2.length + 1).fill(null)
-    );
-
-    for (let i = 0; i <= str1.length; i++) matrix[i][0] = i;
-    for (let j = 0; j <= str2.length; j++) matrix[0][j] = j;
-
-    for (let i = 1; i <= str1.length; i++) {
-      for (let j = 1; j <= str2.length; j++) {
-        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + cost
-        );
-      }
-    }
-
-    return matrix[str1.length][str2.length];
-  }
-
-  private async findTransactionsInDateRange(userId: string, startDate: Date, endDate: Date) {
+  private async findTransactionsInDateRange(userId: string, startDate: Date, endDate: Date): Promise<BaseTransactionData[]> {
     // TODO: Implement this method based on your transaction model
     return [];
   }
 
-  private async linkReceiptToTransaction(receipt: ReceiptDocument, transaction: any) {
-    // TODO: Implement this method based on your transaction model
-    // Update both the receipt and transaction with the link
+  private async linkReceiptToTransaction(receipt: ReceiptDocument, transaction: BaseTransactionData): Promise<BaseTransactionData> {
+    const updatedTransaction: BaseTransactionData = {
+      ...transaction,
+      type: 'debit',
+      status: 'posted',
+      metadata: {
+        ...transaction.metadata,
+        receiptId: receipt._id.toString(),
+        linkedAt: new Date()
+      }
+    };
+
+    // Update receipt status
+    await this.receiptModel.findByIdAndUpdate(receipt._id, {
+      status: 'matched',
+      transactionId: transaction.id
+    });
+
+    return updatedTransaction;
   }
 
   async findReceipts(query: any, options: { limit: number; offset: number }) {
@@ -231,8 +214,14 @@ export class ReceiptBankService {
 
       // Update signed URLs for each receipt
       for (const receipt of receipts) {
-        receipt.fullImageUrl = await this.r2Service.getSignedUrl(receipt.r2Key);
-        receipt.thumbnailUrl = await this.r2Service.getSignedUrl(receipt.r2ThumbnailKey);
+        if (receipt.r2Key) {
+          receipt.urls = {
+            fullImageUrl: await this.r2Service.getSignedUrl(receipt.r2Key, 3600),
+            thumbnailUrl: receipt.r2ThumbnailKey
+              ? await this.r2Service.getSignedUrl(receipt.r2ThumbnailKey, 3600)
+              : undefined,
+          };
+        }
       }
 
       return receipts;
@@ -253,8 +242,14 @@ export class ReceiptBankService {
       }
 
       // Update signed URLs
-      receipt.fullImageUrl = await this.r2Service.getSignedUrl(receipt.r2Key);
-      receipt.thumbnailUrl = await this.r2Service.getSignedUrl(receipt.r2ThumbnailKey);
+      if (receipt.r2Key) {
+        const fullImageUrl = await this.r2Service.getSignedUrl(receipt.r2Key, 3600);
+        const thumbnailUrl = receipt.r2ThumbnailKey
+          ? await this.r2Service.getSignedUrl(receipt.r2ThumbnailKey, 3600)
+          : undefined;
+
+        receipt.urls = { fullImageUrl, thumbnailUrl };
+      }
 
       return receipt;
     } catch (error) {
@@ -274,8 +269,12 @@ export class ReceiptBankService {
       }
 
       // Delete files from R2
-      await this.r2Service.deleteFile(receipt.r2Key);
-      await this.r2Service.deleteFile(receipt.r2ThumbnailKey);
+      if (receipt.r2Key) {
+        await this.r2Service.deleteFile(receipt.r2Key);
+      }
+      if (receipt.r2ThumbnailKey) {
+        await this.r2Service.deleteFile(receipt.r2ThumbnailKey);
+      }
 
       // Delete receipt from database
       await this.receiptModel.findByIdAndDelete(id);
@@ -295,21 +294,146 @@ export class ReceiptBankService {
     }
   }
 
-  async linkReceiptToTransactionById(
-    receiptId: string,
-    transactionId: string,
-    userId: string
-  ) {
+  async linkReceiptToTransactionById(receiptId: string, transactionId: string, userId: string) {
     try {
       const receipt = await this.findReceiptById(receiptId, userId);
-      
-      // TODO: Implement transaction model and validation
-      const transaction = { id: transactionId }; // Placeholder
-      
+
+      // Create a BaseTransactionData object with required fields
+      const transaction: BaseTransactionData = {
+        id: transactionId,
+        accountId: userId,
+        amount: 0, // You should get this from your transaction service
+        date: new Date(),
+        description: '',
+        type: 'debit',
+        status: 'pending'
+      };
+
       await this.linkReceiptToTransaction(receipt, transaction);
     } catch (error) {
       this.logger.error('Error linking receipt to transaction:', error);
       throw error;
     }
   }
-} 
+
+  async findDuplicateReceipts(receipt: ReceiptDocument): Promise<ReceiptDocument[]> {
+    try {
+      const similarReceipts = await this.findSimilarReceipts(receipt);
+      const duplicates = similarReceipts.filter(r => r.score >= 0.8);
+      return duplicates.map(d => d.receipt);
+    } catch (error) {
+      this.logger.error('Error finding duplicate receipts:', error);
+      throw error;
+    }
+  }
+
+  async findSimilarReceipts(receipt: ReceiptDocument): Promise<{
+    receipt: ReceiptDocument;
+    score: number;
+    matchDetails: MatchScoreDetails;
+  }[]> {
+    try {
+      const allReceipts = await this.receiptModel
+        .find({
+          userId: receipt.userId,
+          _id: { $ne: receipt._id },
+        })
+        .exec();
+
+      const matches = allReceipts.map(otherReceipt => {
+        const receiptData: ReceiptData = {
+          merchantName: receipt.merchant || 'Unknown',
+          amount: receipt.amount || 0,
+          date: receipt.date || new Date()
+        };
+
+        const transactionData: BaseTransactionData = {
+          id: otherReceipt._id.toString(),
+          accountId: otherReceipt.userId.toString(),
+          amount: otherReceipt.amount || 0,
+          date: otherReceipt.date || new Date(),
+          description: otherReceipt.description || '',
+          type: 'debit',
+          status: 'pending',
+          merchantName: otherReceipt.merchant || 'Unknown'
+        };
+
+        const result = calculateReceiptMatchScore(receiptData, transactionData);
+
+        return {
+          receipt: otherReceipt,
+          score: result.score,
+          matchDetails: {
+            merchantScore: result.merchantScore,
+            amountScore: result.amountScore,
+            dateScore: result.dateScore,
+            totalScore: result.score
+          }
+        };
+      });
+
+      return matches
+        .filter(match => match.score >= 0.7)
+        .sort((a, b) => b.score - a.score);
+    } catch (error) {
+      this.logger.error('Error finding similar receipts:', error);
+      throw error;
+    }
+  }
+
+  private calculateMatchScore(
+    receipt1: ReceiptDocument,
+    receipt2: ReceiptDocument
+  ): {
+    receipt: ReceiptDocument;
+    score: number;
+    matchDetails: MatchScoreDetails;
+  } {
+    const receiptData: ReceiptData = {
+      merchantName: receipt1.merchant || 'Unknown',
+      amount: receipt1.amount || 0,
+      date: receipt1.date || new Date()
+    };
+
+    const transactionData: BaseTransactionData = {
+      id: receipt2._id.toString(),
+      accountId: receipt2.userId.toString(),
+      amount: receipt2.amount || 0,
+      date: receipt2.date || new Date(),
+      description: receipt2.description || '',
+      type: 'debit',
+      status: 'pending',
+      merchantName: receipt2.merchant || 'Unknown'
+    };
+
+    const result = calculateReceiptMatchScore(receiptData, transactionData);
+
+    return {
+      receipt: receipt2,
+      score: result.score,
+      matchDetails: {
+        merchantScore: result.merchantScore,
+        amountScore: result.amountScore,
+        dateScore: result.dateScore,
+        totalScore: result.score
+      }
+    };
+  }
+
+  private async createTransactionFromReceipt(receipt: ReceiptDocument): Promise<BaseTransactionData> {
+    const merchantName = receipt.merchant || 'Unknown Merchant';
+
+    const transaction: BaseTransactionData = {
+      id: receipt._id.toString(),
+      accountId: receipt.userId.toString(),
+      amount: receipt.amount,
+      date: new Date(receipt.date),
+      description: merchantName,
+      type: 'debit',
+      status: 'pending',
+      merchantName
+    };
+
+    return transaction;
+  }
+}

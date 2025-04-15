@@ -53,17 +53,13 @@ const ReceiptManager: React.FC = () => {
 
   const [processedReceipts] = useState<Receipt[]>([]);
 
-  const handleTableChange: TableProps<Receipt>['onChange'] = (
-    pagination,
-    filters,
-    sorter
-  ) => {
+  const handleTableChange: TableProps<Receipt>['onChange'] = (pagination, filters, sorter) => {
     const { field, order } = sorter as SorterResult<Receipt>;
     setTableParams({
       pagination: pagination || {
         current: 1,
         pageSize: 10,
-        total: 0
+        total: 0,
       },
       sortField: field as string,
       sortOrder: order as string,
@@ -85,7 +81,7 @@ const ReceiptManager: React.FC = () => {
     setTableParams({
       ...tableParams,
       filters,
-      pagination: { ...tableParams.pagination, current: 1 }
+      pagination: { ...tableParams.pagination, current: 1 },
     });
   };
 
@@ -99,7 +95,7 @@ const ReceiptManager: React.FC = () => {
     setTableParams({
       ...tableParams,
       filters,
-      pagination: { ...tableParams.pagination, current: 1 }
+      pagination: { ...tableParams.pagination, current: 1 },
     });
   };
 
@@ -107,7 +103,7 @@ const ReceiptManager: React.FC = () => {
     if (!total) return '-';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(total);
   };
 
@@ -173,17 +169,8 @@ const ReceiptManager: React.FC = () => {
           pagination={tableParams.pagination}
           loading={uploading || processing || normalizing}
         >
-          <Column
-            title="Date"
-            dataIndex="uploadDate"
-            key="uploadDate"
-            sorter={sortByDate}
-          />
-          <Column
-            title="Merchant"
-            dataIndex="merchantName"
-            key="merchantName"
-          />
+          <Column title="Date" dataIndex="uploadDate" key="uploadDate" sorter={sortByDate} />
+          <Column title="Merchant" dataIndex="merchantName" key="merchantName" />
           <Column
             title="Total"
             dataIndex="total"
@@ -202,7 +189,9 @@ const ReceiptManager: React.FC = () => {
             title="Confidence"
             dataIndex="confidence"
             key="confidence"
-            render={(confidence: number | undefined) => confidence ? `${Math.round(confidence * 100)}%` : '-'}
+            render={(confidence: number | undefined) =>
+              confidence ? `${Math.round(confidence * 100)}%` : '-'
+            }
             sorter={sortByConfidence}
           />
           <Column
@@ -210,12 +199,17 @@ const ReceiptManager: React.FC = () => {
             dataIndex="status"
             key="status"
             render={(status: Receipt['status']) => (
-              <Tag color={
-                status === 'completed' ? 'success' :
-                status === 'processing' ? 'processing' :
-                status === 'pending' ? 'default' :
-                'error'
-              }>
+              <Tag
+                color={
+                  status === 'completed'
+                    ? 'success'
+                    : status === 'processing'
+                      ? 'processing'
+                      : status === 'pending'
+                        ? 'default'
+                        : 'error'
+                }
+              >
                 {status.toUpperCase()}
               </Tag>
             )}
@@ -227,4 +221,4 @@ const ReceiptManager: React.FC = () => {
   );
 };
 
-export default ReceiptManager; 
+export default ReceiptManager;

@@ -39,4 +39,4 @@ export interface ReportSchema extends BaseSchema {
   };
 }
 
-export const REPORT_COLLECTION = 'reports'; 
+export const REPORT_COLLECTION = 'reports';

@@ -35,8 +35,8 @@ module.exports = {
               properties: {
                 website: { bsonType: 'string' },
                 logo: { bsonType: 'string' },
-                color: { bsonType: 'string' }
-              }
+                color: { bsonType: 'string' },
+              },
             },
             billingHistory: {
               bsonType: 'array',
@@ -46,15 +46,15 @@ module.exports = {
                   date: { bsonType: 'date' },
                   amount: { bsonType: 'double' },
                   status: { enum: ['paid', 'pending', 'failed'] },
-                  transactionId: { bsonType: 'string' }
-                }
-              }
+                  transactionId: { bsonType: 'string' },
+                },
+              },
             },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Merchants Schema Validation
@@ -74,7 +74,7 @@ module.exports = {
             isVerified: { bsonType: 'bool' },
             aliases: {
               bsonType: 'array',
-              items: { bsonType: 'string' }
+              items: { bsonType: 'string' },
             },
             metadata: {
               bsonType: 'object',
@@ -84,9 +84,9 @@ module.exports = {
                 currency: { bsonType: 'string' },
                 tags: {
                   bsonType: 'array',
-                  items: { bsonType: 'string' }
-                }
-              }
+                  items: { bsonType: 'string' },
+                },
+              },
             },
             locations: {
               bsonType: 'array',
@@ -100,35 +100,39 @@ module.exports = {
                   postalCode: { bsonType: 'string' },
                   coordinates: {
                     bsonType: 'array',
-                    items: { bsonType: 'double' }
-                  }
-                }
-              }
+                    items: { bsonType: 'double' },
+                  },
+                },
+              },
             },
             tellerMerchantId: { bsonType: 'string' },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Create indexes
-    await db.collection('subscriptions').createIndexes([
-      { key: { userId: 1 } },
-      { key: { merchantId: 1 } },
-      { key: { status: 1 } },
-      { key: { nextBillDate: 1 } },
-      { key: { frequency: 1 } }
-    ]);
+    await db
+      .collection('subscriptions')
+      .createIndexes([
+        { key: { userId: 1 } },
+        { key: { merchantId: 1 } },
+        { key: { status: 1 } },
+        { key: { nextBillDate: 1 } },
+        { key: { frequency: 1 } },
+      ]);
 
-    await db.collection('merchants').createIndexes([
-      { key: { name: 1 }, unique: true },
-      { key: { category: 1 } },
-      { key: { aliases: 1 } },
-      { key: { tellerMerchantId: 1 } },
-      { key: { 'locations.coordinates': '2dsphere' } }
-    ]);
+    await db
+      .collection('merchants')
+      .createIndexes([
+        { key: { name: 1 }, unique: true },
+        { key: { category: 1 } },
+        { key: { aliases: 1 } },
+        { key: { tellerMerchantId: 1 } },
+        { key: { 'locations.coordinates': '2dsphere' } },
+      ]);
 
     // Insert some common merchants
     const defaultMerchants = [
@@ -142,8 +146,8 @@ module.exports = {
           type: 'online',
           country: 'US',
           currency: 'USD',
-          tags: ['streaming', 'entertainment', 'subscription']
-        }
+          tags: ['streaming', 'entertainment', 'subscription'],
+        },
       },
       {
         name: 'Spotify',
@@ -155,8 +159,8 @@ module.exports = {
           type: 'online',
           country: 'US',
           currency: 'USD',
-          tags: ['streaming', 'music', 'subscription']
-        }
+          tags: ['streaming', 'music', 'subscription'],
+        },
       },
       {
         name: 'Amazon',
@@ -168,13 +172,13 @@ module.exports = {
           type: 'online',
           country: 'US',
           currency: 'USD',
-          tags: ['shopping', 'retail', 'subscription']
-        }
-      }
+          tags: ['shopping', 'retail', 'subscription'],
+        },
+      },
     ].map(merchant => ({
       ...merchant,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }));
 
     await db.collection('merchants').insertMany(defaultMerchants);
@@ -183,5 +187,5 @@ module.exports = {
   async down(db) {
     await db.dropCollection('subscriptions');
     await db.dropCollection('merchants');
-  }
-}; 
+  },
+};

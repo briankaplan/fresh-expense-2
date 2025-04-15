@@ -78,7 +78,7 @@ const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }
                 fullWidth
                 required
               >
-                {accountTypes.map((option) => (
+                {accountTypes.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -115,4 +115,4 @@ const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }
   );
 };
 
-export default AddAccountButton; 
+export default AddAccountButton;

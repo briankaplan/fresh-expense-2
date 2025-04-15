@@ -32,17 +32,11 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
     });
   }
 
-  async findByCategory(
-    userId: string,
-    category: string
-  ): Promise<TransactionSchema[]> {
+  async findByCategory(userId: string, category: string): Promise<TransactionSchema[]> {
     return this.find({ userId, category });
   }
 
-  async findByType(
-    userId: string,
-    type: TransactionSchema['type']
-  ): Promise<TransactionSchema[]> {
+  async findByType(userId: string, type: TransactionSchema['type']): Promise<TransactionSchema[]> {
     return this.find({ userId, type });
   }
 
@@ -53,10 +47,7 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
     return this.find({ userId, status });
   }
 
-  async getTotalByType(
-    userId: string,
-    type: TransactionSchema['type']
-  ): Promise<number> {
+  async getTotalByType(userId: string, type: TransactionSchema['type']): Promise<number> {
     const transactions = await this.find({ userId, type });
     return transactions.reduce((total, transaction) => total + transaction.amount, 0);
   }
@@ -94,4 +85,4 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
       }
     );
   }
-} 
+}

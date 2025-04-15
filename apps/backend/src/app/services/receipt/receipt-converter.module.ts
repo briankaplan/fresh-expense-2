@@ -5,4 +5,4 @@ import { ReceiptConverterService } from './receipt-converter.service';
   providers: [ReceiptConverterService],
   exports: [ReceiptConverterService],
 })
-export class ReceiptConverterModule {} 
+export class ReceiptConverterModule {}

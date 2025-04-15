@@ -23,7 +23,11 @@ export class Expense extends Document {
   @Prop({ type: [String], default: [] })
   tags: string[];
 
-  @Prop({ required: true, enum: ['pending', 'approved', 'rejected', 'reported'], default: 'pending' })
+  @Prop({
+    required: true,
+    enum: ['pending', 'approved', 'rejected', 'reported'],
+    default: 'pending',
+  })
   status: ExpenseStatus;
 
   @Prop({ type: Date })
@@ -39,4 +43,4 @@ export class Expense extends Document {
   metadata?: Record<string, any>;
 }
 
-export const ExpenseSchema = SchemaFactory.createForClass(Expense); 
+export const ExpenseSchema = SchemaFactory.createForClass(Expense);

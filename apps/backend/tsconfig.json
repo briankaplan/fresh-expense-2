@@ -21,7 +21,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@fresh-expense/shared": ["../../libs/shared/src"],
-      "@fresh-expense/types": ["../../libs/types/src"]
+      "@fresh-expense/types": ["../../libs/types/src"],
+      "@packages/utils": ["../../packages/utils/src"]
     }
   },
   "include": ["src/**/*"],

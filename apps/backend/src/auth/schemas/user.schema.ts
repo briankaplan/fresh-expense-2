@@ -24,4 +24,4 @@ export class User {
   resetPasswordExpires?: Date;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User); 
+export const UserSchema = SchemaFactory.createForClass(User);

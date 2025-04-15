@@ -63,4 +63,4 @@ export interface TransactionSchema extends BaseSchema {
   };
 }
 
-export const TRANSACTION_COLLECTION = 'transactions'; 
+export const TRANSACTION_COLLECTION = 'transactions';

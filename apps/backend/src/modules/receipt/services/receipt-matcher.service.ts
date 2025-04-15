@@ -35,9 +35,7 @@ export interface MatchResult {
 export class ReceiptMatcherService {
   private readonly logger = new Logger(ReceiptMatcherService.name);
 
-  constructor(
-    @InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>
-  ) {}
+  constructor(@InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>) {}
 
   async findSimilar(
     receipt: ReceiptDocument,
@@ -52,12 +50,12 @@ export class ReceiptMatcherService {
         _id: { $ne: receipt._id },
         amount: {
           $gte: receipt.amount * 0.9,
-          $lte: receipt.amount * 1.1
+          $lte: receipt.amount * 1.1,
         },
         date: {
           $gte: new Date(receipt.date.getTime() - 3 * 24 * 60 * 60 * 1000),
-          $lte: new Date(receipt.date.getTime() + 3 * 24 * 60 * 60 * 1000)
-        }
+          $lte: new Date(receipt.date.getTime() + 3 * 24 * 60 * 60 * 1000),
+        },
       };
 
       const potentialMatches = await this.receiptModel.find(query).exec();
@@ -70,9 +68,7 @@ export class ReceiptMatcherService {
         }
       }
 
-      return results
-        .sort((a, b) => b.score - a.score)
-        .slice(0, maxResults);
+      return results.sort((a, b) => b.score - a.score).slice(0, maxResults);
     } catch (error) {
       this.logger.error('Error finding similar receipts:', error);
       throw error;
@@ -89,7 +85,7 @@ export class ReceiptMatcherService {
           query.$or = [
             { merchant: searchRegex },
             { 'metadata.text': searchRegex },
-            { 'ocrData.text': searchRegex }
+            { 'ocrData.text': searchRegex },
           ];
         } else {
           query.$text = { $search: options.query };
@@ -97,9 +93,7 @@ export class ReceiptMatcherService {
       }
 
       if (options.merchant) {
-        query.merchant = options.fuzzyMatch
-          ? new RegExp(options.merchant, 'i')
-          : options.merchant;
+        query.merchant = options.fuzzyMatch ? new RegExp(options.merchant, 'i') : options.merchant;
       }
 
       if (options.minAmount !== undefined || options.maxAmount !== undefined) {
@@ -142,26 +136,14 @@ export class ReceiptMatcherService {
     receipt1: ReceiptDocument,
     receipt2: ReceiptDocument
   ): Promise<MatchResult> {
-    const merchantMatch = this.calculateMerchantSimilarity(
-      receipt1.merchant,
-      receipt2.merchant
-    );
-    const amountMatch = this.calculateAmountSimilarity(
-      receipt1.amount,
-      receipt2.amount
-    );
-    const dateMatch = this.calculateDateSimilarity(
-      receipt1.date,
-      receipt2.date
-    );
+    const merchantMatch = this.calculateMerchantSimilarity(receipt1.merchant, receipt2.merchant);
+    const amountMatch = this.calculateAmountSimilarity(receipt1.amount, receipt2.amount);
+    const dateMatch = this.calculateDateSimilarity(receipt1.date, receipt2.date);
     const categoryMatch = receipt1.category === receipt2.category ? 1 : 0;
 
     let textMatch = 0;
     if (receipt1.ocrData?.text && receipt2.ocrData?.text) {
-      textMatch = this.calculateTextSimilarity(
-        receipt1.ocrData.text,
-        receipt2.ocrData.text
-      );
+      textMatch = this.calculateTextSimilarity(receipt1.ocrData.text, receipt2.ocrData.text);
     }
 
     const score =
@@ -179,8 +161,8 @@ export class ReceiptMatcherService {
         amountMatch,
         dateMatch,
         categoryMatch,
-        textMatch
-      }
+        textMatch,
+      },
     };
   }
 
@@ -235,4 +217,4 @@ export class ReceiptMatcherService {
     const distance = matrix[str1.length][str2.length];
     return 1 - distance / Math.max(str1.length, str2.length);
   }
-} 
+}

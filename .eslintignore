@@ -1,17 +1,42 @@
 # Dependencies
 node_modules
-dist
-build
+
+# Testing
 coverage
+.nyc_output
+
+# Misc
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
 
 # Generated files
-*.log
+*.d.ts
+*.generated.ts
+*.generated.tsx
+
+# Temporary files
+tmp
+temp
+
+# Build output
+dist
+build
+.next
+out
+
+# Generated files
 *.min.js
 *.min.css
 
 # IDE files
-.idea
-.vscode
 *.swp
 *.swo
 
@@ -20,15 +45,4 @@ dist/
 build/
 out/
 .next/
-.cache/
-
-# Test coverage
-coverage/
-
-# Environment files
-.env*
-!.env.example
-
-# Misc
-.DS_Store
-Thumbs.db 
+.cache/ 

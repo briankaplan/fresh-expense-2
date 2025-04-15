@@ -4,7 +4,14 @@ import { NotificationSchema, NOTIFICATION_COLLECTION } from '../schemas/notifica
 import { BaseRepository } from './base.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { BaseSchema } from '../schemas/base.schema';
-import { ObjectId, Document, InsertOneResult, UpdateResult, DeleteResult, Collection } from 'mongodb';
+import {
+  ObjectId,
+  Document,
+  InsertOneResult,
+  UpdateResult,
+  DeleteResult,
+  Collection,
+} from 'mongodb';
 
 @Injectable()
 export class NotificationRepository extends BaseRepository<NotificationSchema> {
@@ -76,21 +83,22 @@ export class NotificationRepository extends BaseRepository<NotificationSchema> {
     return result.modifiedCount > 0;
   }
 
-  async getRecentNotifications(
-    userId: string,
-    limit: number = 10
-  ): Promise<NotificationSchema[]> {
+  async getRecentNotifications(userId: string, limit: number = 10): Promise<NotificationSchema[]> {
     const collection = await this.getCollection();
-    return collection.find(
-      { userId },
-      {
-        sort: { createdAt: -1 },
-        limit,
-      }
-    ).toArray();
+    return collection
+      .find(
+        { userId },
+        {
+          sort: { createdAt: -1 },
+          limit,
+        }
+      )
+      .toArray();
   }
 
-  async create(data: Omit<NotificationSchema, '_id' | 'createdAt' | 'updatedAt'>): Promise<NotificationSchema> {
+  async create(
+    data: Omit<NotificationSchema, '_id' | 'createdAt' | 'updatedAt'>
+  ): Promise<NotificationSchema> {
     const collection = await this.getCollection();
     const now = new Date();
     const notification: NotificationSchema = {
@@ -103,11 +111,14 @@ export class NotificationRepository extends BaseRepository<NotificationSchema> {
     return notification;
   }
 
-  async update(id: string, data: Partial<Omit<NotificationSchema, '_id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
+  async update(
+    id: string,
+    data: Partial<Omit<NotificationSchema, '_id' | 'createdAt' | 'updatedAt'>>
+  ): Promise<boolean> {
     const collection = await this.getCollection();
     const filter: Filter<NotificationSchema> = { _id: new ObjectId(id) };
-    const update: UpdateFilter<NotificationSchema> = { 
-      $set: { ...data, updatedAt: new Date() } 
+    const update: UpdateFilter<NotificationSchema> = {
+      $set: { ...data, updatedAt: new Date() },
     };
     const result: UpdateResult = await collection.updateOne(filter, update);
     return result.modifiedCount > 0;
@@ -119,4 +130,4 @@ export class NotificationRepository extends BaseRepository<NotificationSchema> {
     const result: DeleteResult = await collection.deleteOne(filter);
     return result.deletedCount > 0;
   }
-} 
+}

@@ -50,20 +50,14 @@ export class ErrorHandlerService {
     }
 
     if (error instanceof Error) {
-      return this.createError(
-        ErrorType.INTERNAL,
-        error.message,
-        'UNKNOWN_ERROR',
-        { originalError: error }
-      );
+      return this.createError(ErrorType.INTERNAL, error.message, 'UNKNOWN_ERROR', {
+        originalError: error,
+      });
     }
 
-    return this.createError(
-      ErrorType.INTERNAL,
-      'An unknown error occurred',
-      'UNKNOWN_ERROR',
-      { originalError: error }
-    );
+    return this.createError(ErrorType.INTERNAL, 'An unknown error occurred', 'UNKNOWN_ERROR', {
+      originalError: error,
+    });
   }
 
   private isAppError(error: unknown): error is AppError {
@@ -127,4 +121,4 @@ export class ErrorHandlerService {
         break;
     }
   }
-} 
+}

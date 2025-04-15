@@ -15,4 +15,4 @@ export interface NotificationSchema extends BaseSchema {
   metadata?: Record<string, any>;
 }
 
-export const NOTIFICATION_COLLECTION = 'notifications'; 
+export const NOTIFICATION_COLLECTION = 'notifications';

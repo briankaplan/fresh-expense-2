@@ -4,22 +4,7 @@ import { createWorker, PSM } from 'tesseract.js';
 import sharp from 'sharp';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationService } from '../notification/notification.service';
-
-interface OCRResult {
-  text: string;
-  confidence: number;
-  structuredData: {
-    merchantName: string;
-    date: string;
-    total: number;
-    subtotal?: number;
-    tax?: number;
-    items: Array<{
-      item: string;
-      price: number;
-    }>;
-  };
-}
+import { OCRResult } from '../../app/receipts/types/ocr.types';
 
 @Injectable()
 export class OCRService {
@@ -27,15 +12,39 @@ export class OCRService {
   private worker: any;
   private initialized = false;
   private readonly receiptTypes = [
-    'retail', 'restaurant', 'grocery', 'gas', 'pharmacy',
-    'medical', 'utility', 'hotel', 'transportation',
-    'digital', 'subscription', 'app_store', 'play_store',
+    'retail',
+    'restaurant',
+    'grocery',
+    'gas',
+    'pharmacy',
+    'medical',
+    'utility',
+    'hotel',
+    'transportation',
+    'digital',
+    'subscription',
+    'app_store',
+    'play_store',
+  ];
+
+  private readonly subscriptionKeywords = [
+    'subscription',
+    'recurring',
+    'monthly',
+    'yearly',
+    'weekly',
+    'quarterly',
+    'auto-renewal',
+    'next billing',
+    'next payment',
+    'billing period',
+    'renewal date',
   ];
 
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationService: NotificationService,
+    private readonly notificationService: NotificationService
   ) {}
 
   async initialize(): Promise<boolean> {
@@ -56,7 +65,7 @@ export class OCRService {
       this.logger.error('Failed to initialize OCR service:', error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'OCR Service Initialization',
+        'OCR Service Initialization'
       );
       return false;
     }
@@ -108,7 +117,7 @@ export class OCRService {
       this.logger.error('Error processing receipt:', error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'Receipt Processing',
+        'Receipt Processing'
       );
       throw error;
     }
@@ -123,7 +132,7 @@ export class OCRService {
       .toBuffer();
   }
 
-  private extractStructuredData(text: string) {
+  private extractStructuredData(text: string): OCRResult['structuredData'] {
     const result: OCRResult['structuredData'] = {
       merchantName: '',
       date: '',
@@ -131,6 +140,7 @@ export class OCRService {
       subtotal: 0,
       tax: 0,
       items: [],
+      subscriptionInfo: this.extractSubscriptionInfo(text),
     };
 
     const lines = text.split('\n');
@@ -188,7 +198,7 @@ export class OCRService {
       while ((itemMatch = pattern.exec(text)) !== null) {
         const itemName = itemMatch[1].trim();
         const itemPrice = parseFloat(itemMatch[2]);
-        
+
         if (!itemName.toLowerCase().match(/total|subtotal|tax|tip|discount|balance/i)) {
           result.items.push({
             item: itemName,
@@ -200,4 +210,79 @@ export class OCRService {
 
     return result;
   }
-} 
+
+  private extractSubscriptionInfo(text: string): OCRResult['structuredData']['subscriptionInfo'] {
+    const lowerText = text.toLowerCase();
+    const isSubscription = this.subscriptionKeywords.some(keyword => lowerText.includes(keyword));
+
+    if (!isSubscription) {
+      return undefined;
+    }
+
+    const result: NonNullable<OCRResult['structuredData']['subscriptionInfo']> = {
+      isSubscription: true,
+    };
+
+    // Extract frequency
+    const frequencyPatterns = {
+      monthly: /monthly|per month|\/month|\bmo\b/i,
+      yearly: /yearly|annual|per year|\/year|\byr\b/i,
+      weekly: /weekly|per week|\/week|\bwk\b/i,
+      quarterly: /quarterly|per quarter|every 3 months/i,
+    };
+
+    for (const [freq, pattern] of Object.entries(frequencyPatterns)) {
+      if (pattern.test(text)) {
+        result.frequency = freq as 'monthly' | 'yearly' | 'weekly' | 'quarterly';
+        break;
+      }
+    }
+
+    // Extract next billing date
+    const nextBillingPatterns = [
+      /next\s+(?:billing|payment)\s+date\s*:\s*(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/i,
+      /(?:renews|renewal)\s+on\s*:\s*(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/i,
+      /next\s+charge\s*:\s*(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/i,
+    ];
+
+    for (const pattern of nextBillingPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        result.nextBillingDate = match[1];
+        break;
+      }
+    }
+
+    // Extract plan name
+    const planPatterns = [
+      /plan\s*:\s*([^\n]+)/i,
+      /subscription\s+type\s*:\s*([^\n]+)/i,
+      /package\s*:\s*([^\n]+)/i,
+    ];
+
+    for (const pattern of planPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        result.planName = match[1].trim();
+        break;
+      }
+    }
+
+    // Extract recurring amount
+    const recurringAmountPatterns = [
+      /recurring\s+(?:amount|payment|charge)\s*:\s*[$]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})/i,
+      /billed\s+(?:as|at)\s*:\s*[$]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})/i,
+      /(?:monthly|yearly|weekly|quarterly)\s+(?:fee|charge|amount)\s*:\s*[$]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})/i,
+    ];
+
+    for (const pattern of recurringAmountPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        result.recurringAmount = parseFloat(match[1].replace(/,/g, ''));
+        break;
+      }
+    }
+
+    return result;
+  }
+}

@@ -57,10 +57,7 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
     );
   }
 
-  async updateNextBillingDate(
-    subscriptionId: string,
-    nextBillingDate: Date
-  ): Promise<boolean> {
+  async updateNextBillingDate(subscriptionId: string, nextBillingDate: Date): Promise<boolean> {
     return this.update(
       { _id: subscriptionId },
       {
@@ -95,4 +92,4 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
       }
     );
   }
-} 
+}

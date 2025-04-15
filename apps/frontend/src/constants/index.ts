@@ -53,4 +53,4 @@ export const SUCCESS_MESSAGES = {
   EXPENSE_UPDATED: 'Expense updated successfully!',
   EXPENSE_DELETED: 'Expense deleted successfully!',
   PROFILE_UPDATED: 'Profile updated successfully!',
-} as const; 
+} as const;

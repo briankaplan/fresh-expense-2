@@ -9,4 +9,4 @@ import { MongoDBModule } from '../database/mongodb.module';
   providers: [CategoriesService],
   exports: [CategoriesService],
 })
-export class CategoriesModule {} 
+export class CategoriesModule {}

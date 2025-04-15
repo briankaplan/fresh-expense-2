@@ -76,4 +76,4 @@ export interface TransactionDto {
   metadata?: Record<string, any>;
   createdAt?: Date;
   updatedAt?: Date;
-} 
+}

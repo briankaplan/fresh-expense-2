@@ -10,4 +10,4 @@ export interface BaseSchema {
   updatedAt: Date;
   deletedAt?: Date;
   isDeleted: boolean;
-} 
+}

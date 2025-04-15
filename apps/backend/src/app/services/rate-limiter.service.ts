@@ -46,11 +46,7 @@ export class RateLimiterService {
         const key = `${service}.${operation}`;
         this.limiters.set(
           key,
-          new TokenBucketRateLimiter(
-            config.tokensPerInterval,
-            config.intervalMs,
-            config.maxBurst
-          )
+          new TokenBucketRateLimiter(config.tokensPerInterval, config.intervalMs, config.maxBurst)
         );
       }
     }
@@ -58,12 +54,12 @@ export class RateLimiterService {
 
   getLimiter(key: string, config?: RateLimitConfig): TokenBucketRateLimiter {
     let limiter = this.limiters.get(key);
-    
+
     if (!limiter) {
       if (!config) {
         throw new Error(`No rate limiter found for key ${key} and no config provided`);
       }
-      
+
       limiter = new TokenBucketRateLimiter(
         config.tokensPerInterval,
         config.intervalMs,
@@ -71,7 +67,7 @@ export class RateLimiterService {
       );
       this.limiters.set(key, limiter);
     }
-    
+
     return limiter;
   }
 
@@ -84,4 +80,4 @@ export class RateLimiterService {
     await this.waitForToken(key);
     return fn();
   }
-} 
+}

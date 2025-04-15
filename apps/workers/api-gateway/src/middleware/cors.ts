@@ -14,4 +14,4 @@ export const cors = (request: IRequest) => {
   }
 
   return headers;
-}; 
+};

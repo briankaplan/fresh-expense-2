@@ -9,4 +9,4 @@ import { MongoDBModule } from '../database/mongodb.module';
   providers: [TransactionsService],
   exports: [TransactionsService],
 })
-export class TransactionsModule {} 
+export class TransactionsModule {}

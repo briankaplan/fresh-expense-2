@@ -5,6 +5,6 @@ import { MongoDBModule } from '../database/mongodb.module';
 @Module({
   imports: [MongoDBModule],
   providers: [ExpenseIntegrationService],
-  exports: [ExpenseIntegrationService]
+  exports: [ExpenseIntegrationService],
 })
-export class ExpenseIntegrationModule {} 
+export class ExpenseIntegrationModule {}

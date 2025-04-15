@@ -8,4 +8,4 @@ export interface ExtractedReceiptData {
   tax?: number;
   rawText?: string;
   confidence?: number;
-} 
+}

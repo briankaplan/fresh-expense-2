@@ -21,4 +21,4 @@ export interface SubscriptionSchema extends BaseSchema {
   };
 }
 
-export const SUBSCRIPTION_COLLECTION = 'subscriptions'; 
+export const SUBSCRIPTION_COLLECTION = 'subscriptions';

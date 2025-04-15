@@ -13,5 +13,5 @@ export const ROUTES = {
   RESET_PASSWORD: '/reset-password/:token',
   VERIFY_EMAIL: '/verify-email/:token',
   TRANSACTIONS: '/transactions',
-  SUBSCRIPTIONS: '/subscriptions'
-} as const; 
+  SUBSCRIPTIONS: '/subscriptions',
+} as const;

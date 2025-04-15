@@ -14,10 +14,10 @@ export const createMockUser = (overrides?: Partial<User>): User => ({
     currency: 'USD',
     notifications: {
       email: true,
-      push: true
-    }
+      push: true,
+    },
   },
-  ...overrides
+  ...overrides,
 });
 
 export const createMockTransaction = (overrides?: Partial<Transaction>): Transaction => ({
@@ -33,7 +33,7 @@ export const createMockTransaction = (overrides?: Partial<Transaction>): Transac
   source: 'manual',
   lastUpdated: new Date(),
   isRecurring: false,
-  ...overrides
+  ...overrides,
 });
 
 export const createMockCompany = (overrides?: Partial<Company>): Company => ({
@@ -44,10 +44,10 @@ export const createMockCompany = (overrides?: Partial<Company>): Company => ({
   settings: {
     currency: 'USD',
     timezone: 'America/New_York',
-    dateFormat: 'YYYY-MM-DD'
+    dateFormat: 'YYYY-MM-DD',
   },
   integrations: {},
-  ...overrides
+  ...overrides,
 });
 
 // Test utilities
@@ -59,7 +59,7 @@ export const mockFetch = (response: any) => {
   return jest.fn().mockImplementation(() =>
     Promise.resolve({
       ok: true,
-      json: () => Promise.resolve(response)
+      json: () => Promise.resolve(response),
     })
   );
 };
@@ -68,24 +68,31 @@ export const mockLocalStorage = () => {
   const store: { [key: string]: string } = {};
   return {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value.toString(); },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach(key => delete store[key]); }
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach(key => delete store[key]);
+    },
   };
 };
 
 // Test matchers
 export const toMatchTransaction = (received: Transaction, expected: Transaction) => {
-  const match = 
+  const match =
     received.id === expected.id &&
     received.amount === expected.amount &&
     received.description === expected.description;
-  
+
   return {
     pass: match,
-    message: () => match
-      ? `Expected transaction not to match ${JSON.stringify(expected)}`
-      : `Expected transaction to match ${JSON.stringify(expected)}`
+    message: () =>
+      match
+        ? `Expected transaction not to match ${JSON.stringify(expected)}`
+        : `Expected transaction to match ${JSON.stringify(expected)}`,
   };
 };
 
@@ -95,32 +102,32 @@ export const mockApiResponses = {
     login: {
       success: {
         token: 'mock-token-123',
-        user: createMockUser()
+        user: createMockUser(),
       },
       error: {
-        message: 'Invalid credentials'
-      }
+        message: 'Invalid credentials',
+      },
     },
     register: {
       success: {
-        message: 'User registered successfully'
+        message: 'User registered successfully',
       },
       error: {
-        message: 'Email already exists'
-      }
-    }
+        message: 'Email already exists',
+      },
+    },
   },
   transactions: {
     list: {
       success: {
         data: [createMockTransaction(), createMockTransaction()],
-        total: 2
+        total: 2,
       },
       error: {
-        message: 'Failed to fetch transactions'
-      }
-    }
-  }
+        message: 'Failed to fetch transactions',
+      },
+    },
+  },
 };
 
 // Test environment setup
@@ -145,11 +152,11 @@ export const setupTestEnvironment = () => {
   mockIntersectionObserver.mockReturnValue({
     observe: () => null,
     unobserve: () => null,
-    disconnect: () => null
+    disconnect: () => null,
   });
   window.IntersectionObserver = mockIntersectionObserver;
 
   // Mock localStorage
   const mockStorage = mockLocalStorage();
   Object.defineProperty(window, 'localStorage', { value: mockStorage });
-}; 
+};

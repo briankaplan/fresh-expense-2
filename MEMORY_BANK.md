@@ -123,18 +123,21 @@ interface Template {
 ### Features
 
 1. Receipt Upload
+
    - Drag and drop
    - Multi-file support
    - Progress tracking
    - Preview generation
 
 2. Receipt Management
+
    - Search and filter
    - Batch operations
    - Category assignment
    - Tag management
 
 3. Report Generation
+
    - Template selection
    - Custom filters
    - Schedule setup

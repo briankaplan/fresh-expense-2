@@ -1,12 +1,5 @@
 import React from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Grid,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, Typography, Paper, Grid, useTheme, useMediaQuery } from '@mui/material';
 import { motion } from 'framer-motion';
 import AccountsList from '../components/AccountsList';
 import AddAccountButton from '../components/AddAccountButton';
@@ -24,33 +17,33 @@ const Accounts: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <Grid 
-            container 
-            spacing={2} 
-            alignItems="center" 
-            sx={{ 
+          <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            sx={{
               mb: 3,
               flexDirection: { xs: 'column', sm: 'row' },
               '& > .MuiGrid-item': {
-                width: { xs: '100%', sm: 'auto' }
-              }
+                width: { xs: '100%', sm: 'auto' },
+              },
             }}
           >
             <Grid item xs>
-              <Typography 
+              <Typography
                 variant="h4"
                 sx={{
                   textAlign: { xs: 'center', sm: 'left' },
-                  mb: { xs: 2, sm: 0 }
+                  mb: { xs: 2, sm: 0 },
                 }}
               >
                 Accounts
               </Typography>
             </Grid>
-            <Grid 
-              item 
+            <Grid
+              item
               sx={{
-                width: { xs: '100%', sm: 'auto' }
+                width: { xs: '100%', sm: 'auto' },
               }}
             >
               <AddAccountButton fullWidth={isMobile} />
@@ -63,10 +56,10 @@ const Accounts: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <Paper 
-            sx={{ 
+          <Paper
+            sx={{
               p: { xs: 1.5, sm: 2 },
-              overflowX: 'auto'
+              overflowX: 'auto',
             }}
           >
             <AccountsList />
@@ -77,4 +70,4 @@ const Accounts: React.FC = () => {
   );
 };
 
-export default Accounts; 
+export default Accounts;

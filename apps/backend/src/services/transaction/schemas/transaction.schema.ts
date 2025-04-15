@@ -1,39 +1,66 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { TransactionCategory } from '@packages/utils';
 
 export type TransactionDocument = Transaction & Document;
 
 @Schema({ timestamps: true })
 export class Transaction {
   @Prop({ required: true })
-  externalId: string;
+  accountId!: string;
 
   @Prop({ required: true })
-  accountId: string;
+  amount!: number;
 
   @Prop({ required: true })
-  amount: number;
+  date!: Date;
 
   @Prop({ required: true })
-  date: Date;
+  description!: string;
 
-  @Prop()
-  category?: string;
+  @Prop({ required: true, enum: ['debit', 'credit'] })
+  type!: 'debit' | 'credit';
 
-  @Prop({ required: true })
-  description: string;
+  @Prop({ required: true, enum: ['pending', 'posted', 'canceled'] })
+  status!: 'pending' | 'posted' | 'canceled';
 
-  @Prop({ required: true, enum: ['expense', 'income', 'transfer'] })
-  type: string;
-
-  @Prop({ required: true, enum: ['pending', 'completed', 'failed'] })
-  status: string;
+  @Prop({ type: String })
+  category?: TransactionCategory;
 
   @Prop()
   merchant?: string;
 
   @Prop()
-  location?: string;
+  merchantName?: string;
+
+  @Prop({ type: String })
+  merchantCategory?: TransactionCategory;
+
+  @Prop({
+    type: {
+      address: String,
+      city: String,
+      state: String,
+      country: String,
+      postalCode: String,
+    }
+  })
+  location?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+
+  @Prop()
+  runningBalance?: number;
+
+  @Prop({ default: false })
+  isRecurring!: boolean;
+
+  @Prop()
+  notes?: string;
 
   @Prop([String])
   tags?: string[];
@@ -42,10 +69,7 @@ export class Transaction {
   metadata?: Record<string, any>;
 
   @Prop()
-  createdAt: Date;
-
-  @Prop()
-  updatedAt: Date;
+  lastUpdated?: Date;
 }
 
-export const TransactionSchema = SchemaFactory.createForClass(Transaction); 
+export const TransactionSchema = SchemaFactory.createForClass(Transaction);

@@ -17,15 +17,25 @@ export class BertProcessorService {
   private initialized = false;
   private serverUrl: string;
   private readonly categories = [
-    'retail', 'restaurant', 'grocery', 'gas', 'pharmacy',
-    'medical', 'utility', 'hotel', 'transportation',
-    'digital', 'subscription', 'app_store', 'play_store',
+    'retail',
+    'restaurant',
+    'grocery',
+    'gas',
+    'pharmacy',
+    'medical',
+    'utility',
+    'hotel',
+    'transportation',
+    'digital',
+    'subscription',
+    'app_store',
+    'play_store',
   ];
 
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationService: NotificationService,
+    private readonly notificationService: NotificationService
   ) {
     this.serverUrl = this.configService.get<string>('BERT_SERVER_URL') || 'http://localhost:5555';
   }
@@ -49,7 +59,7 @@ export class BertProcessorService {
       this.logger.error('Failed to initialize BERT processor:', error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'BERT Processor Initialization',
+        'BERT Processor Initialization'
       );
       return false;
     }
@@ -65,7 +75,7 @@ export class BertProcessorService {
 
     try {
       const targetCategories = categories || this.categories;
-      
+
       const response = await axios.post(`${this.serverUrl}/categorize`, {
         text,
         categories: targetCategories,
@@ -85,7 +95,7 @@ export class BertProcessorService {
       this.logger.error('Error categorizing text:', error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'Text Categorization',
+        'Text Categorization'
       );
       throw error;
     }
@@ -101,4 +111,4 @@ export class BertProcessorService {
       return false;
     }
   }
-} 
+}

@@ -78,7 +78,7 @@ export class TellerService {
     this.environment = this.configService.get<string>('TELLER_ENV') || 'sandbox';
     this.webhookSecret = this.configService.get<string>('TELLER_WEBHOOK_SECRET') || '';
     this.webhookKey = this.configService.get<string>('TELLER_WEBHOOK_KEY') || '';
-    
+
     // Initialize axios instance with mTLS
     const certPath = this.configService.get<string>('TELLER_CERTIFICATE_PATH');
     const keyPath = this.configService.get<string>('TELLER_PRIVATE_KEY_PATH');
@@ -91,16 +91,16 @@ export class TellerService {
     const httpsAgent = new https.Agent({
       cert: fs.readFileSync(certPath),
       key: fs.readFileSync(keyPath),
-      rejectUnauthorized: true
+      rejectUnauthorized: true,
     });
 
     this.axiosInstance = axios.create({
       baseURL: 'https://api.teller.io',
       httpsAgent,
       headers: {
-        'Authorization': `Basic ${Buffer.from(token + ':').toString('base64')}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Basic ${Buffer.from(token + ':').toString('base64')}`,
+        'Content-Type': 'application/json',
+      },
     });
   }
 
@@ -113,7 +113,7 @@ export class TellerService {
       this.logger.error('Error fetching Teller accounts:', {
         status: axiosError.response?.status,
         message: axiosError.message,
-        data: axiosError.response?.data
+        data: axiosError.response?.data,
       });
       throw error;
     }
@@ -124,7 +124,7 @@ export class TellerService {
       .findOne({ accountId })
       .sort({ date: -1 })
       .exec();
-    
+
     return lastTransaction ? lastTransaction.date : null;
   }
 
@@ -137,13 +137,17 @@ export class TellerService {
     return hoursSinceLastSync >= 24;
   }
 
-  private async fetchTransactionsPage(accountId: string, fromDate: Date, count: number = this.PAGE_SIZE): Promise<TellerTransaction[]> {
+  private async fetchTransactionsPage(
+    accountId: string,
+    fromDate: Date,
+    count: number = this.PAGE_SIZE
+  ): Promise<TellerTransaction[]> {
     try {
       const response = await this.axiosInstance.get(`/accounts/${accountId}/transactions`, {
         params: {
           from_date: fromDate.toISOString().split('T')[0],
-          count
-        }
+          count,
+        },
       });
       return response.data;
     } catch (error) {
@@ -151,7 +155,7 @@ export class TellerService {
       this.logger.error(`Error fetching transactions page for account ${accountId}:`, {
         status: axiosError.response?.status,
         message: axiosError.message,
-        data: axiosError.response?.data
+        data: axiosError.response?.data,
       });
       throw error;
     }
@@ -159,15 +163,19 @@ export class TellerService {
 
   async syncTransactions(accountId: string, forceHistorical: boolean = false): Promise<void> {
     try {
-      if (!forceHistorical && !await this.shouldSyncAccount(accountId)) {
-        this.logger.log(`Skipping sync for account ${accountId} - last sync was less than 24 hours ago`);
+      if (!forceHistorical && !(await this.shouldSyncAccount(accountId))) {
+        this.logger.log(
+          `Skipping sync for account ${accountId} - last sync was less than 24 hours ago`
+        );
         return;
       }
 
       let fromDate: Date;
       if (forceHistorical) {
         fromDate = this.HISTORICAL_START_DATE;
-        this.logger.log(`Starting historical sync for account ${accountId} from ${fromDate.toISOString()}`);
+        this.logger.log(
+          `Starting historical sync for account ${accountId} from ${fromDate.toISOString()}`
+        );
       } else {
         const lastSyncedDate = await this.getLastSyncedTransaction(accountId);
         fromDate = lastSyncedDate || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // Default to 7 days ago
@@ -178,7 +186,7 @@ export class TellerService {
 
       while (hasMore) {
         const transactions = await this.fetchTransactionsPage(accountId, fromDate);
-        
+
         if (transactions.length === 0) {
           hasMore = false;
           continue;
@@ -204,22 +212,26 @@ export class TellerService {
       }
 
       this.lastSyncTime[accountId] = new Date();
-      this.logger.log(`Successfully synced ${totalSynced} total transactions for account ${accountId}`);
+      this.logger.log(
+        `Successfully synced ${totalSynced} total transactions for account ${accountId}`
+      );
     } catch (error) {
       const axiosError = error as AxiosError;
       this.logger.error(`Error syncing transactions for account ${accountId}:`, {
         status: axiosError.response?.status,
         message: axiosError.message,
-        data: axiosError.response?.data
+        data: axiosError.response?.data,
       });
       throw error;
     }
   }
 
-  private async mapAndValidateTransaction(tellerTransaction: TellerTransaction): Promise<TransactionDto> {
+  private async mapAndValidateTransaction(
+    tellerTransaction: TellerTransaction
+  ): Promise<TransactionDto> {
     // Extract merchant info from description (if available)
     const merchantInfo = this.extractMerchantInfo(tellerTransaction.description);
-    
+
     const transaction = plainToClass(TransactionDto, {
       externalId: tellerTransaction.id,
       accountId: tellerTransaction.account_id,
@@ -237,7 +249,7 @@ export class TellerService {
       merchantCategory: merchantInfo.category,
       location: merchantInfo.location,
       isRecurring: this.detectRecurringTransaction(tellerTransaction),
-      originalPayload: tellerTransaction
+      originalPayload: tellerTransaction,
     });
 
     // Validate the mapped data
@@ -246,18 +258,27 @@ export class TellerService {
       return transaction;
     } catch (errors) {
       const validationErrors = errors as ValidationError[];
-      this.logger.error(`Validation failed for transaction ${tellerTransaction.id}:`, validationErrors);
-      throw new Error(`Transaction validation failed: ${validationErrors.map(e => Object.values(e.constraints || {})).join(', ')}`);
+      this.logger.error(
+        `Validation failed for transaction ${tellerTransaction.id}:`,
+        validationErrors
+      );
+      throw new Error(
+        `Transaction validation failed: ${validationErrors.map(e => Object.values(e.constraints || {})).join(', ')}`
+      );
     }
   }
 
-  private extractMerchantInfo(description: string): { name?: string; category?: string; location?: string } {
+  private extractMerchantInfo(description: string): {
+    name?: string;
+    category?: string;
+    location?: string;
+  } {
     // Basic merchant info extraction (can be improved with ML/regex patterns)
     const parts = description.split(' ');
     return {
       name: parts[0],
       category: this.categorizeMerchant(description),
-      location: parts[parts.length - 1]
+      location: parts[parts.length - 1],
     };
   }
 
@@ -273,7 +294,7 @@ export class TellerService {
   private detectRecurringTransaction(transaction: TellerTransaction): boolean {
     // Simple recurring detection logic (can be improved)
     const recurringKeywords = ['subscription', 'monthly', 'recurring', 'netflix', 'spotify'];
-    return recurringKeywords.some(keyword => 
+    return recurringKeywords.some(keyword =>
       transaction.description.toLowerCase().includes(keyword)
     );
   }
@@ -286,7 +307,7 @@ export class TellerService {
   private async upsertTransaction(tellerTransaction: TellerTransaction) {
     try {
       const validatedTransaction = await this.mapAndValidateTransaction(tellerTransaction);
-      
+
       await this.transactionModel.findOneAndUpdate(
         { externalId: validatedTransaction.externalId },
         validatedTransaction,
@@ -301,18 +322,18 @@ export class TellerService {
   async syncAllAccounts(forceHistorical: boolean = false): Promise<void> {
     try {
       const accounts = await this.getAccounts();
-      
+
       for (const account of accounts) {
         await this.syncTransactions(account.id, forceHistorical);
       }
-      
+
       this.logger.log(`Completed syncing all accounts${forceHistorical ? ' (historical)' : ''}`);
     } catch (error) {
       const axiosError = error as AxiosError;
       this.logger.error('Error syncing all accounts:', {
         status: axiosError.response?.status,
         message: axiosError.message,
-        data: axiosError.response?.data
+        data: axiosError.response?.data,
       });
       throw error;
     }
@@ -321,7 +342,7 @@ export class TellerService {
   async getTransactions(accountId: string, query?: TellerQuery): Promise<TellerTransaction[]> {
     try {
       const response = await this.axiosInstance.get(`/accounts/${accountId}/transactions`, {
-        params: query
+        params: query,
       });
       return response.data;
     } catch (error) {
@@ -351,7 +372,7 @@ export class TellerService {
   async countTransactions(query: TellerQuery = {}): Promise<number> {
     try {
       const response = await this.axiosInstance.get('/transactions/count', {
-        params: query
+        params: query,
       });
       return response.data.count;
     } catch (error) {
@@ -376,7 +397,7 @@ export class TellerService {
       encoder.encode(this.webhookSecret),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
-      ['verify'],
+      ['verify']
     );
 
     const signatureBytes = this.hexToArrayBuffer(signature);
@@ -422,4 +443,4 @@ export class TellerService {
       throw error;
     }
   }
-} 
+}

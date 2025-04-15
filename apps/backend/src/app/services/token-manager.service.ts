@@ -28,16 +28,19 @@ export class TokenManagerService implements OnModuleInit {
   private readonly logger = new Logger(TokenManagerService.name);
   private readonly SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/photoslibrary.readonly'
+    'https://www.googleapis.com/auth/photoslibrary.readonly',
   ];
-  private readonly accounts = new Map<string, {
-    clientId: string;
-    clientSecret: string;
-    refreshToken: string;
-    scopes: string[];
-    oAuth2Client: any | null;
-    credentials: any | null;
-  }>();
+  private readonly accounts = new Map<
+    string,
+    {
+      clientId: string;
+      clientSecret: string;
+      refreshToken: string;
+      scopes: string[];
+      oAuth2Client: any | null;
+      credentials: any | null;
+    }
+  >();
   private initialized = false;
   private tokenCache = new Map<string, Auth.Credentials>();
 
@@ -58,7 +61,7 @@ export class TokenManagerService implements OnModuleInit {
       refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_1')!,
       scopes: this.SCOPES,
       oAuth2Client: null,
-      credentials: null
+      credentials: null,
     });
 
     // Account 2
@@ -68,7 +71,7 @@ export class TokenManagerService implements OnModuleInit {
       refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_2')!,
       scopes: this.SCOPES,
       oAuth2Client: null,
-      credentials: null
+      credentials: null,
     });
 
     // Google Photos (using account 1 credentials)
@@ -78,7 +81,7 @@ export class TokenManagerService implements OnModuleInit {
       refreshToken: this.configService.get<string>('GMAIL_REFRESH_TOKEN_1')!,
       scopes: this.SCOPES,
       oAuth2Client: null,
-      credentials: null
+      credentials: null,
     });
   }
 
@@ -91,7 +94,7 @@ export class TokenManagerService implements OnModuleInit {
         account.oAuth2Client = new OAuth2Client(
           account.clientId,
           account.clientSecret,
-          email === 'photos' 
+          email === 'photos'
             ? this.configService.get<string>('GOOGLE_PHOTOS_REDIRECT_URI')
             : this.configService.get<string>('GOOGLE_REDIRECT_URI')
         );
@@ -113,7 +116,6 @@ export class TokenManagerService implements OnModuleInit {
 
       this.initialized = true;
       this.logger.log('Token Manager initialized successfully');
-
     } catch (error) {
       this.logger.error('Failed to initialize Token Manager:', error);
       throw error;
@@ -129,7 +131,7 @@ export class TokenManagerService implements OnModuleInit {
     try {
       const response = await account.oAuth2Client.getAccessToken();
       const credentials = response.res?.data as Credentials;
-      
+
       if (!credentials?.access_token) {
         throw new Error('Failed to get access token');
       }
@@ -139,10 +141,10 @@ export class TokenManagerService implements OnModuleInit {
         refresh_token: account.refreshToken,
         scope: account.scopes.join(' '),
         token_type: 'Bearer',
-        expiry_date: credentials.expiry_date || new Date().getTime() + (3600 * 1000) // Default 1 hour if no expiry
+        expiry_date: credentials.expiry_date || new Date().getTime() + 3600 * 1000, // Default 1 hour if no expiry
       };
       account.oAuth2Client.setCredentials(account.credentials);
-      
+
       // Update cache
       this.tokenCache.set(email, account.credentials as Auth.Credentials);
 
@@ -213,4 +215,4 @@ export class TokenManagerService implements OnModuleInit {
   async getToken(email: string): Promise<Auth.Credentials | null> {
     return this.tokenCache.get(email) || null;
   }
-} 
+}

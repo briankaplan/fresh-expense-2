@@ -1,0 +1,28 @@
+name: Auto Clean Code
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  clean-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - run: pnpm install
+      - run: pnpm run clean:code
+
+      - uses: EndBug/add-and-commit@v9
+        with:
+          author_name: '🤖 SupermanBot'
+          author_email: 'superman@clean.code'
+          message: '✨ Auto-lint, format, prune and clean up!'
+          add: '.'

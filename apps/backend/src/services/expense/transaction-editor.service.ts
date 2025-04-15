@@ -35,16 +35,16 @@ export class TransactionEditorService {
     // Update the transaction
     const result = await transactionCollection.findOneAndUpdate(
       { _id: transactionId, userId },
-      { 
-        $set: { 
+      {
+        $set: {
           ...updates,
           updatedAt: new Date(),
           metadata: {
             ...transaction.metadata,
             enrichmentSource: 'manual',
-            enrichmentTimestamp: new Date()
-          }
-        }
+            enrichmentTimestamp: new Date(),
+          },
+        },
       },
       { returnDocument: 'after' }
     );
@@ -84,14 +84,11 @@ export class TransactionEditorService {
         metadata: {
           ...transaction.metadata,
           enrichmentSource: 'manual',
-          enrichmentTimestamp: new Date()
-        }
+          enrichmentTimestamp: new Date(),
+        },
       };
 
-      await expenseCollection.updateOne(
-        { _id: transaction.expenseId },
-        { $set: expenseUpdates }
-      );
+      await expenseCollection.updateOne({ _id: transaction.expenseId }, { $set: expenseUpdates });
     }
 
     return result;
@@ -114,16 +111,16 @@ export class TransactionEditorService {
     // Update the expense
     const result = await expenseCollection.findOneAndUpdate(
       { _id: expenseId, userId },
-      { 
-        $set: { 
+      {
+        $set: {
           ...updates,
           updatedAt: new Date(),
           metadata: {
             ...expense.metadata,
             enrichmentSource: 'manual',
-            enrichmentTimestamp: new Date()
-          }
-        }
+            enrichmentTimestamp: new Date(),
+          },
+        },
       },
       { returnDocument: 'after' }
     );
@@ -163,8 +160,8 @@ export class TransactionEditorService {
         metadata: {
           ...expense.metadata,
           enrichmentSource: 'manual',
-          enrichmentTimestamp: new Date()
-        }
+          enrichmentTimestamp: new Date(),
+        },
       };
 
       await transactionCollection.updateOne(
@@ -176,11 +173,7 @@ export class TransactionEditorService {
     return result;
   }
 
-  async matchReceipt(
-    transactionId: string,
-    receiptId: string,
-    userId: string
-  ): Promise<void> {
+  async matchReceipt(transactionId: string, receiptId: string, userId: string): Promise<void> {
     const transactionCollection = await this.getTransactionCollection();
     const expenseCollection = await this.getExpenseCollection();
 
@@ -192,8 +185,8 @@ export class TransactionEditorService {
           receiptId,
           receiptStatus: 'matched',
           receiptMatchedAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       }
     );
 
@@ -207,17 +200,14 @@ export class TransactionEditorService {
             receiptId,
             receiptStatus: 'matched',
             receiptMatchedAt: new Date(),
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         }
       );
     }
   }
 
-  async unmatchReceipt(
-    transactionId: string,
-    userId: string
-  ): Promise<void> {
+  async unmatchReceipt(transactionId: string, userId: string): Promise<void> {
     const transactionCollection = await this.getTransactionCollection();
     const expenseCollection = await this.getExpenseCollection();
 
@@ -229,8 +219,8 @@ export class TransactionEditorService {
           receiptId: undefined,
           receiptStatus: 'unmatched',
           receiptUnmatchedAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       }
     );
 
@@ -244,10 +234,10 @@ export class TransactionEditorService {
             receiptId: undefined,
             receiptStatus: 'unmatched',
             receiptUnmatchedAt: new Date(),
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         }
       );
     }
   }
-} 
+}

@@ -16,7 +16,7 @@ export const TRANSACTION_CATEGORIES = {
   BUSINESS: 'BUSINESS',
   TAXES: 'TAXES',
   INVESTMENTS: 'INVESTMENTS',
-  UNCATEGORIZED: 'UNCATEGORIZED'
+  UNCATEGORIZED: 'UNCATEGORIZED',
 } as const;
 
 // Date Formats
@@ -25,7 +25,7 @@ export const DATE_FORMATS = {
   US: 'MM/DD/YYYY',
   EU: 'DD/MM/YYYY',
   FULL: 'YYYY-MM-DD HH:mm:ss',
-  ISO: 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+  ISO: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
 } as const;
 
 // Currency Codes
@@ -35,7 +35,7 @@ export const CURRENCY_CODES = {
   GBP: 'GBP',
   CAD: 'CAD',
   AUD: 'AUD',
-  JPY: 'JPY'
+  JPY: 'JPY',
 } as const;
 
 // API Endpoints
@@ -46,24 +46,24 @@ export const API_ENDPOINTS = {
     LOGOUT: '/api/auth/logout',
     REFRESH: '/api/auth/refresh',
     GOOGLE: '/api/auth/google',
-    VERIFY_EMAIL: '/api/auth/verify-email'
+    VERIFY_EMAIL: '/api/auth/verify-email',
   },
   TRANSACTIONS: {
     BASE: '/api/transactions',
     SYNC: '/api/transactions/sync',
     CATEGORIZE: '/api/transactions/categorize',
-    EXPORT: '/api/transactions/export'
+    EXPORT: '/api/transactions/export',
   },
   RECEIPTS: {
     BASE: '/api/receipts',
     UPLOAD: '/api/receipts/upload',
-    OCR: '/api/receipts/ocr'
+    OCR: '/api/receipts/ocr',
   },
   ANALYTICS: {
     BASE: '/api/analytics',
     SPENDING: '/api/analytics/spending',
-    TRENDS: '/api/analytics/trends'
-  }
+    TRENDS: '/api/analytics/trends',
+  },
 } as const;
 
 // Error Codes
@@ -75,7 +75,7 @@ export const ERROR_CODES = {
   DUPLICATE_ENTRY: 'DUPLICATE_ENTRY',
   EXTERNAL_API_ERROR: 'EXTERNAL_API_ERROR',
   DATABASE_ERROR: 'DATABASE_ERROR',
-  UNKNOWN_ERROR: 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
 } as const;
 
 // Validation Rules
@@ -86,17 +86,17 @@ export const VALIDATION_RULES = {
     REQUIRE_LOWERCASE: true,
     REQUIRE_NUMBER: true,
     REQUIRE_SPECIAL: true,
-    SPECIAL_CHARS: '!@#$%^&*'
+    SPECIAL_CHARS: '!@#$%^&*',
   },
   USERNAME: {
     MIN_LENGTH: 3,
     MAX_LENGTH: 50,
-    ALLOWED_CHARS: '^[a-zA-Z0-9_-]+$'
+    ALLOWED_CHARS: '^[a-zA-Z0-9_-]+$',
   },
   TRANSACTION: {
     MIN_AMOUNT: 0.01,
-    MAX_AMOUNT: 1000000
-  }
+    MAX_AMOUNT: 1000000,
+  },
 } as const;
 
 // File Upload Limits
@@ -105,8 +105,8 @@ export const UPLOAD_LIMITS = {
     MAX_SIZE: 10 * 1024 * 1024, // 10MB
     ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/heic', 'application/pdf'],
     MAX_WIDTH: 4096,
-    MAX_HEIGHT: 4096
-  }
+    MAX_HEIGHT: 4096,
+  },
 } as const;
 
 // Cache Keys
@@ -114,5 +114,5 @@ export const CACHE_KEYS = {
   USER_PROFILE: (userId: string) => `user:${userId}:profile`,
   TRANSACTION_LIST: (userId: string) => `user:${userId}:transactions`,
   ANALYTICS_SUMMARY: (userId: string) => `user:${userId}:analytics:summary`,
-  COMPANY_SETTINGS: (companyId: string) => `company:${companyId}:settings`
-} as const; 
+  COMPANY_SETTINGS: (companyId: string) => `company:${companyId}:settings`,
+} as const;

@@ -63,4 +63,4 @@ export interface ErrorBoundaryProps {
 // Route related types
 export interface ProtectedRouteProps {
   children: React.ReactNode;
-} 
+}

@@ -26,4 +26,4 @@ export interface MerchantSchema extends BaseSchema {
   averageTransactionAmount?: number;
 }
 
-export const MERCHANT_COLLECTION = 'merchants'; 
+export const MERCHANT_COLLECTION = 'merchants';

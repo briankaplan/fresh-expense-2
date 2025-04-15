@@ -53,24 +53,24 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Expenses', icon: <AttachMoneyIcon />, path: '/expenses' },
-  { 
-    text: 'Receipts', 
+  {
+    text: 'Receipts',
     icon: <ReceiptIcon />,
     children: [
       { text: 'Library', icon: <StorageIcon />, path: '/receipts' },
       { text: 'Upload', icon: <CloudUploadIcon />, path: '/receipts/upload' },
       { text: 'Categories', icon: <CategoryIcon />, path: '/receipts/categories' },
-    ]
+    ],
   },
   { text: 'Accounts', icon: <AccountBalanceIcon />, path: '/accounts' },
   { text: 'Subscriptions', icon: <SubscriptionsIcon />, path: '/subscriptions' },
-  { 
-    text: 'Reports', 
+  {
+    text: 'Reports',
     icon: <AssessmentIcon />,
     children: [
       { text: 'Generated Reports', icon: <DescriptionIcon />, path: '/reports' },
       { text: 'Templates', icon: <DescriptionIcon />, path: '/reports/templates' },
-    ]
+    ],
   },
   { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
 ];
@@ -97,7 +97,7 @@ const MainLayout: React.FC = () => {
   };
 
   const renderNavItems = (items: NavigationItem[], depth = 0) => {
-    return items.map((item) => {
+    return items.map(item => {
       const isSelected = item.path === location.pathname;
       const isExpanded = expandedItems.includes(item.text);
       const hasChildren = item.children && item.children.length > 0;
@@ -167,7 +167,7 @@ const MainLayout: React.FC = () => {
       </Box>
       <Divider />
       <List>
-        {navigationItems.map((item) => (
+        {navigationItems.map(item => (
           <ListItem
             button
             key={item.text}
@@ -197,13 +197,7 @@ const MainLayout: React.FC = () => {
         ))}
       </List>
       <Box sx={{ mt: 'auto', p: 2 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          color="error"
-          onClick={logout}
-          sx={{ mt: 2 }}
-        >
+        <Button fullWidth variant="outlined" color="error" onClick={logout} sx={{ mt: 2 }}>
           Logout
         </Button>
       </Box>
@@ -245,10 +239,7 @@ const MainLayout: React.FC = () => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
-      >
+      <Box component="nav" sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}>
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -300,4 +291,4 @@ const MainLayout: React.FC = () => {
   );
 };
 
-export default MainLayout; 
+export default MainLayout;

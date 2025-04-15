@@ -10,7 +10,7 @@ async function createCollectionsIfNotExist(db) {
     'receipts',
     'merchants',
     'expenses',
-    'bankAccounts'
+    'bankAccounts',
   ];
 
   for (const collection of collections) {
@@ -18,7 +18,8 @@ async function createCollectionsIfNotExist(db) {
       await db.createCollection(collection);
       console.log(`Created collection: ${collection}`);
     } catch (error) {
-      if (error.code === 48) { // Collection already exists
+      if (error.code === 48) {
+        // Collection already exists
         console.log(`Collection ${collection} already exists`);
       } else {
         throw error;
@@ -30,7 +31,7 @@ async function createCollectionsIfNotExist(db) {
 async function runMigrations() {
   const url = process.env.DATABASE_URL;
   const dbName = process.env.MONGODB_DB;
-  
+
   if (!url || !dbName) {
     console.error('Database configuration missing. Please check your .env file');
     process.exit(1);
@@ -43,17 +44,17 @@ async function runMigrations() {
     console.log('Connected to MongoDB');
 
     const db = client.db(dbName);
-    
+
     // Create collections first
     console.log('\nCreating collections...');
     await createCollectionsIfNotExist(db);
-    
+
     // Array of migration files in order
     const migrations = [
       require('../migrations/20240320000000-create-indexes.js'),
       require('../migrations/20240320000001-add-schema-validations.js'),
       require('../migrations/20240320000002-add-user-company-analytics.js'),
-      require('../migrations/20240320000003-add-bank-accounts.js')
+      require('../migrations/20240320000003-add-bank-accounts.js'),
     ];
 
     // Run migrations in sequence
@@ -85,4 +86,4 @@ async function runMigrations() {
   }
 }
 
-runMigrations().catch(console.error); 
+runMigrations().catch(console.error);

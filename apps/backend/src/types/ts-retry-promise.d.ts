@@ -5,8 +5,5 @@ declare module 'ts-retry-promise' {
     backoff: 'LINEAR' | 'EXPONENTIAL';
   }
 
-  export function retry<T>(
-    fn: () => Promise<T>,
-    options: RetryOptions
-  ): Promise<T>;
-} 
+  export function retry<T>(fn: () => Promise<T>, options: RetryOptions): Promise<T>;
+}

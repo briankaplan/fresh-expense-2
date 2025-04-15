@@ -1,4 +1,14 @@
-import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, IsMongoId, IsEnum, IsBoolean } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsDate,
+  IsString,
+  IsOptional,
+  IsArray,
+  IsMongoId,
+  IsEnum,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -6,14 +16,14 @@ export enum ExpenseStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  REIMBURSED = 'reimbursed'
+  REIMBURSED = 'reimbursed',
 }
 
 export enum PaymentMethod {
   CASH = 'cash',
   CARD = 'card',
   BANK_TRANSFER = 'bank_transfer',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export class CreateExpenseDto {
@@ -89,4 +99,4 @@ export class CreateExpenseDto {
     isRecurring?: boolean;
     subscriptionId?: string;
   };
-} 
+}

@@ -9,7 +9,15 @@ import { R2Service } from '../services/r2/r2.service';
 import { OCRService } from '../services/ocr/ocr.service';
 import { DashboardController } from '../controllers/dashboard.controller';
 import { DatabaseModule } from './database/database.module';
-import { appConfig, databaseConfig, authConfig, emailConfig, storageConfig, tellerConfig, loggingConfig } from './config/configuration';
+import {
+  appConfig,
+  databaseConfig,
+  authConfig,
+  emailConfig,
+  storageConfig,
+  tellerConfig,
+  loggingConfig,
+} from './config/configuration';
 
 @Module({
   imports: [

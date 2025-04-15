@@ -51,8 +51,11 @@ export class TellerWebhookController {
 
       return { status: 'success' };
     } catch (error) {
-      this.logger.error('Error processing webhook:', error instanceof Error ? error.message : 'Unknown error');
+      this.logger.error(
+        'Error processing webhook:',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
       return { status: 'error', message: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
-} 
+}

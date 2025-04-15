@@ -20,9 +20,9 @@ module.exports = {
             date: { bsonType: 'date' },
             description: { bsonType: 'string' },
             categoryId: { bsonType: 'objectId' },
-            tags: { 
+            tags: {
               bsonType: 'array',
-              items: { bsonType: 'objectId' }
+              items: { bsonType: 'objectId' },
             },
             receiptId: { bsonType: 'objectId' },
             transactionId: { bsonType: 'string' },
@@ -35,15 +35,15 @@ module.exports = {
                 address: { bsonType: 'string' },
                 coordinates: {
                   bsonType: 'array',
-                  items: { bsonType: 'double' }
-                }
-              }
+                  items: { bsonType: 'double' },
+                },
+              },
             },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Receipts Schema Validation
@@ -72,21 +72,21 @@ module.exports = {
                     properties: {
                       description: { bsonType: 'string' },
                       amount: { bsonType: 'double' },
-                      quantity: { bsonType: 'int' }
-                    }
-                  }
+                      quantity: { bsonType: 'int' },
+                    },
+                  },
                 },
                 taxAmount: { bsonType: 'double' },
-                tipAmount: { bsonType: 'double' }
-              }
+                tipAmount: { bsonType: 'double' },
+              },
             },
             ocrStatus: { enum: ['pending', 'processing', 'completed', 'failed'] },
             ocrData: { bsonType: 'object' },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Categories Schema Validation
@@ -104,10 +104,10 @@ module.exports = {
             parentId: { bsonType: 'objectId' },
             isSystem: { bsonType: 'bool' },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Tags Schema Validation
@@ -122,38 +122,42 @@ module.exports = {
             userId: { bsonType: 'objectId' },
             color: { bsonType: 'string' },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Create indexes
-    await db.collection('expenses').createIndexes([
-      { key: { userId: 1 } },
-      { key: { companyId: 1 } },
-      { key: { categoryId: 1 } },
-      { key: { date: -1 } },
-      { key: { status: 1 } },
-      { key: { 'location.coordinates': '2dsphere' } }
-    ]);
+    await db
+      .collection('expenses')
+      .createIndexes([
+        { key: { userId: 1 } },
+        { key: { companyId: 1 } },
+        { key: { categoryId: 1 } },
+        { key: { date: -1 } },
+        { key: { status: 1 } },
+        { key: { 'location.coordinates': '2dsphere' } },
+      ]);
 
-    await db.collection('receipts').createIndexes([
-      { key: { userId: 1 } },
-      { key: { ocrStatus: 1 } },
-      { key: { 'metadata.merchant': 1 } },
-      { key: { 'metadata.date': -1 } }
-    ]);
+    await db
+      .collection('receipts')
+      .createIndexes([
+        { key: { userId: 1 } },
+        { key: { ocrStatus: 1 } },
+        { key: { 'metadata.merchant': 1 } },
+        { key: { 'metadata.date': -1 } },
+      ]);
 
-    await db.collection('categories').createIndexes([
-      { key: { name: 1 }, unique: true },
-      { key: { type: 1 } },
-      { key: { parentId: 1 } }
-    ]);
+    await db
+      .collection('categories')
+      .createIndexes([
+        { key: { name: 1 }, unique: true },
+        { key: { type: 1 } },
+        { key: { parentId: 1 } },
+      ]);
 
-    await db.collection('tags').createIndexes([
-      { key: { userId: 1, name: 1 }, unique: true }
-    ]);
+    await db.collection('tags').createIndexes([{ key: { userId: 1, name: 1 }, unique: true }]);
 
     // Insert default categories
     const defaultCategories = [
@@ -166,11 +170,11 @@ module.exports = {
       { name: 'Healthcare', type: 'expense', icon: '🏥', color: '#FF3333', isSystem: true },
       { name: 'Education', type: 'expense', icon: '📚', color: '#33FFB5', isSystem: true },
       { name: 'Business', type: 'expense', icon: '💼', color: '#B533FF', isSystem: true },
-      { name: 'Other', type: 'expense', icon: '📌', color: '#808080', isSystem: true }
+      { name: 'Other', type: 'expense', icon: '📌', color: '#808080', isSystem: true },
     ].map(cat => ({
       ...cat,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }));
 
     await db.collection('categories').insertMany(defaultCategories);
@@ -181,5 +185,5 @@ module.exports = {
     await db.dropCollection('receipts');
     await db.dropCollection('categories');
     await db.dropCollection('tags');
-  }
-}; 
+  },
+};

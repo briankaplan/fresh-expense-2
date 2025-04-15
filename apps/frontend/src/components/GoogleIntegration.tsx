@@ -33,7 +33,7 @@ export const GoogleIntegration: React.FC = () => {
     try {
       // For each account, check if we have a valid refresh token
       const updatedAccounts = await Promise.all(
-        accounts.map(async (account) => {
+        accounts.map(async account => {
           try {
             const response = await fetch(`/api/google/auth-url?email=${account.email}`);
             const { success } = await response.json();
@@ -53,7 +53,7 @@ export const GoogleIntegration: React.FC = () => {
     try {
       const response = await fetch(`/api/google/auth-url?email=${email}`);
       const { success, url, error } = await response.json();
-      
+
       if (success) {
         window.location.href = url;
       } else {
@@ -71,21 +71,19 @@ export const GoogleIntegration: React.FC = () => {
       // Sync receipts from both accounts
       const syncPromises = accounts
         .filter(account => account.isConnected)
-        .map(account => 
-          fetch(`/api/google/receipts?email=${account.email}&query=subject:receipt`)
-        );
+        .map(account => fetch(`/api/google/receipts?email=${account.email}&query=subject:receipt`));
 
       const responses = await Promise.all(syncPromises);
       const results = await Promise.all(responses.map(r => r.json()));
 
-      const totalReceipts = results.reduce((sum, result) => 
-        sum + (result.success ? result.messages.length : 0), 0
+      const totalReceipts = results.reduce(
+        (sum, result) => sum + (result.success ? result.messages.length : 0),
+        0
       );
 
-      enqueueSnackbar(
-        `Synced ${totalReceipts} receipts from ${results.length} accounts`,
-        { variant: 'success' }
-      );
+      enqueueSnackbar(`Synced ${totalReceipts} receipts from ${results.length} accounts`, {
+        variant: 'success',
+      });
     } catch (error) {
       enqueueSnackbar('Error syncing data', { variant: 'error' });
       console.error('Error syncing data:', error);
@@ -106,7 +104,7 @@ export const GoogleIntegration: React.FC = () => {
           Google Integration
         </Typography>
 
-        {accounts.map((account) => (
+        {accounts.map(account => (
           <Box key={account.email} sx={{ mb: 2 }}>
             <Typography variant="body1" color="text.secondary">
               {account.email}
@@ -146,4 +144,4 @@ export const GoogleIntegration: React.FC = () => {
       </CardContent>
     </Card>
   );
-}; 
+};

@@ -85,4 +85,4 @@ export class LoggingService implements LoggerService {
   setLogFormat(format: 'json' | 'text') {
     this.config.format = format;
   }
-} 
+}

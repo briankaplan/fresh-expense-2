@@ -67,7 +67,7 @@ export class GooglePhotosService extends GoogleService {
     protected readonly eventEmitter: EventEmitter2,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
-    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
+    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>
   ) {
     super(configService, tokenManager, eventEmitter);
   }
@@ -96,41 +96,47 @@ export class GooglePhotosService extends GoogleService {
 
     for (const email of accounts) {
       try {
-        const photos = await this.withAuth(email, async (oauth2Client) => {
+        const photos = await this.withAuth(email, async oauth2Client => {
           const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
-          const response = await this.withRateLimit(() =>
+          const response = (await this.withRateLimit(() =>
             photos.mediaItems.search({
               requestBody: {
                 filters: {
-                  dateFilter: filters.dateFilter ? {
-                    ranges: [{
-                      startDate: {
-                        year: filters.dateFilter.startDate?.getFullYear(),
-                        month: filters.dateFilter.startDate?.getMonth()! + 1,
-                        day: filters.dateFilter.startDate?.getDate(),
-                      },
-                      endDate: {
-                        year: filters.dateFilter.endDate?.getFullYear(),
-                        month: filters.dateFilter.endDate?.getMonth()! + 1,
-                        day: filters.dateFilter.endDate?.getDate(),
-                      },
-                    }],
-                  } : undefined,
+                  dateFilter: filters.dateFilter
+                    ? {
+                        ranges: [
+                          {
+                            startDate: {
+                              year: filters.dateFilter.startDate?.getFullYear(),
+                              month: filters.dateFilter.startDate?.getMonth()! + 1,
+                              day: filters.dateFilter.startDate?.getDate(),
+                            },
+                            endDate: {
+                              year: filters.dateFilter.endDate?.getFullYear(),
+                              month: filters.dateFilter.endDate?.getMonth()! + 1,
+                              day: filters.dateFilter.endDate?.getDate(),
+                            },
+                          },
+                        ],
+                      }
+                    : undefined,
                   contentFilter: filters.contentFilter,
                   mediaTypeFilter: filters.mediaTypeFilter,
                 },
               },
             })
-          ) as GaxiosResponse<MediaItemsResponse>;
-          
+          )) as GaxiosResponse<MediaItemsResponse>;
+
           return response.data.mediaItems || [];
         });
 
-        results.push(...photos.map((photo) => ({
-          id: photo.id,
-          baseUrl: photo.baseUrl,
-          filename: photo.filename || `photo-${photo.id}.jpg`,
-        })));
+        results.push(
+          ...photos.map(photo => ({
+            id: photo.id,
+            baseUrl: photo.baseUrl,
+            filename: photo.filename || `photo-${photo.id}.jpg`,
+          }))
+        );
       } catch (error) {
         this.logger.error(`Error searching photos for ${email}:`, error);
       }
@@ -151,31 +157,33 @@ export class GooglePhotosService extends GoogleService {
 
     for (const email of accounts) {
       try {
-        const photos = await this.withAuth(email, async (oauth2Client) => {
+        const photos = await this.withAuth(email, async oauth2Client => {
           const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
-          const response = await this.withRateLimit(() =>
+          const response = (await this.withRateLimit(() =>
             photos.mediaItems.search({
               requestBody: {
                 filters: {
                   dateFilter: {
-                    ranges: [{
-                      startDate: {
-                        year: date.getFullYear(),
-                        month: date.getMonth() + 1,
-                        day: date.getDate(),
+                    ranges: [
+                      {
+                        startDate: {
+                          year: date.getFullYear(),
+                          month: date.getMonth() + 1,
+                          day: date.getDate(),
+                        },
+                        endDate: {
+                          year: date.getFullYear(),
+                          month: date.getMonth() + 1,
+                          day: date.getDate(),
+                        },
                       },
-                      endDate: {
-                        year: date.getFullYear(),
-                        month: date.getMonth() + 1,
-                        day: date.getDate(),
-                      },
-                    }],
+                    ],
                   },
                 },
               },
             })
-          ) as GaxiosResponse<MediaItemsResponse>;
-          
+          )) as GaxiosResponse<MediaItemsResponse>;
+
           return response.data.mediaItems || [];
         });
 
@@ -190,7 +198,8 @@ export class GooglePhotosService extends GoogleService {
               date,
             });
 
-            if (matchScore > 0.7) { // 70% match threshold
+            if (matchScore > 0.7) {
+              // 70% match threshold
               results.push({
                 id: photo.id,
                 baseUrl: photo.baseUrl,
@@ -239,4 +248,4 @@ export class GooglePhotosService extends GoogleService {
 
     return score;
   }
-} 
+}

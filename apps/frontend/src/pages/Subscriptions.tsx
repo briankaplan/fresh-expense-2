@@ -75,7 +75,7 @@ const Subscriptions: React.FC = () => {
   const [showPersonal, setShowPersonal] = useState(true);
   const [showBusiness, setShowBusiness] = useState(true);
   const [formData, setFormData] = useState<SubscriptionFormData>(initialFormData);
-  
+
   // Fetch subscriptions data
   useEffect(() => {
     // This would be an API call to your backend
@@ -127,7 +127,7 @@ const Subscriptions: React.FC = () => {
         lastBillingDate: '2025-03-21',
       },
     ];
-    
+
     setSubscriptions(mockSubscriptions);
   }, []);
 
@@ -135,7 +135,7 @@ const Subscriptions: React.FC = () => {
   const businessTotal = subscriptions
     .filter(s => s.type === 'business' && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
-  
+
   const personalTotal = subscriptions
     .filter(s => s.type === 'personal' && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
@@ -143,7 +143,7 @@ const Subscriptions: React.FC = () => {
   const downHomeTotal = subscriptions
     .filter(s => s.businessEntity === 'Down Home' && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
-  
+
   const musicCityTotal = subscriptions
     .filter(s => s.businessEntity === 'Music City Rodeo' && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
@@ -156,17 +156,17 @@ const Subscriptions: React.FC = () => {
   const filteredSubscriptions = subscriptions.filter(s => {
     if (s.type === 'business' && !showBusiness) return false;
     if (s.type === 'personal' && !showPersonal) return false;
-    
+
     // Filter by tab
     if (tabValue === 1 && s.type !== 'business') return false;
     if (tabValue === 2 && s.type !== 'personal') return false;
-    
+
     return true;
   });
 
   // Sort subscriptions by next billing date
-  const sortedSubscriptions = [...filteredSubscriptions].sort((a, b) => 
-    new Date(a.nextBillingDate).getTime() - new Date(b.nextBillingDate).getTime()
+  const sortedSubscriptions = [...filteredSubscriptions].sort(
+    (a, b) => new Date(a.nextBillingDate).getTime() - new Date(b.nextBillingDate).getTime()
   );
 
   const handleAddSubscription = () => {
@@ -196,9 +196,9 @@ const Subscriptions: React.FC = () => {
   const handleSubmit = () => {
     if (selectedSubscription) {
       // Update existing subscription
-      setSubscriptions(prev => prev.map(sub => 
-        sub.id === selectedSubscription.id ? { ...formData, id: sub.id } : sub
-      ));
+      setSubscriptions(prev =>
+        prev.map(sub => (sub.id === selectedSubscription.id ? { ...formData, id: sub.id } : sub))
+      );
     } else {
       // Add new subscription
       setSubscriptions(prev => [...prev, { ...formData, id: Date.now().toString() }]);
@@ -208,47 +208,45 @@ const Subscriptions: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        mb: 3
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
         <Typography variant="h5">Subscription Management</Typography>
         <Box>
-          <IconButton 
+          <IconButton
             sx={{ mr: 1 }}
             onClick={() => setShowPersonal(!showPersonal)}
             color={showPersonal ? 'primary' : 'default'}
-            title={showPersonal ? "Hide Personal" : "Show Personal"}
+            title={showPersonal ? 'Hide Personal' : 'Show Personal'}
           >
-            <Chip 
-              label="Personal" 
-              color={showPersonal ? "primary" : "default"}
-              variant={showPersonal ? "filled" : "outlined"} 
-              size="small" 
+            <Chip
+              label="Personal"
+              color={showPersonal ? 'primary' : 'default'}
+              variant={showPersonal ? 'filled' : 'outlined'}
+              size="small"
             />
           </IconButton>
-          
-          <IconButton 
+
+          <IconButton
             sx={{ mr: 2 }}
             onClick={() => setShowBusiness(!showBusiness)}
             color={showBusiness ? 'secondary' : 'default'}
-            title={showBusiness ? "Hide Business" : "Show Business"}
+            title={showBusiness ? 'Hide Business' : 'Show Business'}
           >
-            <Chip 
-              label="Business" 
-              color={showBusiness ? "secondary" : "default"}
-              variant={showBusiness ? "filled" : "outlined"} 
-              size="small" 
+            <Chip
+              label="Business"
+              color={showBusiness ? 'secondary' : 'default'}
+              variant={showBusiness ? 'filled' : 'outlined'}
+              size="small"
             />
           </IconButton>
-          
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAddSubscription}
-          >
+
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddSubscription}>
             Add Subscription
           </Button>
         </Box>
@@ -269,7 +267,7 @@ const Subscriptions: React.FC = () => {
             </Typography>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ p: 2 }}>
             <Typography variant="subtitle2" color="text.secondary">
@@ -279,11 +277,12 @@ const Subscriptions: React.FC = () => {
               ${businessTotal.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subscriptions.filter(s => s.type === 'business' && s.active).length} active subscriptions
+              {subscriptions.filter(s => s.type === 'business' && s.active).length} active
+              subscriptions
             </Typography>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ p: 2 }}>
             <Typography variant="subtitle2" color="text.secondary">
@@ -293,11 +292,12 @@ const Subscriptions: React.FC = () => {
               ${downHomeTotal.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subscriptions.filter(s => s.businessEntity === 'Down Home' && s.active).length} subscriptions
+              {subscriptions.filter(s => s.businessEntity === 'Down Home' && s.active).length}{' '}
+              subscriptions
             </Typography>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ p: 2 }}>
             <Typography variant="subtitle2" color="text.secondary">
@@ -307,7 +307,11 @@ const Subscriptions: React.FC = () => {
               ${musicCityTotal.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subscriptions.filter(s => s.businessEntity === 'Music City Rodeo' && s.active).length} subscriptions
+              {
+                subscriptions.filter(s => s.businessEntity === 'Music City Rodeo' && s.active)
+                  .length
+              }{' '}
+              subscriptions
             </Typography>
           </Card>
         </Grid>
@@ -315,8 +319,8 @@ const Subscriptions: React.FC = () => {
 
       {/* Tabs */}
       <Paper sx={{ mb: 3 }}>
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={handleTabChange}
           indicatorColor="primary"
           textColor="primary"
@@ -344,14 +348,14 @@ const Subscriptions: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedSubscriptions.map((subscription) => (
-              <TableRow 
+            {sortedSubscriptions.map(subscription => (
+              <TableRow
                 key={subscription.id}
-                sx={{ 
-                  '&:hover': { 
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
                   },
-                  opacity: subscription.active ? 1 : 0.5
+                  opacity: subscription.active ? 1 : 0.5,
                 }}
               >
                 <TableCell>
@@ -366,27 +370,22 @@ const Subscriptions: React.FC = () => {
                 </TableCell>
                 <TableCell>{subscription.merchant}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={subscription.category}
-                    size="small"
-                    variant="outlined" 
-                  />
+                  <Chip label={subscription.category} size="small" variant="outlined" />
                 </TableCell>
                 <TableCell align="right">${subscription.amount.toFixed(2)}</TableCell>
                 <TableCell>{subscription.billingCycle}</TableCell>
+                <TableCell>{new Date(subscription.nextBillingDate).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  {new Date(subscription.nextBillingDate).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <Chip 
-                    label={subscription.type === 'business' ? 
-                      subscription.businessEntity : 'Personal'}
+                  <Chip
+                    label={
+                      subscription.type === 'business' ? subscription.businessEntity : 'Personal'
+                    }
                     size="small"
                     color={subscription.type === 'business' ? 'secondary' : 'primary'}
                   />
                 </TableCell>
                 <TableCell>
-                  <Chip 
+                  <Chip
                     label={subscription.active ? 'Active' : 'Inactive'}
                     size="small"
                     color={subscription.active ? 'success' : 'default'}
@@ -394,10 +393,7 @@ const Subscriptions: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell align="center">
-                  <IconButton 
-                    size="small" 
-                    onClick={() => handleEditSubscription(subscription)}
-                  >
+                  <IconButton size="small" onClick={() => handleEditSubscription(subscription)}>
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </TableCell>
@@ -408,17 +404,12 @@ const Subscriptions: React.FC = () => {
       </TableContainer>
 
       {/* Add/Edit Subscription Dialog */}
-      <Dialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogContent>
           <Typography variant="h6" sx={{ mb: 3 }}>
             {selectedSubscription ? 'Edit Subscription' : 'Add New Subscription'}
           </Typography>
-          
+
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -429,7 +420,7 @@ const Subscriptions: React.FC = () => {
                 onChange={handleFormChange}
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Merchant"
@@ -439,7 +430,7 @@ const Subscriptions: React.FC = () => {
                 onChange={handleFormChange}
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Amount"
@@ -453,7 +444,7 @@ const Subscriptions: React.FC = () => {
                 onChange={handleFormChange}
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -469,7 +460,7 @@ const Subscriptions: React.FC = () => {
                 <MenuItem value="custom">Custom</MenuItem>
               </TextField>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Next Billing Date"
@@ -483,7 +474,7 @@ const Subscriptions: React.FC = () => {
                 }}
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -497,7 +488,7 @@ const Subscriptions: React.FC = () => {
                 <MenuItem value="business">Business</MenuItem>
               </TextField>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -512,7 +503,7 @@ const Subscriptions: React.FC = () => {
                 <MenuItem value="Music City Rodeo">Music City Rodeo</MenuItem>
               </TextField>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -530,7 +521,7 @@ const Subscriptions: React.FC = () => {
                 <MenuItem value="Other">Other</MenuItem>
               </TextField>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -538,16 +529,18 @@ const Subscriptions: React.FC = () => {
                 name="active"
                 fullWidth
                 value={formData.active ? 'active' : 'inactive'}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  active: e.target.value === 'active'
-                }))}
+                onChange={e =>
+                  setFormData(prev => ({
+                    ...prev,
+                    active: e.target.value === 'active',
+                  }))
+                }
               >
                 <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>
               </TextField>
             </Grid>
-            
+
             <Grid item xs={12}>
               <TextField
                 label="Description (Optional)"
@@ -572,4 +565,4 @@ const Subscriptions: React.FC = () => {
   );
 };
 
-export default Subscriptions; 
+export default Subscriptions;

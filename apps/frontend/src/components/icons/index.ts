@@ -53,4 +53,4 @@ export const Icons = {
   Pending: { Filled: PendingRoundedIcon, Outlined: PendingOutlinedIcon },
   Error: { Filled: ErrorRoundedIcon, Outlined: ErrorOutlinedIcon },
   FindInPage: { Filled: FindInPageRoundedIcon, Outlined: FindInPageOutlinedIcon },
-} as const; 
+} as const;

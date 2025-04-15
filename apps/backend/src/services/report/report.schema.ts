@@ -28,7 +28,7 @@ export class ReportTemplate {
         type: { type: String, enum: ['fixed', 'relative'] },
         start: Date,
         end: Date,
-        relativePeriod: { type: String, enum: ['week', 'month', 'quarter', 'year'] }
+        relativePeriod: { type: String, enum: ['week', 'month', 'quarter', 'year'] },
       },
       categories: [String],
       merchants: [String],
@@ -36,8 +36,8 @@ export class ReportTemplate {
       maxAmount: Number,
       tags: [String],
       hasReceipt: Boolean,
-      customFilters: Object
-    }
+      customFilters: Object,
+    },
   })
   filters!: {
     dateRange?: {
@@ -61,21 +61,23 @@ export class ReportTemplate {
   @Prop({
     type: {
       field: String,
-      order: { type: String, enum: ['asc', 'desc'] }
-    }
+      order: { type: String, enum: ['asc', 'desc'] },
+    },
   })
   sortBy?: {
     field: string;
     order: 'asc' | 'desc';
   };
 
-  @Prop([{
-    field: String,
-    title: String,
-    type: { type: String, enum: ['text', 'number', 'date', 'currency', 'boolean'] },
-    format: String,
-    width: Number
-  }])
+  @Prop([
+    {
+      field: String,
+      title: String,
+      type: { type: String, enum: ['text', 'number', 'date', 'currency', 'boolean'] },
+      format: String,
+      width: Number,
+    },
+  ])
   columns!: Array<{
     field: string;
     title: string;
@@ -91,8 +93,8 @@ export class ReportTemplate {
       dayOfMonth: Number,
       time: String,
       timezone: String,
-      recipients: [String]
-    }
+      recipients: [String],
+    },
   })
   schedule?: {
     frequency: 'daily' | 'weekly' | 'monthly';
@@ -157,4 +159,4 @@ export class ReportSchedule {
 
 export const ReportTemplateSchema = SchemaFactory.createForClass(ReportTemplate);
 export const ReportSchema = SchemaFactory.createForClass(Report);
-export const ReportScheduleSchema = SchemaFactory.createForClass(ReportSchedule); 
+export const ReportScheduleSchema = SchemaFactory.createForClass(ReportSchedule);

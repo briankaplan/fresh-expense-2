@@ -22,4 +22,4 @@ export class UpdateUserDto {
   @IsArray()
   @IsString({ each: true })
   refreshTokens?: string[];
-} 
+}

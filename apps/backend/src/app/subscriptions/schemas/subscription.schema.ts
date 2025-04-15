@@ -7,14 +7,14 @@ export enum SubscriptionStatus {
   ACTIVE = 'active',
   CANCELLED = 'cancelled',
   PAUSED = 'paused',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
 }
 
 export enum BillingCycle {
   MONTHLY = 'monthly',
   QUARTERLY = 'quarterly',
   YEARLY = 'yearly',
-  CUSTOM = 'custom'
+  CUSTOM = 'custom',
 }
 
 @Schema({ timestamps: true })
@@ -87,4 +87,4 @@ SubscriptionSchema.index({ userId: 1, status: 1 });
 SubscriptionSchema.index({ companyId: 1, status: 1 });
 SubscriptionSchema.index({ merchantId: 1 });
 SubscriptionSchema.index({ status: 1 });
-SubscriptionSchema.index({ nextBillingDate: 1 }); 
+SubscriptionSchema.index({ nextBillingDate: 1 });

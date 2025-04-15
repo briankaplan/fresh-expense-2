@@ -33,4 +33,4 @@ router.delete('/api/files/:id', handleFiles);
 router.post('/webhooks/teller', handleWebhooks);
 
 // 404 handler
-router.all('*', () => new Response('Not Found', { status: 404 })); 
+router.all('*', () => new Response('Not Found', { status: 404 }));

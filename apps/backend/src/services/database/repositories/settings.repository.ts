@@ -21,7 +21,7 @@ export class SettingsRepository extends BaseRepository<SettingsSchema> {
     return this.update(
       { userId },
       {
-        $set: { 'notifications': settings },
+        $set: { notifications: settings },
       }
     );
   }
@@ -33,7 +33,7 @@ export class SettingsRepository extends BaseRepository<SettingsSchema> {
     return this.update(
       { userId },
       {
-        $set: { 'budget': settings },
+        $set: { budget: settings },
       }
     );
   }
@@ -77,4 +77,4 @@ export class SettingsRepository extends BaseRepository<SettingsSchema> {
       currencyFormat: '$0,0.00',
     };
   }
-} 
+}

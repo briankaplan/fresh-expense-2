@@ -260,32 +260,38 @@ export interface PaginatedResponse<T> {
 
 // Type guard functions for runtime type checking
 export const isUser = (obj: any): obj is User => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     typeof obj.email === 'string' &&
     typeof obj.firstName === 'string' &&
     typeof obj.lastName === 'string' &&
     ['admin', 'user', 'accountant'].includes(obj.role) &&
-    Array.isArray(obj.companies);
+    Array.isArray(obj.companies)
+  );
 };
 
 export const isTransaction = (obj: any): obj is Transaction => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     obj.date instanceof Date &&
     typeof obj.merchant === 'string' &&
     typeof obj.amount === 'number' &&
     typeof obj.description === 'string' &&
     typeof obj.category === 'string' &&
-    Array.isArray(obj.tags);
+    Array.isArray(obj.tags)
+  );
 };
 
 export const isReceipt = (obj: any): obj is Receipt => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     typeof obj.filename === 'string' &&
     typeof obj.storageKey === 'string' &&
     typeof obj.mimeType === 'string' &&
     typeof obj.size === 'number' &&
-    obj.uploadDate instanceof Date;
-}; 
+    obj.uploadDate instanceof Date
+  );
+};

@@ -51,5 +51,23 @@ add_secret "R2_SECRET_ACCESS_KEY" "your-r2-secret-key"
 add_secret "R2_BUCKET" "expense-files"
 add_secret "R2_ENDPOINT" "https://your-account.r2.cloudflarestorage.com"
 
-echo "Secrets setup complete!"
+# Map existing secrets to new names
+gh secret set CF_API_TOKEN --body "$(gh secret get CLOUDFLARE_API_TOKEN)"
+gh secret set CLOUDFLARE_API_URL --body "$(gh secret get PROD_API_URL)"
+gh secret set CLOUDFLARE_ZONE_ID --body "$(gh secret get PROD_CLOUDFLARE_ZONE_ID)"
+gh secret set MONGODB_URI --body "$(gh secret get PROD_MONGODB_URI)"
+gh secret set HUGGINGFACE_API_KEY --body "$(gh secret get PROD_HUGGINGFACE_API_KEY)"
+gh secret set R2_ACCOUNT_ID --body "$(gh secret get PROD_R2_ACCOUNT_ID)"
+gh secret set R2_ACCESS_KEY_ID --body "$(gh secret get PROD_R2_ACCESS_KEY_ID)"
+gh secret set R2_SECRET_ACCESS_KEY --body "$(gh secret get PROD_R2_SECRET_ACCESS_KEY)"
+
+# Create KV namespace ID if it doesn't exist
+KV_NAMESPACE_ID=$(wrangler kv:namespace list | grep CACHE | awk '{print $1}')
+if [ -z "$KV_NAMESPACE_ID" ]; then
+    echo "Creating new KV namespace..."
+    KV_NAMESPACE_ID=$(wrangler kv:namespace create CACHE | grep -o 'id = "[^"]*' | cut -d'"' -f2)
+fi
+gh secret set KV_NAMESPACE_ID --body "$KV_NAMESPACE_ID"
+
+echo "All secrets have been set up successfully!"
 echo "Please update the values in your Cloudflare and MongoDB dashboards." 

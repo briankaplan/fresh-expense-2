@@ -1,0 +1,2030 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Copy/Paste Detector Report</title>
+    <link href="styles/tailwind.css" rel="stylesheet" />
+    <link href="styles/prism.css" rel="stylesheet" />
+  </head>
+  <body class="bg-gray-100">
+    <header class="bg-white shadow py-4">
+      <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-semibold text-gray-800">jscpd - copy/paste report</h1>
+      </div>
+    </header>
+    <main class="container mx-auto my-8 p-4 bg-white shadow rounded">
+      <section class="mb-8" id="dashboard">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Dashboard</h2>
+        <div class="grid grid-cols-4 gap-4">
+          <div class="bg-blue-200 p-4 rounded text-center">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Total Files</h3>
+            <span class="text-4xl font-bold text-blue-800">229</span>
+          </div>
+          <div class="bg-green-200 p-4 rounded text-center">
+            <h3 class="text-lg font-semibold text-green-800 mb-2">Total Lines of Code</h3>
+            <span class="text-4xl font-bold text-green-800">22413</span>
+          </div>
+          <div class="bg-yellow-200 p-4 rounded text-center">
+            <h3 class="text-lg font-semibold text-yellow-800 mb-2">Number of Clones</h3>
+            <span class="text-4xl font-bold text-yellow-800">50</span>
+          </div>
+          <div class="bg-red-200 p-4 rounded text-center">
+            <h3 class="text-lg font-semibold text-red-800 mb-2">Duplicated Lines</h3>
+            <span class="text-4xl font-bold text-red-800">663 (2.96%)</span>
+          </div>
+        </div>
+      </section>
+      <section class="mb-8" id="formats">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Formats with Duplications</h2>
+        <table class="w-full table-auto">
+          <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+              <th class="py-3 px-6 text-left">Format</th>
+              <th class="py-3 px-6 text-left">Files</th>
+              <th class="py-3 px-6 text-left">Lines</th>
+              <th class="py-3 px-6 text-left">Clones</th>
+              <th class="py-3 px-6 text-left">Duplicated Lines</th>
+              <th class="py-3 px-6 text-left">Duplicated Tokens</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-white border-b border-gray-200 text-gray-800 text-sm">
+              <td class="py-3 px-6">
+                <a class="text-blue-600 hover:underline" href="#typescript-clones">typescript</a>
+              </td>
+              <td class="py-3 px-6">211</td>
+              <td class="py-3 px-6">21127</td>
+              <td class="py-3 px-6">49</td>
+              <td class="py-3 px-6">642</td>
+              <td class="py-3 px-6">6640</td>
+            </tr>
+            <tr class="bg-white border-b border-gray-200 text-gray-800 text-sm">
+              <td class="py-3 px-6">
+                <a class="text-blue-600 hover:underline" href="#javascript-clones">javascript</a>
+              </td>
+              <td class="py-3 px-6">18</td>
+              <td class="py-3 px-6">1286</td>
+              <td class="py-3 px-6">1</td>
+              <td class="py-3 px-6">21</td>
+              <td class="py-3 px-6">112</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="mb-8" id="txt-clones">
+        <a name="typescript-clones"></a>
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">typescript</h2>
+        <div class="divide-y divide-gray-200 border-b-2">
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt.service.ts
+              (Line 166:2 - Line 180:26),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt.service.ts
+              (Line 111:7 - Line 124:25)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn0"
+              onclick="toggleCodeBlock('cloneGroup0', 'expandBtn0', 'collapseBtn0')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn0"
+              onclick="toggleCodeBlock('cloneGroup0', 'expandBtn0', 'collapseBtn0')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup0"
+            ><code class="language-typescript text-sm text-gray-800">}
+      );
+
+      if (!receipt) {
+        throw new NotFoundException('Receipt not found');
+      }
+
+      // Refresh signed URLs
+      const urls = await this.storageService.refreshUrls(receipt);
+      receipt.fullImageUrl = urls.fullImageUrl;
+      receipt.thumbnailUrl = urls.thumbnailUrl;
+
+      return receipt;
+    } catch (error) {
+      this.logger.error('Error updating receipt:'</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt.service.ts
+              (Line 185:5 - Line 196:29),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt.service.ts
+              (Line 106:16 - Line 117:23)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn1"
+              onclick="toggleCodeBlock('cloneGroup1', 'expandBtn1', 'collapseBtn1')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn1"
+              onclick="toggleCodeBlock('cloneGroup1', 'expandBtn1', 'collapseBtn1')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup1"
+            ><code class="language-typescript text-sm text-gray-800">&gt; {
+    try {
+      const receipt = await this.receiptModel.findOne({
+        _id: new Types.ObjectId(id),
+        userId: new Types.ObjectId(userId),
+      });
+
+      if (!receipt) {
+        throw new NotFoundException('Receipt not found');
+      }
+
+      // Delete files from storage</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/receipt-converter.service.ts
+              (Line 24:2 - Line 42:10),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/types/processed-data.interface.ts
+              (Line 6:2 - Line 22:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn2"
+              onclick="toggleCodeBlock('cloneGroup2', 'expandBtn2', 'collapseBtn2')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn2"
+              onclick="toggleCodeBlock('cloneGroup2', 'expandBtn2', 'collapseBtn2')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup2"
+            ><code class="language-typescript text-sm text-gray-800">{
+  score: number;
+  merchantMatch: boolean;
+  amountMatch: boolean;
+  dateMatch: boolean;
+  itemsMatch?: boolean;
+  isMatch: boolean;
+  merchantScore: number;
+  amountScore: number;
+  dateScore: number;
+  itemsScore?: number;
+  details: {
+    transactionId?: string;
+    paymentMethod?: string;
+    tax?: number;
+  };
+}
+
+interface</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/receipt-converter.service.ts
+              (Line 653:5 - Line 670:15),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/receipt-converter.service.ts
+              (Line 627:11 - Line 644:20)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn3"
+              onclick="toggleCodeBlock('cloneGroup3', 'expandBtn3', 'collapseBtn3')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn3"
+              onclick="toggleCodeBlock('cloneGroup3', 'expandBtn3', 'collapseBtn3')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup3"
+            ><code class="language-typescript text-sm text-gray-800">);
+    const extracted = await this.extractReceiptData(text);
+
+    const result: ProcessedData = {
+      merchant: extracted.merchant ?? '',
+      amount: extracted.amount ?? 0,
+      date: extracted.date ?? undefined,
+      items: extracted.items,
+    };
+
+    if (expectedData) {
+      result.verification = this.verifyReceipt(extracted, expectedData);
+    }
+
+    return result;
+  }
+
+  async processCSVFile</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/receipt-converter.service.ts
+              (Line 680:8 - Line 696:8),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/receipt-converter.service.ts
+              (Line 628:5 - Line 644:6)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn4"
+              onclick="toggleCodeBlock('cloneGroup4', 'expandBtn4', 'collapseBtn4')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn4"
+              onclick="toggleCodeBlock('cloneGroup4', 'expandBtn4', 'collapseBtn4')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup4"
+            ><code class="language-typescript text-sm text-gray-800">);
+
+    const result: ProcessedData = {
+      merchant: extracted.merchant ?? '',
+      amount: extracted.amount ?? 0,
+      date: extracted.date ?? undefined,
+      items: extracted.items,
+    };
+
+    if (expectedData) {
+      result.verification = this.verifyReceipt(extracted, expectedData);
+    }
+
+    return result;
+  }
+
+  private</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/merchant/merchant-learning.service.ts
+              (Line 7:13 - Line 20:10),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt-bank/receipt-bank.service.ts
+              (Line 38:2 - Line 49:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn5"
+              onclick="toggleCodeBlock('cloneGroup5', 'expandBtn5', 'collapseBtn5')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn5"
+              onclick="toggleCodeBlock('cloneGroup5', 'expandBtn5', 'collapseBtn5')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup5"
+            ><code class="language-typescript text-sm text-gray-800">: string;
+  amount?: number;
+  date?: Date;
+  items?: Array&lt;{
+    description: string;
+    amount: number;
+    category?: string;
+  }&gt;;
+  category?: string;
+  isSubscription?: boolean;
+  confidence: number;
+}
+
+interface</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/merchant/merchant-learning.service.ts
+              (Line 420:3 - Line 453:6),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/receipt-converter.service.ts
+              (Line 528:3 - Line 555:8)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn6"
+              onclick="toggleCodeBlock('cloneGroup6', 'expandBtn6', 'collapseBtn6')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn6"
+              onclick="toggleCodeBlock('cloneGroup6', 'expandBtn6', 'collapseBtn6')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup6"
+            ><code class="language-typescript text-sm text-gray-800">private levenshteinDistance(a: string, b: string): number {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = [];
+
+    for (let i = 0; i &lt;= b.length; i++) {
+      matrix[i] = [i];
+    }
+
+    for (let j = 0; j &lt;= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i &lt;= b.length; i++) {
+      for (let j = 1; j &lt;= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+
+    return matrix[b.length][a.length];
+  }
+
+  /**
+   * Learn receipt patterns from text
+   */</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/merchant/merchant-learning.service.ts
+              (Line 563:3 - Line 569:4),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt-bank/receipt-bank.service.ts
+              (Line 208:3 - Line 214:34)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn7"
+              onclick="toggleCodeBlock('cloneGroup7', 'expandBtn7', 'collapseBtn7')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn7"
+              onclick="toggleCodeBlock('cloneGroup7', 'expandBtn7', 'collapseBtn7')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup7"
+            ><code class="language-typescript text-sm text-gray-800">private extractItems(
+    text: string
+  ): Array&lt;{ description: string; amount: number; category?: string }&gt; {
+    const lines = text.split('\n');
+    const items: Array&lt;{ description: string; amount: number; category?: string }&gt; = [];
+
+    let</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt.service.ts
+              (Line 99:2 - Line 109:14),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt.service.ts
+              (Line 149:2 - Line 159:9)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn8"
+              onclick="toggleCodeBlock('cloneGroup8', 'expandBtn8', 'collapseBtn8')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn8"
+              onclick="toggleCodeBlock('cloneGroup8', 'expandBtn8', 'collapseBtn8')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup8"
+            ><code class="language-typescript text-sm text-gray-800">{
+    const receipt = await this.receiptModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(id),
+        userId: new Types.ObjectId(userId),
+      },
+      {
+        $set: {
+          ...(dto.merchant &amp;&amp; { merchant: dto.merchant }),
+          ...(dto.amount &amp;&amp; { amount: dto.amount }),
+          ...(dto.transactionId</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt.service.ts
+              (Line 112:2 - Line 126:7),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt.service.ts
+              (Line 68:5 - Line 81:13)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn9"
+              onclick="toggleCodeBlock('cloneGroup9', 'expandBtn9', 'collapseBtn9')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn9"
+              onclick="toggleCodeBlock('cloneGroup9', 'expandBtn9', 'collapseBtn9')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup9"
+            ><code class="language-typescript text-sm text-gray-800">}
+    );
+
+    if (!receipt) {
+      throw new NotFoundException('Receipt not found');
+    }
+
+    // Update signed URLs
+    receipt.fullImageUrl = await this.r2Service.getSignedUrl(receipt.r2Key);
+    receipt.thumbnailUrl = await this.r2Service.getSignedUrl(receipt.r2ThumbnailKey);
+
+    return receipt;
+  }
+
+  async delete</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt.service.ts
+              (Line 126:5 - Line 136:24),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt.service.ts
+              (Line 64:9 - Line 74:22)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn10"
+              onclick="toggleCodeBlock('cloneGroup10', 'expandBtn10', 'collapseBtn10')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn10"
+              onclick="toggleCodeBlock('cloneGroup10', 'expandBtn10', 'collapseBtn10')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup10"
+            ><code class="language-typescript text-sm text-gray-800">&gt; {
+    const receipt = await this.receiptModel.findOne({
+      _id: new Types.ObjectId(id),
+      userId: new Types.ObjectId(userId),
+    });
+
+    if (!receipt) {
+      throw new NotFoundException('Receipt not found');
+    }
+
+    // Delete files from R2</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 5:19 - Line 17:6),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-matcher.service.ts
+              (Line 4:26 - Line 16:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn11"
+              onclick="toggleCodeBlock('cloneGroup11', 'expandBtn11', 'collapseBtn11')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn11"
+              onclick="toggleCodeBlock('cloneGroup11', 'expandBtn11', 'collapseBtn11')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup11"
+            ><code class="language-typescript text-sm text-gray-800">;
+
+export interface ReceiptSearchOptions {
+  userId: string;
+  query?: string;
+  merchant?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  startDate?: Date;
+  endDate?: Date;
+  categories?: string[];
+  tags?: string[];
+  source?: 'CSV'</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 52:11 - Line 59:27),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-matcher.service.ts
+              (Line 84:11 - Line 91:6)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn12"
+              onclick="toggleCodeBlock('cloneGroup12', 'expandBtn12', 'collapseBtn12')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn12"
+              onclick="toggleCodeBlock('cloneGroup12', 'expandBtn12', 'collapseBtn12')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup12"
+            ><code class="language-typescript text-sm text-gray-800">const searchRegex = new RegExp(options.query.split('').join('.*'), 'i');
+          query.$or = [
+            { merchant: searchRegex },
+            { 'metadata.text': searchRegex },
+            { 'ocrData.text': searchRegex },
+          ];
+        } else {
+          // Use MongoDB text search</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 213:28 - Line 220:3),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-matcher.service.ts
+              (Line 169:28 - Line 174:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn13"
+              onclick="toggleCodeBlock('cloneGroup13', 'expandBtn13', 'collapseBtn13')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn13"
+              onclick="toggleCodeBlock('cloneGroup13', 'expandBtn13', 'collapseBtn13')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup13"
+            ><code class="language-typescript text-sm text-gray-800">(merchant1: string, merchant2: string): number {
+    if (!merchant1 || !merchant2) return 0;
+
+    const normalize = (str: string) =&gt; str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const m1 = normalize(merchant1);
+    const m2 = normalize(merchant2);
+
+    if</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 239:24 - Line 245:3),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-matcher.service.ts
+              (Line 183:24 - Line 188:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn14"
+              onclick="toggleCodeBlock('cloneGroup14', 'expandBtn14', 'collapseBtn14')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn14"
+              onclick="toggleCodeBlock('cloneGroup14', 'expandBtn14', 'collapseBtn14')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup14"
+            ><code class="language-typescript text-sm text-gray-800">(date1: Date, date2: Date): number {
+    const diffInDays = Math.abs(date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diffInDays === 0) return 1;
+    if (diffInDays &lt;= 1) return 0.9;
+    if (diffInDays &lt;= 3) return 0.7;
+    if</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 262:3 - Line 276:12),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-matcher.service.ts
+              (Line 196:3 - Line 211:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn15"
+              onclick="toggleCodeBlock('cloneGroup15', 'expandBtn15', 'collapseBtn15')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn15"
+              onclick="toggleCodeBlock('cloneGroup15', 'expandBtn15', 'collapseBtn15')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup15"
+            ><code class="language-typescript text-sm text-gray-800">}
+
+  private calculateLevenshteinSimilarity(str1: string, str2: string): number {
+    const matrix = Array(str1.length + 1)
+      .fill(null)
+      .map(() =&gt; Array(str2.length + 1).fill(null));
+
+    for (let i = 0; i &lt;= str1.length; i++) matrix[i][0] = i;
+    for (let j = 0; j &lt;= str2.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i &lt;= str1.length; i++) {
+      for (let j = 1; j &lt;= str2.length; j++) {
+        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1, // deletion</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-converter.service.ts
+              (Line 55:6 - Line 69:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-processor.service.ts
+              (Line 102:4 - Line 117:8)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn16"
+              onclick="toggleCodeBlock('cloneGroup16', 'expandBtn16', 'collapseBtn16')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn16"
+              onclick="toggleCodeBlock('cloneGroup16', 'expandBtn16', 'collapseBtn16')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup16"
+            ><code class="language-typescript text-sm text-gray-800">, null, {
+          fit: 'contain',
+          withoutEnlargement: true,
+        })
+        .jpeg({
+          quality: 80,
+          progressive: true,
+        })
+        .toBuffer();
+    } catch (error) {
+      this.logger.error('Error creating thumbnail:', error);
+      throw error;
+    }
+  }
+}</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-bank.service.ts
+              (Line 175:5 - Line 182:43),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 216:5 - Line 223:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn17"
+              onclick="toggleCodeBlock('cloneGroup17', 'expandBtn17', 'collapseBtn17')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn17"
+              onclick="toggleCodeBlock('cloneGroup17', 'expandBtn17', 'collapseBtn17')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup17"
+            ><code class="language-typescript text-sm text-gray-800">const normalize = (str: string) =&gt; str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const m1 = normalize(merchant1);
+    const m2 = normalize(merchant2);
+
+    if (m1 === m2) return 1;
+    if (m1.includes(m2) || m2.includes(m1)) return 0.9;
+
+    // Levenshtein distance for fuzzy matching</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-bank.service.ts
+              (Line 188:20 - Line 207:7),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/modules/receipt/services/receipt-matcher.service.ts
+              (Line 198:31 - Line 217:6)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn18"
+              onclick="toggleCodeBlock('cloneGroup18', 'expandBtn18', 'collapseBtn18')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn18"
+              onclick="toggleCodeBlock('cloneGroup18', 'expandBtn18', 'collapseBtn18')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup18"
+            ><code class="language-typescript text-sm text-gray-800">(str1: string, str2: string): number {
+    const matrix = Array(str1.length + 1)
+      .fill(null)
+      .map(() =&gt; Array(str2.length + 1).fill(null));
+
+    for (let i = 0; i &lt;= str1.length; i++) matrix[i][0] = i;
+    for (let j = 0; j &lt;= str2.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i &lt;= str1.length; i++) {
+      for (let j = 1; j &lt;= str2.length; j++) {
+        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+
+    return</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-bank.service.ts
+              (Line 263:14 - Line 273:24),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-bank.service.ts
+              (Line 242:16 - Line 252:22)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn19"
+              onclick="toggleCodeBlock('cloneGroup19', 'expandBtn19', 'collapseBtn19')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn19"
+              onclick="toggleCodeBlock('cloneGroup19', 'expandBtn19', 'collapseBtn19')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup19"
+            ><code class="language-typescript text-sm text-gray-800">(id: string, userId: string) {
+    try {
+      const receipt = await this.receiptModel
+        .findOne({ _id: new Types.ObjectId(id), userId: new Types.ObjectId(userId) })
+        .exec();
+
+      if (!receipt) {
+        throw new Error('Receipt not found');
+      }
+
+      // Delete files from R2</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/merchant/merchant-enrichment.service.ts
+              (Line 512:5 - Line 527:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/merchant/merchant-enrichment.service.ts
+              (Line 438:9 - Line 454:36)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn20"
+              onclick="toggleCodeBlock('cloneGroup20', 'expandBtn20', 'collapseBtn20')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn20"
+              onclick="toggleCodeBlock('cloneGroup20', 'expandBtn20', 'collapseBtn20')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup20"
+            ><code class="language-typescript text-sm text-gray-800">,
+        transactions.map(t =&gt; ({
+          id: t.id,
+          accountId: t.accountId,
+          amount: t.amount,
+          date: t.date,
+          description: t.description,
+          type: t.type as 'debit' | 'credit',
+          status: t.status as 'pending' | 'posted' | 'canceled',
+          category: t.category,
+          merchantName: t.merchantName,
+          merchantCategory: t.merchantCategory,
+          location: typeof t.location === 'string' ? undefined : t.location,
+        }))
+      );
+    }</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 135:18 - Line 161:8),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 59:14 - Line 85:12)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn21"
+              onclick="toggleCodeBlock('cloneGroup21', 'expandBtn21', 'collapseBtn21')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn21"
+              onclick="toggleCodeBlock('cloneGroup21', 'expandBtn21', 'collapseBtn21')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup21"
+            ><code class="language-typescript text-sm text-gray-800">&gt; = {
+        amount: updates.amount,
+        category: updates.category,
+        description: updates.description,
+        date: updates.date,
+        tags: updates.tags,
+        merchantId: updates.merchantId,
+        merchantName: updates.merchantName,
+        merchantCategory: updates.merchantCategory,
+        merchantLocation: updates.merchantLocation,
+        isSubscription: updates.isSubscription,
+        subscriptionId: updates.subscriptionId,
+        subscriptionName: updates.subscriptionName,
+        subscriptionFrequency: updates.subscriptionFrequency,
+        subscriptionNextDate: updates.subscriptionNextDate,
+        subscriptionEndDate: updates.subscriptionEndDate,
+        receiptId: updates.receiptId,
+        receiptUrl: updates.receiptUrl,
+        receiptStatus: updates.receiptStatus,
+        aiProcessed: updates.aiProcessed,
+        aiCategory: updates.aiCategory,
+        aiConfidence: updates.aiConfidence,
+        aiDescription: updates.aiDescription,
+        aiTags: updates.aiTags,
+        updatedAt: new Date(),
+        metadata: {
+          ...expense</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 210:14 - Line 219:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 176:10 - Line 185:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn22"
+              onclick="toggleCodeBlock('cloneGroup22', 'expandBtn22', 'collapseBtn22')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn22"
+              onclick="toggleCodeBlock('cloneGroup22', 'expandBtn22', 'collapseBtn22')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup22"
+            ><code class="language-typescript text-sm text-gray-800">: string, userId: string): Promise&lt;void&gt; {
+    const transactionCollection = await this.getTransactionCollection();
+    const expenseCollection = await this.getExpenseCollection();
+
+    // Update transaction
+    await transactionCollection.updateOne(
+      { _id: transactionId, userId },
+      {
+        $set: {
+          receiptId:</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 221:19 - Line 234:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 187:17 - Line 200:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn23"
+              onclick="toggleCodeBlock('cloneGroup23', 'expandBtn23', 'collapseBtn23')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn23"
+              onclick="toggleCodeBlock('cloneGroup23', 'expandBtn23', 'collapseBtn23')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup23"
+            ><code class="language-typescript text-sm text-gray-800">: new Date(),
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    // If transaction is linked to an expense, update the expense as well
+    const transaction = await transactionCollection.findOne({ _id: transactionId });
+    if (transaction?.expenseId) {
+      await expenseCollection.updateOne(
+        { _id: transaction.expenseId },
+        {
+          $set: {
+            receiptId:</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/expense-integration.service.ts
+              (Line 10:26 - Line 22:29),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/expense/transaction-editor.service.ts
+              (Line 9:25 - Line 21:18)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn24"
+              onclick="toggleCodeBlock('cloneGroup24', 'expandBtn24', 'collapseBtn24')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn24"
+              onclick="toggleCodeBlock('cloneGroup24', 'expandBtn24', 'collapseBtn24')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup24"
+            ><code class="language-typescript text-sm text-gray-800">.name);
+
+  constructor(private readonly mongoDBService: MongoDBService) {}
+
+  private async getTransactionCollection(): Promise&lt;Collection&lt;TransactionSchema&gt;&gt; {
+    return this.mongoDBService.getCollection&lt;TransactionSchema&gt;(TRANSACTION_COLLECTION);
+  }
+
+  private async getExpenseCollection(): Promise&lt;Collection&lt;ExpenseSchema&gt;&gt; {
+    return this.mongoDBService.getCollection&lt;ExpenseSchema&gt;(EXPENSE_COLLECTION);
+  }
+
+  async createExpenseFromTransaction</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/ai/bert-processor.service.ts
+              (Line 19:2 - Line 40:5),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/ocr/ocr.service.ts
+              (Line 29:2 - Line 49:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn25"
+              onclick="toggleCodeBlock('cloneGroup25', 'expandBtn25', 'collapseBtn25')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn25"
+              onclick="toggleCodeBlock('cloneGroup25', 'expandBtn25', 'collapseBtn25')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup25"
+            ><code class="language-typescript text-sm text-gray-800">= [
+    'retail',
+    'restaurant',
+    'grocery',
+    'gas',
+    'pharmacy',
+    'medical',
+    'utility',
+    'hotel',
+    'transportation',
+    'digital',
+    'subscription',
+    'app_store',
+    'play_store',
+  ];
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly notificationService: NotificationService
+  ) {
+    this</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/auth/services/email.service.ts
+              (Line 46:23 - Line 52:5),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/auth/services/email.service.ts
+              (Line 21:22 - Line 27:6)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn26"
+              onclick="toggleCodeBlock('cloneGroup26', 'expandBtn26', 'collapseBtn26')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn26"
+              onclick="toggleCodeBlock('cloneGroup26', 'expandBtn26', 'collapseBtn26')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup26"
+            ><code class="language-typescript text-sm text-gray-800">(user: User): Promise&lt;void&gt; {
+    const jwtSecret = this.configService.get&lt;string&gt;('JWT_SECRET');
+    if (!jwtSecret) {
+      throw new InternalServerErrorException('JWT_SECRET is not configured');
+    }
+
+    const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h'</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/auth/guards/jwt-auth.guard.ts
+              (Line 1:2 - Line 12:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/auth/guards/jwt-auth.guard.ts
+              (Line 1:2 - Line 12:3)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn27"
+              onclick="toggleCodeBlock('cloneGroup27', 'expandBtn27', 'collapseBtn27')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn27"
+              onclick="toggleCodeBlock('cloneGroup27', 'expandBtn27', 'collapseBtn27')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup27"
+            ><code class="language-typescript text-sm text-gray-800">} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  override canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
+
+  override handleRequest(err: any, user: any) {
+    if (err || !user) {
+      throw err;</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/subscriptions/subscriptions.service.ts
+              (Line 145:5 - Line 151:4),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/subscriptions/subscriptions.service.ts
+              (Line 129:7 - Line 135:4)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn28"
+              onclick="toggleCodeBlock('cloneGroup28', 'expandBtn28', 'collapseBtn28')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn28"
+              onclick="toggleCodeBlock('cloneGroup28', 'expandBtn28', 'collapseBtn28')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup28"
+            ><code class="language-typescript text-sm text-gray-800">): Promise&lt;Subscription&gt; {
+    const subscription = await this.subscriptionModel.findOne({ _id: id, userId }).exec();
+    if (!subscription) {
+      throw new NotFoundException(`Subscription with ID ${id} not found`);
+    }
+
+    if (subscription.status !==</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/subscriptions/subscriptions.service.ts
+              (Line 160:11 - Line 166:7),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/subscriptions/subscriptions.service.ts
+              (Line 145:10 - Line 151:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn29"
+              onclick="toggleCodeBlock('cloneGroup29', 'expandBtn29', 'collapseBtn29')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn29"
+              onclick="toggleCodeBlock('cloneGroup29', 'expandBtn29', 'collapseBtn29')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup29"
+            ><code class="language-typescript text-sm text-gray-800">: Date): Promise&lt;Subscription&gt; {
+    const subscription = await this.subscriptionModel.findOne({ _id: id, userId }).exec();
+    if (!subscription) {
+      throw new NotFoundException(`Subscription with ID ${id} not found`);
+    }
+
+    if (subscription.status !== SubscriptionStatus.PAUSED</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/unified-receipt-processor.service.ts
+              (Line 223:20 - Line 252:9),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/unified-receipt-processor.service.ts
+              (Line 177:23 - Line 206:8)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn30"
+              onclick="toggleCodeBlock('cloneGroup30', 'expandBtn30', 'collapseBtn30')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn30"
+              onclick="toggleCodeBlock('cloneGroup30', 'expandBtn30', 'collapseBtn30')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup30"
+            ><code class="language-typescript text-sm text-gray-800">(
+        options.file!.buffer,
+        options.file!.filename
+      );
+
+      // Store in R2
+      const r2Key = this.r2Service.generateKey(options.userId, options.file!.filename);
+      const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
+
+      await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
+
+      // Generate and upload thumbnail
+      const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
+      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
+
+      // Get signed URLs
+      const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
+      const thumbnailUrl = await this.r2Service.getSignedUrl(r2ThumbnailKey);
+
+      // Create receipt record
+      return await this.receiptModel.create({
+        filename: options.file!.filename,
+        thumbnailUrl,
+        fullImageUrl,
+        merchant: options.expenseData?.merchant,
+        amount: options.expenseData?.amount,
+        userId: options.userId,
+        r2Key,
+        r2ThumbnailKey,
+        source: 'UPLOAD'</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/unified-receipt-processor.service.ts
+              (Line 335:10 - Line 350:53),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 208:10 - Line 223:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn31"
+              onclick="toggleCodeBlock('cloneGroup31', 'expandBtn31', 'collapseBtn31')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn31"
+              onclick="toggleCodeBlock('cloneGroup31', 'expandBtn31', 'collapseBtn31')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup31"
+            ><code class="language-typescript text-sm text-gray-800">,
+      },
+    };
+  }
+
+  private calculateMerchantMatchScore(merchant1: string, merchant2: string): number {
+    if (!merchant1 || !merchant2) return 0;
+
+    const normalize = (str: string) =&gt; str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const m1 = normalize(merchant1);
+    const m2 = normalize(merchant2);
+
+    if (m1 === m2) return 1;
+    if (m1.includes(m2) || m2.includes(m1)) return 0.9;
+
+    // Calculate Levenshtein distance for fuzzy matching</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/unified-receipt-processor.service.ts
+              (Line 360:8 - Line 379:20),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-finder.service.ts
+              (Line 230:2 - Line 249:24)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn32"
+              onclick="toggleCodeBlock('cloneGroup32', 'expandBtn32', 'collapseBtn32')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn32"
+              onclick="toggleCodeBlock('cloneGroup32', 'expandBtn32', 'collapseBtn32')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup32"
+            ><code class="language-typescript text-sm text-gray-800">;
+
+    if (percentage === 0) return 1;
+    if (percentage &lt;= 0.01) return 0.9; // 1% difference
+    if (percentage &lt;= 0.05) return 0.7; // 5% difference
+    if (percentage &lt;= 0.1) return 0.5; // 10% difference
+    return 0;
+  }
+
+  private calculateDateMatchScore(date1: Date, date2: Date): number {
+    const diffInDays = Math.abs(date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diffInDays === 0) return 1;
+    if (diffInDays &lt;= 1) return 0.9;
+    if (diffInDays &lt;= 3) return 0.7;
+    if (diffInDays &lt;= 7) return 0.5;
+    return 0;
+  }
+
+  private levenshteinDistance</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/unified-receipt-processor.service.ts
+              (Line 376:2 - Line 398:7),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/receipt/receipt-bank.service.ts
+              (Line 185:10 - Line 283:6)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn33"
+              onclick="toggleCodeBlock('cloneGroup33', 'expandBtn33', 'collapseBtn33')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn33"
+              onclick="toggleCodeBlock('cloneGroup33', 'expandBtn33', 'collapseBtn33')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup33"
+            ><code class="language-typescript text-sm text-gray-800">;
+  }
+
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix = Array(str1.length + 1)
+      .fill(null)
+      .map(() =&gt; Array(str2.length + 1).fill(null));
+
+    for (let i = 0; i &lt;= str1.length; i++) matrix[i][0] = i;
+    for (let j = 0; j &lt;= str2.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i &lt;= str1.length; i++) {
+      for (let j = 1; j &lt;= str2.length; j++) {
+        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1, // deletion
+          matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j - 1] + cost // substitution
+        );
+      }
+    }
+
+    return</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/token-manager.service.ts
+              (Line 78:9 - Line 86:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/token-manager.service.ts
+              (Line 58:25 - Line 67:13)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn34"
+              onclick="toggleCodeBlock('cloneGroup34', 'expandBtn34', 'collapseBtn34')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn34"
+              onclick="toggleCodeBlock('cloneGroup34', 'expandBtn34', 'collapseBtn34')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup34"
+            ><code class="language-typescript text-sm text-gray-800">, {
+      clientId: this.configService.get&lt;string&gt;('GMAIL_CLIENT_ID_1')!,
+      clientSecret: this.configService.get&lt;string&gt;('GMAIL_CLIENT_SECRET_1')!,
+      refreshToken: this.configService.get&lt;string&gt;('GMAIL_REFRESH_TOKEN_1')!,
+      scopes: this.SCOPES,
+      oAuth2Client: null,
+      credentials: null,
+    });
+  }</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/google-photos.service.ts
+              (Line 155:5 - Line 166:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/google-photos.service.ts
+              (Line 94:5 - Line 105:8)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn35"
+              onclick="toggleCodeBlock('cloneGroup35', 'expandBtn35', 'collapseBtn35')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn35"
+              onclick="toggleCodeBlock('cloneGroup35', 'expandBtn35', 'collapseBtn35')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup35"
+            ><code class="language-typescript text-sm text-gray-800">const results: GooglePhoto[] = [];
+    const accounts = Array.from(this.accounts.keys());
+
+    for (const email of accounts) {
+      try {
+        const photos = await this.withAuth(email, async oauth2Client =&gt; {
+          const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+          const response = (await this.withRateLimit(() =&gt;
+            photos.mediaItems.search({
+              requestBody: {
+                filters: {
+                  dateFilter: {</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/gmail.service.ts
+              (Line 103:28 - Line 114:8),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/google-photos.service.ts
+              (Line 72:13 - Line 83:9)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn36"
+              onclick="toggleCodeBlock('cloneGroup36', 'expandBtn36', 'collapseBtn36')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn36"
+              onclick="toggleCodeBlock('cloneGroup36', 'expandBtn36', 'collapseBtn36')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup36"
+            ><code class="language-typescript text-sm text-gray-800">);
+  }
+
+  private async withRetry&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, context: string): Promise&lt;T&gt; {
+    return retry(fn, {
+      retries: this.MAX_RETRIES,
+      delay: this.RETRY_DELAY,
+      backoff: 'LINEAR',
+    });
+  }
+
+  private</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/expenses/expenses.service.ts
+              (Line 108:7 - Line 115:6),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/expenses/expenses.service.ts
+              (Line 90:16 - Line 97:6)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn37"
+              onclick="toggleCodeBlock('cloneGroup37', 'expandBtn37', 'collapseBtn37')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn37"
+              onclick="toggleCodeBlock('cloneGroup37', 'expandBtn37', 'collapseBtn37')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup37"
+            ><code class="language-typescript text-sm text-gray-800">, req: AuthenticatedRequest) {
+    const budget = await this.mongoDBService
+      .getCollection(BUDGET_COLLECTION)
+      .findOne({ _id: id, userId: req.user.id });
+    if (!budget) {
+      throw new NotFoundException(`Budget with ID ${id} not found`);
+    }
+    await</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/workers/teller-webhook/src/index.ts
+              (Line 82:2 - Line 88:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/teller/teller.service.ts
+              (Line 409:2 - Line 415:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn38"
+              onclick="toggleCodeBlock('cloneGroup38', 'expandBtn38', 'collapseBtn38')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn38"
+              onclick="toggleCodeBlock('cloneGroup38', 'expandBtn38', 'collapseBtn38')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup38"
+            ><code class="language-typescript text-sm text-gray-800">hexToArrayBuffer(hex: string): ArrayBuffer {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i &lt; hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes.buffer;
+}</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/frontend/src/types/teller.ts
+              (Line 439:7 - Line 444:11),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/frontend/src/types/teller.ts
+              (Line 332:5 - Line 337:10)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn39"
+              onclick="toggleCodeBlock('cloneGroup39', 'expandBtn39', 'collapseBtn39')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn39"
+              onclick="toggleCodeBlock('cloneGroup39', 'expandBtn39', 'collapseBtn39')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup39"
+            ><code class="language-typescript text-sm text-gray-800">merchant: aiData?.merchant || tellerTx.details?.counterparty?.name || tellerTx.description,
+      description: aiData?.description || tellerTx.description,
+      category:
+        aiData?.category.name || tellerTx.details?.category || TRANSACTION_CATEGORIES.UNCATEGORIZED,
+      isAICategorized: !!aiData?.category,
+      confidence</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/frontend/src/hooks/useAuth.ts
+              (Line 57:5 - Line 63:27),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/frontend/src/hooks/useAuth.ts
+              (Line 38:12 - Line 44:16)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn40"
+              onclick="toggleCodeBlock('cloneGroup40', 'expandBtn40', 'collapseBtn40')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn40"
+              onclick="toggleCodeBlock('cloneGroup40', 'expandBtn40', 'collapseBtn40')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup40"
+            ><code class="language-typescript text-sm text-gray-800">);
+
+        localStorage.setItem(import.meta.env.VITE_JWT_STORAGE_KEY, response.data.token);
+        localStorage.setItem(import.meta.env.VITE_REFRESH_TOKEN_KEY, response.data.refreshToken);
+
+        setUser(response.data.user);
+        toast.success('Registration successful!'</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/base.service.ts
+              (Line 43:3 - Line 55:12),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/services/ai/base-ai.service.ts
+              (Line 46:3 - Line 58:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn41"
+              onclick="toggleCodeBlock('cloneGroup41', 'expandBtn41', 'collapseBtn41')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn41"
+              onclick="toggleCodeBlock('cloneGroup41', 'expandBtn41', 'collapseBtn41')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup41"
+            ><code class="language-typescript text-sm text-gray-800">}
+
+  protected async executeWithRetry&lt;T&gt;(
+    operation: string,
+    fn: () =&gt; Promise&lt;T&gt;,
+    maxRetries = 3
+  ): Promise&lt;T&gt; {
+    let lastError: Error | undefined;
+
+    for (let attempt = 1; attempt &lt;= maxRetries; attempt++) {
+      try {
+        const result = await fn();
+        this.updateState</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/scripts/test-mongodb-simple.ts
+              (Line 36:11 - Line 74:7),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/scripts/test-mongodb.ts
+              (Line 41:14 - Line 79:15)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn42"
+              onclick="toggleCodeBlock('cloneGroup42', 'expandBtn42', 'collapseBtn42')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn42"
+              onclick="toggleCodeBlock('cloneGroup42', 'expandBtn42', 'collapseBtn42')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup42"
+            ><code class="language-typescript text-sm text-gray-800">('test_collection');
+    console.log('✅ Collection access successful');
+
+    // Test insert
+    const testDoc = {
+      message: 'Test document',
+      timestamp: new Date(),
+      status: 'active',
+    };
+    const insertResult = await testCollection.insertOne(testDoc);
+    console.log('✅ Document insert successful:', insertResult.insertedId);
+
+    // Test find
+    const foundDoc = await testCollection.findOne({ _id: insertResult.insertedId });
+    console.log('✅ Document find successful:', foundDoc);
+
+    // Test update
+    const updateResult = await testCollection.updateOne(
+      { _id: insertResult.insertedId },
+      { $set: { status: 'updated' } }
+    );
+    console.log('✅ Document update successful:', updateResult.modifiedCount);
+
+    // Test delete
+    const deleteResult = await testCollection.deleteOne({ _id: insertResult.insertedId });
+    console.log('✅ Document delete successful:', deleteResult.deletedCount);
+
+    // Test indexes
+    await testCollection.createIndex({ timestamp: 1 });
+    console.log('✅ Index creation successful');
+
+    // Get index information
+    const indexes = await testCollection.indexes();
+    console.log('✅ Indexes:', indexes);
+  } catch (error) {
+    console.error('❌ MongoDB test failed:', error);
+    process.exit(1);
+  } finally {
+    await client</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/routes/expenses.ts
+              (Line 21:2 - Line 26:9),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/routes/transactions.ts
+              (Line 10:2 - Line 15:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn43"
+              onclick="toggleCodeBlock('cloneGroup43', 'expandBtn43', 'collapseBtn43')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn43"
+              onclick="toggleCodeBlock('cloneGroup43', 'expandBtn43', 'collapseBtn43')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup43"
+            ><code class="language-typescript text-sm text-gray-800">= z.object({
+  date: z.string().optional(),
+  description: z.string().min(1).optional(),
+  amount: z.number().optional(),
+  category: z.string().min(1).optional(),
+  merchant</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/routes/expenses.ts
+              (Line 30:9 - Line 41:9),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/routes/transactions.ts
+              (Line 16:9 - Line 27:7)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn44"
+              onclick="toggleCodeBlock('cloneGroup44', 'expandBtn44', 'collapseBtn44')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn44"
+              onclick="toggleCodeBlock('cloneGroup44', 'expandBtn44', 'collapseBtn44')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup44"
+            ><code class="language-typescript text-sm text-gray-800">(),
+});
+
+// Schema for bulk import
+const bulkImportSchema = z.object({
+  data: z.array(
+    z.object({
+      date: z.string(),
+      description: z.string(),
+      amount: z.number(),
+      category: z.string(),
+      merchant</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/routes/expenses.ts
+              (Line 70:2 - Line 79:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/routes/expenses.ts
+              (Line 53:5 - Line 63:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn45"
+              onclick="toggleCodeBlock('cloneGroup45', 'expandBtn45', 'collapseBtn45')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn45"
+              onclick="toggleCodeBlock('cloneGroup45', 'expandBtn45', 'collapseBtn45')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup45"
+            ><code class="language-typescript text-sm text-gray-800">z.object({
+        date: z.string(),
+        amount: z.number(),
+        description: z.string().optional(),
+        category: z.string().optional(),
+        merchant: z.string().optional(),
+        receiptUrl: z.string().url().optional(),
+        tags: z.array(z.string()).optional(),
+        company: z.string().optional(),
+      }),</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/controllers/receipt-bank.controller.ts
+              (Line 86:2 - Line 95:7),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/controllers/teller.controller.ts
+              (Line 72:10 - Line 81:10)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn46"
+              onclick="toggleCodeBlock('cloneGroup46', 'expandBtn46', 'collapseBtn46')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn46"
+              onclick="toggleCodeBlock('cloneGroup46', 'expandBtn46', 'collapseBtn46')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup46"
+            ><code class="language-typescript text-sm text-gray-800">;
+    }
+
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+
+    if (status</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/controllers/google.controller.ts
+              (Line 30:2 - Line 46:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/controllers/google.controller.ts
+              (Line 34:2 - Line 49:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn47"
+              onclick="toggleCodeBlock('cloneGroup47', 'expandBtn47', 'collapseBtn47')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn47"
+              onclick="toggleCodeBlock('cloneGroup47', 'expandBtn47', 'collapseBtn47')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup47"
+            ><code class="language-typescript text-sm text-gray-800">};
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  @Get('photos')
+  async searchPhotos(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
+    try {
+      const photos = await this.googleService.searchPhotos(new Date(startDate), new Date(endDate));
+      return { success: true, photos };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  @</code></pre>
+          </div>
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/packages/types/vite.config.ts
+              (Line 38:11 - Line 58:32),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/packages/utils/vite.config.ts
+              (Line 38:11 - Line 58:32)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn48"
+              onclick="toggleCodeBlock('cloneGroup48', 'expandBtn48', 'collapseBtn48')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn48"
+              onclick="toggleCodeBlock('cloneGroup48', 'expandBtn48', 'collapseBtn48')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup48"
+            ><code class="language-typescript text-sm text-gray-800">,
+      fileName: 'index',
+      // Change this to the formats you want to support.
+      // Don't forget to update your package.json as well.
+      formats: ['es', 'cjs'],
+    },
+    rollupOptions: {
+      // External packages that should not be bundled into your library.
+      external: [],
+    },
+  },
+
+  test: {
+    watch: false,
+    globals: true,
+    environment: 'node',
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+
+    reporters: ['default'],
+    coverage: {
+      reportsDirectory: '../../coverage/packages/types'</code></pre>
+          </div>
+          <!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed-->
+        </div>
+        <a name="javascript-clones"></a>
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">javascript</h2>
+        <div class="divide-y divide-gray-200 border-b-2">
+          <div class="py-4">
+            <p class="text-gray-600">
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/packages/types/eslint.config.cjs
+              (Line 1:1 - Line 22:2),
+              /Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/packages/utils/eslint.config.cjs
+              (Line 1:1 - Line 22:2)
+            </p>
+            <button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2"
+              id="expandBtn49"
+              onclick="toggleCodeBlock('cloneGroup49', 'expandBtn49', 'collapseBtn49')"
+            >
+              Show code</button
+            ><button
+              class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden"
+              id="collapseBtn49"
+              onclick="toggleCodeBlock('cloneGroup49', 'expandBtn49', 'collapseBtn49')"
+            >
+              Hide code
+            </button>
+            <pre
+              class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden"
+              id="cloneGroup49"
+            ><code class="language-javascript text-sm text-gray-800">const baseConfig = require('../../eslint.config.js');
+
+module.exports = [
+  ...baseConfig,
+  {
+    files: ['**/*.json'],
+    rules: {
+      '@nx/dependency-checks': [
+        'error',
+        {
+          ignoredFiles: [
+            '{projectRoot}/eslint.config.{js,cjs,mjs}',
+            '{projectRoot}/vite.config.{js,ts,mjs,mts}',
+          ],
+        },
+      ],
+    },
+    languageOptions: {
+      parser: require('jsonc-eslint-parser'),
+    },
+  },
+];</code></pre>
+          </div>
+          <!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed-->
+        </div>
+      </section>
+      <!-- Add more sections for other formats and clone groups as needed-->
+    </main>
+    <footer class="bg-white shadow mt-8 py-4">
+      <div class="container mx-auto px-4 text-center">
+        <p class="text-sm text-gray-600">
+          This report is generated by jscpd, an open-source copy/paste detector.
+        </p>
+        <p class="text-sm text-gray-600">jscpd is licensed under the MIT License.</p>
+        <a
+          class="text-blue-500 text-sm"
+          href="https://github.com/kucherenko/jscpd"
+          target="_blank"
+          rel="noopener noreferrer"
+          >View jscpd on GitHub</a
+        >
+      </div>
+    </footer>
+    <script src="js/prism.js"></script>
+    <script>
+      function toggleCodeBlock(codeBlockId, expandBtnId, collapseBtnId) {
+        const codeBlock = document.getElementById(codeBlockId);
+        const expandBtn = document.getElementById(expandBtnId);
+        const collapseBtn = document.getElementById(collapseBtnId);
+
+        codeBlock.classList.toggle('hidden');
+        expandBtn.classList.toggle('hidden');
+        collapseBtn.classList.toggle('hidden');
+      }
+    </script>
+  </body>
+</html>

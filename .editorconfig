@@ -3,7 +3,7 @@
 # top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
+# Unix-style newlines
 [*]
 end_of_line = lf
 insert_final_newline = true
@@ -15,13 +15,20 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-# Matches the exact files either package.json or .travis.yml
-[{package.json,.travis.yml}]
+# Matches the exact files
+[package.json]
 indent_style = space
 indent_size = 2
 
-# 4 space indentation for markdown
 [*.md]
 trim_trailing_whitespace = false
+
+# Matches the exact files
+[*.{spec,test}.{js,jsx,ts,tsx}]
 indent_style = space
-indent_size = 4 
+indent_size = 2
+
+# Matches the exact files
+[*.config.{js,ts}]
+indent_style = space
+indent_size = 2 

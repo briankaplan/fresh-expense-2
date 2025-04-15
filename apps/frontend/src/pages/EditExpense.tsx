@@ -18,4 +18,4 @@ const EditExpense: React.FC = () => {
   );
 };
 
-export default EditExpense; 
+export default EditExpense;

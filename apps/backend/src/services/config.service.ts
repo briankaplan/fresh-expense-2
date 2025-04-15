@@ -80,7 +80,10 @@ export class ConfigService {
         ai: {
           huggingface: {
             apiKey: this.getRequiredString('HUGGINGFACE_API_KEY'),
-            model: this.getOptionalString('HUGGINGFACE_MODEL', 'sentence-transformers/all-MiniLM-L6-v2'),
+            model: this.getOptionalString(
+              'HUGGINGFACE_MODEL',
+              'sentence-transformers/all-MiniLM-L6-v2'
+            ),
           },
           bert: {
             serverUrl: this.getRequiredString('BERT_SERVER_URL'),
@@ -163,4 +166,4 @@ export class ConfigService {
   getLoggingConfig(): AppConfig['logging'] {
     return this.config.logging;
   }
-} 
+}

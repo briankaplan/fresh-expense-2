@@ -17,7 +17,7 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     const { accessToken, refreshToken } = await this.authService.login(loginDto);
     const user = await this.usersService.findByEmail(loginDto.email);
-    
+
     // Return both tokens and user data
     return {
       accessToken,
@@ -26,15 +26,15 @@ export class AuthController {
         id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName
-      }
+        lastName: user.lastName,
+      },
     };
   }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     const { user, accessToken, refreshToken } = await this.authService.register(registerDto);
-    
+
     // Return tokens and user data
     return {
       accessToken,
@@ -43,8 +43,8 @@ export class AuthController {
         id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName
-      }
+        lastName: user.lastName,
+      },
     };
   }
 

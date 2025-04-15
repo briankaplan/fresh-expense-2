@@ -8,12 +8,12 @@ import {
   CircularProgress,
   Alert,
   Stack,
-  Chip
+  Chip,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
-  Receipt as ReceiptIcon
+  Receipt as ReceiptIcon,
 } from '@mui/icons-material';
 import { Transaction } from '../../types/models';
 import {
@@ -23,7 +23,7 @@ import {
   getTransactionStatusLabel,
   TransactionValidationError,
   TransactionMappingError,
-  TransactionStatus
+  TransactionStatus,
 } from '../../types/teller';
 import TransactionEnrichmentService from '../../services/TransactionEnrichmentService';
 
@@ -36,7 +36,7 @@ interface TransactionProcessorProps {
 export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
   transaction,
   onProcessingComplete,
-  onError
+  onError,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,12 +63,13 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
 
   const handleReprocess = useCallback(async () => {
     if (!processedTransaction) return;
-    
+
     setIsProcessing(true);
     setError(null);
 
     try {
-      const reprocessedTransaction = await enrichmentService.reprocessTransaction(processedTransaction);
+      const reprocessedTransaction =
+        await enrichmentService.reprocessTransaction(processedTransaction);
       setProcessedTransaction(reprocessedTransaction);
       onProcessingComplete?.(reprocessedTransaction);
     } catch (err) {
@@ -89,9 +90,7 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
         <Stack spacing={2}>
           {/* Transaction Header */}
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">
-              {transaction.merchant}
-            </Typography>
+            <Typography variant="h6">{transaction.merchant}</Typography>
             <Typography
               variant="h6"
               color={transactionType === 'expense' ? 'error' : 'success.main'}
@@ -113,20 +112,10 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
               color={transaction.status === 'processed' ? 'success' : 'default'}
             />
             {transaction.receiptId && (
-              <Chip
-                size="small"
-                icon={<ReceiptIcon />}
-                label="Receipt Attached"
-                color="info"
-              />
+              <Chip size="small" icon={<ReceiptIcon />} label="Receipt Attached" color="info" />
             )}
             {requiresReview && (
-              <Chip
-                size="small"
-                icon={<WarningIcon />}
-                label="Needs Review"
-                color="warning"
-              />
+              <Chip size="small" icon={<WarningIcon />} label="Needs Review" color="warning" />
             )}
           </Stack>
 
@@ -171,4 +160,4 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
       </CardContent>
     </Card>
   );
-}; 
+};

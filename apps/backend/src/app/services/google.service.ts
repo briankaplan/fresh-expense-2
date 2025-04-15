@@ -28,11 +28,11 @@ export class GoogleService {
   constructor(
     protected readonly configService: ConfigService,
     protected readonly tokenManager: TokenManagerService,
-    protected readonly eventEmitter: EventEmitter2,
+    protected readonly eventEmitter: EventEmitter2
   ) {
     this.rateLimiter = new RateLimiter({
       tokensPerInterval: 10,
-      interval: 'second'
+      interval: 'second',
     });
     this.initializeAccounts();
   }
@@ -126,11 +126,11 @@ export class GoogleService {
     const { tokens } = await account.oauth2Client.getToken(code);
     account.credentials = tokens;
     account.oauth2Client.setCredentials(tokens);
-    
+
     if (tokens.refresh_token) {
       await this.tokenManager.updateToken(email, tokens);
     }
-    
+
     return tokens;
   }
 
@@ -146,7 +146,7 @@ export class GoogleService {
     }
 
     const gmail = google.gmail({ version: 'v1', auth: account.oauth2Client });
-    
+
     return this.rateLimiter.withRateLimit('GMAIL.SEARCH', async () => {
       const response = await gmail.users.messages.list({
         userId: 'me',
@@ -159,4 +159,4 @@ export class GoogleService {
   async searchPhotos(startDate: Date, endDate: Date): Promise<any> {
     throw new Error('Method not implemented. Use GooglePhotosService instead.');
   }
-} 
+}

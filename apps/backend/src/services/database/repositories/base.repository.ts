@@ -30,7 +30,7 @@ export abstract class BaseRepository<T extends BaseSchema> {
       createdAt: now,
       updatedAt: now,
     } as T;
-    
+
     await collection.insertOne(newDocument);
     return newDocument;
   }
@@ -57,4 +57,4 @@ export abstract class BaseRepository<T extends BaseSchema> {
     const collection = await this.getCollection();
     return collection.countDocuments(filter);
   }
-} 
+}

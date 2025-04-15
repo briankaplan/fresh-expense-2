@@ -7,9 +7,7 @@ import { UpdateMerchantDto } from './dto/update-merchant.dto';
 
 @Injectable()
 export class MerchantsService {
-  constructor(
-    @InjectModel(Merchant.name) private merchantModel: Model<MerchantDocument>,
-  ) {}
+  constructor(@InjectModel(Merchant.name) private merchantModel: Model<MerchantDocument>) {}
 
   async create(createMerchantDto: CreateMerchantDto): Promise<Merchant> {
     const createdMerchant = new this.merchantModel(createMerchantDto);
@@ -25,9 +23,7 @@ export class MerchantsService {
   }
 
   async update(id: string, updateMerchantDto: UpdateMerchantDto): Promise<Merchant> {
-    return this.merchantModel
-      .findByIdAndUpdate(id, updateMerchantDto, { new: true })
-      .exec();
+    return this.merchantModel.findByIdAndUpdate(id, updateMerchantDto, { new: true }).exec();
   }
 
   async remove(id: string): Promise<Merchant> {
@@ -42,23 +38,31 @@ export class MerchantsService {
     return this.merchantModel.findOne({ tellerMerchantId }).exec();
   }
 
-  async findNearby(latitude: number, longitude: number, maxDistance: number = 5000): Promise<Merchant[]> {
-    return this.merchantModel.find({
-      locations: {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [longitude, latitude]
+  async findNearby(
+    latitude: number,
+    longitude: number,
+    maxDistance: number = 5000
+  ): Promise<Merchant[]> {
+    return this.merchantModel
+      .find({
+        locations: {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+            $maxDistance: maxDistance,
           },
-          $maxDistance: maxDistance
-        }
-      }
-    }).exec();
+        },
+      })
+      .exec();
   }
 
   async getDefaultMerchants(): Promise<Merchant[]> {
-    return this.merchantModel.find({
-      name: { $in: ['Netflix', 'Spotify', 'Amazon'] }
-    }).exec();
+    return this.merchantModel
+      .find({
+        name: { $in: ['Netflix', 'Spotify', 'Amazon'] },
+      })
+      .exec();
   }
-} 
+}

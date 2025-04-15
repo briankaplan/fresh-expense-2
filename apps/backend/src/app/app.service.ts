@@ -6,7 +6,7 @@ export class AppService {
     return {
       message: 'Welcome to Fresh Expense API',
       version: '1.0.0',
-      status: 'healthy'
+      status: 'healthy',
     };
   }
 }

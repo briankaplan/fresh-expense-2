@@ -18,10 +18,10 @@ module.exports = {
             category: { bsonType: 'string' },
             isExpense: { bsonType: 'bool' },
             company: { enum: ['Down Home', 'Music City Rodeo', 'Personal'] },
-          }
-        }
+          },
+        },
       },
-      validationLevel: 'moderate'
+      validationLevel: 'moderate',
     });
 
     // Receipt Schema Validation
@@ -40,18 +40,18 @@ module.exports = {
               properties: {
                 original: { bsonType: 'string' },
                 converted: { bsonType: 'string' },
-                thumbnail: { bsonType: 'string' }
-              }
+                thumbnail: { bsonType: 'string' },
+              },
             },
             source: { enum: ['CSV', 'EMAIL', 'GOOGLE_PHOTOS', 'MANUAL', 'UPLOAD'] },
             merchant: { bsonType: 'string' },
             amount: { bsonType: 'number' },
             date: { bsonType: 'date' },
-            category: { bsonType: 'string' }
-          }
-        }
+            category: { bsonType: 'string' },
+          },
+        },
       },
-      validationLevel: 'moderate'
+      validationLevel: 'moderate',
     });
 
     // Merchant Schema Validation
@@ -72,13 +72,13 @@ module.exports = {
                 website: { bsonType: 'string' },
                 phone: { bsonType: 'string' },
                 address: { bsonType: 'string' },
-                taxId: { bsonType: 'string' }
-              }
-            }
-          }
-        }
+                taxId: { bsonType: 'string' },
+              },
+            },
+          },
+        },
       },
-      validationLevel: 'moderate'
+      validationLevel: 'moderate',
     });
 
     // Expense Schema Validation
@@ -95,11 +95,11 @@ module.exports = {
             merchant: { bsonType: 'string' },
             category: { bsonType: 'string' },
             receiptStatus: { enum: ['FOUND', 'MISSING', 'PROCESSING'] },
-            companyId: { bsonType: 'string' }
-          }
-        }
+            companyId: { bsonType: 'string' },
+          },
+        },
       },
-      validationLevel: 'moderate'
+      validationLevel: 'moderate',
     });
   },
 
@@ -110,8 +110,8 @@ module.exports = {
       await db.command({
         collMod: collection,
         validator: {},
-        validationLevel: 'off'
+        validationLevel: 'off',
       });
     }
-  }
-}; 
+  },
+};

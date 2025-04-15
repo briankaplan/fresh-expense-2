@@ -45,7 +45,7 @@ export class ReportService {
     private readonly receiptService: ReceiptService,
     private readonly expenseService: ExpenseService,
     private readonly pdfService: PDFService,
-    private readonly emailService: EmailService,
+    private readonly emailService: EmailService
   ) {}
 
   async createTemplate(userId: string, template: Partial<ReportTemplate>) {
@@ -78,7 +78,7 @@ export class ReportService {
             updatedAt: new Date(),
           },
         },
-        { new: true },
+        { new: true }
       );
 
       if (!template) {
@@ -167,11 +167,11 @@ export class ReportService {
         switch (template.format) {
           case 'pdf':
             const pdfStream = await this.pdfService.generateReport(data, {
-                ...template.customization,
-                title: template.name || 'Report',
-                groupBy: Array.isArray(template.customization?.groupBy) 
-                    ? template.customization.groupBy[0] 
-                    : template.customization?.groupBy
+              ...template.customization,
+              title: template.name || 'Report',
+              groupBy: Array.isArray(template.customization?.groupBy)
+                ? template.customization.groupBy[0]
+                : template.customization?.groupBy,
             });
             reportBuffer = await this.streamToBuffer(pdfStream as unknown as Readable);
             break;
@@ -276,7 +276,10 @@ export class ReportService {
         const rowData = headers.map(header => {
           const value = row[header];
           // Handle special characters and commas in the value
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+          if (
+            typeof value === 'string' &&
+            (value.includes(',') || value.includes('"') || value.includes('\n'))
+          ) {
             return `"${value.replace(/"/g, '""')}"`;
           }
           return value || '';
@@ -295,7 +298,7 @@ export class ReportService {
     try {
       const headers = customization?.headers || Object.keys(data[0] || {});
       const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
-      
+
       // Apply customization if provided
       worksheet['name'] = customization.sheetName;
 
@@ -314,8 +317,8 @@ export class ReportService {
   private async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
-      stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-      stream.on('error', (error) => reject(error));
+      stream.on('data', chunk => chunks.push(Buffer.from(chunk)));
+      stream.on('error', error => reject(error));
       stream.on('end', () => resolve(Buffer.concat(chunks)));
     });
   }
@@ -323,18 +326,18 @@ export class ReportService {
   async markExpensesAsReported(userId: string, expenseIds: string[]) {
     try {
       const objectIds = expenseIds.map(id => new Types.ObjectId(id));
-      
+
       // Update expenses to mark them as reported
       await this.expenseService.updateMany(
         {
           _id: { $in: objectIds },
-          userId: new Types.ObjectId(userId)
+          userId: new Types.ObjectId(userId),
         },
         {
           $set: {
             status: 'reported',
-            reportedAt: new Date()
-          }
+            reportedAt: new Date(),
+          },
         }
       );
 
@@ -349,7 +352,7 @@ export class ReportService {
     try {
       return await this.expenseService.findByUserId(userId, {
         ...filters,
-        status: 'reported'
+        status: 'reported',
       });
     } catch (error) {
       this.logger.error('Error fetching reported expenses:', error);
@@ -362,7 +365,7 @@ export class ReportService {
       const expense = await this.expenseService.findOne({
         _id: new Types.ObjectId(expenseId),
         userId: new Types.ObjectId(userId),
-        status: 'reported'
+        status: 'reported',
       });
 
       if (!expense) {
@@ -378,4 +381,4 @@ export class ReportService {
       throw error;
     }
   }
-} 
+}

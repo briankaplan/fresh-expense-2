@@ -15,7 +15,9 @@ const environmentSchema = z.object({
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
   GOOGLE_REDIRECT_URI: z.string().default('https://api.tallyup.com/auth/google/callback'),
-  GOOGLE_PHOTOS_REDIRECT_URI: z.string().default('https://api.tallyup.com/auth/google-photos/callback'),
+  GOOGLE_PHOTOS_REDIRECT_URI: z
+    .string()
+    .default('https://api.tallyup.com/auth/google-photos/callback'),
   SMTP_HOST: z.string(),
   SMTP_PORT: z.string(),
   SMTP_USER: z.string(),
@@ -30,4 +32,4 @@ const environmentSchema = z.object({
   TALLYUP_SIGNING_KEY: z.string(),
 });
 
-export const environment = environmentSchema.parse(process.env); 
+export const environment = environmentSchema.parse(process.env);

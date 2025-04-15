@@ -7,4 +7,4 @@ import { R2Service } from './r2.service';
   providers: [R2Service],
   exports: [R2Service],
 })
-export class R2Module {} 
+export class R2Module {}

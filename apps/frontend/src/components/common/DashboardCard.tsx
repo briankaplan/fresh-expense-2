@@ -84,4 +84,4 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
       </CardContent>
     </Card>
   );
-}; 
+};

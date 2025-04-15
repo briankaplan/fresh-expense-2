@@ -109,7 +109,7 @@ export const Reports: React.FC = () => {
       setLoading(true);
       const [templatesResponse, reportsResponse] = await Promise.all([
         fetch('/api/reports/templates'),
-        fetch('/api/reports/scheduled')
+        fetch('/api/reports/scheduled'),
       ]);
 
       if (!templatesResponse.ok || !reportsResponse.ok) {
@@ -149,7 +149,10 @@ export const Reports: React.FC = () => {
     }
   };
 
-  const handleScheduleReport = async (templateId: string, schedule: ReportTemplate['scheduling']) => {
+  const handleScheduleReport = async (
+    templateId: string,
+    schedule: ReportTemplate['scheduling']
+  ) => {
     try {
       const response = await fetch(`/api/reports/templates/${templateId}/schedule`, {
         method: 'POST',
@@ -198,7 +201,10 @@ export const Reports: React.FC = () => {
   const handleRecipientsChange = (recipientsString: string) => {
     setScheduleData(prev => ({
       ...prev,
-      recipients: recipientsString.split(',').map(email => email.trim()).filter(Boolean),
+      recipients: recipientsString
+        .split(',')
+        .map(email => email.trim())
+        .filter(Boolean),
     }));
   };
 
@@ -242,7 +248,7 @@ export const Reports: React.FC = () => {
               label="Template Name"
               required
               value={templateForm.name}
-              onChange={(e) => handleTemplateFormChange('name', e.target.value)}
+              onChange={e => handleTemplateFormChange('name', e.target.value)}
             />
           </Grid>
           <Grid item xs={12}>
@@ -252,7 +258,7 @@ export const Reports: React.FC = () => {
               multiline
               rows={3}
               value={templateForm.description}
-              onChange={(e) => handleTemplateFormChange('description', e.target.value)}
+              onChange={e => handleTemplateFormChange('description', e.target.value)}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -262,7 +268,7 @@ export const Reports: React.FC = () => {
               label="Report Type"
               required
               value={templateForm.type}
-              onChange={(e) => handleTemplateFormChange('type', e.target.value)}
+              onChange={e => handleTemplateFormChange('type', e.target.value)}
             >
               <MenuItem value="expense">Expense Report</MenuItem>
               <MenuItem value="receipt">Receipt Report</MenuItem>
@@ -276,7 +282,7 @@ export const Reports: React.FC = () => {
               label="Output Format"
               required
               value={templateForm.format}
-              onChange={(e) => handleTemplateFormChange('format', e.target.value)}
+              onChange={e => handleTemplateFormChange('format', e.target.value)}
             >
               <MenuItem value="pdf">PDF</MenuItem>
               <MenuItem value="csv">CSV</MenuItem>
@@ -287,11 +293,7 @@ export const Reports: React.FC = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setIsTemplateDialogOpen(false)}>Cancel</Button>
-        <Button 
-          variant="contained" 
-          color="primary"
-          onClick={handleTemplateSubmit}
-        >
+        <Button variant="contained" color="primary" onClick={handleTemplateSubmit}>
           {selectedTemplate ? 'Save Changes' : 'Create Template'}
         </Button>
       </DialogActions>
@@ -314,7 +316,9 @@ export const Reports: React.FC = () => {
               select
               label="Frequency"
               value={scheduleData.frequency}
-              onChange={(e) => handleScheduleFrequencyChange(e.target.value as ScheduleFormData['frequency'])}
+              onChange={e =>
+                handleScheduleFrequencyChange(e.target.value as ScheduleFormData['frequency'])
+              }
             >
               <MenuItem value="daily">Daily</MenuItem>
               <MenuItem value="weekly">Weekly</MenuItem>
@@ -327,7 +331,7 @@ export const Reports: React.FC = () => {
               label="Recipients"
               placeholder="Enter email addresses (comma-separated)"
               value={scheduleData.recipients.join(', ')}
-              onChange={(e) => handleRecipientsChange(e.target.value)}
+              onChange={e => handleRecipientsChange(e.target.value)}
             />
           </Grid>
         </Grid>
@@ -336,7 +340,9 @@ export const Reports: React.FC = () => {
         <Button onClick={() => setIsScheduleDialogOpen(false)}>Cancel</Button>
         <Button
           variant="contained"
-          onClick={() => selectedTemplate && handleScheduleReport(selectedTemplate.id, scheduleData)}
+          onClick={() =>
+            selectedTemplate && handleScheduleReport(selectedTemplate.id, scheduleData)
+          }
         >
           Schedule Report
         </Button>
@@ -378,7 +384,7 @@ export const Reports: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {templates.map((template) => (
+                {templates.map(template => (
                   <TableRow key={template.id}>
                     <TableCell>{template.name}</TableCell>
                     <TableCell>{template.type}</TableCell>
@@ -424,7 +430,9 @@ export const Reports: React.FC = () => {
             </Table>
           </TableContainer>
 
-          <Typography variant="h5" sx={{ mb: 2 }}>Scheduled Reports</Typography>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Scheduled Reports
+          </Typography>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -437,16 +445,20 @@ export const Reports: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {scheduledReports.map((report) => (
+                {scheduledReports.map(report => (
                   <TableRow key={report.id}>
                     <TableCell>{report.templateName}</TableCell>
                     <TableCell>
                       <Chip
                         label={report.status}
                         color={
-                          report.status === 'completed' ? 'success' :
-                          report.status === 'failed' ? 'error' :
-                          report.status === 'running' ? 'warning' : 'default'
+                          report.status === 'completed'
+                            ? 'success'
+                            : report.status === 'failed'
+                              ? 'error'
+                              : report.status === 'running'
+                                ? 'warning'
+                                : 'default'
                         }
                         size="small"
                       />
@@ -458,10 +470,7 @@ export const Reports: React.FC = () => {
                     <TableCell align="right">
                       <Stack direction="row" spacing={1} justifyContent="flex-end">
                         {report.downloadUrl && (
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDownloadReport(report.id)}
-                          >
+                          <IconButton size="small" onClick={() => handleDownloadReport(report.id)}>
                             <DownloadIcon />
                           </IconButton>
                         )}
@@ -479,4 +488,4 @@ export const Reports: React.FC = () => {
       <ScheduleDialog />
     </Box>
   );
-}; 
+};

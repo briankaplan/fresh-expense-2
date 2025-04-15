@@ -49,5 +49,5 @@ module.exports = {
 
     // Remove Expense indexes
     await db.collection('expenses').dropIndexes();
-  }
-}; 
+  },
+};

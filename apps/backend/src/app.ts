@@ -11,13 +11,10 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize MongoDB connection and setup
-Promise.all([
-  connectToDb(),
-  setupDb()
-]).catch(console.error);
+Promise.all([connectToDb(), setupDb()]).catch(console.error);
 
 // Register routes
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/expenses', expensesRouter);
 
-export default app; 
+export default app;

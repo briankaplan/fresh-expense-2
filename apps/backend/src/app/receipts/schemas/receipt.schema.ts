@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { OCRResult } from '../types/ocr.types';
 
 export type ReceiptDocument = Receipt & Document;
 
@@ -23,7 +24,7 @@ export interface ExtractedData {
 
 @Schema({
   timestamps: true,
-  collection: 'receipts'
+  collection: 'receipts',
 })
 export class Receipt {
   @Prop({ required: true })
@@ -33,11 +34,29 @@ export class Receipt {
   userId: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true })
+  r2Key: string;
+
+  @Prop()
+  r2ThumbnailKey?: string;
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
   urls: {
-    original: string;
-    converted?: string;
-    thumbnail?: string;
+    fullImageUrl?: string;
+    thumbnailUrl?: string;
   };
+
+  @Prop({ required: true })
+  status: 'processing' | 'unmatched' | 'matched' | 'error';
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  metadata: {
+    mimeType: string;
+    size: number;
+    processedAt: Date;
+  };
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  ocrData?: OCRResult;
 
   @Prop({ required: true })
   source: 'CSV' | 'EMAIL' | 'GOOGLE_PHOTOS' | 'MANUAL' | 'UPLOAD';
@@ -51,19 +70,11 @@ export class Receipt {
   @Prop({ required: true })
   date: Date;
 
-  @Prop({ required: true })
-  category: string;
+  @Prop()
+  category?: string;
 
   @Prop()
   description?: string;
-
-  @Prop({ type: MongooseSchema.Types.Mixed })
-  ocrData?: {
-    text: string;
-    confidence: number;
-    metadata: any;
-    processedAt: Date;
-  };
 
   @Prop({ type: MongooseSchema.Types.Mixed })
   extractedData?: ExtractedData;
@@ -82,20 +93,6 @@ export class Receipt {
 
   @Prop({ type: [{ type: MongooseSchema.Types.Mixed }] })
   items?: ReceiptItem[];
-
-  @Prop({ type: MongooseSchema.Types.Mixed })
-  metadata?: {
-    r2Keys?: {
-      original?: string;
-      converted?: string;
-      thumbnail?: string;
-    };
-    processingStatus?: string;
-    version?: number;
-    importDate?: Date;
-    source?: string;
-    lastProcessed?: Date;
-  };
 }
 
 export const ReceiptSchema = SchemaFactory.createForClass(Receipt);
@@ -105,4 +102,4 @@ ReceiptSchema.index({ userId: 1, date: -1 });
 ReceiptSchema.index({ expenseId: 1 });
 ReceiptSchema.index({ merchant: 1 });
 ReceiptSchema.index({ category: 1 });
-ReceiptSchema.index({ tags: 1 }); 
+ReceiptSchema.index({ tags: 1 });

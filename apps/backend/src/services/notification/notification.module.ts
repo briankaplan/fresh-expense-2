@@ -10,4 +10,4 @@ import { MongoDBModule } from '../database/mongodb.module';
   providers: [NotificationService, NotificationRepository],
   exports: [NotificationService],
 })
-export class NotificationModule {} 
+export class NotificationModule {}

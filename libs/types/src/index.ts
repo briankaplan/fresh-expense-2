@@ -290,28 +290,41 @@ export interface UseReceiptOCRReturn {
 }
 
 export interface UseReceiptNormalizationReturn {
-  normalizeReceipt: (receipt: any, options?: {
-    merchantNameMapping?: Record<string, string>;
-    itemCategoryMapping?: Record<string, string>;
-    customNormalizers?: Record<string, (value: any) => any>;
-  }) => Promise<NormalizedReceipt>;
-  batchNormalizeReceipts: (receipts: any[], options?: {
-    merchantNameMapping?: Record<string, string>;
-    itemCategoryMapping?: Record<string, string>;
-    customNormalizers?: Record<string, (value: any) => any>;
-    continueOnError?: boolean;
-  }) => Promise<Array<{
-    original: any;
-    normalized?: NormalizedReceipt;
-    error?: Error;
-  }>>;
+  normalizeReceipt: (
+    receipt: any,
+    options?: {
+      merchantNameMapping?: Record<string, string>;
+      itemCategoryMapping?: Record<string, string>;
+      customNormalizers?: Record<string, (value: any) => any>;
+    }
+  ) => Promise<NormalizedReceipt>;
+  batchNormalizeReceipts: (
+    receipts: any[],
+    options?: {
+      merchantNameMapping?: Record<string, string>;
+      itemCategoryMapping?: Record<string, string>;
+      customNormalizers?: Record<string, (value: any) => any>;
+      continueOnError?: boolean;
+    }
+  ) => Promise<
+    Array<{
+      original: any;
+      normalized?: NormalizedReceipt;
+      error?: Error;
+    }>
+  >;
   normalizing: boolean;
   error: Error | null;
 }
 
 export interface UseDataExportReturn {
   exportToCSV: (data: any[], filename: string, options?: ExportOptions) => Promise<void>;
-  exportToPDF: (data: any, filename: string, template: string, options?: ExportOptions) => Promise<void>;
+  exportToPDF: (
+    data: any,
+    filename: string,
+    template: string,
+    options?: ExportOptions
+  ) => Promise<void>;
   aggregateData: (data: any[], config: AggregationConfig | AggregationConfig[]) => any[];
   exporting: boolean;
   error: Error | null;
@@ -323,4 +336,4 @@ export interface UseSpendingAnalyticsReturn {
   data: AnalyticsData | null;
   loading: boolean;
   error: Error | null;
-} 
+}

@@ -13,7 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { checkAuth } = useAuth();
   const location = useLocation();
-  const setIsLoading = useUIStore((state) => state.setIsLoading);
+  const setIsLoading = useUIStore(state => state.setIsLoading);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -41,4 +41,4 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;

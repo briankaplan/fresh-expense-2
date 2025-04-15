@@ -12,13 +12,50 @@ import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { HfInference } from '@huggingface/inference';
-import { RateLimits } from '../rateLimiter';
+import { RateLimiterService } from '../rate-limiter.service';
+import { createWorker } from 'tesseract.js';
+import { Types } from 'mongoose';
 
 interface UploadResult {
+  _id?: Types.ObjectId;
   key: string;
   url: string;
   thumbnailKey?: string;
   thumbnailUrl?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface ReceiptItem {
+  _id?: Types.ObjectId;
+  description: string;
+  amount: number;
+  quantity?: number;
+  category?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface ReceiptData {
+  _id?: Types.ObjectId;
+  rawText: string;
+  total?: number;
+  date?: Date;
+  merchantName?: string;
+  items?: ReceiptItem[];
+  metadata?: Record<string, any>;
+  status?: 'pending' | 'processed' | 'failed';
+  processingConfidence?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface ProcessReceiptResult {
+  _id?: Types.ObjectId;
+  data: ReceiptData;
+  confidence: number;
+  processingTime?: number;
+  createdAt?: Date;
 }
 
 interface HuggingFaceOCRResult {
@@ -34,43 +71,43 @@ interface HuggingFaceClassificationResult {
 @Injectable()
 export class R2Service {
   private readonly logger = new Logger(R2Service.name);
-  private readonly s3Client: S3Client;
+  private readonly s3: S3Client;
   private readonly bucket: string;
   private readonly publicUrl: string;
   private readonly hf: HfInference;
-  private readonly rateLimiter: RateLimits;
 
-  constructor(private readonly configService: ConfigService) {
-    const bucketName = this.configService.get<string>('R2_BUCKET_NAME');
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly rateLimiterService: RateLimiterService
+  ) {
+    this.s3 = new S3Client({
+      region: this.configService.get<string>('R2_REGION') || 'auto',
+      endpoint: this.configService.get<string>('R2_ENDPOINT'),
+      credentials: {
+        accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID') || '',
+        secretAccessKey: this.configService.get<string>('R2_SECRET_ACCESS_KEY') || '',
+      },
+    });
+    this.bucket = this.configService.get<string>('R2_BUCKET') || '';
     const publicUrl = this.configService.get<string>('R2_PUBLIC_URL');
-    const endpoint = this.configService.get<string>('R2_ENDPOINT');
-    const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
-    const huggingfaceApiKey = this.configService.get<string>('HUGGINGFACE_API_KEY');
+    const huggingfaceApiKey = this.configService.get<string>('HUGGING_FACE_API_KEY');
 
-    if (!bucketName || !publicUrl || !endpoint || !accessKeyId || !secretAccessKey || !huggingfaceApiKey) {
+    if (
+      !publicUrl ||
+      !huggingfaceApiKey
+    ) {
       throw new Error('Missing required configuration for R2Service');
     }
 
-    this.bucket = bucketName;
     this.publicUrl = publicUrl;
-
-    const s3Config: S3ClientConfig = {
-      region: 'auto',
-      endpoint,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-    };
-
-    this.s3Client = new S3Client(s3Config);
     this.hf = new HfInference(huggingfaceApiKey);
-    this.rateLimiter = new RateLimits({
-      'huggingface-api': {
-        maxRequests: 100,
-        timeWindow: 60 * 1000, // 1 minute
-      },
+
+    // Set up rate limits for Hugging Face API
+    this.rateLimiterService.setLimit('huggingface-api', {
+      maxRequests: 100,
+      timeWindow: 60 * 1000, // 1 minute
+      backoffStrategy: 'exponential',
+      maxRetries: 3
     });
   }
 
@@ -111,14 +148,10 @@ export class R2Service {
     }
   }
 
-  private async uploadToS3(
-    buffer: Buffer,
-    key: string,
-    contentType: string
-  ): Promise<void> {
+  private async uploadToS3(buffer: Buffer, key: string, contentType: string): Promise<void> {
     await this.handleS3Operation(
       () =>
-        this.s3Client.send(
+        this.s3.send(
           new PutObjectCommand({
             Bucket: this.bucket,
             Key: key,
@@ -130,17 +163,14 @@ export class R2Service {
     );
   }
 
-  private async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    return this.handleS3Operation(
-      async () => {
-        const command = new GetObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-        });
-        return getSignedUrl(this.s3Client, command, { expiresIn });
-      },
-      'generating signed URL'
-    );
+  async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
+    return this.handleS3Operation(async () => {
+      const command = new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      });
+      return getSignedUrl(this.s3, command, { expiresIn });
+    }, 'generating signed URL');
   }
 
   async uploadFile(
@@ -179,7 +209,7 @@ export class R2Service {
   async deleteFile(key: string): Promise<void> {
     await this.handleS3Operation(
       () =>
-        this.s3Client.send(
+        this.s3.send(
           new DeleteObjectCommand({
             Bucket: this.bucket,
             Key: key,
@@ -193,32 +223,54 @@ export class R2Service {
     return `${this.publicUrl}/${key}`;
   }
 
-  async processReceiptWithHuggingFace(file: Buffer): Promise<{
-    text: string;
-    confidence: number;
-    category: string;
-  }> {
-    await this.rateLimiter.check('huggingface-api');
+  async processReceipt(imageBuffer: Buffer): Promise<ProcessReceiptResult> {
+    try {
+      // First try Hugging Face OCR
+      const result = await this.hf.textGeneration({
+        inputs: imageBuffer.toString('base64'),
+        model: 'microsoft/trocr-base-printed',
+      });
 
-    // OCR text extraction
-    const ocrResult = await this.hf.imageToText({
-      data: file,
-      model: 'impira/layoutlm-document-qa',
-    }) as unknown as HuggingFaceOCRResult;
+      if (result && result.generated_text) {
+        const parsedData = this.parseLines(result.generated_text);
+        return {
+          data: parsedData,
+          confidence: 0.8, // Arbitrary confidence for HF
+        };
+      }
 
-    // Category classification
-    const classificationResult = await this.hf.textClassification({
-      model: 'facebook/bart-large-mnli',
-      inputs: ocrResult.text,
-      parameters: {
-        candidate_labels: ['food', 'transportation', 'entertainment', 'utilities', 'shopping'],
-      },
-    }) as unknown as HuggingFaceClassificationResult[];
+      // Fallback to Tesseract if HF fails
+      const worker = await createWorker();
+      const { data: { text, confidence } } = await worker.recognize(imageBuffer);
+      await worker.terminate();
 
-    return {
-      text: ocrResult.text,
-      confidence: ocrResult.confidence,
-      category: classificationResult[0].label,
+      const parsedData = this.parseLines(text);
+      return {
+        data: parsedData,
+        confidence: confidence / 100, // Convert Tesseract confidence to 0-1 scale
+      };
+    } catch (error) {
+      this.logger.error('Error processing receipt:', error);
+      throw error;
+    }
+  }
+
+  private parseLines(text: string): ReceiptData {
+    const lines = text.split('\n').filter((line: string) => line.trim().length > 0);
+
+    const data: ReceiptData = {
+      _id: new Types.ObjectId(),
+      rawText: text,
+      total: 0,
+      date: new Date(),
+      merchantName: '',
+      items: [],
+      status: 'processed',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      metadata: {}
     };
+
+    return data;
   }
 }

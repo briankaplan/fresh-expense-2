@@ -1,4 +1,14 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDate, IsNumber, IsBoolean, IsMongoId, IsObject } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsDate,
+  IsNumber,
+  IsBoolean,
+  IsMongoId,
+  IsObject,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { SubscriptionStatus, BillingCycle } from '../schemas/subscription.schema';
 
@@ -88,4 +98,4 @@ export class UpdateSubscriptionDto {
   @IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
-} 
+}

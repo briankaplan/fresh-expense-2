@@ -25,12 +25,12 @@ interface UIState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       user: null,
       token: null,
       isAuthenticated: false,
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      setToken: (token) => set({ token }),
+      setUser: user => set({ user, isAuthenticated: !!user }),
+      setToken: token => set({ token }),
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
     }),
     {
@@ -39,9 +39,9 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-export const useUIStore = create<UIState>((set) => ({
+export const useUIStore = create<UIState>(set => ({
   isLoading: false,
-  setIsLoading: (loading) => set({ isLoading: loading }),
+  setIsLoading: loading => set({ isLoading: loading }),
   theme: 'dark',
-  toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
-})); 
+  toggleTheme: () => set(state => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+}));

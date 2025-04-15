@@ -4,7 +4,7 @@ import { JSDOM, DOMWindow, ResourceLoader } from 'jsdom';
 export enum ParseType {
   HTML = 'text/html',
   XML = 'text/xml',
-  SVG = 'image/svg+xml'
+  SVG = 'image/svg+xml',
 }
 
 export interface ParserOptions {
@@ -64,7 +64,7 @@ export class DOMParserService {
         url: options.baseUrl || 'http://localhost',
         runScripts: options.runScripts ? 'dangerously' : 'outside-only',
         resources: options.includeResources ? 'usable' : undefined,
-        contentType: type
+        contentType: type,
       };
 
       // Basic HTML validation for common issues
@@ -74,15 +74,14 @@ export class DOMParserService {
 
       // Create DOM
       const dom = new JSDOM(content, jsdomOptions);
-      
+
       // Add custom properties and methods if needed
       this.enhanceDocument(dom.window.document);
 
       return dom.window.document as EnhancedDocument;
-
     } catch (error) {
       this.logger.error(`Failed to parse ${type} content:`, error);
-      
+
       // Call custom error handler if provided
       if (options.onError) {
         options.onError(error as Error);
@@ -116,7 +115,7 @@ export class DOMParserService {
   parseAndExtractText(html: string): string {
     try {
       const doc = this.parseFromString(html, ParseType.HTML);
-      
+
       // Remove script and style elements
       doc.querySelectorAll('script, style').forEach(el => el.remove());
 
@@ -126,11 +125,7 @@ export class DOMParserService {
       });
 
       // Get text and clean up whitespace
-      return doc.body.textContent
-        ?.replace(/\s+/g, ' ')
-        .replace(/\n\s+/g, '\n')
-        .trim() || '';
-
+      return doc.body.textContent?.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n').trim() || '';
     } catch (error) {
       this.logger.error('Failed to extract text:', error);
       throw this.normalizeError(error);
@@ -162,17 +157,11 @@ export class DOMParserService {
    */
   private enhanceDocument(document: Document): void {
     // Add custom query helper
-    (document as EnhancedDocument).queryText = function(text: string): Element | null {
-      const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode: node => 
-            node.textContent?.includes(text) 
-              ? NodeFilter.FILTER_ACCEPT 
-              : NodeFilter.FILTER_REJECT
-        }
-      );
+    (document as EnhancedDocument).queryText = function (text: string): Element | null {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        acceptNode: node =>
+          node.textContent?.includes(text) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+      });
 
       const node = walker.nextNode();
       return node?.parentElement || null;
@@ -186,8 +175,6 @@ export class DOMParserService {
     if (error instanceof Error) {
       return error;
     }
-    return new Error(
-      typeof error === 'string' ? error : 'An error occurred while parsing'
-    );
+    return new Error(typeof error === 'string' ? error : 'An error occurred while parsing');
   }
-} 
+}

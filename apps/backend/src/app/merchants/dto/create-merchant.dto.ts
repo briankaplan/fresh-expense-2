@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, IsOptional, IsArray, IsMongoId, ValidateNested } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsArray,
+  IsMongoId,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class LocationDto {
@@ -60,4 +67,4 @@ export class CreateMerchantDto {
 
   @IsOptional()
   metadata?: Record<string, any>;
-} 
+}

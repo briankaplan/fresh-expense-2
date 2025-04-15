@@ -19,19 +19,13 @@ export class UserRepository extends BaseRepository<UserSchema> {
   }
 
   async updateLastLogin(userId: string): Promise<boolean> {
-    return this.update(
-      { _id: userId },
-      { $set: { lastLogin: new Date() } }
-    );
+    return this.update({ _id: userId }, { $set: { lastLogin: new Date() } });
   }
 
   async updatePreferences(
     userId: string,
     preferences: Partial<UserSchema['preferences']>
   ): Promise<boolean> {
-    return this.update(
-      { _id: userId },
-      { $set: { preferences } }
-    );
+    return this.update({ _id: userId }, { $set: { preferences } });
   }
-} 
+}

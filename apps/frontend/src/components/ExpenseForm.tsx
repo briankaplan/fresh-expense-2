@@ -133,7 +133,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
               onChange={handleChange}
               label="Category"
             >
-              {categories.map((category) => (
+              {categories.map(category => (
                 <MenuItem key={category} value={category}>
                   {category}
                 </MenuItem>
@@ -154,17 +154,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
         </Grid>
         <Grid item xs={12}>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button
-              type="button"
-              onClick={() => navigate('/expenses')}
-            >
+            <Button type="button" onClick={() => navigate('/expenses')}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-            >
+            <Button type="submit" variant="contained" color="primary">
               {expenseId ? 'Update' : 'Create'} Expense
             </Button>
           </Box>
@@ -174,4 +167,4 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
   );
 };
 
-export default ExpenseForm; 
+export default ExpenseForm;

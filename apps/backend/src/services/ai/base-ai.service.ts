@@ -31,10 +31,7 @@ export abstract class BaseAIService {
     });
   }
 
-  protected async withRateLimit<T>(
-    operation: string,
-    fn: () => Promise<T>
-  ): Promise<T> {
+  protected async withRateLimit<T>(operation: string, fn: () => Promise<T>): Promise<T> {
     try {
       return await this.rateLimiter.withRateLimit(operation, fn);
     } catch (error) {
@@ -54,7 +51,7 @@ export abstract class BaseAIService {
     maxRetries = 3
   ): Promise<T> {
     let lastError: Error | undefined;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         const result = await fn();
@@ -72,7 +69,7 @@ export abstract class BaseAIService {
           { operation, attempt }
         );
         lastError = this.errorHandler.handleError(appError, this.serviceName);
-        
+
         if (attempt < maxRetries) {
           this.logger.warn(`Retry ${attempt}/${maxRetries} for ${operation}`, {
             service: this.serviceName,
@@ -85,4 +82,4 @@ export abstract class BaseAIService {
 
     throw lastError;
   }
-} 
+}

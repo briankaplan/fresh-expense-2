@@ -25,4 +25,4 @@ import { User, UserSchema } from '../schemas/user.schema';
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule {} 
+export class AuthModule {}

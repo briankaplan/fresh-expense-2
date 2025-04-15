@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import { TransactionSchema } from '../database/schemas/transaction.schema';
@@ -34,7 +45,11 @@ export class TransactionsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new transaction' })
-  @ApiResponse({ status: 201, description: 'Transaction created successfully', type: TransactionSchema })
+  @ApiResponse({
+    status: 201,
+    description: 'Transaction created successfully',
+    type: TransactionSchema,
+  })
   async createTransaction(
     @CurrentUser('id') userId: string,
     @Body() createTransactionDto: CreateTransactionDto
@@ -48,7 +63,11 @@ export class TransactionsController {
   @Put(':id')
   @ApiOperation({ summary: 'Update a transaction' })
   @ApiParam({ name: 'id', description: 'Transaction ID' })
-  @ApiResponse({ status: 200, description: 'Transaction updated successfully', type: TransactionSchema })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction updated successfully',
+    type: TransactionSchema,
+  })
   async updateTransaction(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
@@ -69,4 +88,4 @@ export class TransactionsController {
     const success = await this.transactionsService.deleteTransaction(id);
     return { success };
   }
-} 
+}

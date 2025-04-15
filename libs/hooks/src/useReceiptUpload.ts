@@ -25,4 +25,4 @@ export const useReceiptUpload = (): UseReceiptUploadResult => {
   }, []);
 
   return { uploading, uploadError, uploadReceipt };
-}; 
+};

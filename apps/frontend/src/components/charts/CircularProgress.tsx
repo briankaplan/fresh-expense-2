@@ -72,25 +72,15 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           }}
         >
           {showPercentage && (
-            <Typography
-              variant="h6"
-              component="div"
-              color={getColor()}
-              sx={{ lineHeight: 1 }}
-            >
+            <Typography variant="h6" component="div" color={getColor()} sx={{ lineHeight: 1 }}>
               {percentage}%
             </Typography>
           )}
         </Box>
       </Box>
-      <Typography
-        variant="subtitle2"
-        component="div"
-        color="text.secondary"
-        sx={{ mt: 1 }}
-      >
+      <Typography variant="subtitle2" component="div" color="text.secondary" sx={{ mt: 1 }}>
         {label}
       </Typography>
     </Box>
   );
-}; 
+};

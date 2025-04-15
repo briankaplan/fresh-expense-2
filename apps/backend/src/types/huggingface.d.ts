@@ -1,11 +1,8 @@
 declare module '@huggingface/inference' {
   export class HfInference {
     constructor(token: string);
-    
-    ocr(params: {
-      model: string;
-      data: Buffer;
-    }): Promise<{ text: string }>;
+
+    ocr(params: { model: string; data: Buffer }): Promise<{ text: string }>;
 
     textGeneration(params: {
       model: string;
@@ -17,4 +14,4 @@ declare module '@huggingface/inference' {
       };
     }): Promise<{ generated_text: string }>;
   }
-} 
+}

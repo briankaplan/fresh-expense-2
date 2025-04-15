@@ -50,7 +50,7 @@ export class ExpenseIntegrationService {
       metadata: {
         ...transaction.metadata,
         originalTransaction: transaction._id,
-      }
+      },
     };
 
     const expenseCollection = await this.getExpenseCollection();
@@ -59,13 +59,13 @@ export class ExpenseIntegrationService {
     // Update transaction to mark it as an expense
     await transactionCollection.updateOne(
       { _id: transaction._id },
-      { 
-        $set: { 
+      {
+        $set: {
           isExpense: true,
           expenseId: result.insertedId,
           companyId,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       }
     );
 
@@ -85,30 +85,30 @@ export class ExpenseIntegrationService {
   async unlinkTransactionFromExpense(transactionId: string, expenseId: string): Promise<void> {
     const [transactionCollection, expenseCollection] = await Promise.all([
       this.getTransactionCollection(),
-      this.getExpenseCollection()
+      this.getExpenseCollection(),
     ]);
 
     await Promise.all([
       transactionCollection.updateOne(
         { _id: transactionId },
-        { 
-          $set: { 
+        {
+          $set: {
             isExpense: false,
             expenseId: undefined,
             companyId: undefined,
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         }
       ),
       expenseCollection.updateOne(
         { _id: expenseId },
-        { 
-          $set: { 
+        {
+          $set: {
             transactionId: undefined,
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         }
-      )
+      ),
     ]);
   }
-} 
+}

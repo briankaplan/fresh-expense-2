@@ -10,9 +10,7 @@ import * as crypto from 'crypto';
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-  ) {}
+  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const existingUser = await this.userModel.findOne({ email: createUserDto.email });
@@ -30,11 +28,11 @@ export class UsersService {
       query.select('+password');
     }
     const user = await query.exec();
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
+
     return user;
   }
 
@@ -80,4 +78,4 @@ export class UsersService {
 
     return token;
   }
-} 
+}

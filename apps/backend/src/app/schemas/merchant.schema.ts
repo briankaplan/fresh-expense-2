@@ -86,4 +86,4 @@ export class Merchant {
   };
 }
 
-export const MerchantSchema = SchemaFactory.createForClass(Merchant); 
+export const MerchantSchema = SchemaFactory.createForClass(Merchant);

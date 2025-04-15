@@ -11,7 +11,7 @@ interface IndexConfig {
 async function setupMongoDB() {
   const configService = new ConfigService();
   const mongoDBService = new MongoDBService(configService);
-  
+
   try {
     // Connect to MongoDB
     const isConnected = await mongoDBService.isConnected();
@@ -28,27 +28,27 @@ async function setupMongoDB() {
           { key: { amount: 1 }, name: 'amount_idx' },
           { key: { category: 1 }, name: 'category_idx' },
           { key: { merchant: 1 }, name: 'merchant_idx' },
-          { key: { userId: 1 }, name: 'user_idx' }
-        ]
+          { key: { userId: 1 }, name: 'user_idx' },
+        ],
       },
       users: {
         indexes: [
           { key: { email: 1 }, name: 'email_idx', unique: true },
-          { key: { createdAt: 1 }, name: 'created_at_idx' }
-        ]
+          { key: { createdAt: 1 }, name: 'created_at_idx' },
+        ],
       },
       categories: {
         indexes: [
           { key: { name: 1 }, name: 'name_idx', unique: true },
-          { key: { type: 1 }, name: 'type_idx' }
-        ]
+          { key: { type: 1 }, name: 'type_idx' },
+        ],
       },
       merchants: {
         indexes: [
           { key: { name: 1 }, name: 'name_idx' },
-          { key: { category: 1 }, name: 'category_idx' }
-        ]
-      }
+          { key: { category: 1 }, name: 'category_idx' },
+        ],
+      },
     };
 
     // Create collections and indexes
@@ -63,7 +63,6 @@ async function setupMongoDB() {
     }
 
     console.log('✅ MongoDB setup completed successfully');
-
   } catch (error) {
     console.error('❌ MongoDB setup failed:', error);
   } finally {
@@ -72,4 +71,4 @@ async function setupMongoDB() {
   }
 }
 
-setupMongoDB(); 
+setupMongoDB();

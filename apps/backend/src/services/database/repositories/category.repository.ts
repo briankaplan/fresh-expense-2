@@ -15,10 +15,7 @@ export class CategoryRepository extends BaseRepository<CategorySchema> {
     return this.find({ userId });
   }
 
-  async findByType(
-    userId: string,
-    type: CategorySchema['type']
-  ): Promise<CategorySchema[]> {
+  async findByType(userId: string, type: CategorySchema['type']): Promise<CategorySchema[]> {
     return this.find({ userId, type });
   }
 
@@ -30,10 +27,7 @@ export class CategoryRepository extends BaseRepository<CategorySchema> {
     return this.find({ parentId });
   }
 
-  async findByName(
-    userId: string,
-    name: string
-  ): Promise<CategorySchema | null> {
+  async findByName(userId: string, name: string): Promise<CategorySchema | null> {
     return this.findOne({ userId, name });
   }
 
@@ -57,4 +51,4 @@ export class CategoryRepository extends BaseRepository<CategorySchema> {
     }
     return this.delete({ _id: categoryId });
   }
-} 
+}

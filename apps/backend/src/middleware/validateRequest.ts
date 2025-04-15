@@ -41,17 +41,17 @@ export class ValidateRequestMiddleware implements NestMiddleware {
         'application/json',
         'application/x-www-form-urlencoded',
         'multipart/form-data',
-        'text/plain'
+        'text/plain',
       ];
-      
+
       // Extract base content type without parameters
       const baseContentType = contentType.split(';')[0].toLowerCase();
-      
+
       if (!allowedContentTypes.includes(baseContentType)) {
         return res.status(415).json({
           statusCode: 415,
           message: 'Unsupported Media Type',
-          error: 'The Content-Type header contains an unsupported value'
+          error: 'The Content-Type header contains an unsupported value',
         });
       }
     }
@@ -62,7 +62,7 @@ export class ValidateRequestMiddleware implements NestMiddleware {
       return res.status(400).json({
         statusCode: 400,
         message: 'Bad Request',
-        error: existingValidation.error
+        error: existingValidation.error,
       });
     }
 
@@ -73,4 +73,4 @@ export class ValidateRequestMiddleware implements NestMiddleware {
     // Add existing header validation logic here
     return { isValid: true };
   }
-} 
+}

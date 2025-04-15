@@ -22,10 +22,10 @@ export class CreateBudgetDto {
   @IsNotEmpty()
   endDate: Date;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Budget period',
     enum: ['daily', 'weekly', 'monthly', 'yearly'],
-    default: 'monthly'
+    default: 'monthly',
   })
   @IsEnum(['daily', 'weekly', 'monthly', 'yearly'])
   @IsOptional()
@@ -34,4 +34,4 @@ export class CreateBudgetDto {
   @ApiPropertyOptional({ description: 'Additional metadata' })
   @IsOptional()
   metadata?: Record<string, any>;
-} 
+}

@@ -24,4 +24,4 @@ export class UpdateBudgetDto {
   @IsOptional()
   @IsString()
   description?: string;
-} 
+}

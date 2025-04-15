@@ -1,4 +1,14 @@
-import { IsString, IsEnum, IsOptional, IsObject, IsNotEmpty, MaxLength, MinLength, IsNumber, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsObject,
+  IsNotEmpty,
+  MaxLength,
+  MinLength,
+  IsNumber,
+  IsArray,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { NotificationSchema } from '../../database/schemas/notification.schema';
 
@@ -15,25 +25,25 @@ export class CreateNotificationDto {
   @MaxLength(500)
   message: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Type of notification',
-    enum: ['info', 'warning', 'error', 'success']
+    enum: ['info', 'warning', 'error', 'success'],
   })
   @IsEnum(['info', 'warning', 'error', 'success'])
   type: NotificationSchema['type'];
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Priority level of the notification',
     enum: ['low', 'medium', 'high'],
-    default: 'medium'
+    default: 'medium',
   })
   @IsEnum(['low', 'medium', 'high'])
   @IsOptional()
   priority?: NotificationSchema['priority'];
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Action associated with the notification',
-    example: { type: 'link', data: { url: 'https://example.com' } }
+    example: { type: 'link', data: { url: 'https://example.com' } },
   })
   @IsObject()
   @IsOptional()
@@ -42,11 +52,11 @@ export class CreateNotificationDto {
     data: Record<string, any>;
   };
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Additional metadata for the notification',
-    example: { category: 'billing', referenceId: '12345' }
+    example: { category: 'billing', referenceId: '12345' },
   })
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;
-} 
+}

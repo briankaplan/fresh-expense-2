@@ -70,10 +70,11 @@ export const TRANSACTION_CATEGORIES = {
   ADVERTISING: 'BD: Advertising & Promotion',
   HARDWARE: 'Hardware & Equipment',
   CONFERENCE: 'Conference & Training Expenses',
-  UNCATEGORIZED: 'Uncategorized'
+  UNCATEGORIZED: 'Uncategorized',
 } as const;
 
-export type TransactionCategory = typeof TRANSACTION_CATEGORIES[keyof typeof TRANSACTION_CATEGORIES];
+export type TransactionCategory =
+  (typeof TRANSACTION_CATEGORIES)[keyof typeof TRANSACTION_CATEGORIES];
 
 /**
  * Category result from categorization
@@ -97,84 +98,165 @@ export const CATEGORY_DEFINITIONS: Array<{
   {
     name: 'SOFTWARE_SUBSCRIPTIONS',
     description: 'Monthly or annual software services',
-    keywords: ['subscription', 'software', 'monthly', 'annual', 'recurring', 'service', 
-              'adobe', 'microsoft', 'google', 'spotify', 'netflix', 'github', 'slack', 
-              'zoom', 'dropbox', 'apple.com/bill', 'aws', 'azure'],
-    patterns: [/(?:monthly|annual|subscription|recurring)/i]
+    keywords: [
+      'subscription',
+      'software',
+      'monthly',
+      'annual',
+      'recurring',
+      'service',
+      'adobe',
+      'microsoft',
+      'google',
+      'spotify',
+      'netflix',
+      'github',
+      'slack',
+      'zoom',
+      'dropbox',
+      'apple.com/bill',
+      'aws',
+      'azure',
+    ],
+    patterns: [/(?:monthly|annual|subscription|recurring)/i],
   },
   {
     name: 'TRAVEL_RIDESHARE',
     description: 'Rideshare, taxi, and public transportation',
     keywords: ['uber', 'lyft', 'taxi', 'cab', 'bus', 'transit', 'train', 'fare'],
-    patterns: [/(?:ride|trip|fare|transit)/i]
+    patterns: [/(?:ride|trip|fare|transit)/i],
   },
   {
     name: 'TRAVEL_HOTELS',
     description: 'Hotel and lodging expenses',
-    keywords: ['hotel', 'lodging', 'stay', 'accommodation', 'airbnb', 'motel', 'inn',
-              'marriott', 'hilton', 'hyatt'],
-    patterns: [/(?:night|stay|room|lodging)/i]
+    keywords: [
+      'hotel',
+      'lodging',
+      'stay',
+      'accommodation',
+      'airbnb',
+      'motel',
+      'inn',
+      'marriott',
+      'hilton',
+      'hyatt',
+    ],
+    patterns: [/(?:night|stay|room|lodging)/i],
   },
   {
     name: 'TRAVEL_CAR',
     description: 'Gas, rental cars, and vehicle-related expenses',
     keywords: ['gas', 'fuel', 'rental', 'car', 'vehicle', 'hertz', 'avis', 'enterprise'],
-    patterns: [/(?:rental|gas|fuel|mile)/i]
+    patterns: [/(?:rental|gas|fuel|mile)/i],
   },
   {
     name: 'TRAVEL_AIRFARE',
     description: 'Flight tickets and airline fees',
-    keywords: ['flight', 'airline', 'ticket', 'airfare', 'delta', 'united', 'american',
-              'southwest', 'air'],
-    patterns: [/(?:flight|airline|airfare|ticket)/i]
+    keywords: [
+      'flight',
+      'airline',
+      'ticket',
+      'airfare',
+      'delta',
+      'united',
+      'american',
+      'southwest',
+      'air',
+    ],
+    patterns: [/(?:flight|airline|airfare|ticket)/i],
   },
   {
     name: 'CLIENT_MEALS',
     description: 'Client-facing business meals',
     keywords: ['client', 'business', 'meeting', 'dinner', 'lunch', 'restaurant'],
-    patterns: [/(?:client|prospect|customer|meeting)/i]
+    patterns: [/(?:client|prospect|customer|meeting)/i],
   },
   {
     name: 'COMPANY_MEALS',
     description: 'Internal team meals and meetings',
     keywords: ['team', 'meeting', 'lunch', 'dinner', 'company', 'staff', 'internal'],
-    patterns: [/(?:team|staff|company|meeting)/i]
+    patterns: [/(?:team|staff|company|meeting)/i],
   },
   {
     name: 'PERSONAL_MEALS',
     description: 'Personal meal expenses',
-    keywords: ['restaurant', 'cafe', 'food', 'meal', 'dining', 'lunch', 'dinner',
-              'starbucks', 'mcdonald', 'doordash', 'grubhub', 'ubereats'],
-    patterns: [/(?:food|meal|restaurant|cafe)/i]
+    keywords: [
+      'restaurant',
+      'cafe',
+      'food',
+      'meal',
+      'dining',
+      'lunch',
+      'dinner',
+      'starbucks',
+      'mcdonald',
+      'doordash',
+      'grubhub',
+      'ubereats',
+    ],
+    patterns: [/(?:food|meal|restaurant|cafe)/i],
   },
   {
     name: 'OFFICE_SUPPLIES',
     description: 'Office materials and supplies',
-    keywords: ['office depot', 'staples', 'supplies', 'paper', 'stationery', 'ink',
-              'toner', 'printer', 'officemax'],
-    patterns: [/(?:office|supply|supplies|paper|ink)/i]
+    keywords: [
+      'office depot',
+      'staples',
+      'supplies',
+      'paper',
+      'stationery',
+      'ink',
+      'toner',
+      'printer',
+      'officemax',
+    ],
+    patterns: [/(?:office|supply|supplies|paper|ink)/i],
   },
   {
     name: 'ADVERTISING',
     description: 'Advertising and promotional expenses',
-    keywords: ['facebook ads', 'google ads', 'advertising', 'promotion', 'marketing',
-              'ad spend', 'campaign'],
-    patterns: [/(?:ad\s|ads\s|advert|promo|campaign)/i]
+    keywords: [
+      'facebook ads',
+      'google ads',
+      'advertising',
+      'promotion',
+      'marketing',
+      'ad spend',
+      'campaign',
+    ],
+    patterns: [/(?:ad\s|ads\s|advert|promo|campaign)/i],
   },
   {
     name: 'HARDWARE',
     description: 'Computer hardware and equipment',
-    keywords: ['computer', 'laptop', 'monitor', 'keyboard', 'mouse', 'server',
-              'hardware', 'equipment', 'device'],
-    patterns: [/(?:hardware|equipment|device)/i]
+    keywords: [
+      'computer',
+      'laptop',
+      'monitor',
+      'keyboard',
+      'mouse',
+      'server',
+      'hardware',
+      'equipment',
+      'device',
+    ],
+    patterns: [/(?:hardware|equipment|device)/i],
   },
   {
     name: 'CONFERENCE',
     description: 'Conference and training expenses',
-    keywords: ['conference', 'training', 'workshop', 'seminar', 'course',
-              'certification', 'ticket', 'event'],
-    patterns: [/(?:conference|training|workshop|seminar)/i]
-  }
+    keywords: [
+      'conference',
+      'training',
+      'workshop',
+      'seminar',
+      'course',
+      'certification',
+      'ticket',
+      'event',
+    ],
+    patterns: [/(?:conference|training|workshop|seminar)/i],
+  },
 ];
 
 /**
@@ -193,7 +275,7 @@ export const RECEIPT_PATTERNS = {
   salesTax: /(?:sales[-\s]?tax)(?:[^$\n]*?):?\s*[\$\£\€]?\s*(\d+(?:\.\d{2})?)/i,
   tip: /(?:tip|gratuity)(?:[^$\n]*?):?\s*[\$\£\€]?\s*(\d+(?:\.\d{2})?)/i,
   subscriptionPeriod: /(?:billing period|subscription period)(?:[^:]*?):?\s*([^:\n]+)/i,
-  nextBilling: /(?:next billing|renews on)(?:[^:]*?):?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i
+  nextBilling: /(?:next billing|renews on)(?:[^:]*?):?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i,
 };
 
 /**
@@ -218,16 +300,20 @@ export const transactionValidationRules = {
  * Validates a transaction amount
  */
 export const validateTransactionAmount = (amount: number): boolean => {
-  return amount >= transactionValidationRules.amount.min && 
-         amount <= transactionValidationRules.amount.max;
+  return (
+    amount >= transactionValidationRules.amount.min &&
+    amount <= transactionValidationRules.amount.max
+  );
 };
 
 /**
  * Validates a transaction date
  */
 export const validateTransactionDate = (date: Date): boolean => {
-  return date >= transactionValidationRules.date.minDate && 
-         date <= transactionValidationRules.date.maxDate;
+  return (
+    date >= transactionValidationRules.date.minDate &&
+    date <= transactionValidationRules.date.maxDate
+  );
 };
 
 /**
@@ -245,13 +331,14 @@ export const mapTellerToTransaction = (
     amount: Math.abs(parseFloat(tellerTx.amount)), // Teller amounts are signed
     merchant: aiData?.merchant || tellerTx.details?.counterparty?.name || tellerTx.description,
     description: aiData?.description || tellerTx.description,
-    category: aiData?.category.name || tellerTx.details?.category || TRANSACTION_CATEGORIES.UNCATEGORIZED,
+    category:
+      aiData?.category.name || tellerTx.details?.category || TRANSACTION_CATEGORIES.UNCATEGORIZED,
     isAICategorized: !!aiData?.category,
     companyId,
     createdBy: userId,
     status: 'pending',
     tags: [],
-    isReconciled: false
+    isReconciled: false,
   };
 };
 
@@ -269,7 +356,7 @@ export const updateTransactionWithAI = (
     description: aiData.description || transaction.description,
     merchant: aiData.merchant || transaction.merchant,
     isAICategorized: true,
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 };
 
@@ -277,9 +364,7 @@ export const updateTransactionWithAI = (
  * Validates if a transaction can be linked to a receipt
  */
 export const canLinkReceipt = (transaction: Transaction): boolean => {
-  return !transaction.receiptId && 
-         transaction.amount > 0 && 
-         transaction.status !== 'rejected';
+  return !transaction.receiptId && transaction.amount > 0 && transaction.status !== 'rejected';
 };
 
 /**
@@ -292,7 +377,7 @@ export const linkReceiptToTransaction = (
   return {
     ...transaction,
     receiptId,
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 };
 
@@ -300,14 +385,16 @@ export const linkReceiptToTransaction = (
  * Type guard for Teller transactions
  */
 export const isTellerTransaction = (obj: any): obj is TellerTransaction => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     typeof obj.account_id === 'string' &&
     typeof obj.date === 'string' &&
     typeof obj.description === 'string' &&
     typeof obj.amount === 'string' &&
     obj.details &&
-    typeof obj.status === 'string';
+    typeof obj.status === 'string'
+  );
 };
 
 /**
@@ -351,7 +438,8 @@ export const mapAndValidateTellerTransaction = (
       amount,
       merchant: aiData?.merchant || tellerTx.details?.counterparty?.name || tellerTx.description,
       description: aiData?.description || tellerTx.description,
-      category: aiData?.category.name || tellerTx.details?.category || TRANSACTION_CATEGORIES.UNCATEGORIZED,
+      category:
+        aiData?.category.name || tellerTx.details?.category || TRANSACTION_CATEGORIES.UNCATEGORIZED,
       isAICategorized: !!aiData?.category,
       confidence: aiData?.category.confidence || 0.5,
       companyId,
@@ -360,7 +448,7 @@ export const mapAndValidateTellerTransaction = (
       tags: [],
       isReconciled: false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
   } catch (err) {
     const error = err as Error;
@@ -378,11 +466,12 @@ export const isDuplicateTransaction = (
   transaction: Transaction,
   existingTransactions: Transaction[]
 ): boolean => {
-  return existingTransactions.some(existing => 
-    existing.amount === transaction.amount &&
-    existing.date.getTime() === transaction.date.getTime() &&
-    existing.merchant === transaction.merchant &&
-    existing.id !== transaction.id
+  return existingTransactions.some(
+    existing =>
+      existing.amount === transaction.amount &&
+      existing.date.getTime() === transaction.date.getTime() &&
+      existing.merchant === transaction.merchant &&
+      existing.id !== transaction.id
   );
 };
 
@@ -416,7 +505,7 @@ export const getTransactionStatusLabel = (status: TransactionStatus): string => 
     pending: 'Pending',
     processed: 'Processed',
     failed: 'Failed',
-    rejected: 'Rejected'
+    rejected: 'Rejected',
   };
   return statusMap[status] || status;
 };
@@ -430,6 +519,8 @@ export const needsReview = (transaction: TransactionWithAI): boolean => {
     !transaction.category || // Missing category
     transaction.category === TRANSACTION_CATEGORIES.UNCATEGORIZED ||
     isDuplicateTransaction(transaction, []) || // Potential duplicate
-    (transaction.isAICategorized && transaction.confidence !== undefined && transaction.confidence < 0.8) // Low confidence AI categorization
+    (transaction.isAICategorized &&
+      transaction.confidence !== undefined &&
+      transaction.confidence < 0.8) // Low confidence AI categorization
   );
-}; 
+};

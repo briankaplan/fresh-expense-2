@@ -21,7 +21,7 @@ export class ClassificationService {
     this.huggingFaceClient = axios.create({
       baseURL: 'https://api-inference.huggingface.co/models',
       headers: {
-        'Authorization': `Bearer ${huggingFaceApiKey}`,
+        Authorization: `Bearer ${huggingFaceApiKey}`,
         'Content-Type': 'application/json',
       },
       timeout: 30000,
@@ -38,7 +38,7 @@ export class ClassificationService {
             multi_label: false,
           },
         });
-        
+
         return {
           isReceipt: response.data.labels[0] !== 'not a receipt',
           confidence: response.data.scores[0],
@@ -50,4 +50,4 @@ export class ClassificationService {
       }
     });
   }
-} 
+}

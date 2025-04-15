@@ -7,4 +7,4 @@ import { MemoryBankService } from '../memory-bank.service';
   providers: [MemoryBankService],
   exports: [MemoryBankService],
 })
-export class MemoryBankModule {} 
+export class MemoryBankModule {}

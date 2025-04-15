@@ -24,7 +24,7 @@ interface UpdateReceiptDto {
 export class ReceiptService {
   constructor(
     @InjectModel(Receipt.name) private receiptModel: Model<IReceipt>,
-    private r2Service: R2Service,
+    private r2Service: R2Service
   ) {}
 
   async create(dto: CreateReceiptDto): Promise<IReceipt> {
@@ -80,15 +80,12 @@ export class ReceiptService {
 
   async findByUserId(userId: string, search?: string): Promise<IReceipt[]> {
     const query: any = { userId: new Types.ObjectId(userId) };
-    
+
     if (search) {
       query.$text = { $search: search };
     }
 
-    const receipts = await this.receiptModel
-      .find(query)
-      .sort({ uploadDate: -1 })
-      .exec();
+    const receipts = await this.receiptModel.find(query).sort({ uploadDate: -1 }).exec();
 
     // Update all signed URLs
     for (const receipt of receipts) {
@@ -112,7 +109,7 @@ export class ReceiptService {
           ...(dto.transactionId && { transactionId: new Types.ObjectId(dto.transactionId) }),
         },
       },
-      { new: true },
+      { new: true }
     );
 
     if (!receipt) {
@@ -143,4 +140,4 @@ export class ReceiptService {
     // Delete from database
     await receipt.deleteOne();
   }
-} 
+}

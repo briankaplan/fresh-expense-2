@@ -34,4 +34,4 @@ export interface ReceiptSchema extends BaseSchema {
   errorMessage?: string;
 }
 
-export const RECEIPT_COLLECTION = 'receipts'; 
+export const RECEIPT_COLLECTION = 'receipts';

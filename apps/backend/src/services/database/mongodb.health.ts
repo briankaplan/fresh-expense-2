@@ -12,9 +12,12 @@ export class MongoDBHealthIndicator extends HealthIndicator {
     try {
       const isConnected = await this.mongoDBService.isConnected();
       const status = isConnected ? 'up' : 'down';
-      
+
       if (!isConnected) {
-        throw new HealthCheckError('MongoDB is not connected', this.getStatus(key, false, { status }));
+        throw new HealthCheckError(
+          'MongoDB is not connected',
+          this.getStatus(key, false, { status })
+        );
       }
 
       return this.getStatus(key, true, {
@@ -25,10 +28,13 @@ export class MongoDBHealthIndicator extends HealthIndicator {
       if (error instanceof HealthCheckError) {
         throw error;
       }
-      throw new HealthCheckError('MongoDB check failed', this.getStatus(key, false, { 
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      }));
+      throw new HealthCheckError(
+        'MongoDB check failed',
+        this.getStatus(key, false, {
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        })
+      );
     }
   }
-} 
+}

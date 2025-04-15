@@ -5,11 +5,8 @@ import { ReceiptFinderService } from './receipt-finder.service';
 import { R2Module } from '../r2/r2.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Receipt.name, schema: ReceiptSchema }]),
-    R2Module,
-  ],
+  imports: [MongooseModule.forFeature([{ name: Receipt.name, schema: ReceiptSchema }]), R2Module],
   providers: [ReceiptFinderService],
   exports: [ReceiptFinderService],
 })
-export class ReceiptFinderModule {} 
+export class ReceiptFinderModule {}

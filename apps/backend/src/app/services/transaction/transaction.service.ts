@@ -55,7 +55,7 @@ export class TransactionService {
   constructor(
     @InjectModel(Expense.name) private expenseModel: Model<Expense>,
     @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async getTransactions(query: TransactionQuery) {
@@ -72,7 +72,7 @@ export class TransactionService {
         minAmount,
         maxAmount,
         matched,
-        source = 'auto'
+        source = 'auto',
       } = query;
 
       // Build filter
@@ -83,7 +83,7 @@ export class TransactionService {
         filter.$or = [
           { description: { $regex: search, $options: 'i' } },
           { merchant: { $regex: search, $options: 'i' } },
-          { category: { $regex: search, $options: 'i' } }
+          { category: { $regex: search, $options: 'i' } },
         ];
       }
 
@@ -132,16 +132,20 @@ export class TransactionService {
         id: tx._id.toString(),
         date: tx.date instanceof Date ? tx.date.toISOString().split('T')[0] : tx.date,
         amount: typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount,
-        merchant: tx.merchant && tx.merchant !== 'Unknown' ? tx.merchant : 
-                 (tx.details?.counterparty?.name || 
-                  (tx.description && tx.description.includes(' - ') ? tx.description.split(' - ')[0] : null) || 
-                  'Unknown'),
+        merchant:
+          tx.merchant && tx.merchant !== 'Unknown'
+            ? tx.merchant
+            : tx.details?.counterparty?.name ||
+              (tx.description && tx.description.includes(' - ')
+                ? tx.description.split(' - ')[0]
+                : null) ||
+              'Unknown',
         description: tx.description || '',
         category: tx.category || 'Uncategorized',
         matched: !!tx.matched,
         tags: Array.isArray(tx.tags) ? tx.tags : [],
         source: 'mongodb',
-        source_db: 'primary'
+        source_db: 'primary',
       }));
 
       return {
@@ -150,8 +154,8 @@ export class TransactionService {
           total,
           page,
           limit,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
     } catch (error) {
       this.logger.error('Error getting transactions:', error);
@@ -162,7 +166,7 @@ export class TransactionService {
   async getTransactionById(id: string) {
     try {
       const transaction = await this.expenseModel.findById(id).exec();
-      
+
       if (!transaction) {
         throw new Error('Transaction not found');
       }
@@ -170,17 +174,16 @@ export class TransactionService {
       // Get receipt if exists
       let receipt = null;
       if (transaction.receiptId) {
-        receipt = await this.receiptModel.findOne({
-          $or: [
-            { _id: transaction.receiptId },
-            { expense_id: transaction._id }
-          ]
-        }).exec();
+        receipt = await this.receiptModel
+          .findOne({
+            $or: [{ _id: transaction.receiptId }, { expense_id: transaction._id }],
+          })
+          .exec();
       }
 
       return {
         transaction,
-        receipt
+        receipt,
       };
     } catch (error) {
       this.logger.error('Error getting transaction details:', error);
@@ -201,29 +204,33 @@ export class TransactionService {
       }
 
       // Update transaction
-      await this.expenseModel.findByIdAndUpdate(transactionId, {
-        $set: {
-          receiptId,
-          matched: true,
-          matchedAt: new Date()
-        }
-      }).exec();
+      await this.expenseModel
+        .findByIdAndUpdate(transactionId, {
+          $set: {
+            receiptId,
+            matched: true,
+            matchedAt: new Date(),
+          },
+        })
+        .exec();
 
       // Update receipt
-      await this.receiptModel.findByIdAndUpdate(receiptId, {
-        $set: {
-          transactionId,
-          matched: true,
-          matchedAt: new Date()
-        }
-      }).exec();
+      await this.receiptModel
+        .findByIdAndUpdate(receiptId, {
+          $set: {
+            transactionId,
+            matched: true,
+            matchedAt: new Date(),
+          },
+        })
+        .exec();
 
       return {
         success: true,
         message: 'Transaction matched with receipt successfully',
         matchedAt: new Date(),
         transactionId,
-        receiptId
+        receiptId,
       };
     } catch (error) {
       this.logger.error('Error matching transaction with receipt:', error);
@@ -245,26 +252,30 @@ export class TransactionService {
       const receiptId = transaction.receiptId;
 
       // Update transaction
-      await this.expenseModel.findByIdAndUpdate(transactionId, {
-        $unset: { receiptId: "" },
-        $set: {
-          matched: false,
-          unmatchedAt: new Date()
-        }
-      }).exec();
+      await this.expenseModel
+        .findByIdAndUpdate(transactionId, {
+          $unset: { receiptId: '' },
+          $set: {
+            matched: false,
+            unmatchedAt: new Date(),
+          },
+        })
+        .exec();
 
       // Update receipt
-      await this.receiptModel.findByIdAndUpdate(receiptId, {
-        $unset: { transactionId: "" },
-        $set: {
-          matched: false,
-          unmatchedAt: new Date()
-        }
-      }).exec();
+      await this.receiptModel
+        .findByIdAndUpdate(receiptId, {
+          $unset: { transactionId: '' },
+          $set: {
+            matched: false,
+            unmatchedAt: new Date(),
+          },
+        })
+        .exec();
 
       return {
         success: true,
-        message: 'Transaction unmatched from receipt successfully'
+        message: 'Transaction unmatched from receipt successfully',
       };
     } catch (error) {
       this.logger.error('Error unmatching transaction from receipt:', error);
@@ -274,7 +285,7 @@ export class TransactionService {
 
   async syncTransactions(options: SyncOptions = {}) {
     const { force = false, days = 30, matchReceipts = true, source = 'all' } = options;
-    
+
     try {
       this.logger.log('Starting transaction sync...');
       this.eventEmitter.emit('sync.started', { timestamp: new Date() });
@@ -284,39 +295,40 @@ export class TransactionService {
 
       // Get transactions from external sources
       const externalTransactions = await this.getExternalTransactions(days, source);
-      
+
       // Process in batches for better performance
       for (let i = 0; i < externalTransactions.length; i += this.SYNC_BATCH_SIZE) {
         const batch = externalTransactions.slice(i, i + this.SYNC_BATCH_SIZE);
-        
+
         // Use bulk operations for better performance
         const bulkOps = this.expenseModel.collection.initializeUnorderedBulkOp();
-        
+
         for (const tx of batch) {
           // Check if transaction already exists
           const existingTx = await this.expenseModel.findOne({
             $or: [
               { externalId: tx.externalId },
-              { 
+              {
                 date: tx.date,
                 amount: tx.amount,
-                merchant: tx.merchant
-              }
-            ]
+                merchant: tx.merchant,
+              },
+            ],
           });
 
           if (!existingTx || force) {
             // Add to bulk operation
-            bulkOps.find({ _id: existingTx?._id || new Date().getTime() })
+            bulkOps
+              .find({ _id: existingTx?._id || new Date().getTime() })
               .upsert()
               .updateOne({
                 $set: {
                   ...tx,
                   lastSynced: new Date(),
-                  source: 'external'
-                }
+                  source: 'external',
+                },
               });
-            
+
             syncedCount++;
           }
         }
@@ -336,7 +348,7 @@ export class TransactionService {
           processed: i + batch.length,
           total: externalTransactions.length,
           synced: syncedCount,
-          matched: matchedCount
+          matched: matchedCount,
         });
       }
 
@@ -344,13 +356,13 @@ export class TransactionService {
       this.eventEmitter.emit('sync.completed', {
         timestamp: new Date(),
         syncedCount,
-        matchedCount
+        matchedCount,
       });
 
       return {
         success: true,
         syncedCount,
-        matchedCount
+        matchedCount,
       };
     } catch (error) {
       this.logger.error('Error syncing transactions:', error);
@@ -359,7 +371,10 @@ export class TransactionService {
     }
   }
 
-  private async getExternalTransactions(days: number, source: string): Promise<ExternalTransaction[]> {
+  private async getExternalTransactions(
+    days: number,
+    source: string
+  ): Promise<ExternalTransaction[]> {
     // This would integrate with external services like Teller
     // For now, returning mock data
     return [];
@@ -369,14 +384,16 @@ export class TransactionService {
     let matchedCount = 0;
 
     // Get unmatched receipts
-    const unmatchedReceipts = await this.receiptModel.find({
-      matched: { $ne: true }
-    }).exec();
+    const unmatchedReceipts = await this.receiptModel
+      .find({
+        matched: { $ne: true },
+      })
+      .exec();
 
     // Process in parallel for better performance
     const matchPromises = transactions.map(async tx => {
       const bestMatch = await this.findBestReceiptMatch(tx, unmatchedReceipts);
-      
+
       if (bestMatch && bestMatch.score >= this.MATCH_THRESHOLD) {
         await this.matchTransactionWithReceipt(tx.externalId, bestMatch.receipt._id.toString());
         matchedCount++;
@@ -387,13 +404,16 @@ export class TransactionService {
     return matchedCount;
   }
 
-  private async findBestReceiptMatch(transaction: ExternalTransaction, receipts: Receipt[]): Promise<MatchResult | null> {
+  private async findBestReceiptMatch(
+    transaction: ExternalTransaction,
+    receipts: Receipt[]
+  ): Promise<MatchResult | null> {
     let bestMatch: MatchResult | null = null;
     let bestScore = 0;
 
     for (const receipt of receipts) {
       const score = this.calculateMatchScore(transaction, receipt);
-      
+
       if (score > bestScore) {
         bestScore = score;
         bestMatch = { receipt, score };
@@ -408,7 +428,7 @@ export class TransactionService {
     const weights = {
       amount: 0.4,
       date: 0.3,
-      merchant: 0.3
+      merchant: 0.3,
     };
 
     // Amount match (within 1% tolerance)
@@ -422,7 +442,8 @@ export class TransactionService {
     const dateDiff = Math.abs(
       new Date(transaction.date).getTime() - new Date(receipt.date).getTime()
     );
-    if (dateDiff <= 24 * 60 * 60 * 1000) { // 1 day in milliseconds
+    if (dateDiff <= 24 * 60 * 60 * 1000) {
+      // 1 day in milliseconds
       score += weights.date;
     }
 
@@ -436,16 +457,16 @@ export class TransactionService {
 
   private areMerchantsSimilar(merchant1: string, merchant2: string): boolean {
     if (!merchant1 || !merchant2) return false;
-    
+
     // Normalize merchant names
     const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
     const norm1 = normalize(merchant1);
     const norm2 = normalize(merchant2);
-    
+
     // Check for exact match after normalization
     if (norm1 === norm2) return true;
-    
+
     // Check for partial match
     return norm1.includes(norm2) || norm2.includes(norm1);
   }
-} 
+}

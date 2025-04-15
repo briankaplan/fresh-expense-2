@@ -14,7 +14,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {}
 
   async register(createUserDto: CreateUserDto) {
@@ -50,13 +50,13 @@ export class AuthService {
   async handleGoogleCallback(req: Request, res: Response) {
     const user = req.user as UserDocument;
     const tokens = await this.generateTokens(user);
-    
+
     // Set cookies or redirect as needed
     res.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
       secure: this.configService.get<string>('NODE_ENV') === 'production',
     });
-    
+
     res.redirect('/dashboard');
   }
 

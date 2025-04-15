@@ -5,6 +5,6 @@ import { MongoDBModule } from '../database/mongodb.module';
 @Module({
   imports: [MongoDBModule],
   providers: [TransactionEditorService],
-  exports: [TransactionEditorService]
+  exports: [TransactionEditorService],
 })
-export class TransactionEditorModule {} 
+export class TransactionEditorModule {}

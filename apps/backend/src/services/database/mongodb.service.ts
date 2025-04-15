@@ -23,7 +23,7 @@ export class MongoDBService implements OnModuleDestroy {
 
       console.log('Attempting to connect to MongoDB...');
       console.log('Using URI:', uri.replace(/\/\/[^@]+@/, '//<credentials>@')); // Hide credentials in logs
-      
+
       this.client = new MongoClient(uri, {
         connectTimeoutMS: this.connectTimeout,
         socketTimeoutMS: this.connectTimeout,
@@ -79,4 +79,4 @@ export class MongoDBService implements OnModuleDestroy {
       }
     }
   }
-} 
+}

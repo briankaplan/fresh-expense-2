@@ -24,3 +24,22 @@ coverage
 # OS files
 .DS_Store
 Thumbs.db
+
+# Build output
+.next
+out
+
+# Dependencies
+.pnpm-store
+
+# Testing
+.nyc_output
+
+# Misc
+.env*
+!.env.example
+
+# Temporary files
+tmp
+temp
+.cache

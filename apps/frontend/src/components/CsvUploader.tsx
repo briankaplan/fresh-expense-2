@@ -69,7 +69,7 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
     if (!row.date || !row.amount) {
       throw new Error('Missing required fields in row');
     }
-    
+
     const amount = parseFloat(String(row.amount));
     if (isNaN(amount)) {
       throw new Error('Invalid amount format');
@@ -108,7 +108,7 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setError(null);
     const file = acceptedFiles[0];
-    
+
     if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
       setError('Please upload a CSV file');
       return;
@@ -117,41 +117,43 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: async (results) => {
+      complete: async results => {
         try {
           if (results.data.length === 0 || !results.data[0]) {
             throw new Error('CSV file is empty');
           }
-          
+
           const firstRow = results.data[0] as Record<string, unknown>;
           validateHeaders(Object.keys(firstRow));
-          
-          const validatedData = (results.data as Record<string, unknown>[]).map(row => validateRow(row));
+
+          const validatedData = (results.data as Record<string, unknown>[]).map(row =>
+            validateRow(row)
+          );
           await findMatches(validatedData);
           setShowPreview(true);
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Invalid CSV format');
         }
       },
-      error: (err) => {
+      error: err => {
         setError('Failed to parse CSV file');
         console.error('CSV Parse Error:', err);
-      }
+      },
     });
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/csv': ['.csv']
+      'text/csv': ['.csv'],
     },
-    maxFiles: 1
+    maxFiles: 1,
   });
 
   const handleUpload = async () => {
     try {
       setIsLoading(true);
-      
+
       // Only process matches that have a confidence score above threshold
       const validMatches = matchResults.filter(match => match.matchConfidence >= 0.8);
 
@@ -229,12 +231,7 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
         </Alert>
       )}
 
-      <Dialog
-        open={showPreview}
-        onClose={() => setShowPreview(false)}
-        maxWidth="lg"
-        fullWidth
-      >
+      <Dialog open={showPreview} onClose={() => setShowPreview(false)} maxWidth="lg" fullWidth>
         <DialogTitle>Preview Matched Transactions</DialogTitle>
         <DialogContent>
           <TableContainer>
@@ -252,11 +249,11 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
               </TableHead>
               <TableBody>
                 {matchResults.map((match, index) => (
-                  <TableRow 
+                  <TableRow
                     key={index}
                     sx={{
                       bgcolor: match.matchConfidence >= 0.8 ? 'success.light' : 'warning.light',
-                      '&:hover': { bgcolor: 'action.hover' }
+                      '&:hover': { bgcolor: 'action.hover' },
                     }}
                   >
                     <TableCell>
@@ -266,19 +263,19 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
                         size="small"
                       />
                     </TableCell>
-                    <TableCell>{new Date(match.existingTransaction.date).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {new Date(match.existingTransaction.date).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>${match.existingTransaction.amount.toFixed(2)}</TableCell>
                     <TableCell>{match.existingTransaction.description || '-'}</TableCell>
                     <TableCell>{match.csvData.description || '-'}</TableCell>
                     <TableCell>{match.csvData.category || '-'}</TableCell>
                     <TableCell>
                       {match.csvData.receiptUrl ? (
-                        <Chip 
-                          label="Has Receipt" 
-                          color="primary" 
-                          size="small"
-                        />
-                      ) : '-'}
+                        <Chip label="Has Receipt" color="primary" size="small" />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -286,8 +283,8 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
             </Table>
           </TableContainer>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Found {matchResults.length} potential matches. 
-            Only matches with confidence ≥ 80% will be processed.
+            Found {matchResults.length} potential matches. Only matches with confidence ≥ 80% will
+            be processed.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -304,4 +301,4 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
       </Dialog>
     </>
   );
-}; 
+};

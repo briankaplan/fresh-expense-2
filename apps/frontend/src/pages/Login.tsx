@@ -15,13 +15,7 @@ import {
 import { motion } from 'framer-motion';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Link as MuiLink } from '@mui/material';
-import {
-  Email,
-  Lock,
-  Visibility,
-  VisibilityOff,
-  Google,
-} from '@mui/icons-material';
+import { Email, Lock, Visibility, VisibilityOff, Google } from '@mui/icons-material';
 import { loginSchema } from '../utils/validationSchemas';
 import { useUIStore } from '../store';
 import { apiClient } from '../services/api';
@@ -36,7 +30,7 @@ interface LoginFormInputs {
 const Login = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const navigate = useNavigate();
-  const setIsLoading = useUIStore((state) => state.setIsLoading);
+  const setIsLoading = useUIStore(state => state.setIsLoading);
 
   const {
     register,
@@ -51,16 +45,10 @@ const Login = () => {
     try {
       setIsLoading(true);
       const response = await apiClient.post<AuthResponse>('/auth/login', data);
-      
+
       // Store tokens
-      localStorage.setItem(
-        import.meta.env.VITE_JWT_STORAGE_KEY,
-        response.data.token
-      );
-      localStorage.setItem(
-        import.meta.env.VITE_REFRESH_TOKEN_KEY,
-        response.data.refreshToken
-      );
+      localStorage.setItem(import.meta.env.VITE_JWT_STORAGE_KEY, response.data.token);
+      localStorage.setItem(import.meta.env.VITE_REFRESH_TOKEN_KEY, response.data.refreshToken);
 
       toast.success('Welcome back!');
       navigate('/dashboard');
@@ -96,8 +84,8 @@ const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
         p: 2,
-        background: (theme) => theme.palette.background.default,
-        backgroundImage: (theme) => `
+        background: theme => theme.palette.background.default,
+        backgroundImage: theme => `
           radial-gradient(at 50% 0%, ${theme.palette.primary.dark}29 0%, transparent 50%),
           radial-gradient(at 100% 0%, ${theme.palette.secondary.dark}29 0%, transparent 50%)
         `,
@@ -115,7 +103,7 @@ const Login = () => {
             background: 'rgba(26, 27, 30, 0.7)',
             backdropFilter: 'blur(20px)',
             borderRadius: 3,
-            border: (theme) => `1px solid ${theme.palette.divider}`,
+            border: theme => `1px solid ${theme.palette.divider}`,
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
           }}
         >
@@ -128,7 +116,7 @@ const Login = () => {
               sx={{
                 fontWeight: 700,
                 mb: 3,
-                background: (theme) =>
+                background: theme =>
                   `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -171,10 +159,7 @@ const Login = () => {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
@@ -190,10 +175,10 @@ const Login = () => {
                 sx={{
                   py: 1.5,
                   mb: 2,
-                  background: (theme) =>
+                  background: theme =>
                     `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                   '&:hover': {
-                    background: (theme) =>
+                    background: theme =>
                       `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
                   },
                 }}

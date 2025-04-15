@@ -21,7 +21,8 @@ export class RateLimiterService {
 
   private initializeDefaultLimits() {
     // Add default rate limits from config
-    const defaultLimits = this.configService.get<Record<string, RateLimitConfig>>('RATE_LIMITS') || {};
+    const defaultLimits =
+      this.configService.get<Record<string, RateLimitConfig>>('RATE_LIMITS') || {};
     Object.entries(defaultLimits).forEach(([key, config]) => {
       this.setLimit(key, config);
     });
@@ -93,4 +94,4 @@ export class RateLimiterService {
 
     throw new Error(`Rate limit exceeded for ${key} after ${limit.maxRetries} attempts`);
   }
-} 
+}

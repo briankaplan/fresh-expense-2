@@ -18,11 +18,7 @@ export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
     return this.find({ merchantId });
   }
 
-  async findByDateRange(
-    userId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<ReceiptSchema[]> {
+  async findByDateRange(userId: string, startDate: Date, endDate: Date): Promise<ReceiptSchema[]> {
     return this.find({
       userId,
       date: {
@@ -49,10 +45,7 @@ export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
     );
   }
 
-  async updateOCRData(
-    receiptId: string,
-    ocrData: ReceiptSchema['ocrData']
-  ): Promise<boolean> {
+  async updateOCRData(receiptId: string, ocrData: ReceiptSchema['ocrData']): Promise<boolean> {
     return this.update(
       { _id: receiptId },
       {
@@ -68,13 +61,10 @@ export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
     return receipts.reduce((total, receipt) => total + receipt.totalAmount, 0);
   }
 
-  async getReceiptsByCategory(
-    userId: string,
-    category: string
-  ): Promise<ReceiptSchema[]> {
+  async getReceiptsByCategory(userId: string, category: string): Promise<ReceiptSchema[]> {
     return this.find({
       userId,
       'items.category': category,
     });
   }
-} 
+}

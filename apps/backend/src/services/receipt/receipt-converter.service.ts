@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as pdf2img from 'pdf-img-convert';
-import sharp from 'sharp';
+import { convertPdfToImages, optimizeImage, generateThumbnail } from '@packages/utils';
 
 @Injectable()
 export class ReceiptConverterService {
@@ -9,24 +8,11 @@ export class ReceiptConverterService {
   /**
    * Convert PDF to image
    */
-  async convertPDFToImage(pdfBuffer: Buffer): Promise<Buffer> {
+  async convertPDFToImage(pdfBuffer: Buffer): Promise<Buffer[]> {
     try {
-      // Convert PDF to images (returns array of images, we take first page)
-      const pngPages = await pdf2img.convert(pdfBuffer, {
-        width: 1200, // Reasonable width for OCR
-        height: 1800, // Maintain aspect ratio
-        page_numbers: [1], // Only first page
-        base64: false
-      });
-
-      // Convert output to buffer using sharp
-      const imageBuffer = await sharp(pngPages[0])
-        .png()
-        .toBuffer();
-
-      return imageBuffer;
+      return await convertPdfToImages(pdfBuffer);
     } catch (error) {
-      this.logger.error('Error converting PDF to image:', error);
+      this.logger.error('Error in PDF conversion:', error);
       throw error;
     }
   }
@@ -36,14 +22,9 @@ export class ReceiptConverterService {
    */
   async optimizeForOCR(imageBuffer: Buffer): Promise<Buffer> {
     try {
-      return await sharp(imageBuffer)
-        .greyscale() // Convert to greyscale
-        .normalize() // Normalize contrast
-        .sharpen() // Sharpen edges
-        .png() // Convert to PNG
-        .toBuffer();
+      return await optimizeImage(imageBuffer);
     } catch (error) {
-      this.logger.error('Error optimizing image for OCR:', error);
+      this.logger.error('Error in image optimization:', error);
       throw error;
     }
   }
@@ -53,19 +34,10 @@ export class ReceiptConverterService {
    */
   async createThumbnail(imageBuffer: Buffer, width = 300): Promise<Buffer> {
     try {
-      return await sharp(imageBuffer)
-        .resize(width, null, {
-          fit: 'contain',
-          withoutEnlargement: true
-        })
-        .jpeg({
-          quality: 80,
-          progressive: true
-        })
-        .toBuffer();
+      return await generateThumbnail(imageBuffer, { width, height: width });
     } catch (error) {
-      this.logger.error('Error creating thumbnail:', error);
+      this.logger.error('Error in thumbnail creation:', error);
       throw error;
     }
   }
-} 
+}

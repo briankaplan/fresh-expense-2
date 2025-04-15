@@ -22,4 +22,4 @@ const AnimatedWrapper: React.FC<AnimatedWrapperProps> = ({ children, delay = 0 }
   );
 };
 
-export default AnimatedWrapper; 
+export default AnimatedWrapper;

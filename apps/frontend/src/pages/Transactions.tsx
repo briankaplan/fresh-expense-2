@@ -75,19 +75,19 @@ const Transactions: React.FC = () => {
       id: '1',
       date: '2024-04-08',
       description: 'Grocery Store',
-      amount: -125.50,
+      amount: -125.5,
       category: 'Food',
       type: 'expense',
-      status: 'completed'
+      status: 'completed',
     },
     {
       id: '2',
       date: '2024-04-01',
       description: 'Salary Deposit',
-      amount: 4500.00,
+      amount: 4500.0,
       category: 'Income',
       type: 'income',
-      status: 'completed'
+      status: 'completed',
     },
     // Add more mock transactions as needed
   ];
@@ -106,7 +106,7 @@ const Transactions: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(amount);
   };
 
@@ -117,7 +117,8 @@ const Transactions: React.FC = () => {
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !category || transaction.category === category;
-    const matchesDateRange = (!startDate || new Date(transaction.date) >= startDate) &&
+    const matchesDateRange =
+      (!startDate || new Date(transaction.date) >= startDate) &&
       (!endDate || new Date(transaction.date) <= endDate);
 
     return matchesSearch && matchesCategory && matchesDateRange;
@@ -142,7 +143,7 @@ const Transactions: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      
+
       let value: string | number = editValue;
       if (editingCell.field === 'amount') {
         value = parseFloat(editValue.replace(/[^0-9.-]+/g, ''));
@@ -159,7 +160,7 @@ const Transactions: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          [editingCell.field]: value
+          [editingCell.field]: value,
         }),
       });
 
@@ -187,21 +188,21 @@ const Transactions: React.FC = () => {
     }
   };
 
-  const EditableContent = ({ 
-    transaction, 
-    field 
-  }: { 
-    transaction: Transaction; 
+  const EditableContent = ({
+    transaction,
+    field,
+  }: {
+    transaction: Transaction;
     field: keyof Transaction;
   }) => {
     const isEditing = editingCell?.rowId === transaction.id && editingCell?.field === field;
 
     if (!isEditing) {
       return (
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
             gap: 1,
             cursor: 'pointer',
             '&:hover .edit-icon': {
@@ -217,14 +218,14 @@ const Transactions: React.FC = () => {
           ) : (
             transaction[field]
           )}
-          <EditIcon 
-            className="edit-icon" 
-            sx={{ 
-              fontSize: 16, 
+          <EditIcon
+            className="edit-icon"
+            sx={{
+              fontSize: 16,
               opacity: 0,
               transition: 'opacity 0.2s',
               color: 'text.secondary',
-            }} 
+            }}
           />
         </Box>
       );
@@ -236,32 +237,32 @@ const Transactions: React.FC = () => {
           <TextField
             size="small"
             value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
+            onChange={e => setEditValue(e.target.value)}
             autoFocus
             variant="outlined"
-            InputProps={field === 'amount' ? {
-              startAdornment: <InputAdornment position="start">$</InputAdornment>
-            } : undefined}
+            InputProps={
+              field === 'amount'
+                ? {
+                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  }
+                : undefined
+            }
             sx={{ minWidth: field === 'amount' ? 120 : 200 }}
-            onKeyPress={(e) => {
+            onKeyPress={e => {
               if (e.key === 'Enter') {
                 handleSaveEdit(transaction);
               }
             }}
           />
-          <IconButton 
-            size="small" 
+          <IconButton
+            size="small"
             onClick={() => handleSaveEdit(transaction)}
             disabled={isSubmitting}
             color="primary"
           >
             <SaveIcon fontSize="small" />
           </IconButton>
-          <IconButton 
-            size="small" 
-            onClick={handleCancelEdit}
-            disabled={isSubmitting}
-          >
+          <IconButton size="small" onClick={handleCancelEdit} disabled={isSubmitting}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -269,14 +270,20 @@ const Transactions: React.FC = () => {
     );
   };
 
-  const MobileTransactionCard = ({ transaction, index }: { transaction: Transaction; index: number }) => (
+  const MobileTransactionCard = ({
+    transaction,
+    index,
+  }: {
+    transaction: Transaction;
+    index: number;
+  }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <Card 
-        sx={{ 
+      <Card
+        sx={{
           mb: 2,
           cursor: 'pointer',
           '&:hover': {
@@ -289,7 +296,7 @@ const Transactions: React.FC = () => {
             <EditableContent transaction={transaction} field="description" />
             <EditableContent transaction={transaction} field="amount" />
           </Box>
-          
+
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               {new Date(transaction.date).toLocaleDateString()}
@@ -314,14 +321,16 @@ const Transactions: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <Box sx={{ 
-            mb: 3, 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' }, 
-            justifyContent: 'space-between', 
-            alignItems: { xs: 'stretch', sm: 'center' },
-            gap: 2
-          }}>
+          <Box
+            sx={{
+              mb: 3,
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: { xs: 'stretch', sm: 'center' },
+              gap: 2,
+            }}
+          >
             <Typography variant="h4" gutterBottom={isMobile}>
               Transactions
             </Typography>
@@ -351,8 +360,8 @@ const Transactions: React.FC = () => {
                       fullWidth
                       label="Search transactions"
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      size={isMobile ? "small" : "medium"}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      size={isMobile ? 'small' : 'medium'}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6} md={2}>
@@ -361,11 +370,11 @@ const Transactions: React.FC = () => {
                       select
                       label="Category"
                       value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      size={isMobile ? "small" : "medium"}
+                      onChange={e => setCategory(e.target.value)}
+                      size={isMobile ? 'small' : 'medium'}
                     >
                       <MenuItem value="">All</MenuItem>
-                      {categories.map((cat) => (
+                      {categories.map(cat => (
                         <MenuItem key={cat} value={cat}>
                           {cat}
                         </MenuItem>
@@ -377,12 +386,12 @@ const Transactions: React.FC = () => {
                       <DatePicker
                         label="Start Date"
                         value={startDate}
-                        onChange={(date) => handleDateChange(date, setStartDate)}
-                        slotProps={{ 
-                          textField: { 
+                        onChange={date => handleDateChange(date, setStartDate)}
+                        slotProps={{
+                          textField: {
                             fullWidth: true,
-                            size: isMobile ? "small" : "medium"
-                          } 
+                            size: isMobile ? 'small' : 'medium',
+                          },
                         }}
                       />
                     </Grid>
@@ -390,12 +399,12 @@ const Transactions: React.FC = () => {
                       <DatePicker
                         label="End Date"
                         value={endDate}
-                        onChange={(date) => handleDateChange(date, setEndDate)}
-                        slotProps={{ 
-                          textField: { 
+                        onChange={date => handleDateChange(date, setEndDate)}
+                        slotProps={{
+                          textField: {
                             fullWidth: true,
-                            size: isMobile ? "small" : "medium"
-                          } 
+                            size: isMobile ? 'small' : 'medium',
+                          },
                         }}
                       />
                     </Grid>
@@ -410,7 +419,7 @@ const Transactions: React.FC = () => {
                         setStartDate(null);
                         setEndDate(null);
                       }}
-                      size={isMobile ? "small" : "medium"}
+                      size={isMobile ? 'small' : 'medium'}
                     >
                       Clear Filters
                     </Button>
@@ -423,17 +432,13 @@ const Transactions: React.FC = () => {
 
         {/* Mobile View */}
         {isMobile ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
             <Box>
               {filteredTransactions
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((transaction, index) => (
-                  <MobileTransactionCard 
-                    key={transaction.id} 
+                  <MobileTransactionCard
+                    key={transaction.id}
                     transaction={transaction}
                     index={index}
                   />
@@ -447,13 +452,13 @@ const Transactions: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <TableContainer 
+            <TableContainer
               component={Paper}
               sx={{
                 overflowX: 'auto',
                 '.MuiTable-root': {
-                  minWidth: 750
-                }
+                  minWidth: 750,
+                },
               }}
             >
               <Table>
@@ -475,7 +480,7 @@ const Transactions: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        style={{ 
+                        style={{
                           display: 'table-row',
                         }}
                       >
@@ -502,11 +507,7 @@ const Transactions: React.FC = () => {
           </motion.div>
         )}
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
@@ -517,8 +518,8 @@ const Transactions: React.FC = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{
               '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
-                fontSize: { xs: '0.75rem', sm: '0.875rem' }
-              }
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              },
             }}
           />
         </motion.div>
@@ -527,4 +528,4 @@ const Transactions: React.FC = () => {
   );
 };
 
-export default Transactions; 
+export default Transactions;

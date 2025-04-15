@@ -8,10 +8,13 @@ export class ReceiptStorageService {
 
   constructor(
     private readonly r2Service: R2Service,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
-  async storeReceipt(file: Buffer, userId: string): Promise<{
+  async storeReceipt(
+    file: Buffer,
+    userId: string
+  ): Promise<{
     url: string;
     thumbnailUrl: string;
     processedData: {
@@ -22,7 +25,7 @@ export class ReceiptStorageService {
   }> {
     try {
       const filename = `${Date.now()}.jpg`;
-      
+
       // Upload file with thumbnail
       const uploadResult = await this.r2Service.uploadFile(file, {
         userId,
@@ -30,11 +33,11 @@ export class ReceiptStorageService {
         mimeType: 'image/jpeg',
         generateThumbnail: true,
       });
-      
+
       if (!uploadResult.thumbnailUrl) {
         throw new Error('Failed to generate thumbnail');
       }
-      
+
       // Process with HuggingFace
       const processedData = await this.r2Service.processReceiptWithHuggingFace(file);
 
@@ -66,4 +69,4 @@ export class ReceiptStorageService {
       throw error;
     }
   }
-} 
+}

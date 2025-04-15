@@ -123,14 +123,14 @@ const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
         root: ({ theme }) => ({
           backgroundColor: theme.palette.background.card,
           borderRadius: theme.shape.borderRadius,
-          boxShadow: mode === 'light' 
-            ? '0px 2px 4px rgba(0, 0, 0, 0.05)'
-            : '0px 2px 4px rgba(0, 0, 0, 0.2)',
+          boxShadow:
+            mode === 'light' ? '0px 2px 4px rgba(0, 0, 0, 0.05)' : '0px 2px 4px rgba(0, 0, 0, 0.2)',
           transition: 'box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out',
           '&:hover': {
-            boxShadow: mode === 'light'
-              ? '0px 4px 8px rgba(0, 0, 0, 0.1)'
-              : '0px 4px 8px rgba(0, 0, 0, 0.4)',
+            boxShadow:
+              mode === 'light'
+                ? '0px 4px 8px rgba(0, 0, 0, 0.1)'
+                : '0px 4px 8px rgba(0, 0, 0, 0.4)',
             transform: 'translateY(-2px)',
           },
         }),
@@ -200,4 +200,4 @@ export const getTheme = (mode: 'light' | 'dark') => {
 export const lightTheme = getTheme('light');
 export const darkTheme = getTheme('dark');
 
-export default lightTheme; 
+export default lightTheme;

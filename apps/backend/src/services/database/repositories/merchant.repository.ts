@@ -22,16 +22,14 @@ export class MerchantRepository extends BaseRepository<MerchantSchema> {
     return this.find({ isActive: true });
   }
 
-  async updateTransactionStats(
-    merchantId: string,
-    amount: number
-  ): Promise<boolean> {
+  async updateTransactionStats(merchantId: string, amount: number): Promise<boolean> {
     const merchant = await this.findOne({ _id: merchantId });
     if (!merchant) return false;
 
     const newTransactionCount = merchant.transactionCount + 1;
     const newAverageAmount = merchant.averageTransactionAmount
-      ? (merchant.averageTransactionAmount * merchant.transactionCount + amount) / newTransactionCount
+      ? (merchant.averageTransactionAmount * merchant.transactionCount + amount) /
+        newTransactionCount
       : amount;
 
     return this.update(
@@ -55,4 +53,4 @@ export class MerchantRepository extends BaseRepository<MerchantSchema> {
       ],
     });
   }
-} 
+}

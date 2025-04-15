@@ -13,9 +13,7 @@ export function App() {
       <Content className="p-6">
         <RouterProvider router={router} />
       </Content>
-      <Footer className="text-center">
-        Fresh Expense ©{new Date().getFullYear()}
-      </Footer>
+      <Footer className="text-center">Fresh Expense ©{new Date().getFullYear()}</Footer>
     </Layout>
   );
 }

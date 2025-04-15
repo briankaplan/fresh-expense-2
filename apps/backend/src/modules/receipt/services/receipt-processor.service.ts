@@ -32,7 +32,7 @@ export class ReceiptProcessorService {
   ): Promise<ProcessedReceipt> {
     try {
       let imageBuffer = file;
-      
+
       // Convert PDF to image if needed
       if (mimeType === 'application/pdf') {
         imageBuffer = await this.convertPDFToImage(file);
@@ -40,7 +40,7 @@ export class ReceiptProcessorService {
 
       // Optimize image
       const optimizedImage = await this.optimizeImage(imageBuffer);
-      
+
       // Generate thumbnail
       const thumbnail = await this.createThumbnail(optimizedImage);
 
@@ -72,12 +72,10 @@ export class ReceiptProcessorService {
         width: 1200,
         height: 1800,
         page_numbers: [1],
-        base64: false
+        base64: false,
       });
 
-      return await sharp(pngPages[0])
-        .jpeg({ quality: 85 })
-        .toBuffer();
+      return await sharp(pngPages[0]).jpeg({ quality: 85 }).toBuffer();
     } catch (error) {
       this.logger.error('Error converting PDF to image:', error);
       throw error;
@@ -103,11 +101,11 @@ export class ReceiptProcessorService {
       return await sharp(imageBuffer)
         .resize(300, null, {
           fit: 'contain',
-          withoutEnlargement: true
+          withoutEnlargement: true,
         })
         .jpeg({
           quality: 80,
-          progressive: true
+          progressive: true,
         })
         .toBuffer();
     } catch (error) {
@@ -121,4 +119,4 @@ export class ReceiptProcessorService {
     // This would integrate with your preferred OCR service
     return null;
   }
-} 
+}

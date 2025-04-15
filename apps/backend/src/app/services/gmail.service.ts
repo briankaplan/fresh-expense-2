@@ -86,7 +86,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
   constructor(
     protected readonly configService: ConfigService,
     protected readonly tokenManager: TokenManagerService,
-    protected readonly eventEmitter: EventEmitter2,
+    protected readonly eventEmitter: EventEmitter2
   ) {
     super(configService, tokenManager, eventEmitter);
   }
@@ -123,17 +123,17 @@ export class GmailService extends GoogleService implements OnModuleInit {
   }
 
   async searchEmails(query: string, maxResults: number = 10): Promise<gmail_v1.Schema$Message[]> {
-    return this.withAuth('kaplan.brian@gmail.com', async (oauth2Client) => {
+    return this.withAuth('kaplan.brian@gmail.com', async oauth2Client => {
       const gmail = google.gmail('v1');
       gmail.context._options.auth = oauth2Client;
-      
+
       return this.withRateLimit(async () => {
         const response = await gmail.users.messages.list({
           userId: 'me',
           q: query,
           maxResults,
         });
-        
+
         if (!response.data.messages) {
           return [];
         }
@@ -218,4 +218,4 @@ export class GmailService extends GoogleService implements OnModuleInit {
       account: accountEmail,
     };
   }
-} 
+}

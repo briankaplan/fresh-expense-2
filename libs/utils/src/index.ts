@@ -5,11 +5,8 @@ export function formatDate(date: Date, format: string = 'YYYY-MM-DD'): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
-  return format
-    .replace('YYYY', year.toString())
-    .replace('MM', month)
-    .replace('DD', day);
+
+  return format.replace('YYYY', year.toString()).replace('MM', month).replace('DD', day);
 }
 
 // Currency utilities
@@ -29,13 +26,16 @@ export function calculateRunningBalance(transactions: Transaction[]): Transactio
       balance += transaction.type === 'credit' ? transaction.amount : -transaction.amount;
       return {
         ...transaction,
-        runningBalance: balance
+        runningBalance: balance,
       };
     });
 }
 
 // Analytics utilities
-export function calculateSpendingTrends(transactions: Transaction[], period: Analytics['period']): Analytics['spendingByCategory'] {
+export function calculateSpendingTrends(
+  transactions: Transaction[],
+  period: Analytics['period']
+): Analytics['spendingByCategory'] {
   const categoryTotals = new Map<string, { amount: number; count: number }>();
   let totalSpent = 0;
 
@@ -45,7 +45,7 @@ export function calculateSpendingTrends(transactions: Transaction[], period: Ana
         const current = categoryTotals.get(category) || { amount: 0, count: 0 };
         categoryTotals.set(category, {
           amount: current.amount + transaction.amount,
-          count: current.count + 1
+          count: current.count + 1,
         });
         totalSpent += transaction.amount;
       });
@@ -56,7 +56,7 @@ export function calculateSpendingTrends(transactions: Transaction[], period: Ana
     category,
     amount: data.amount,
     percentage: (data.amount / totalSpent) * 100,
-    count: data.count
+    count: data.count,
   }));
 }
 
@@ -71,7 +71,7 @@ export function validatePassword(password: string): {
   errors: string[];
 } {
   const errors: string[] = [];
-  
+
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters long');
   }
@@ -90,7 +90,7 @@ export function validatePassword(password: string): {
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 }
 
@@ -121,4 +121,4 @@ export function isTransaction(obj: unknown): obj is Transaction {
     'amount' in obj &&
     'type' in obj
   );
-} 
+}

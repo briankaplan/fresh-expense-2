@@ -1,4 +1,12 @@
-import { IsNumber, IsDate, IsString, IsOptional, IsArray, IsMongoId, IsEnum } from 'class-validator';
+import {
+  IsNumber,
+  IsDate,
+  IsString,
+  IsOptional,
+  IsArray,
+  IsMongoId,
+  IsEnum,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateExpenseDto, ExpenseStatus, PaymentMethod } from './create-expense.dto';
@@ -76,4 +84,4 @@ export class UpdateExpenseDto extends PartialType(CreateExpenseDto) {
     isRecurring?: boolean;
     subscriptionId?: string;
   };
-} 
+}

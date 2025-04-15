@@ -15,4 +15,4 @@ export interface UserSchema extends BaseSchema {
   };
 }
 
-export const USER_COLLECTION = 'users'; 
+export const USER_COLLECTION = 'users';

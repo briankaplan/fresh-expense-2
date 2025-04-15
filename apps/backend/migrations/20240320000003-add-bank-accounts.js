@@ -22,10 +22,10 @@ module.exports = {
             isActive: { bsonType: 'bool' },
             lastSync: { bsonType: 'date' },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Transactions Schema Validation
@@ -48,13 +48,13 @@ module.exports = {
             notes: { bsonType: 'string' },
             attachments: {
               bsonType: 'array',
-              items: { bsonType: 'string' }
+              items: { bsonType: 'string' },
             },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Create indexes for Bank Accounts
@@ -64,12 +64,12 @@ module.exports = {
       { key: { 'tellerData.accountId': 1 }, unique: true, sparse: true, name: 'unique_tellerId' },
       { key: { status: 1 }, name: 'status' },
       { key: { type: 1 }, name: 'accountType' },
-      { key: { userId: 1, 'institution.id': 1 }, name: 'userId_institution' }
+      { key: { userId: 1, 'institution.id': 1 }, name: 'userId_institution' },
     ]);
   },
 
   async down(db) {
     await db.dropCollection('bankAccounts');
     await db.dropCollection('transactions');
-  }
-}; 
+  },
+};

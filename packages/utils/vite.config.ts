@@ -1,9 +1,9 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import * as path from 'path';
+import { resolve } from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
   root: __dirname,
@@ -11,10 +11,17 @@ export default defineConfig({
 
   plugins: [
     nxViteTsPaths(),
-    nxCopyAssetsPlugin(['*.md']),
+    viteStaticCopy({
+      targets: [
+        {
+          src: '*.md',
+          dest: '../../dist/packages/utils'
+        }
+      ]
+    }),
     dts({
       entryRoot: 'src',
-      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+      tsconfigPath: resolve(__dirname, 'tsconfig.lib.json'),
     }),
   ],
 
@@ -33,18 +40,22 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     lib: {
-      // Could also be a dictionary or array of multiple entry points.
-      entry: 'src/index.ts',
-      name: '@./utils',
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: 'utils',
       fileName: 'index',
-      // Change this to the formats you want to support.
-      // Don't forget to update your package.json as well.
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: [],
+      external: ['sharp', 'pdf-img-convert', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'],
+      output: {
+        globals: {
+          sharp: 'sharp',
+          'pdf-img-convert': 'pdfImgConvert',
+        },
+      },
     },
+    sourcemap: true,
+    minify: 'esbuild',
   },
 
   test: {
@@ -57,6 +68,12 @@ export default defineConfig({
     coverage: {
       reportsDirectory: '../../coverage/packages/utils',
       provider: 'v8',
+    },
+  },
+
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
     },
   },
 });

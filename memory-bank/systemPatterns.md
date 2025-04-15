@@ -9,14 +9,14 @@
    - Automatic cleanup strategies
    - Tag-based organization
 
-1. Processing Pipeline
+2. Processing Pipeline
 
    - Event-driven architecture
    - Modular processing stages
    - Parallel processing capabilities
    - Error recovery mechanisms
 
-1. Service Integration
+3. Service Integration
 
    - Event bus communication
    - Asynchronous processing
@@ -40,7 +40,7 @@
 </Form>
 ```
 
-1. **Render Props**
+2. **Render Props**
 
 ```typescript
 // Example: Data fetching
@@ -52,7 +52,7 @@
 />
 ```
 
-1. **Custom Hooks**
+3. **Custom Hooks**
 
 ```typescript
 // Example: Form handling
@@ -84,7 +84,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 ```
 
-1. **Query Management**
+2. **Query Management**
 
 ```typescript
 // Example: React Query
@@ -97,6 +97,88 @@ const { data, isLoading } = useQuery({
 
 ### Backend Patterns
 
+#### Merchant Service Patterns
+
+1. **Merchant Enrichment**
+
+```typescript
+@Injectable()
+export class MerchantEnrichmentService extends BaseService {
+  async enrichMerchantData(merchant: string): Promise<EnrichedData | null> {
+    const prompt = `Analyze this merchant: ${merchant}`;
+    const response = await this.aiService.analyze(prompt);
+    return this.parseAIResponse(response);
+  }
+}
+```
+
+2. **Transaction Analysis**
+
+```typescript
+async processTransactions(transactions: TransactionData[]): Promise<EnrichedTransaction[]> {
+  const analysis = await this.analyzeTransactions(transactions);
+  return transactions.map(transaction => ({
+    ...transaction,
+    enrichedData: {
+      ...analysis,
+      category: determineCategory(transactions),
+    },
+  }));
+}
+```
+
+3. **Subscription Detection**
+
+```typescript
+function detectSubscription(transactions: TransactionData[]): SubscriptionInfo {
+  const intervals = calculateIntervals(transactions);
+  const frequency = determineFrequency(intervals);
+  return {
+    isSubscription: isRecurring(intervals),
+    frequency,
+    nextPaymentDate: predictNextPayment(transactions, frequency),
+  };
+}
+```
+
+#### String Comparison Patterns
+
+1. **Text Normalization**
+
+```typescript
+const normalizeText = (text: string, options: NormalizeOptions = {}): string => {
+  let normalized = text.toLowerCase().trim();
+  if (options.removeNonAlphanumeric) {
+    normalized = normalized.replace(/[^a-z0-9]/g, '');
+  }
+  return normalized;
+};
+```
+
+2. **Levenshtein Distance**
+
+```typescript
+const calculateLevenshteinDistance = (str1: string, str2: string): number => {
+  const matrix = Array(str2.length + 1)
+    .fill(null)
+    .map(() => Array(str1.length + 1).fill(null));
+  // ... distance calculation logic
+  return matrix[str2.length][str1.length];
+};
+```
+
+3. **Jaccard Similarity**
+
+```typescript
+const calculateJaccardSimilarity = (text1: string, text2: string): number => {
+  const set1 = new Set(text1.split(/\s+/));
+  const set2 = new Set(text2.split(/\s+/));
+  const intersection = new Set([...set1].filter(x => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  return intersection.size / union.size;
+};
+```
+
 #### Service Layer
 
 1. **Repository Pattern**
@@ -106,7 +188,7 @@ const { data, isLoading } = useQuery({
 export class ReceiptRepository {
   constructor(
     @InjectModel(Receipt.name)
-    private receiptModel: Model<Receipt>,
+    private receiptModel: Model<Receipt>
   ) {}
 
   async findById(id: string): Promise<Receipt> {
@@ -115,14 +197,14 @@ export class ReceiptRepository {
 }
 ```
 
-1. **Unit of Work**
+2. **Unit of Work**
 
 ```typescript
 @Injectable()
 export class ReceiptService {
   constructor(
     private readonly repository: ReceiptRepository,
-    private readonly unitOfWork: UnitOfWork,
+    private readonly unitOfWork: UnitOfWork
   ) {}
 
   async createReceipt(data: CreateReceiptDto): Promise<Receipt> {
@@ -156,12 +238,165 @@ export class HttpExceptionFilter implements ExceptionFilter {
 }
 ```
 
-1. **Custom Exceptions**
+2. **Custom Exceptions**
 
 ```typescript
 export class ReceiptNotFoundException extends NotFoundException {
   constructor(id: string) {
     super(`Receipt with ID ${id} not found`);
+  }
+}
+```
+
+### Authentication and Email Patterns
+
+#### JWT Token Management
+
+1. **Token Generation**
+
+```typescript
+// Base token generation with type safety
+export interface TokenPayload {
+  userId: string;
+  [key: string]: any;
+}
+
+export interface TokenOptions {
+  expiresIn: string;
+  audience?: string | string[];
+  issuer?: string;
+}
+
+export function generateToken(
+  payload: TokenPayload,
+  secret: string,
+  options: TokenOptions
+): string {
+  if (!secret) {
+    throw new Error('JWT secret is required');
+  }
+  return jwt.sign(payload, secret, options);
+}
+```
+
+2. **Purpose-Specific Tokens**
+
+```typescript
+// Email verification token (24h expiry)
+export function generateEmailVerificationToken(userId: string, secret: string): string {
+  return generateToken({ userId }, secret, { expiresIn: '24h' });
+}
+
+// Password reset token (1h expiry)
+export function generatePasswordResetToken(userId: string, secret: string): string {
+  return generateToken({ userId }, secret, { expiresIn: '1h' });
+}
+```
+
+3. **Token Verification**
+
+```typescript
+export function verifyToken<T = any>(token: string, secret: string): T {
+  if (!token) {
+    throw new Error('Token is required');
+  }
+  if (!secret) {
+    throw new Error('JWT secret is required');
+  }
+  return jwt.verify(token, secret) as T;
+}
+```
+
+#### Email Templates
+
+1. **Link Generation**
+
+```typescript
+// Verification link with token
+export function generateVerificationLink(baseUrl: string, token: string): string {
+  return `${baseUrl}/verify-email?token=${token}`;
+}
+
+// Password reset link with token
+export function generatePasswordResetLink(baseUrl: string, token: string): string {
+  return `${baseUrl}/reset-password?token=${token}`;
+}
+```
+
+2. **Email Content Generation**
+
+```typescript
+// Verification email content
+export function generateVerificationEmailContent(verificationLink: string): string {
+  return `
+    <h1>Welcome to Fresh Expense!</h1>
+    <p>Please click the link below to verify your email address:</p>
+    <a href="${verificationLink}">Verify Email</a>
+    <p>This link will expire in 24 hours.</p>
+  `;
+}
+
+// Password reset email content
+export function generatePasswordResetEmailContent(resetLink: string): string {
+  return `
+    <h1>Password Reset Request</h1>
+    <p>Click the link below to reset your password:</p>
+    <a href="${resetLink}">Reset Password</a>
+    <p>This link will expire in 1 hour.</p>
+    <p>If you didn't request this, please ignore this email.</p>
+  `;
+}
+```
+
+#### Auth Guard Integration
+
+```typescript
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  override canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
+
+  override handleRequest(err: any, user: any) {
+    return handleAuthResult(err, user);
+  }
+}
+```
+
+#### Email Service Integration
+
+```typescript
+@Injectable()
+export class EmailService {
+  private transporter: nodemailer.Transporter;
+
+  constructor(private configService: ConfigService) {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.configService.get('EMAIL_USER'),
+        pass: this.configService.get('EMAIL_PASSWORD'),
+      },
+    });
+  }
+
+  async sendVerificationEmail(user: User): Promise<void> {
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    if (!jwtSecret) {
+      throw new InternalServerErrorException('JWT_SECRET is not configured');
+    }
+
+    const frontendUrl = this.configService.get('FRONTEND_URL');
+    const token = generateEmailVerificationToken(user.id, jwtSecret);
+    const verificationLink = generateVerificationLink(frontendUrl, token);
+    const emailContent = generateVerificationEmailContent(verificationLink);
+
+    await this.transporter.sendMail({
+      from: this.configService.get('EMAIL_USER'),
+      to: user.email,
+      subject: 'Verify your email',
+      html: emailContent,
+    });
   }
 }
 ```
@@ -290,7 +525,7 @@ describe('ReceiptService', () => {
   it('should find receipt by id', async () => {
     const mockReceipt = { id: '1', status: 'pending' };
     repository.findById.mockResolvedValue(mockReceipt);
-    
+
     const result = await service.findById('1');
     expect(result).toEqual(mockReceipt);
   });
@@ -357,9 +592,7 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Create new receipt' })
   @ApiResponse({ status: 201, type: ReceiptDto })
   @ApiResponse({ status: 400, type: ErrorDto })
-  async createReceipt(
-    @Body() createReceiptDto: CreateReceiptDto,
-  ): Promise<ReceiptDto> {
+  async createReceipt(@Body() createReceiptDto: CreateReceiptDto): Promise<ReceiptDto> {
     return this.receiptService.create(createReceiptDto);
   }
 }

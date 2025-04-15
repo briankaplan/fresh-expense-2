@@ -12,4 +12,4 @@ try {
   console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 } catch (error) {
   console.error('Canvas test failed:', error);
-} 
+}

@@ -37,10 +37,10 @@ async function testMongoDB() {
     console.log('✅ Collection access successful');
 
     // Test insert
-    const testDoc = { 
+    const testDoc = {
       message: 'Test document',
       timestamp: new Date(),
-      status: 'active'
+      status: 'active',
     };
     const insertResult = await testCollection.insertOne(testDoc);
     console.log('✅ Document insert successful:', insertResult.insertedId);
@@ -67,7 +67,6 @@ async function testMongoDB() {
     // Get index information
     const indexes = await testCollection.indexes();
     console.log('✅ Indexes:', indexes);
-
   } catch (error) {
     console.error('❌ MongoDB test failed:', error);
     process.exit(1);
@@ -81,4 +80,4 @@ async function testMongoDB() {
 testMongoDB().catch(error => {
   console.error('Unhandled error:', error);
   process.exit(1);
-}); 
+});

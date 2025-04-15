@@ -11,12 +11,15 @@ export class TellerSyncTask {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async syncTransactions() {
     this.logger.log('Starting daily Teller transaction sync');
-    
+
     try {
       await this.tellerService.syncAllAccounts();
       this.logger.log('Daily Teller transaction sync completed successfully');
     } catch (error) {
-      this.logger.error('Error during daily Teller transaction sync:', error instanceof Error ? error.message : 'Unknown error');
+      this.logger.error(
+        'Error during daily Teller transaction sync:',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
@@ -26,4 +29,4 @@ export class TellerSyncTask {
     await this.tellerService.syncAllAccounts();
     return { message: 'Manual sync completed' };
   }
-} 
+}

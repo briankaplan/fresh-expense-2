@@ -36,21 +36,21 @@ export class CsvMappingService {
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationService: NotificationService,
+    private readonly notificationService: NotificationService
   ) {}
 
   generateCsvRecordId(record: CsvRecord): string {
     const content = `${record.date}-${record.merchant}-${record.amount}-${record.description || ''}`;
     const hash = Array.from(content).reduce((acc, char) => {
-      return ((acc << 5) - acc) + char.charCodeAt(0) | 0;
+      return ((acc << 5) - acc + char.charCodeAt(0)) | 0;
     }, 0);
-    
+
     return `csv-${Math.abs(hash).toString(36)}`;
   }
 
   isDuplicateRecord(record: CsvRecord, existingRecord: DbRecord): boolean {
     if (!existingRecord) return false;
-    
+
     // Compare core fields
     const coreFields = ['date', 'merchant', 'amount', 'description'] as const;
     for (const field of coreFields) {
@@ -63,23 +63,26 @@ export class CsvMappingService {
         return false;
       }
     }
-    
+
     return true;
   }
 
-  csvToDb(csvRecord: CsvRecord, options: { checkDuplicates?: boolean; existingRecord?: DbRecord } = {}): DbRecord {
+  csvToDb(
+    csvRecord: CsvRecord,
+    options: { checkDuplicates?: boolean; existingRecord?: DbRecord } = {}
+  ): DbRecord {
     const { checkDuplicates = false, existingRecord = null } = options;
-    
+
     // Generate a unique ID if not provided
     const csvRecordId = csvRecord.csvRecordId || this.generateCsvRecordId(csvRecord);
-    
+
     // Check for duplicates if requested
     if (checkDuplicates && existingRecord && this.isDuplicateRecord(csvRecord, existingRecord)) {
       throw new Error('Duplicate record detected');
     }
 
     const now = new Date();
-    
+
     return {
       id: csvRecord.id || crypto.randomUUID(),
       date: new Date(csvRecord.date),
@@ -110,7 +113,17 @@ export class CsvMappingService {
   }
 
   getCsvHeaders(): string[] {
-    return ['id', 'date', 'merchant', 'amount', 'category', 'description', 'company', 'csvRecordId', 'receiptUrl'];
+    return [
+      'id',
+      'date',
+      'merchant',
+      'amount',
+      'category',
+      'description',
+      'company',
+      'csvRecordId',
+      'receiptUrl',
+    ];
   }
 
   validateCsvRecord(record: CsvRecord): string | null {
@@ -119,7 +132,10 @@ export class CsvMappingService {
       if (!record.date || isNaN(new Date(record.date).getTime())) return 'Invalid date';
       if (!record.merchant) return 'Missing merchant';
       if (!record.amount || isNaN(parseFloat(record.amount))) return 'Invalid amount';
-      if (record.company && !VALID_COMPANIES.includes(record.company as typeof VALID_COMPANIES[number])) {
+      if (
+        record.company &&
+        !VALID_COMPANIES.includes(record.company as (typeof VALID_COMPANIES)[number])
+      ) {
         return `Invalid company. Must be one of: ${VALID_COMPANIES.join(', ')}`;
       }
       return null;
@@ -136,11 +152,13 @@ export class CsvMappingService {
       if (!record.merchant) return 'Missing merchant';
       if (typeof record.amount !== 'number') return 'Invalid amount';
       if (!record.csvRecordId) return 'Missing csvRecordId';
-      if (!VALID_COMPANIES.includes(record.company as typeof VALID_COMPANIES[number])) {
+      if (!VALID_COMPANIES.includes(record.company as (typeof VALID_COMPANIES)[number])) {
         return `Invalid company. Must be one of: ${VALID_COMPANIES.join(', ')}`;
       }
-      if (!record.createdAt || !(record.createdAt instanceof Date)) return 'Missing or invalid createdAt';
-      if (!record.updatedAt || !(record.updatedAt instanceof Date)) return 'Missing or invalid updatedAt';
+      if (!record.createdAt || !(record.createdAt instanceof Date))
+        return 'Missing or invalid createdAt';
+      if (!record.updatedAt || !(record.updatedAt instanceof Date))
+        return 'Missing or invalid updatedAt';
       return null;
     } catch (error) {
       this.logger.error('Error validating database record:', error);
@@ -148,7 +166,10 @@ export class CsvMappingService {
     }
   }
 
-  async processCsvRecords(records: CsvRecord[], options: { checkDuplicates?: boolean; existingRecords?: DbRecord[] } = {}): Promise<DbRecord[]> {
+  async processCsvRecords(
+    records: CsvRecord[],
+    options: { checkDuplicates?: boolean; existingRecords?: DbRecord[] } = {}
+  ): Promise<DbRecord[]> {
     const { checkDuplicates = false, existingRecords = [] } = options;
     const processedRecords: DbRecord[] = [];
     const errors: string[] = [];
@@ -169,7 +190,7 @@ export class CsvMappingService {
 
         // Convert to database format
         const dbRecord = this.csvToDb(record, { checkDuplicates, existingRecord });
-        
+
         // Validate database record
         const dbValidationError = this.validateDbRecord(dbRecord);
         if (dbValidationError) {
@@ -180,17 +201,19 @@ export class CsvMappingService {
         processedRecords.push(dbRecord);
       } catch (error) {
         this.logger.error('Error processing CSV record:', error);
-        errors.push(`Record ${record.id || 'unknown'}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        errors.push(
+          `Record ${record.id || 'unknown'}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     }
 
     if (errors.length > 0) {
       await this.notificationService.notifyError(
         new Error(`CSV processing completed with ${errors.length} errors:\n${errors.join('\n')}`),
-        'CSV Processing',
+        'CSV Processing'
       );
     }
 
     return processedRecords;
   }
-} 
+}

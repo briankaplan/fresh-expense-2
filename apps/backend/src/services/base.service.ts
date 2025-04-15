@@ -29,7 +29,11 @@ export abstract class BaseService {
     this.eventEmitter.emit(`${this.constructor.name}.stateChanged`, this.state);
   }
 
-  protected async notify(type: 'success' | 'error' | 'info' | 'warning', message: string, metadata?: Record<string, any>) {
+  protected async notify(
+    type: 'success' | 'error' | 'info' | 'warning',
+    message: string,
+    metadata?: Record<string, any>
+  ) {
     await this.notificationService.notify({
       type,
       title: this.constructor.name,
@@ -44,7 +48,7 @@ export abstract class BaseService {
     maxRetries = 3
   ): Promise<T> {
     let lastError: Error | undefined;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         const result = await fn();
@@ -53,7 +57,7 @@ export abstract class BaseService {
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         this.updateState({ lastError });
-        
+
         if (attempt < maxRetries) {
           this.logger.warn(`Retry ${attempt}/${maxRetries} for ${operation}`);
           await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
@@ -64,10 +68,7 @@ export abstract class BaseService {
     throw lastError;
   }
 
-  protected async executeWithLoading<T>(
-    operation: string,
-    fn: () => Promise<T>
-  ): Promise<T> {
+  protected async executeWithLoading<T>(operation: string, fn: () => Promise<T>): Promise<T> {
     this.eventEmitter.emit('loading.started', {
       operationId: operation,
       timestamp: new Date(),
@@ -89,4 +90,4 @@ export abstract class BaseService {
       throw error;
     }
   }
-} 
+}

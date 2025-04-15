@@ -67,10 +67,10 @@ const receiptSchema = new Schema<IReceipt>(
 );
 
 // Add text index for search functionality
-receiptSchema.index({ 
-  'merchant': 'text',
-  'filename': 'text',
-  'ocr.text': 'text'
+receiptSchema.index({
+  merchant: 'text',
+  filename: 'text',
+  'ocr.text': 'text',
 });
 
-export const Receipt = model<IReceipt>('Receipt', receiptSchema); 
+export const Receipt = model<IReceipt>('Receipt', receiptSchema);

@@ -25,4 +25,4 @@ export const useReceiptOCR = (): UseReceiptOCRResult => {
   }, []);
 
   return { processing, processingError, processReceipt };
-}; 
+};

@@ -17,7 +17,7 @@ export class ExpenseService {
 
   constructor(
     @InjectModel(Expense.name)
-    private expenseModel: Model<Expense>,
+    private expenseModel: Model<Expense>
   ) {}
 
   async findByUserId(userId: string, options: ExpenseQueryOptions = {}): Promise<Expense[]> {
@@ -99,4 +99,4 @@ export class ExpenseService {
       throw error;
     }
   }
-} 
+}

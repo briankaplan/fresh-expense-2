@@ -6,7 +6,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip
+  Tooltip,
 } from 'recharts';
 import { Box, useTheme } from '@mui/material';
 
@@ -41,21 +41,13 @@ const LineChart: React.FC<LineChartProps> = ({
             bottom: 5,
           }}
         >
-          {showGrid && (
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={theme.palette.divider}
-            />
-          )}
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />}
           <XAxis
             dataKey="name"
             stroke={theme.palette.text.secondary}
             style={{ fontSize: '0.875rem' }}
           />
-          <YAxis
-            stroke={theme.palette.text.secondary}
-            style={{ fontSize: '0.875rem' }}
-          />
+          <YAxis stroke={theme.palette.text.secondary} style={{ fontSize: '0.875rem' }} />
           <Tooltip />
           <Line
             type="monotone"
@@ -70,4 +62,4 @@ const LineChart: React.FC<LineChartProps> = ({
   );
 };
 
-export default LineChart; 
+export default LineChart;

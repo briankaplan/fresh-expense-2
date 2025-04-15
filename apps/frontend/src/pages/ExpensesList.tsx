@@ -15,4 +15,4 @@ const ExpensesList: React.FC = () => {
   );
 };
 
-export default ExpensesList; 
+export default ExpensesList;

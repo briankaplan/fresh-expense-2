@@ -21,4 +21,4 @@ export class StatsController {
   async getExpenseDetails(@Param('id') id: string) {
     return this.statsService.getExpenseDetails(id);
   }
-} 
+}

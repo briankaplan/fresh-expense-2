@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: apps/backend/Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
       - PORT=3000
@@ -52,7 +52,7 @@ services:
       - NODE_ENV=production
       - API_URL=${API_URL}
     ports:
-      - "80:80"
+      - '80:80'
     networks:
       - app-network
     restart: unless-stopped
@@ -66,7 +66,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     ports:
-      - "27017:27017"
+      - '27017:27017'
     networks:
       - app-network
     restart: unless-stopped
@@ -75,8 +75,8 @@ services:
   minio:
     image: minio/minio
     ports:
-      - "9000:9000"  # API port
-      - "9001:9001"  # Console port
+      - '9000:9000' # API port
+      - '9001:9001' # Console port
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
@@ -99,7 +99,7 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
-      - "9090:9090"
+      - '9090:9090'
     networks:
       - app-network
     restart: unless-stopped
@@ -113,7 +113,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     ports:
-      - "3001:3000"
+      - '3001:3000'
     depends_on:
       - prometheus
     networks:
@@ -132,7 +132,7 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
-      - "9100:9100"
+      - '9100:9100'
     networks:
       - app-network
     restart: unless-stopped
@@ -146,7 +146,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     ports:
-      - "8080:8080"
+      - '8080:8080'
     networks:
       - app-network
     restart: unless-stopped

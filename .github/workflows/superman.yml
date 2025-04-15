@@ -1,0 +1,56 @@
+name: 🚀 Superman CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  superman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✨ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🌟 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 🗃️ Install deps
+        run: pnpm install
+
+      - name: 🎨 Format code
+        run: pnpm prettier --write .
+
+      - name: 🎲 Lint & autofix
+        run: pnpm lint:fix
+
+      - name: ✂️ Remove unused exports
+        run: pnpm ts-prune || true
+
+      - name: ❌ Remove unused imports
+        run: pnpm ts-unused-exports || true
+
+      - name: 🕹️ Find duplicate code
+        run: npx jscpd --config .jscpd.json . || true
+
+      - name: 📉 Create PR with fixes
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: 'chore: auto-fix lint, format, prune, dedupe'
+          branch: auto/fix-code-style
+          title: '🔧 Auto Code Fixes'
+          body: |
+            This PR includes automatic cleanup:
+            - ESLint + Prettier formatting
+            - Removal of unused imports & exports
+            - Duplicate code detection
+            - Config cleanup & standardization
+
+      - name: 🔢 Annotate PR with jscpd results
+        uses: lucassabreu/jscpd-action@v0.6.0
+        with:
+          path: .
+          config: .jscpd.json
+          output: report/

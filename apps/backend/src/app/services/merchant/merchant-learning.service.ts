@@ -36,7 +36,7 @@ export class MerchantLearningService {
   private readonly logger = new Logger(MerchantLearningService.name);
 
   constructor(
-    @InjectModel(Merchant.name) private readonly merchantModel: Model<MerchantDocument>,
+    @InjectModel(Merchant.name) private readonly merchantModel: Model<MerchantDocument>
   ) {}
 
   /**
@@ -44,19 +44,19 @@ export class MerchantLearningService {
    */
   async learnFromReceipt(data: ReceiptLearningData): Promise<void> {
     const merchant = await this.getOrCreateMerchant(data.merchantName);
-    
+
     // Update learning data
     await this.merchantModel.updateOne(
       { _id: merchant._id },
       {
         $set: {
           'learningData.lastUpdated': new Date(),
-          'metadata.lastTransaction': new Date()
+          'metadata.lastTransaction': new Date(),
         },
         $inc: {
           'metadata.totalTransactions': 1,
-          'learningData.averageTransaction.count': 1
-        }
+          'learningData.averageTransaction.count': 1,
+        },
       }
     );
 
@@ -64,13 +64,13 @@ export class MerchantLearningService {
     if (data.amount) {
       const currentAvg = merchant.learningData.averageTransaction.amount;
       const currentCount = merchant.learningData.averageTransaction.count;
-      const newAvg = ((currentAvg * currentCount) + data.amount) / (currentCount + 1);
+      const newAvg = (currentAvg * currentCount + data.amount) / (currentCount + 1);
       await this.merchantModel.updateOne(
         { _id: merchant._id },
         {
           $set: {
-            'learningData.averageTransaction.amount': newAvg
-          }
+            'learningData.averageTransaction.amount': newAvg,
+          },
         }
       );
     }
@@ -107,7 +107,7 @@ export class MerchantLearningService {
     if (!feedback.isCorrect) {
       const [originalMerchant, correctMerchant] = await Promise.all([
         this.merchantModel.findOne({ name: feedback.originalMerchant }),
-        this.getOrCreateMerchant(feedback.correctMerchant)
+        this.getOrCreateMerchant(feedback.correctMerchant),
       ]);
 
       if (originalMerchant) {
@@ -116,11 +116,13 @@ export class MerchantLearningService {
           { _id: originalMerchant._id },
           {
             $inc: { 'metadata.confidence': -0.1 },
-            $set: { 'metadata.recognitionRate': 
-              (originalMerchant.metadata.recognitionRate * 
-               originalMerchant.metadata.totalTransactions - 1) /
-              originalMerchant.metadata.totalTransactions
-            }
+            $set: {
+              'metadata.recognitionRate':
+                (originalMerchant.metadata.recognitionRate *
+                  originalMerchant.metadata.totalTransactions -
+                  1) /
+                originalMerchant.metadata.totalTransactions,
+            },
           }
         );
       }
@@ -158,10 +160,10 @@ export class MerchantLearningService {
   }> {
     // Get all merchants
     const merchants = await this.merchantModel.find().select('name aliases learningData metadata');
-    
+
     let bestMatch = {
       merchant: null as MerchantDocument | null,
-      confidence: 0
+      confidence: 0,
     };
 
     // Check each merchant's patterns
@@ -175,7 +177,7 @@ export class MerchantLearningService {
     if (!bestMatch.merchant) {
       return {
         merchantName: this.extractPotentialMerchantName(text),
-        confidence: 0.1
+        confidence: 0.1,
       };
     }
 
@@ -191,7 +193,7 @@ export class MerchantLearningService {
       isSubscription: bestMatch.merchant.subscription?.typical,
       amount,
       date,
-      items
+      items,
     };
   }
 
@@ -217,7 +219,7 @@ export class MerchantLearningService {
    */
   private async getOrCreateMerchant(name: string): Promise<MerchantDocument> {
     let merchant = await this.merchantModel.findOne({ name });
-    
+
     if (!merchant) {
       merchant = new this.merchantModel({
         name,
@@ -229,21 +231,21 @@ export class MerchantLearningService {
             headerPatterns: [],
             footerPatterns: [],
             confidence: 0,
-            matches: 0
+            matches: 0,
           },
           commonCategories: [],
           averageTransaction: {
             amount: 0,
-            count: 0
+            count: 0,
           },
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
         },
         metadata: {
           confidence: 0.5,
           totalTransactions: 0,
           averageConfidence: 0.5,
-          recognitionRate: 1
-        }
+          recognitionRate: 1,
+        },
       });
       await merchant.save();
     }
@@ -260,17 +262,17 @@ export class MerchantLearningService {
     category: string
   ): Promise<void> {
     const pattern = this.createItemPattern(description);
-    
+
     await this.merchantModel.updateOne(
-      { 
+      {
         _id: merchantId,
-        'learningData.itemPatterns.pattern': pattern
+        'learningData.itemPatterns.pattern': pattern,
       },
       {
         $inc: {
           'learningData.itemPatterns.$.matches': 1,
-          'learningData.itemPatterns.$.confidence': 0.1
-        }
+          'learningData.itemPatterns.$.confidence': 0.1,
+        },
       }
     );
   }
@@ -286,13 +288,13 @@ export class MerchantLearningService {
     await this.merchantModel.updateOne(
       {
         _id: merchantId,
-        'learningData.commonCategories.category': category
+        'learningData.commonCategories.category': category,
       },
       {
         $inc: {
           'learningData.commonCategories.$.count': 1,
-          'learningData.commonCategories.$.confidence': confidence
-        }
+          'learningData.commonCategories.$.confidence': confidence,
+        },
       }
     );
   }
@@ -300,16 +302,13 @@ export class MerchantLearningService {
   /**
    * Update subscription status
    */
-  private async updateSubscriptionStatus(
-    merchantId: string,
-    amount?: number
-  ): Promise<void> {
+  private async updateSubscriptionStatus(merchantId: string, amount?: number): Promise<void> {
     const merchant = await this.merchantModel.findById(merchantId);
     if (!merchant || !amount) return;
 
     const lastAmount = merchant.subscription?.averageAmount;
     const lastDate = merchant.subscription?.lastDetected;
-    
+
     if (lastAmount && lastDate) {
       const daysDiff = (new Date().getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
       const amountDiff = Math.abs(amount - lastAmount) / lastAmount;
@@ -323,8 +322,8 @@ export class MerchantLearningService {
               'subscription.typical': true,
               'subscription.frequency': 'MONTHLY',
               'subscription.averageAmount': (lastAmount + amount) / 2,
-              'subscription.lastDetected': new Date()
-            }
+              'subscription.lastDetected': new Date(),
+            },
           }
         );
       }
@@ -334,8 +333,8 @@ export class MerchantLearningService {
         {
           $set: {
             'subscription.averageAmount': amount,
-            'subscription.lastDetected': new Date()
-          }
+            'subscription.lastDetected': new Date(),
+          },
         }
       );
     }
@@ -344,7 +343,10 @@ export class MerchantLearningService {
   /**
    * Calculate merchant confidence for text
    */
-  private async calculateMerchantConfidence(merchant: MerchantDocument, text: string): Promise<number> {
+  private async calculateMerchantConfidence(
+    merchant: MerchantDocument,
+    text: string
+  ): Promise<number> {
     let confidence = 0;
     const normalizedText = text.toLowerCase();
 
@@ -364,7 +366,7 @@ export class MerchantLearningService {
     // Check receipt patterns
     if (merchant.learningData.receiptPatterns) {
       const { headerPatterns, footerPatterns } = merchant.learningData.receiptPatterns;
-      
+
       for (const pattern of headerPatterns) {
         if (normalizedText.includes(pattern.toLowerCase())) {
           confidence += 0.2;
@@ -387,7 +389,8 @@ export class MerchantLearningService {
   private createItemPattern(description: string): string {
     // Convert description to a pattern
     // This could be enhanced with regex or more sophisticated pattern matching
-    return description.toLowerCase()
+    return description
+      .toLowerCase()
       .replace(/[0-9]/g, '#')
       .replace(/[^a-z#\s]/g, '?');
   }
@@ -397,10 +400,7 @@ export class MerchantLearningService {
    */
   private shouldAddAlias(original: string, correct: string): boolean {
     // Simple Levenshtein distance check
-    const distance = this.levenshteinDistance(
-      original.toLowerCase(),
-      correct.toLowerCase()
-    );
+    const distance = this.levenshteinDistance(original.toLowerCase(), correct.toLowerCase());
     return distance <= 3; // Allow up to 3 character differences
   }
 
@@ -463,11 +463,11 @@ export class MerchantLearningService {
           { _id: merchantId },
           {
             $addToSet: {
-              'learningData.receiptPatterns.headerPatterns': line.trim()
+              'learningData.receiptPatterns.headerPatterns': line.trim(),
             },
             $inc: {
-              'learningData.receiptPatterns.matches': 1
-            }
+              'learningData.receiptPatterns.matches': 1,
+            },
           }
         );
       }
@@ -480,8 +480,8 @@ export class MerchantLearningService {
           { _id: merchantId },
           {
             $addToSet: {
-              'learningData.receiptPatterns.footerPatterns': line.trim()
-            }
+              'learningData.receiptPatterns.footerPatterns': line.trim(),
+            },
           }
         );
       }
@@ -492,8 +492,8 @@ export class MerchantLearningService {
       { _id: merchantId },
       {
         $inc: {
-          'learningData.receiptPatterns.confidence': 0.1
-        }
+          'learningData.receiptPatterns.confidence': 0.1,
+        },
       }
     );
   }
@@ -507,11 +507,11 @@ export class MerchantLearningService {
       /total:?\s*[\$£€]?\s*([\d,.]+)/i,
       /amount:?\s*[\$£€]?\s*([\d,.]+)/i,
       /[\$£€]\s*([\d,.]+)\s*$/,
-      /([\d,.]+)\s*[\$£€]\s*$/
+      /([\d,.]+)\s*[\$£€]\s*$/,
     ];
 
     const lines = text.split('\n');
-    
+
     // Search from bottom up as total is usually at the bottom
     for (const line of lines.reverse()) {
       for (const pattern of patterns) {
@@ -530,12 +530,12 @@ export class MerchantLearningService {
    */
   private extractDate(text: string): Date | undefined {
     const lines = text.split('\n');
-    
+
     // Common date patterns
     const patterns = [
       /(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/,
       /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (\d{1,2}),? (\d{4})/i,
-      /(\d{4})-(\d{2})-(\d{2})/
+      /(\d{4})-(\d{2})-(\d{2})/,
     ];
 
     for (const line of lines) {
@@ -560,38 +560,40 @@ export class MerchantLearningService {
   /**
    * Extract items from text
    */
-  private extractItems(text: string): Array<{ description: string; amount: number; category?: string }> {
+  private extractItems(
+    text: string
+  ): Array<{ description: string; amount: number; category?: string }> {
     const lines = text.split('\n');
     const items: Array<{ description: string; amount: number; category?: string }> = [];
-    
+
     let inItemsSection = false;
-    
+
     for (const line of lines) {
       const trimmedLine = line.trim();
-      
+
       if (!trimmedLine) continue;
-      
+
       if (/items|products|description/i.test(trimmedLine)) {
         inItemsSection = true;
         continue;
       }
-      
+
       if (/subtotal|total|tax|payment/i.test(trimmedLine)) {
         inItemsSection = false;
         continue;
       }
-      
+
       if (inItemsSection) {
         const itemMatch = trimmedLine.match(/^(.+?)\s+[\$£€]?\s*([\d,.]+)\s*$/);
         if (itemMatch) {
           const [_, description, amountStr] = itemMatch;
           const amount = parseFloat(amountStr.replace(/,/g, ''));
-          
+
           if (!isNaN(amount) && description) {
             items.push({
               description: description.trim(),
               amount,
-              category: undefined
+              category: undefined,
             });
           }
         }
@@ -600,4 +602,4 @@ export class MerchantLearningService {
 
     return items;
   }
-} 
+}

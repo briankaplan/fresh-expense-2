@@ -14,12 +14,14 @@ This guide explains how to set up and use the monitoring stack for the Expense T
 The monitoring stack consists of the following components:
 
 1. **Prometheus**
+
    - Time-series database
    - Metrics collection and storage
    - Alerting rules configuration
    - Accessible at [http://localhost:9090](http://localhost:9090)
 
 2. **Grafana**
+
    - Visualization and dashboarding
    - Alert management
    - User management
@@ -27,6 +29,7 @@ The monitoring stack consists of the following components:
    - Default credentials: admin/admin
 
 3. **Node Exporter**
+
    - System metrics collection
    - Hardware monitoring
    - OS-level metrics
@@ -47,6 +50,7 @@ The monitoring stack consists of the following components:
    ```
 
 2. The script will:
+
    - Create necessary directories
    - Generate configuration files
    - Start the monitoring stack
@@ -63,12 +67,14 @@ The monitoring stack consists of the following components:
 ### Default Dashboards
 
 1. **System Overview**
+
    - CPU usage
    - Memory usage
    - Disk I/O
    - Network traffic
 
 2. **Container Metrics**
+
    - Container CPU usage
    - Container memory usage
    - Container network I/O
@@ -155,11 +161,13 @@ The monitoring stack consists of the following components:
 ### Common Issues
 
 1. **Services not starting**
+
    - Check Docker logs: `docker-compose -f docker-compose.monitoring.yml logs`
    - Verify port availability
    - Check system resources
 
 2. **Metrics not showing**
+
    - Verify Prometheus targets
    - Check scrape configurations
    - Verify network connectivity

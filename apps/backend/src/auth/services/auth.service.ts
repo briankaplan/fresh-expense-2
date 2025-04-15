@@ -18,12 +18,12 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private emailService: EmailService,
+    private emailService: EmailService
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
-    if (user && await argon2.verify(user.password, password)) {
+    if (user && (await argon2.verify(user.password, password))) {
       const { password, ...result } = user.toObject();
       return result;
     }
@@ -122,10 +122,7 @@ export class AuthService {
       throw new BadRequestException('User not found');
     }
 
-    const isPasswordValid = await argon2.verify(
-      user.password,
-      changePasswordDto.currentPassword
-    );
+    const isPasswordValid = await argon2.verify(user.password, changePasswordDto.currentPassword);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Current password is incorrect');
@@ -152,11 +149,7 @@ export class AuthService {
   }
 
   async updateUser(userId: string, updateUserDto: any) {
-    const user = await this.userModel.findByIdAndUpdate(
-      userId,
-      updateUserDto,
-      { new: true }
-    );
+    const user = await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
     if (!user) {
       throw new Error('User not found');
     }
@@ -195,4 +188,4 @@ export class AuthService {
     const { password, ...result } = user.toObject();
     return result;
   }
-} 
+}

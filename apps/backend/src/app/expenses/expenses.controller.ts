@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  Request,
+  BadRequestException,
+} from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -87,10 +99,6 @@ export class ExpensesController {
     if (!startDate || !endDate) {
       throw new BadRequestException('startDate and endDate are required');
     }
-    return this.expensesService.getExpenseSummary(
-      userId,
-      new Date(startDate),
-      new Date(endDate),
-    );
+    return this.expensesService.getExpenseSummary(userId, new Date(startDate), new Date(endDate));
   }
-} 
+}

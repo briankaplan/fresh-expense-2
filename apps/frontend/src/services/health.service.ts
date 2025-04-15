@@ -31,9 +31,7 @@ class HealthService {
 
   public async checkHealth(): Promise<HealthStatus> {
     try {
-      const response = await axios.get<HealthStatus>(
-        `${import.meta.env.VITE_API_URL}/api/health`
-      );
+      const response = await axios.get<HealthStatus>(`${import.meta.env.VITE_API_URL}/api/health`);
       return response.data;
     } catch (error) {
       console.error('Health check failed:', error);
@@ -65,11 +63,11 @@ class HealthService {
 
   private async performHealthCheck() {
     const setIsLoading = useUIStore.getState().setIsLoading;
-    
+
     try {
       setIsLoading(true);
       const health = await this.checkHealth();
-      
+
       if (health.status !== 'healthy') {
         toast.error('Some services are currently degraded');
         console.warn('Health check warning:', health);
@@ -84,4 +82,4 @@ class HealthService {
 }
 
 export const healthService = HealthService.getInstance();
-export default healthService; 
+export default healthService;

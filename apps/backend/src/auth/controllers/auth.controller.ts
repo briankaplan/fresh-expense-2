@@ -28,19 +28,13 @@ export class AuthController {
   }
 
   @Post('reset-password/:token')
-  async resetPassword(
-    @Param('token') token: string,
-    @Body('newPassword') newPassword: string,
-  ) {
+  async resetPassword(@Param('token') token: string, @Body('newPassword') newPassword: string) {
     return this.authService.resetPassword(token, newPassword);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('change-password')
-  async changePassword(
-    @Req() req: any,
-    @Body() changePasswordDto: ChangePasswordDto,
-  ) {
+  async changePassword(@Req() req: any, @Body() changePasswordDto: ChangePasswordDto) {
     return this.authService.changePassword(req.user.id, changePasswordDto);
   }
 
@@ -48,4 +42,4 @@ export class AuthController {
   async refreshToken(@Body('refreshToken') refreshToken: string) {
     return this.authService.refreshToken(refreshToken);
   }
-} 
+}

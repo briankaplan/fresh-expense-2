@@ -59,7 +59,7 @@ export class UnifiedReceiptProcessorService {
     private readonly r2Service: R2Service,
     private readonly googlePhotosService: GooglePhotosService,
     private readonly receiptConverter: ReceiptConverterService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {
     // Allow 50 requests per minute
     this.rateLimiter = new RateLimiter({ tokensPerInterval: 50, interval: 'minute' });
@@ -95,10 +95,10 @@ export class UnifiedReceiptProcessorService {
       progress: 0,
       total: 1,
     };
-    
+
     const updated = { ...current, ...progress };
     this.progressMap.set(source, updated);
-    
+
     this.eventEmitter.emit('receipt.processing.progress', updated);
   }
 
@@ -128,10 +128,10 @@ export class UnifiedReceiptProcessorService {
           throw new Error(`Unsupported source: ${options.source}`);
       }
 
-      this.updateProgress(options.source, { 
+      this.updateProgress(options.source, {
         status: 'completed',
         progress: 1,
-        total: 1
+        total: 1,
       });
 
       return receipt;
@@ -139,7 +139,7 @@ export class UnifiedReceiptProcessorService {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.updateProgress(options.source, {
         status: 'error',
-        error: errorMessage
+        error: errorMessage,
       });
       throw error;
     }
@@ -184,7 +184,7 @@ export class UnifiedReceiptProcessorService {
       const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
 
       await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
-      
+
       // Generate and upload thumbnail
       const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
       await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
@@ -230,7 +230,7 @@ export class UnifiedReceiptProcessorService {
       const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
 
       await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
-      
+
       // Generate and upload thumbnail
       const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
       await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
@@ -307,31 +307,24 @@ export class UnifiedReceiptProcessorService {
     }, 'Manual processing');
   }
 
-  private async calculateMatchScore(receipt: ReceiptDocument, expenseData: {
-    merchant: string;
-    amount: number;
-    date: Date;
-  }): Promise<ReceiptMatch> {
-    const merchantMatch = this.calculateMerchantMatchScore(
-      receipt.merchant,
-      expenseData.merchant
-    );
+  private async calculateMatchScore(
+    receipt: ReceiptDocument,
+    expenseData: {
+      merchant: string;
+      amount: number;
+      date: Date;
+    }
+  ): Promise<ReceiptMatch> {
+    const merchantMatch = this.calculateMerchantMatchScore(receipt.merchant, expenseData.merchant);
 
-    const amountMatch = this.calculateAmountMatchScore(
-      receipt.amount,
-      expenseData.amount
-    );
+    const amountMatch = this.calculateAmountMatchScore(receipt.amount, expenseData.amount);
 
-    const dateMatch = this.calculateDateMatchScore(
-      receipt.date || new Date(),
-      expenseData.date
-    );
+    const dateMatch = this.calculateDateMatchScore(receipt.date || new Date(), expenseData.date);
 
-    const confidence = (
+    const confidence =
       merchantMatch * 0.4 + // 40% weight for merchant
       amountMatch * 0.4 + // 40% weight for amount
-      dateMatch * 0.2 // 20% weight for date
-    );
+      dateMatch * 0.2; // 20% weight for date
 
     return {
       confidence,
@@ -362,14 +355,14 @@ export class UnifiedReceiptProcessorService {
 
   private calculateAmountMatchScore(amount1: number, amount2: number): number {
     if (!amount1 || !amount2) return 0;
-    
+
     const difference = Math.abs(amount1 - amount2);
     const percentage = difference / amount2;
 
     if (percentage === 0) return 1;
     if (percentage <= 0.01) return 0.9; // 1% difference
     if (percentage <= 0.05) return 0.7; // 5% difference
-    if (percentage <= 0.10) return 0.5; // 10% difference
+    if (percentage <= 0.1) return 0.5; // 10% difference
     return 0;
   }
 
@@ -384,9 +377,9 @@ export class UnifiedReceiptProcessorService {
   }
 
   private levenshteinDistance(str1: string, str2: string): number {
-    const matrix = Array(str1.length + 1).fill(null).map(() => 
-      Array(str2.length + 1).fill(null)
-    );
+    const matrix = Array(str1.length + 1)
+      .fill(null)
+      .map(() => Array(str2.length + 1).fill(null));
 
     for (let i = 0; i <= str1.length; i++) matrix[i][0] = i;
     for (let j = 0; j <= str2.length; j++) matrix[0][j] = j;
@@ -413,10 +406,10 @@ export class UnifiedReceiptProcessorService {
         processingStatus: 'PENDING',
         version: 1,
         importDate: new Date(),
-        r2Keys: data.metadata?.r2Keys || {}
-      }
+        r2Keys: data.metadata?.r2Keys || {},
+      },
     });
 
     return receipt.save();
   }
-} 
+}

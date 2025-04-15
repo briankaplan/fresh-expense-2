@@ -1,10 +1,7 @@
 import * as yup from 'yup';
 
 export const loginSchema = yup.object({
-  email: yup
-    .string()
-    .email('Please enter a valid email')
-    .required('Email is required'),
+  email: yup.string().email('Please enter a valid email').required('Email is required'),
   password: yup
     .string()
     .min(8, 'Password must be at least 8 characters')
@@ -12,10 +9,7 @@ export const loginSchema = yup.object({
 });
 
 export const registerSchema = yup.object({
-  email: yup
-    .string()
-    .email('Please enter a valid email')
-    .required('Email is required'),
+  email: yup.string().email('Please enter a valid email').required('Email is required'),
   password: yup
     .string()
     .min(8, 'Password must be at least 8 characters')
@@ -39,21 +33,13 @@ export const registerSchema = yup.object({
 });
 
 export const expenseSchema = yup.object({
-  amount: yup
-    .number()
-    .positive('Amount must be positive')
-    .required('Amount is required'),
+  amount: yup.number().positive('Amount must be positive').required('Amount is required'),
   description: yup
     .string()
     .min(3, 'Description must be at least 3 characters')
     .required('Description is required'),
-  category: yup
-    .string()
-    .required('Category is required'),
-  date: yup
-    .date()
-    .max(new Date(), 'Date cannot be in the future')
-    .required('Date is required'),
+  category: yup.string().required('Category is required'),
+  date: yup.date().max(new Date(), 'Date cannot be in the future').required('Date is required'),
   merchant: yup
     .string()
     .min(2, 'Merchant name must be at least 2 characters')
@@ -69,14 +55,7 @@ export const profileSchema = yup.object({
     .string()
     .min(2, 'Last name must be at least 2 characters')
     .required('Last name is required'),
-  email: yup
-    .string()
-    .email('Please enter a valid email')
-    .required('Email is required'),
-  phone: yup
-    .string()
-    .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
-  company: yup
-    .string()
-    .min(2, 'Company name must be at least 2 characters'),
-}); 
+  email: yup.string().email('Please enter a valid email').required('Email is required'),
+  phone: yup.string().matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
+  company: yup.string().min(2, 'Company name must be at least 2 characters'),
+});

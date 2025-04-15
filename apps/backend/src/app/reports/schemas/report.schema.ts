@@ -8,13 +8,13 @@ export enum ReportType {
   CATEGORY = 'category',
   MERCHANT = 'merchant',
   SUBSCRIPTION = 'subscription',
-  TAX = 'tax'
+  TAX = 'tax',
 }
 
 export enum ReportFormat {
   PDF = 'pdf',
   CSV = 'csv',
-  XLSX = 'xlsx'
+  XLSX = 'xlsx',
 }
 
 @Schema({ timestamps: true })
@@ -97,4 +97,4 @@ ReportSchema.index({ userId: 1, createdAt: -1 });
 ReportSchema.index({ companyId: 1, createdAt: -1 });
 ReportSchema.index({ type: 1 });
 ReportSchema.index({ status: 1 });
-ReportSchema.index({ isScheduled: 1 }); 
+ReportSchema.index({ isScheduled: 1 });

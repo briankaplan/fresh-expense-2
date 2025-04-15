@@ -2,14 +2,14 @@ const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const { composePlugins, withNx } = require('@nx/webpack');
 
-module.exports = composePlugins(withNx(), (config) => {
+module.exports = composePlugins(withNx(), config => {
   return {
     ...config,
     target: 'node',
     mode: 'production',
     entry: path.resolve(__dirname, 'src/main.ts'),
     experiments: {
-      outputModule: true
+      outputModule: true,
     },
     output: {
       path: path.resolve(__dirname, '../../dist/apps/backend'),
@@ -31,7 +31,7 @@ module.exports = composePlugins(withNx(), (config) => {
         '@auth': path.resolve(__dirname, 'src/auth'),
         '@controllers': path.resolve(__dirname, 'src/controllers'),
         '@middleware': path.resolve(__dirname, 'src/middleware'),
-        '@types': path.resolve(__dirname, 'src/types')
+        '@types': path.resolve(__dirname, 'src/types'),
       },
       fallback: {
         ...config.resolve?.fallback,

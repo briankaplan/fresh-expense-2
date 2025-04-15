@@ -14,7 +14,7 @@ async function setupDatabase() {
       { key: { amount: 1 }, name: 'amount_idx' },
       // Compound indexes for common queries
       { key: { company: 1, date: -1 }, name: 'company_date_idx' },
-      { key: { category: 1, date: -1 }, name: 'category_date_idx' }
+      { key: { category: 1, date: -1 }, name: 'category_date_idx' },
     ]);
 
     // Create indexes for transactions collection
@@ -25,7 +25,7 @@ async function setupDatabase() {
       { key: { amount: 1 }, name: 'amount_idx' },
       // Compound indexes for common queries
       { key: { type: 1, date: -1 }, name: 'type_date_idx' },
-      { key: { category: 1, date: -1 }, name: 'category_date_idx' }
+      { key: { category: 1, date: -1 }, name: 'category_date_idx' },
     ]);
 
     console.log('Database setup completed successfully');
@@ -57,14 +57,14 @@ async function setupSchemaValidation() {
             company: { bsonType: 'string' },
             tags: {
               bsonType: 'array',
-              items: { bsonType: 'string' }
+              items: { bsonType: 'string' },
             },
-            receiptUrl: { bsonType: ['string', 'null'] }
-          }
-        }
+            receiptUrl: { bsonType: ['string', 'null'] },
+          },
+        },
       },
       validationLevel: 'moderate',
-      validationAction: 'warn'
+      validationAction: 'warn',
     });
 
     // Transaction collection validation
@@ -82,13 +82,13 @@ async function setupSchemaValidation() {
             status: { bsonType: 'string' },
             type: {
               bsonType: 'string',
-              enum: ['income', 'expense']
-            }
-          }
-        }
+              enum: ['income', 'expense'],
+            },
+          },
+        },
       },
       validationLevel: 'moderate',
-      validationAction: 'warn'
+      validationAction: 'warn',
     });
 
     console.log('Schema validation setup completed successfully');
@@ -109,4 +109,4 @@ if (require.main === module) {
   init().catch(console.error);
 }
 
-export { init as setupDb }; 
+export { init as setupDb };

@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Box, Button, Card, CardContent, TextField, Typography, useTheme, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+  useTheme,
+  InputAdornment,
+} from '@mui/material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -17,7 +26,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       await forgotPassword(email);
       toast.success('Password reset instructions have been sent to your email');
@@ -39,7 +48,7 @@ const ForgotPassword = () => {
         background: theme.palette.background.default,
         backgroundImage: `radial-gradient(at 50% 0%, ${theme.palette.primary.dark}29 0%, transparent 50%), 
                          radial-gradient(at 100% 0%, ${theme.palette.secondary.dark}29 0%, transparent 50%)`,
-        p: 2
+        p: 2,
       }}
     >
       <motion.div
@@ -59,12 +68,12 @@ const ForgotPassword = () => {
           }}
         >
           <CardContent sx={{ p: 4 }}>
-            <Typography 
-              variant="h4" 
-              component="h1" 
-              gutterBottom 
-              align="center" 
-              sx={{ 
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              align="center"
+              sx={{
                 color: theme.palette.primary.main,
                 fontWeight: 700,
                 mb: 3,
@@ -75,14 +84,14 @@ const ForgotPassword = () => {
             >
               Reset Password
             </Typography>
-            
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                mb: 4, 
-                textAlign: 'center', 
+
+            <Typography
+              variant="body1"
+              sx={{
+                mb: 4,
+                textAlign: 'center',
                 color: 'text.secondary',
-                opacity: 0.8 
+                opacity: 0.8,
               }}
             >
               Enter your email address and we'll send you instructions to reset your password.
@@ -94,7 +103,7 @@ const ForgotPassword = () => {
                 label="Email Address"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
                 sx={{
                   mb: 3,
@@ -105,8 +114,8 @@ const ForgotPassword = () => {
                     },
                     '&.Mui-focused': {
                       backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    }
-                  }
+                    },
+                  },
                 }}
                 InputProps={{
                   startAdornment: (
@@ -135,7 +144,7 @@ const ForgotPassword = () => {
                   },
                   '&:disabled': {
                     background: theme.palette.action.disabledBackground,
-                  }
+                  },
                 }}
               >
                 {isSubmitting ? 'Sending...' : 'Send Reset Instructions'}
@@ -152,8 +161,8 @@ const ForgotPassword = () => {
                     fontWeight: 500,
                     '&:hover': {
                       textDecoration: 'underline',
-                      color: theme.palette.primary.light
-                    }
+                      color: theme.palette.primary.light,
+                    },
                   }}
                 >
                   Back to Login
@@ -167,4 +176,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;

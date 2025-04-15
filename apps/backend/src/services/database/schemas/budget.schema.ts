@@ -23,4 +23,4 @@ export interface BudgetSchema extends BaseSchema {
   };
 }
 
-export const BUDGET_COLLECTION = 'budgets'; 
+export const BUDGET_COLLECTION = 'budgets';

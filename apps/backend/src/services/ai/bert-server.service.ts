@@ -16,10 +16,11 @@ export class BertServerService {
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationService: NotificationService,
+    private readonly notificationService: NotificationService
   ) {
     this.port = this.configService.get<number>('BERT_SERVER_PORT') || 5555;
-    this.modelPath = this.configService.get<string>('BERT_MODEL_PATH') || './models/bert-base-uncased';
+    this.modelPath =
+      this.configService.get<string>('BERT_MODEL_PATH') || './models/bert-base-uncased';
   }
 
   async start(): Promise<boolean> {
@@ -32,11 +33,16 @@ export class BertServerService {
 
       // Start the BERT server process
       this.server = spawn('bert-serving-start', [
-        '-model_dir', this.modelPath,
-        '-num_worker', '1',
-        '-max_seq_len', '512',
-        '-port', this.port.toString(),
-        '-max_batch_size', '32',
+        '-model_dir',
+        this.modelPath,
+        '-num_worker',
+        '1',
+        '-max_seq_len',
+        '512',
+        '-port',
+        this.port.toString(),
+        '-max_batch_size',
+        '32',
       ]);
 
       // Handle server output
@@ -56,7 +62,7 @@ export class BertServerService {
 
       // Wait for server to be ready
       await this.waitForServer();
-      
+
       this.isRunning = true;
       this.logger.log('✅ BERT server started successfully');
       return true;
@@ -64,7 +70,7 @@ export class BertServerService {
       this.logger.error('❌ Failed to start BERT server:', error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'BERT Server Startup',
+        'BERT Server Startup'
       );
       return false;
     }
@@ -116,4 +122,4 @@ export class BertServerService {
   isServerRunning(): boolean {
     return this.isRunning;
   }
-} 
+}

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { MerchantsService } from './merchants.service';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
@@ -48,7 +58,7 @@ export class MerchantsController {
   findNearby(
     @Query('latitude') latitude: number,
     @Query('longitude') longitude: number,
-    @Query('maxDistance') maxDistance?: number,
+    @Query('maxDistance') maxDistance?: number
   ) {
     return this.merchantsService.findNearby(latitude, longitude, maxDistance);
   }
@@ -57,4 +67,4 @@ export class MerchantsController {
   getDefaultMerchants() {
     return this.merchantsService.getDefaultMerchants();
   }
-} 
+}

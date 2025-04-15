@@ -38,7 +38,7 @@ export class ReceiptController {
   async uploadReceipt(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: ReceiptBody,
-    @Request() req: AuthenticatedRequest,
+    @Request() req: AuthenticatedRequest
   ) {
     return this.receiptService.create({
       file: file.buffer,
@@ -65,7 +65,7 @@ export class ReceiptController {
   async updateReceipt(
     @Param('id') id: string,
     @Body() body: Partial<ReceiptBody>,
-    @Request() req: AuthenticatedRequest,
+    @Request() req: AuthenticatedRequest
   ) {
     return this.receiptService.update(id, req.user._id.toString(), {
       merchant: body.merchant,
@@ -79,4 +79,4 @@ export class ReceiptController {
     await this.receiptService.delete(id, req.user._id.toString());
     return { success: true };
   }
-} 
+}

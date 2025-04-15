@@ -54,4 +54,4 @@ ExpenseSchema.index({ category: 1 });
 ExpenseSchema.index({ matched: 1 });
 ExpenseSchema.index({ source: 1 });
 ExpenseSchema.index({ 'googleAuth.userId': 1 });
-ExpenseSchema.index({ 'googleAuth.tokenExpiry': 1 }); 
+ExpenseSchema.index({ 'googleAuth.tokenExpiry': 1 });

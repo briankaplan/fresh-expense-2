@@ -44,7 +44,7 @@ export class CSVService {
 
   constructor(
     @InjectModel(Receipt.name) private readonly receiptModel: Model<ReceiptDocument>,
-    @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>,
+    @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>
   ) {}
 
   /**
@@ -56,7 +56,7 @@ export class CSVService {
         columns: true,
         skip_empty_lines: true,
         trim: true,
-        cast: true
+        cast: true,
       });
     } catch (error) {
       this.logger.error('Error parsing CSV:', error);
@@ -79,13 +79,13 @@ export class CSVService {
         description: item.description,
         amount: item.amount,
         quantity: item.quantity,
-        price: item.price
+        price: item.price,
       })),
       metadata: {
         source: receipt.metadata?.source,
         importDate: receipt.metadata?.importDate,
-        processingStatus: receipt.metadata?.processingStatus
-      }
+        processingStatus: receipt.metadata?.processingStatus,
+      },
     }));
 
     return stringify(data, {
@@ -98,8 +98,8 @@ export class CSVService {
         'imageUrl',
         'ocrText',
         'items',
-        'metadata'
-      ]
+        'metadata',
+      ],
     });
   }
 
@@ -125,10 +125,11 @@ export class CSVService {
             extractedData: {
               merchant: expense.merchant,
               date: new Date(expense.date),
-              amount: typeof expense.amount === 'string' ? parseFloat(expense.amount) : expense.amount,
-              items: expense.items || []
-            }
-          }
+              amount:
+                typeof expense.amount === 'string' ? parseFloat(expense.amount) : expense.amount,
+              items: expense.items || [],
+            },
+          },
         });
 
         await receipt.save();
@@ -161,8 +162,8 @@ export class CSVService {
           source: 'CSV_IMPORT',
           metadata: {
             importDate: new Date(),
-            source: 'bank_csv'
-          }
+            source: 'bank_csv',
+          },
         });
 
         await transaction.save();
@@ -197,8 +198,8 @@ export class CSVService {
             expensifyId: csvTx.expenseId,
             reimbursable: csvTx.reimbursable === 'Yes',
             importDate: new Date(),
-            source: 'expensify_csv'
-          }
+            source: 'expensify_csv',
+          },
         });
 
         await transaction.save();
@@ -211,4 +212,4 @@ export class CSVService {
       throw error;
     }
   }
-} 
+}

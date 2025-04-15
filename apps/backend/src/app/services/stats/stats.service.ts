@@ -14,7 +14,7 @@ export class StatsService {
     @InjectModel(Expense.name) private expenseModel: Model<Expense>,
     @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
     @InjectModel(Merchant.name) private merchantModel: Model<Merchant>,
-    @InjectModel(Subscription.name) private subscriptionModel: Model<Subscription>,
+    @InjectModel(Subscription.name) private subscriptionModel: Model<Subscription>
   ) {}
 
   async getHealthCheck() {
@@ -22,7 +22,7 @@ export class StatsService {
       const uptimeSeconds = process.uptime();
       const environment = process.env.NODE_ENV || 'development';
       const memoryUsage = process.memoryUsage();
-      
+
       // Check database connections
       const dbStatus = {
         expenses: await this.checkCollection(this.expenseModel),
@@ -30,14 +30,14 @@ export class StatsService {
         merchants: await this.checkCollection(this.merchantModel),
         subscriptions: await this.checkCollection(this.subscriptionModel),
       };
-      
+
       const services = {
-        'Database': Object.values(dbStatus).every(status => status) ? 'connected' : 'disconnected',
+        Database: Object.values(dbStatus).every(status => status) ? 'connected' : 'disconnected',
         'API Server': 'initialized',
         'Receipt Processing': 'initialized',
-        'Transaction Sync': 'initialized'
+        'Transaction Sync': 'initialized',
       };
-      
+
       return {
         status: 'ok',
         timestamp: new Date().toISOString(),
@@ -48,8 +48,8 @@ export class StatsService {
         memory: {
           rss: `${Math.round(memoryUsage.rss / 1024 / 1024)} MB`,
           heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`,
-          heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`
-        }
+          heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`,
+        },
       };
     } catch (error) {
       this.logger.error('Error in health check:', error);
@@ -70,11 +70,7 @@ export class StatsService {
   async getDashboardStats() {
     try {
       // Get recent transactions
-      const transactions = await this.expenseModel
-        .find()
-        .sort({ date: -1 })
-        .limit(100)
-        .exec();
+      const transactions = await this.expenseModel.find().sort({ date: -1 }).limit(100).exec();
 
       // Calculate totals and stats
       const totalAmount = transactions.reduce((sum, tx) => {
@@ -108,7 +104,7 @@ export class StatsService {
           monthNum: monthDate.getMonth() + 1,
           yearMonth,
           count: 0,
-          total: 0
+          total: 0,
         });
       }
 
@@ -130,7 +126,7 @@ export class StatsService {
         name: sub.name,
         amount: sub.amount,
         frequency: sub.frequency,
-        nextBillingDate: sub.nextBillingDate
+        nextBillingDate: sub.nextBillingDate,
       }));
 
       return {
@@ -141,10 +137,10 @@ export class StatsService {
         categoryData: Object.entries(categoryMap).map(([name, data]) => ({
           name,
           count: data.count,
-          total: data.total
+          total: data.total,
         })),
         monthlyData,
-        subscriptions: subscriptionData
+        subscriptions: subscriptionData,
       };
     } catch (error) {
       this.logger.error('Error getting dashboard stats:', error);
@@ -155,7 +151,7 @@ export class StatsService {
   async getExpenseDetails(id: string) {
     try {
       const expense = await this.expenseModel.findById(id).exec();
-      
+
       if (!expense) {
         throw new Error('Expense not found');
       }
@@ -163,21 +159,20 @@ export class StatsService {
       // Get receipt if exists
       let receipt = null;
       if (expense.receiptId) {
-        receipt = await this.receiptModel.findOne({
-          $or: [
-            { _id: expense.receiptId },
-            { expense_id: expense._id }
-          ]
-        }).exec();
+        receipt = await this.receiptModel
+          .findOne({
+            $or: [{ _id: expense.receiptId }, { expense_id: expense._id }],
+          })
+          .exec();
       }
 
       return {
         expense,
-        receipt
+        receipt,
       };
     } catch (error) {
       this.logger.error('Error getting expense details:', error);
       throw error;
     }
   }
-} 
+}

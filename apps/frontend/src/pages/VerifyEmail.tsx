@@ -47,8 +47,8 @@ const VerifyEmail: React.FC = () => {
                 status === 'verifying'
                   ? 'bg-blue-100 text-blue-700'
                   : status === 'success'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-red-100 text-red-700'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
               }`}
             >
               {message}
@@ -70,4 +70,4 @@ const VerifyEmail: React.FC = () => {
   );
 };
 
-export default VerifyEmail; 
+export default VerifyEmail;

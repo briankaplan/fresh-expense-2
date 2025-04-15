@@ -1,4 +1,9 @@
-import { S3Client, PutObjectCommand, HeadObjectCommand, PutObjectCommandInput } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommandInput,
+} from '@aws-sdk/client-s3';
 import fetch, { Response } from 'node-fetch';
 import { createHash } from 'crypto';
 import { lookup } from 'mime-types';
@@ -47,7 +52,7 @@ const s3Client = new S3Client({
   credentials: {
     accessKeyId: process.env['R2_ACCESS_KEY_ID'] || '',
     secretAccessKey: process.env['R2_SECRET_ACCESS_KEY'] || '',
-  }
+  },
 });
 
 export class ReceiptProcessor {
@@ -65,22 +70,29 @@ export class ReceiptProcessor {
   private static readonly OCR_ENDPOINT = process.env['OCR_API_ENDPOINT'] || '';
   private static readonly OCR_API_KEY = process.env['OCR_API_KEY'] || '';
 
-  private static async checkIfReceiptExists(key: string): Promise<{ exists: boolean; metadata?: any }> {
+  private static async checkIfReceiptExists(
+    key: string
+  ): Promise<{ exists: boolean; metadata?: any }> {
     try {
-      const result = await s3Client.send(new HeadObjectCommand({
-        Bucket: process.env['R2_BUCKET_NAME'] || '',
-        Key: key,
-      }));
-      return { 
-        exists: true, 
-        metadata: result.Metadata 
+      const result = await s3Client.send(
+        new HeadObjectCommand({
+          Bucket: process.env['R2_BUCKET_NAME'] || '',
+          Key: key,
+        })
+      );
+      return {
+        exists: true,
+        metadata: result.Metadata,
       };
     } catch (error) {
       return { exists: false };
     }
   }
 
-  private static async performOCR(buffer: Buffer, mimeType: string): Promise<UnifiedReceipt | null> {
+  private static async performOCR(
+    buffer: Buffer,
+    mimeType: string
+  ): Promise<UnifiedReceipt | null> {
     if (!this.OCR_ENDPOINT || !this.OCR_API_KEY) {
       return null;
     }
@@ -169,9 +181,11 @@ export class ReceiptProcessor {
     return this.ALLOWED_MIME_TYPES.has(contentType.toLowerCase());
   }
 
-  private static async streamToBuffer(stream: NodeJS.ReadableStream | ReadableStream<any>): Promise<Buffer> {
+  private static async streamToBuffer(
+    stream: NodeJS.ReadableStream | ReadableStream<any>
+  ): Promise<Buffer> {
     let nodeStream: NodeJS.ReadableStream;
-    
+
     // Check if it's a web ReadableStream by checking for getReader method
     if ('getReader' in stream) {
       const reader = (stream as ReadableStream<any>).getReader();
@@ -188,7 +202,7 @@ export class ReceiptProcessor {
             this.emit('error', error);
             this.push(null);
           }
-        }
+        },
       });
     } else {
       nodeStream = stream as NodeJS.ReadableStream;
@@ -207,7 +221,7 @@ export class ReceiptProcessor {
         }
         chunks.push(chunk);
       });
-      nodeStream.on('error', (error) => reject(error));
+      nodeStream.on('error', error => reject(error));
       nodeStream.on('end', () => resolve(Buffer.concat(chunks)));
     });
   }
@@ -216,7 +230,7 @@ export class ReceiptProcessor {
     try {
       const hash = createHash('md5').update(url).digest('hex');
       const baseKey = `receipts/${hash}`;
-      
+
       // Check if receipt already exists
       const { exists, metadata } = await this.checkIfReceiptExists(baseKey);
       if (exists && metadata?.unifiedReceipt) {
@@ -289,4 +303,4 @@ export class ReceiptProcessor {
   public static async processReceiptBatch(urls: string[]): Promise<ReceiptProcessingResult[]> {
     return Promise.all(urls.map(url => this.processReceipt(url)));
   }
-} 
+}

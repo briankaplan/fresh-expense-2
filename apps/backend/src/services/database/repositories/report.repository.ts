@@ -14,25 +14,15 @@ export class ReportRepository extends BaseRepository<ReportSchema> {
     return this.find({ userId });
   }
 
-  async findByType(
-    userId: string,
-    type: ReportSchema['type']
-  ): Promise<ReportSchema[]> {
+  async findByType(userId: string, type: ReportSchema['type']): Promise<ReportSchema[]> {
     return this.find({ userId, type });
   }
 
-  async findByStatus(
-    userId: string,
-    status: ReportSchema['status']
-  ): Promise<ReportSchema[]> {
+  async findByStatus(userId: string, status: ReportSchema['status']): Promise<ReportSchema[]> {
     return this.find({ userId, status });
   }
 
-  async findByDateRange(
-    userId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<ReportSchema[]> {
+  async findByDateRange(userId: string, startDate: Date, endDate: Date): Promise<ReportSchema[]> {
     return this.find({
       userId,
       'data.period.start': { $gte: startDate },
@@ -56,10 +46,7 @@ export class ReportRepository extends BaseRepository<ReportSchema> {
     );
   }
 
-  async updateReportData(
-    reportId: string,
-    data: ReportSchema['data']
-  ): Promise<boolean> {
+  async updateReportData(reportId: string, data: ReportSchema['data']): Promise<boolean> {
     return this.update(
       { _id: reportId },
       {
@@ -69,10 +56,7 @@ export class ReportRepository extends BaseRepository<ReportSchema> {
   }
 
   async getLatestReport(userId: string): Promise<ReportSchema | null> {
-    const reports = await this.find(
-      { userId },
-      { sort: { 'data.period.end': -1 }, limit: 1 }
-    );
+    const reports = await this.find({ userId }, { sort: { 'data.period.end': -1 }, limit: 1 });
     return reports[0] || null;
   }
 
@@ -87,4 +71,4 @@ export class ReportRepository extends BaseRepository<ReportSchema> {
       'data.period.end': { $lte: endDate },
     });
   }
-} 
+}

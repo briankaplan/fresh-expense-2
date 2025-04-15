@@ -45,4 +45,4 @@ import { SettingsRepository } from './repositories/settings.repository';
     SettingsRepository,
   ],
 })
-export class MongoDBModule {} 
+export class MongoDBModule {}

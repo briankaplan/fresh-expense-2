@@ -19,7 +19,7 @@ export class NotificationService {
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationRepository: NotificationRepository,
+    private readonly notificationRepository: NotificationRepository
   ) {}
 
   async notify(notification: Omit<Notification, 'timestamp'>): Promise<void> {
@@ -35,7 +35,10 @@ export class NotificationService {
       // Log based on type
       switch (notification.type) {
         case 'error':
-          this.logger.error(`${notification.title}: ${notification.message}`, notification.metadata);
+          this.logger.error(
+            `${notification.title}: ${notification.message}`,
+            notification.metadata
+          );
           break;
         case 'warning':
           this.logger.warn(`${notification.title}: ${notification.message}`, notification.metadata);
@@ -52,7 +55,6 @@ export class NotificationService {
       if (this.configService.get<boolean>('NOTIFICATIONS_EMAIL_ENABLED')) {
         // Implement email notification logic
       }
-
     } catch (error) {
       this.logger.error('Error sending notification:', error);
       // Don't throw to prevent breaking the main flow
@@ -138,4 +140,4 @@ export class NotificationService {
   async getRecentNotifications(userId: string, limit?: number): Promise<NotificationSchema[]> {
     return this.notificationRepository.getRecentNotifications(userId, limit);
   }
-} 
+}

@@ -19,26 +19,26 @@ export class SimilarityService extends BaseAIService {
     logger: LoggingService
   ) {
     super(configService, rateLimiter, errorHandler, logger, SimilarityService.name);
-    this.initializeClient(
-      'https://api-inference.huggingface.co/models',
-      {
-        'Authorization': `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
-      }
-    );
+    this.initializeClient('https://api-inference.huggingface.co/models', {
+      Authorization: `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
+    });
   }
 
-  async findSimilarExpenses(description: string, candidates: string[]): Promise<SimilarityResult[]> {
+  async findSimilarExpenses(
+    description: string,
+    candidates: string[]
+  ): Promise<SimilarityResult[]> {
     return this.withRateLimit('AI.HUGGINGFACE.INFERENCE', async () => {
       const response = await this.client.post('/sentence-transformers/all-MiniLM-L6-v2', {
         inputs: {
           source_sentence: description,
-          sentences: candidates
+          sentences: candidates,
         },
       });
 
       return response.data.map((score: number, index: number) => ({
         score,
-        text: candidates[index]
+        text: candidates[index],
       }));
     });
   }
@@ -48,11 +48,11 @@ export class SimilarityService extends BaseAIService {
       const response = await this.client.post('/sentence-transformers/all-MiniLM-L6-v2', {
         inputs: {
           source_sentence: text1,
-          sentences: [text2]
+          sentences: [text2],
         },
       });
 
       return response.data[0];
     });
   }
-} 
+}

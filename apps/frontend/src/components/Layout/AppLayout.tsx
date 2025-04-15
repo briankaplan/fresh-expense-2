@@ -58,11 +58,9 @@ export const AppLayout: React.FC = () => {
           <Content className="app-content">
             <Outlet />
           </Content>
-          <Footer className="app-footer">
-            Fresh Expense ©{new Date().getFullYear()}
-          </Footer>
+          <Footer className="app-footer">Fresh Expense ©{new Date().getFullYear()}</Footer>
         </Layout>
       </Layout>
     </Layout>
   );
-}; 
+};

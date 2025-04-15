@@ -29,12 +29,9 @@ export class ExtractionService extends BaseAIService {
     logger: LoggingService
   ) {
     super(configService, rateLimiter, errorHandler, logger, ExtractionService.name);
-    this.initializeClient(
-      'https://api-inference.huggingface.co/models',
-      {
-        'Authorization': `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
-      }
-    );
+    this.initializeClient('https://api-inference.huggingface.co/models', {
+      Authorization: `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
+    });
   }
 
   async extractReceiptInfo(text: string): Promise<ExtractedReceiptInfo> {
@@ -49,7 +46,7 @@ export class ExtractionService extends BaseAIService {
         date: '',
         total: 0,
         items: [],
-        confidence: 0
+        confidence: 0,
       };
 
       // Extract merchant name (usually at the top)
@@ -77,7 +74,7 @@ export class ExtractionService extends BaseAIService {
         if (!itemMatch[1].toLowerCase().includes('total')) {
           result.items.push({
             description: itemMatch[1].trim(),
-            amount: parseFloat(itemMatch[2])
+            amount: parseFloat(itemMatch[2]),
           });
         }
       }
@@ -91,7 +88,7 @@ export class ExtractionService extends BaseAIService {
 
   private calculateConfidence(result: ExtractedReceiptInfo): number {
     let score = 0;
-    
+
     if (result.merchant) score += 0.2;
     if (result.date) score += 0.2;
     if (result.total > 0) score += 0.3;
@@ -99,4 +96,4 @@ export class ExtractionService extends BaseAIService {
 
     return score;
   }
-} 
+}

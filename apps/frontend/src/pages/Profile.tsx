@@ -28,14 +28,14 @@ const Profile: React.FC = () => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0 },
   };
 
   return (
@@ -58,9 +58,9 @@ const Profile: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.2 }}
             >
-              <Paper 
-                sx={{ 
-                  p: { xs: 2, sm: 3 }, 
+              <Paper
+                sx={{
+                  p: { xs: 2, sm: 3 },
                   textAlign: 'center',
                   height: '100%',
                   display: 'flex',
@@ -71,11 +71,11 @@ const Profile: React.FC = () => {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ 
-                    type: "spring",
+                  transition={{
+                    type: 'spring',
                     stiffness: 260,
                     damping: 20,
-                    delay: 0.3
+                    delay: 0.3,
                   }}
                 >
                   <Avatar
@@ -102,11 +102,11 @@ const Profile: React.FC = () => {
                   <Typography color="textSecondary" gutterBottom>
                     {user?.email}
                   </Typography>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ 
+                  <Button
+                    variant="outlined"
+                    sx={{
                       mt: 2,
-                      width: { xs: '100%', sm: 'auto' }
+                      width: { xs: '100%', sm: 'auto' },
                     }}
                   >
                     Edit Profile
@@ -116,11 +116,7 @@ const Profile: React.FC = () => {
             </motion.div>
           </Grid>
           <Grid item xs={12} md={8}>
-            <motion.div
-              variants={containerAnimation}
-              initial="hidden"
-              animate="show"
-            >
+            <motion.div variants={containerAnimation} initial="hidden" animate="show">
               <Paper sx={{ p: { xs: 2, sm: 3 } }}>
                 <motion.div variants={itemAnimation}>
                   <Typography variant="h6" gutterBottom>
@@ -134,7 +130,7 @@ const Profile: React.FC = () => {
                         primary="Email"
                         secondary={user?.email}
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1'
+                          variant: isMobile ? 'body2' : 'body1',
                         }}
                       />
                     </ListItem>
@@ -146,7 +142,7 @@ const Profile: React.FC = () => {
                         primary="Role"
                         secondary={user?.role}
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1'
+                          variant: isMobile ? 'body2' : 'body1',
                         }}
                       />
                     </ListItem>
@@ -158,7 +154,7 @@ const Profile: React.FC = () => {
                         primary="Member Since"
                         secondary="March 2024"
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1'
+                          variant: isMobile ? 'body2' : 'body1',
                         }}
                       />
                     </ListItem>
@@ -170,27 +166,12 @@ const Profile: React.FC = () => {
                       Security
                     </Typography>
                   </motion.div>
-                  <motion.div 
-                    variants={itemAnimation}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <Stack 
-                      direction={{ xs: 'column', sm: 'row' }} 
-                      spacing={2}
-                      sx={{ mt: 2 }}
-                    >
-                      <Button 
-                        variant="outlined" 
-                        color="primary"
-                        fullWidth={isMobile}
-                      >
+                  <motion.div variants={itemAnimation} transition={{ delay: 0.2 }}>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 2 }}>
+                      <Button variant="outlined" color="primary" fullWidth={isMobile}>
                         Change Password
                       </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        fullWidth={isMobile}
-                      >
+                      <Button variant="outlined" color="error" fullWidth={isMobile}>
                         Delete Account
                       </Button>
                     </Stack>
@@ -205,4 +186,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

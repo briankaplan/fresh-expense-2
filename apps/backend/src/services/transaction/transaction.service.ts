@@ -7,8 +7,8 @@ import { Transaction } from './schemas/transaction.schema';
 export class TransactionService {
   constructor(
     @InjectModel(Transaction.name)
-    private readonly transactionModel: Model<Transaction>,
-  ) {}
+    private readonly transactionModel: Model<Transaction>
+  ) { }
 
   async createMany(transactions: Partial<Transaction>[]): Promise<Transaction[]> {
     return this.transactionModel.insertMany(transactions);
@@ -29,4 +29,12 @@ export class TransactionService {
   async delete(id: string): Promise<Transaction | null> {
     return this.transactionModel.findByIdAndDelete(id).exec();
   }
-} 
+
+  async findByMerchantId(merchantId: string): Promise<Transaction[]> {
+    const transactions = await this.transactionModel.find({ merchant: merchantId }).lean().exec();
+    return transactions.map(transaction => ({
+      ...transaction,
+      _id: transaction._id.toString(),
+    })) as Transaction[];
+  }
+}

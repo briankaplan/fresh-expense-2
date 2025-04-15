@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-} from 'recharts';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { Box, Typography, useTheme } from '@mui/material';
 import { TrendingUp, TrendingDown } from '@mui/icons-material';
 
@@ -39,9 +35,7 @@ export const SparklineChart: React.FC<SparklineProps> = ({
         {label}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        <Typography variant="h6">
-          ${currentValue.toLocaleString()}
-        </Typography>
+        <Typography variant="h6">${currentValue.toLocaleString()}</Typography>
         <Box
           sx={{
             display: 'flex',
@@ -70,4 +64,4 @@ export const SparklineChart: React.FC<SparklineProps> = ({
       </Box>
     </Box>
   );
-}; 
+};

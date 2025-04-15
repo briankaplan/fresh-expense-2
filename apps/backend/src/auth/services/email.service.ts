@@ -1,8 +1,15 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import * as jwt from 'jsonwebtoken';
 import { User } from '../types/user.type';
+import {
+  generateEmailVerificationToken,
+  generatePasswordResetToken,
+  generateVerificationLink,
+  generatePasswordResetLink,
+  generateVerificationEmailContent,
+  generatePasswordResetEmailContent,
+} from '@packages/utils';
 
 @Injectable()
 export class EmailService {
@@ -24,26 +31,18 @@ export class EmailService {
       throw new InternalServerErrorException('JWT_SECRET is not configured');
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      jwtSecret,
-      { expiresIn: '24h' },
-    );
+    const frontendUrl = this.configService.get('FRONTEND_URL');
 
-    const verificationLink = `${this.configService.get(
-      'FRONTEND_URL',
-    )}/verify-email?token=${token}`;
+    // Use utility functions instead of inline code
+    const token = generateEmailVerificationToken(user.id, jwtSecret);
+    const verificationLink = generateVerificationLink(frontendUrl, token);
+    const emailContent = generateVerificationEmailContent(verificationLink);
 
     await this.transporter.sendMail({
       from: this.configService.get('EMAIL_USER'),
       to: user.email,
       subject: 'Verify your email',
-      html: `
-        <h1>Welcome to Fresh Expense!</h1>
-        <p>Please click the link below to verify your email address:</p>
-        <a href="${verificationLink}">Verify Email</a>
-        <p>This link will expire in 24 hours.</p>
-      `,
+      html: emailContent,
     });
   }
 
@@ -53,27 +52,18 @@ export class EmailService {
       throw new InternalServerErrorException('JWT_SECRET is not configured');
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      jwtSecret,
-      { expiresIn: '1h' },
-    );
+    const frontendUrl = this.configService.get('FRONTEND_URL');
 
-    const resetLink = `${this.configService.get(
-      'FRONTEND_URL',
-    )}/reset-password?token=${token}`;
+    // Use utility functions instead of inline code
+    const token = generatePasswordResetToken(user.id, jwtSecret);
+    const resetLink = generatePasswordResetLink(frontendUrl, token);
+    const emailContent = generatePasswordResetEmailContent(resetLink);
 
     await this.transporter.sendMail({
       from: this.configService.get('EMAIL_USER'),
       to: user.email,
       subject: 'Reset your password',
-      html: `
-        <h1>Password Reset Request</h1>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">Reset Password</a>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-      `,
+      html: emailContent,
     });
   }
-} 
+}

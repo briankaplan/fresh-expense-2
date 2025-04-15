@@ -10,7 +10,7 @@ import { User } from '../../users/schemas/user.schema';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -26,4 +26,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     return user;
   }
-} 
+}

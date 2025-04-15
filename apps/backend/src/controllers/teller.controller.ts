@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Query, UseGuards, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { TellerService, TellerAccount } from '../services/teller/teller.service';
 import { TellerSyncTask } from '../tasks/teller-sync.task';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,10 +27,7 @@ export class TellerController {
     try {
       return await this.tellerService.getAccounts();
     } catch (error) {
-      throw new HttpException(
-        'Failed to fetch Teller accounts',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to fetch Teller accounts', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -30,10 +36,7 @@ export class TellerController {
     try {
       return await this.tellerSyncTask.manualSync();
     } catch (error) {
-      throw new HttpException(
-        'Failed to sync transactions',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to sync transactions', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -64,11 +67,11 @@ export class TellerController {
   ) {
     try {
       const query: any = {};
-      
+
       if (accountId) {
         query.accountId = accountId;
       }
-      
+
       if (startDate || endDate) {
         query.date = {};
         if (startDate) query.date.$gte = new Date(startDate);
@@ -87,20 +90,17 @@ export class TellerController {
 
       const [transactions, total] = await Promise.all([
         this.tellerService.getTransactions(query, parseInt(limit), parseInt(offset)),
-        this.tellerService.countTransactions(query)
+        this.tellerService.countTransactions(query),
       ]);
 
       return {
         transactions,
         total,
         limit: parseInt(limit),
-        offset: parseInt(offset)
+        offset: parseInt(offset),
       };
     } catch (error) {
-      throw new HttpException(
-        'Failed to fetch transactions',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to fetch transactions', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-} 
+}

@@ -49,12 +49,12 @@ export class Expense {
     type: {
       type: String,
       enum: ['Point'],
-      default: 'Point'
+      default: 'Point',
     },
     coordinates: {
       type: [Number],
-      default: [0, 0]
-    }
+      default: [0, 0],
+    },
   })
   location!: {
     type: string;
@@ -100,4 +100,4 @@ ExpenseSchema.index({ merchantId: 1 });
 ExpenseSchema.index({ categoryId: 1 });
 ExpenseSchema.index({ status: 1 });
 ExpenseSchema.index({ tags: 1 });
-ExpenseSchema.index({ location: '2dsphere' }); 
+ExpenseSchema.index({ location: '2dsphere' });

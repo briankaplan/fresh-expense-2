@@ -31,4 +31,4 @@ export async function auth(request: CustomRequest, env: Env) {
     console.error('Auth error:', error);
     return new Response('Unauthorized', { status: 401 });
   }
-} 
+}

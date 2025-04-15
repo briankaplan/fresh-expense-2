@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -49,7 +43,7 @@ export class LoadingInterceptor implements NestInterceptor {
             error: typedError,
           });
         },
-      }),
+      })
     );
   }
-} 
+}

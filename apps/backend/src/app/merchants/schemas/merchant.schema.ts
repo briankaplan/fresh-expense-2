@@ -20,17 +20,19 @@ export class Merchant {
   @Prop()
   website: string;
 
-  @Prop([{
-    address: String,
-    city: String,
-    state: String,
-    country: String,
-    postalCode: String,
-    coordinates: {
-      type: [Number],
-      index: '2dsphere'
-    }
-  }])
+  @Prop([
+    {
+      address: String,
+      city: String,
+      state: String,
+      country: String,
+      postalCode: String,
+      coordinates: {
+        type: [Number],
+        index: '2dsphere',
+      },
+    },
+  ])
   locations: Array<{
     address: string;
     city: string;
@@ -52,4 +54,4 @@ export const MerchantSchema = SchemaFactory.createForClass(Merchant);
 // Create indexes
 MerchantSchema.index({ name: 1 });
 MerchantSchema.index({ categoryId: 1 });
-MerchantSchema.index({ tellerMerchantId: 1 }); 
+MerchantSchema.index({ tellerMerchantId: 1 });

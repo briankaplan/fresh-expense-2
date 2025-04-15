@@ -40,8 +40,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ValidateRequestMiddleware)
-      .forRoutes('*'); // Apply to all routes
+    consumer.apply(ValidateRequestMiddleware).forRoutes('*'); // Apply to all routes
   }
-} 
+}

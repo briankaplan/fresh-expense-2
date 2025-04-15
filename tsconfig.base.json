@@ -9,7 +9,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "es2022",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -18,22 +18,30 @@
     "strictNullChecks": true,
     "noImplicitAny": true,
     "strictBindCallApply": true,
-    "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "rootDir": ".",
-    "sourceMap": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
     "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "jsx": "react-jsx",
     "paths": {
       "@fresh-expense/backend": ["apps/backend/src/index.ts"],
       "@fresh-expense/backend/*": ["apps/backend/src/*"],
       "@fresh-expense/shared": ["libs/shared/src/index.ts"],
       "@fresh-expense/shared/*": ["libs/shared/src/*"],
       "@fresh-expense/types": ["libs/types/src/index.ts"],
-      "@fresh-expense/types/*": ["libs/types/src/*"]
+      "@fresh-expense/types/*": ["libs/types/src/*"],
+      "@fresh-expense/ui": ["libs/ui/src/index.ts"],
+      "@fresh-expense/ui/*": ["libs/ui/src/*"],
+      "@fresh-expense/features": ["libs/features/src/index.ts"],
+      "@fresh-expense/features/*": ["libs/features/src/*"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp", "dist", "coverage"]
 }

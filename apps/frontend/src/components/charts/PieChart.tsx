@@ -136,4 +136,4 @@ export const PieChart: React.FC<PieChartProps> = ({
       </RResponsiveContainer>
     </Box>
   );
-}; 
+};

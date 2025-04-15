@@ -42,4 +42,4 @@ export class CreateTransactionDto {
   @IsString()
   @IsOptional()
   receipt?: string;
-} 
+}

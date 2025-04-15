@@ -65,7 +65,7 @@ const HealthCheck: React.FC = () => {
           size="small"
         />
       </Tooltip>
-      
+
       <Typography variant="caption" color="textSecondary">
         v{health.version}
       </Typography>
@@ -84,12 +84,7 @@ const HealthCheck: React.FC = () => {
       </Box>
 
       <Tooltip title="Refresh Status">
-        <IconButton
-          size="small"
-          onClick={checkHealth}
-          disabled={loading}
-          sx={{ ml: 'auto' }}
-        >
+        <IconButton size="small" onClick={checkHealth} disabled={loading} sx={{ ml: 'auto' }}>
           <RefreshIcon />
         </IconButton>
       </Tooltip>
@@ -97,4 +92,4 @@ const HealthCheck: React.FC = () => {
   );
 };
 
-export default HealthCheck; 
+export default HealthCheck;

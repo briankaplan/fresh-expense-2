@@ -1,8 +1,8 @@
 name: Renovate
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 */6 * * *' # Run every 6 hours
+  workflow_dispatch: # Allow manual triggering
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for Renovate to work properly
+          fetch-depth: 0 # Required for Renovate to work properly
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -56,4 +56,4 @@ jobs:
         with:
           name: renovate-logs
           path: /tmp/renovate/renovate.log
-          retention-days: 7 
+          retention-days: 7

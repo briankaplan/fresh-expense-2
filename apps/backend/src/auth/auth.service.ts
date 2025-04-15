@@ -27,7 +27,7 @@ interface JwtPayload {
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
   async register(dto: RegisterDto): Promise<{ user: User; token: string }> {
@@ -98,4 +98,4 @@ export class AuthService {
     };
     return this.jwtService.sign(payload);
   }
-} 
+}

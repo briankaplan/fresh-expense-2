@@ -50,12 +50,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
   private readonly PERSIST_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.persistPath = path.join(
-      process.cwd(),
-      'data',
-      'memory-bank',
-      'store.json'
-    );
+    this.persistPath = path.join(process.cwd(), 'data', 'memory-bank', 'store.json');
   }
 
   async onModuleInit() {
@@ -80,9 +75,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
 
       // Start persistence interval
       this.persistInterval = setInterval(() => {
-        this.persistToDisk().catch(err => 
-          this.logger.error('Failed to persist memory bank:', err)
-        );
+        this.persistToDisk().catch(err => this.logger.error('Failed to persist memory bank:', err));
       }, this.PERSIST_INTERVAL);
 
       // Start cleanup interval
@@ -108,14 +101,14 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
         expiresAt: options.ttl ? new Date(now.getTime() + options.ttl) : undefined,
         tags: options.tags,
         source: options.source,
-        version: options.version
-      }
+        version: options.version,
+      },
     };
 
     this.store.set(key, item);
 
     if (options.persist) {
-      this.persistToDisk().catch(err => 
+      this.persistToDisk().catch(err =>
         this.logger.error(`Failed to persist data for key ${key}:`, err)
       );
     }
@@ -126,7 +119,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
    */
   get<T>(key: string): T | null {
     const item = this.store.get(key) as MemoryItem<T>;
-    
+
     if (!item) {
       return null;
     }
@@ -145,7 +138,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
    */
   update<T>(key: string, data: Partial<T>): boolean {
     const item = this.store.get(key) as MemoryItem<T>;
-    
+
     if (!item) {
       return false;
     }
@@ -159,7 +152,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
     // Update data and metadata
     item.data = { ...item.data, ...data };
     item.metadata.updatedAt = new Date();
-    
+
     this.store.set(key, item);
     return true;
   }
@@ -228,14 +221,13 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
       itemCount: this.store.size,
       bySource: {} as Record<string, number>,
       byTag: {} as Record<string, number>,
-      expiringItems: 0
+      expiringItems: 0,
     };
 
     for (const item of this.store.values()) {
       // Count by source
       if (item.metadata.source) {
-        stats.bySource[item.metadata.source] = 
-          (stats.bySource[item.metadata.source] || 0) + 1;
+        stats.bySource[item.metadata.source] = (stats.bySource[item.metadata.source] || 0) + 1;
       }
 
       // Count by tags
@@ -271,7 +263,8 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
    */
   private async loadFromDisk(): Promise<void> {
     try {
-      const exists = await fs.access(this.persistPath)
+      const exists = await fs
+        .access(this.persistPath)
         .then(() => true)
         .catch(() => false);
 
@@ -318,4 +311,4 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
       this.logger.debug(`Cleaned up ${cleaned} expired items`);
     }
   }
-} 
+}

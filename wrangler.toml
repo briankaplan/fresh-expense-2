@@ -15,10 +15,9 @@ workers_dev = true
 [vars]
 ENVIRONMENT = "production"
 API_URL = "https://api.expense-app.com"
-WEBHOOK_URL = "https://api.tallyup.com/webhooks/tallyup"
-MONGODB_URI = { secret = true }
 MONGODB_DB = "expense_db"
 
+# KV Namespaces
 [[kv_namespaces]]
 binding = "USERS"
 id = "users"
@@ -30,55 +29,21 @@ id = "transactions"
 preview_id = "transactions"
 
 [[kv_namespaces]]
-binding = "RECEIPTS"
-id = ""
-
-[[kv_namespaces]]
-binding = "MERCHANTS"
-id = ""
-
-[[kv_namespaces]]
-binding = "REPORTS"
-id = ""
-
-[[kv_namespaces]]
-binding = "TEMPLATES"
-id = ""
-
-[[kv_namespaces]]
-binding = "SCHEDULES"
-id = ""
-
-[[kv_namespaces]]
-binding = "SETTINGS"
-id = ""
-
-[[kv_namespaces]]
-binding = "LOGS"
-id = ""
-
-[[kv_namespaces]]
 binding = "CACHE"
 id = "$KV_NAMESPACE_ID"
 preview_id = "$KV_PREVIEW_NAMESPACE_ID"
 
-[triggers]
-crons = ["0 * * * *", "0 0 * * *"]
-
-[build]
-command = "pnpm run build:backend"
-watch_dir = "apps/backend/src"
-
-[site]
-bucket = "dist/apps/frontend"
-entry-point = "dist/apps/backend/main.js"
-
+# R2 Storage
 [[r2_buckets]]
 binding = "STORAGE"
 bucket_name = "expense-files"
 preview_bucket_name = "expense-files-dev"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "fresh-expense-db"
-database_id = "fresh-expense-db-id" 
+# Build Configuration
+[build]
+command = "pnpm run build:backend"
+watch_dir = "apps/backend/src"
+
+# Cron Triggers
+[triggers]
+crons = ["0 * * * *", "0 0 * * *"] 

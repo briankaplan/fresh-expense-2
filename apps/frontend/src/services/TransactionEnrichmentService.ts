@@ -5,7 +5,7 @@ import {
   CATEGORY_DEFINITIONS,
   TransactionCategory,
   TRANSACTION_CATEGORIES,
-  CategoryResult
+  CategoryResult,
 } from '../types/teller';
 
 interface CachedMerchantData {
@@ -75,7 +75,7 @@ class TransactionEnrichmentService {
       name: 'UNCATEGORIZED',
       confidence: 0.5,
       source: 'default',
-      details: { reason: 'Initial categorization' }
+      details: { reason: 'Initial categorization' },
     };
 
     // Check merchant cache first
@@ -86,11 +86,7 @@ class TransactionEnrichmentService {
 
     // Try each category definition
     for (const category of CATEGORY_DEFINITIONS) {
-      const score = this.calculateMatchScore(
-        combinedText,
-        category.keywords,
-        category.patterns
-      );
+      const score = this.calculateMatchScore(combinedText, category.keywords, category.patterns);
 
       if (score > bestMatch.confidence) {
         bestMatch = {
@@ -98,8 +94,8 @@ class TransactionEnrichmentService {
           confidence: score,
           source: 'pattern_match',
           details: {
-            matchedText: combinedText.substring(0, 50) + '...'
-          }
+            matchedText: combinedText.substring(0, 50) + '...',
+          },
         };
       }
     }
@@ -130,7 +126,7 @@ class TransactionEnrichmentService {
         name: 'CONFERENCE',
         confidence: 0.9,
         source: 'amount_threshold',
-        details: { threshold: 1000, amount }
+        details: { threshold: 1000, amount },
       };
     }
     return null;
@@ -158,7 +154,7 @@ class TransactionEnrichmentService {
     if (category.confidence > 0.8) {
       this.merchantCache.set(merchantKey, {
         category,
-        processedAt: new Date()
+        processedAt: new Date(),
       });
     }
   }
@@ -170,40 +166,43 @@ class TransactionEnrichmentService {
     try {
       // First try local categorization
       const localCategory = this.categorizeTransaction(transaction);
-      
+
       // If we have high confidence locally, use that
       if (localCategory.confidence > 0.8) {
         const aiData: AIProcessedData = {
           category: localCategory,
-          processedAt: new Date()
+          processedAt: new Date(),
         };
         return updateTransactionWithAI(transaction, aiData);
       }
 
       // Otherwise, call the backend AI service
-      const response = await fetch(`${this.apiBaseUrl}/api/transactions/${transaction.id}/process`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          description: transaction.description,
-          merchant: transaction.merchant,
-          amount: transaction.amount,
-          date: transaction.date,
-          localCategory
-        }),
-      });
+      const response = await fetch(
+        `${this.apiBaseUrl}/api/transactions/${transaction.id}/process`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            description: transaction.description,
+            merchant: transaction.merchant,
+            amount: transaction.amount,
+            date: transaction.date,
+            localCategory,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to process transaction with AI');
       }
 
       const aiData: AIProcessedData = await response.json();
-      
+
       // Update historical data with the result
       this.updateHistoricalData(transaction.merchant, aiData.category);
-      
+
       return updateTransactionWithAI(transaction, aiData);
     } catch (error) {
       console.error('Error processing transaction with AI:', error);
@@ -219,7 +218,7 @@ class TransactionEnrichmentService {
       // First categorize all transactions locally
       const localCategories = transactions.map(tx => ({
         id: tx.id,
-        category: this.categorizeTransaction(tx)
+        category: this.categorizeTransaction(tx),
       }));
 
       // Filter transactions that need backend processing
@@ -233,7 +232,7 @@ class TransactionEnrichmentService {
           const localCategory = localCategories.find(item => item.id === tx.id)!.category;
           const aiData: AIProcessedData = {
             category: localCategory,
-            processedAt: new Date()
+            processedAt: new Date(),
           };
           this.updateHistoricalData(tx.merchant, localCategory);
           return updateTransactionWithAI(tx, aiData);
@@ -253,7 +252,7 @@ class TransactionEnrichmentService {
             merchant: tx.merchant,
             amount: tx.amount,
             date: tx.date,
-            localCategory: localCategories.find(item => item.id === tx.id)!.category
+            localCategory: localCategories.find(item => item.id === tx.id)!.category,
           }))
         ),
       });
@@ -263,7 +262,7 @@ class TransactionEnrichmentService {
       }
 
       const aiDataBatch: { transactionId: string; data: AIProcessedData }[] = await response.json();
-      
+
       return transactions.map(transaction => {
         const aiData = aiDataBatch.find(item => item.transactionId === transaction.id)?.data;
         if (!aiData) {
@@ -271,7 +270,7 @@ class TransactionEnrichmentService {
           const localCategory = localCategories.find(item => item.id === transaction.id)!.category;
           const fallbackData: AIProcessedData = {
             category: localCategory,
-            processedAt: new Date()
+            processedAt: new Date(),
           };
           this.updateHistoricalData(transaction.merchant, localCategory);
           return updateTransactionWithAI(transaction, fallbackData);
@@ -293,13 +292,16 @@ class TransactionEnrichmentService {
     receiptId: string
   ): Promise<Transaction> {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/api/transactions/${transaction.id}/receipt`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ receiptId }),
-      });
+      const response = await fetch(
+        `${this.apiBaseUrl}/api/transactions/${transaction.id}/receipt`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ receiptId }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to process receipt for transaction');
@@ -318,12 +320,15 @@ class TransactionEnrichmentService {
    */
   public async reprocessTransaction(transaction: Transaction): Promise<Transaction> {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/api/transactions/${transaction.id}/reprocess`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${this.apiBaseUrl}/api/transactions/${transaction.id}/reprocess`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to reprocess transaction');
@@ -339,34 +344,46 @@ class TransactionEnrichmentService {
 
   private categorizeByMerchant(merchant: string): CategoryResult | null {
     const lowerMerchant = merchant.toLowerCase();
-    
+
     // Software and subscriptions
-    if (lowerMerchant.includes('github') || lowerMerchant.includes('aws') || lowerMerchant.includes('digitalocean')) {
+    if (
+      lowerMerchant.includes('github') ||
+      lowerMerchant.includes('aws') ||
+      lowerMerchant.includes('digitalocean')
+    ) {
       return {
         name: 'SOFTWARE_SUBSCRIPTIONS',
         confidence: 0.9,
         source: 'merchant_match',
-        details: { merchant, keywords: ['github', 'aws', 'digitalocean'] }
+        details: { merchant, keywords: ['github', 'aws', 'digitalocean'] },
       };
     }
 
     // Food and dining
-    if (lowerMerchant.includes('restaurant') || lowerMerchant.includes('cafe') || lowerMerchant.includes('coffee')) {
+    if (
+      lowerMerchant.includes('restaurant') ||
+      lowerMerchant.includes('cafe') ||
+      lowerMerchant.includes('coffee')
+    ) {
       return {
         name: 'PERSONAL_MEALS',
         confidence: 0.8,
         source: 'merchant_match',
-        details: { merchant, keywords: ['restaurant', 'cafe', 'coffee'] }
+        details: { merchant, keywords: ['restaurant', 'cafe', 'coffee'] },
       };
     }
 
     // Travel
-    if (lowerMerchant.includes('airline') || lowerMerchant.includes('hotel') || lowerMerchant.includes('airbnb')) {
+    if (
+      lowerMerchant.includes('airline') ||
+      lowerMerchant.includes('hotel') ||
+      lowerMerchant.includes('airbnb')
+    ) {
       return {
         name: 'TRAVEL_HOTELS',
         confidence: 0.9,
         source: 'merchant_match',
-        details: { merchant, keywords: ['airline', 'hotel', 'airbnb'] }
+        details: { merchant, keywords: ['airline', 'hotel', 'airbnb'] },
       };
     }
 
@@ -375,12 +392,12 @@ class TransactionEnrichmentService {
         name: 'SOFTWARE_SUBSCRIPTIONS',
         confidence: 0.7,
         source: 'merchant_match',
-        details: { merchant, keywords: ['software', 'subscription'] }
+        details: { merchant, keywords: ['software', 'subscription'] },
       };
     }
-    
+
     return null;
   }
 }
 
-export default TransactionEnrichmentService; 
+export default TransactionEnrichmentService;

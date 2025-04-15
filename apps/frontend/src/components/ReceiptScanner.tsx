@@ -18,7 +18,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onScanComplete }
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         setImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
@@ -36,7 +36,11 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onScanComplete }
     try {
       // First, classify if it's a receipt
       const formData = new FormData();
-      formData.append('file', new Blob([Buffer.from(image.split(',')[1], 'base64')]), 'receipt.jpg');
+      formData.append(
+        'file',
+        new Blob([Buffer.from(image.split(',')[1], 'base64')]),
+        'receipt.jpg'
+      );
 
       const classifyResponse = await fetch('/api/ai/classify-receipt', {
         method: 'POST',
@@ -46,7 +50,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onScanComplete }
       const { isReceipt, confidence } = await classifyResponse.json();
 
       if (!isReceipt) {
-        enqueueSnackbar('This doesn\'t appear to be a receipt', { variant: 'warning' });
+        enqueueSnackbar("This doesn't appear to be a receipt", { variant: 'warning' });
         return;
       }
 
@@ -76,7 +80,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onScanComplete }
   return (
     <div className="receipt-scanner-container">
       <h1 className="receipt-scanner-title">Receipt Scanner</h1>
-      
+
       <div className="receipt-scanner-upload">
         <label htmlFor="receipt-upload" className="receipt-scanner-upload-label">
           Upload Receipt Image
@@ -91,13 +95,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onScanComplete }
         </label>
       </div>
 
-      {image && (
-        <img
-          src={image}
-          alt="Receipt preview"
-          className="receipt-scanner-preview"
-        />
-      )}
+      {image && <img src={image} alt="Receipt preview" className="receipt-scanner-preview" />}
 
       <button
         className="receipt-scanner-button"
@@ -107,13 +105,9 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onScanComplete }
         {isLoading ? 'Scanning...' : 'Scan Receipt'}
       </button>
 
-      {result && (
-        <div className="receipt-scanner-result">
-          {result}
-        </div>
-      )}
+      {result && <div className="receipt-scanner-result">{result}</div>}
     </div>
   );
 };
 
-export default ReceiptScanner; 
+export default ReceiptScanner;

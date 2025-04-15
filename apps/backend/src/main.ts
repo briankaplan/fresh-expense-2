@@ -36,22 +36,26 @@ async function bootstrap() {
   );
 
   // Validation
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-    forbidNonWhitelisted: true,
-    exceptionFactory: (errors) => {
-      const result = errors.map((error) => ({
-        property: error.property,
-        message: error.constraints ? error.constraints[Object.keys(error.constraints)[0]] : 'Invalid value',
-      }));
-      return {
-        status: 422,
-        message: 'Validation failed',
-        details: result,
-      };
-    },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: errors => {
+        const result = errors.map(error => ({
+          property: error.property,
+          message: error.constraints
+            ? error.constraints[Object.keys(error.constraints)[0]]
+            : 'Invalid value',
+        }));
+        return {
+          status: 422,
+          message: 'Validation failed',
+          details: result,
+        };
+      },
+    })
+  );
 
   // Global exception filter
   app.useGlobalFilters(new NotificationExceptionFilter());
@@ -78,9 +82,11 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // Use environment PORT or fallback to config service
-  const port = process.env['PORT'] ? parseInt(process.env['PORT'], 10) : configService.get<number>('app.port', 3000);
+  const port = process.env['PORT']
+    ? parseInt(process.env['PORT'], 10)
+    : configService.get<number>('app.port', 3000);
   await app.listen(port);
-  
+
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`Swagger documentation available at: ${await app.getUrl()}/api`);
 }

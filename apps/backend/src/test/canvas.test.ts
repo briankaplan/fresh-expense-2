@@ -12,9 +12,9 @@ describe('Canvas Test', () => {
     // Verify canvas was created
     expect(canvas).toBeDefined();
     expect(ctx).toBeDefined();
-    
+
     // Verify canvas dimensions
     expect(canvas.width).toBe(200);
     expect(canvas.height).toBe(200);
   });
-}); 
+});

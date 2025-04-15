@@ -22,7 +22,7 @@ export const useSpendingAnalytics = () => {
     totalSpending: 0,
     spendingByCategory: {},
     spendingTrends: [],
-    topMerchants: []
+    topMerchants: [],
   });
 
   const fetchAnalytics = async (startDate?: Date, endDate?: Date) => {
@@ -55,4 +55,4 @@ export const useSpendingAnalytics = () => {
     data,
     fetchAnalytics,
   };
-}; 
+};

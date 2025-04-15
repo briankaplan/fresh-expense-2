@@ -11,4 +11,4 @@ export class OCRController {
   async processReceipt(@UploadedFile() file: any) {
     return this.ocrService.processReceipt(file);
   }
-} 
+}

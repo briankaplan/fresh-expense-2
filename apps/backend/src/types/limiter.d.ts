@@ -8,4 +8,4 @@ declare module 'limiter' {
     constructor(options: RateLimiterOptions);
     removeTokens(count: number): Promise<number>;
   }
-} 
+}

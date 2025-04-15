@@ -14,7 +14,7 @@ const s3Client = new S3Client({
   credentials: {
     accessKeyId: process.env['R2_ACCESS_KEY_ID'] || '',
     secretAccessKey: process.env['R2_SECRET_ACCESS_KEY'] || '',
-  }
+  },
 });
 
 // Schema for expense update
@@ -32,37 +32,25 @@ const expenseUpdateSchema = z.object({
 
 // Schema for bulk import
 const bulkImportSchema = z.object({
-  data: z.array(z.object({
-    date: z.string(),
-    description: z.string(),
-    amount: z.number(),
-    category: z.string(),
-    merchant: z.string().optional(),
-    status: z.string().optional(),
-    company: z.string(),
-    tags: z.array(z.string()).optional(),
-    receiptUrl: z.string().url().optional().nullable(),
-  }))
+  data: z.array(
+    z.object({
+      date: z.string(),
+      description: z.string(),
+      amount: z.number(),
+      category: z.string(),
+      merchant: z.string().optional(),
+      status: z.string().optional(),
+      company: z.string(),
+      tags: z.array(z.string()).optional(),
+      receiptUrl: z.string().url().optional().nullable(),
+    })
+  ),
 });
 
 // Schema for finding matches
 const findMatchesSchema = z.object({
-  data: z.array(z.object({
-    date: z.string(),
-    amount: z.number(),
-    description: z.string().optional(),
-    category: z.string().optional(),
-    merchant: z.string().optional(),
-    receiptUrl: z.string().url().optional(),
-    tags: z.array(z.string()).optional(),
-    company: z.string().optional(),
-  }))
-});
-
-// Schema for enriching transactions
-const enrichSchema = z.object({
-  matches: z.array(z.object({
-    csvData: z.object({
+  data: z.array(
+    z.object({
       date: z.string(),
       amount: z.number(),
       description: z.string().optional(),
@@ -71,14 +59,32 @@ const enrichSchema = z.object({
       receiptUrl: z.string().url().optional(),
       tags: z.array(z.string()).optional(),
       company: z.string().optional(),
-    }),
-    existingTransaction: z.object({
-      id: z.string(),
-      amount: z.number(),
-      date: z.string(),
-    }),
-    matchConfidence: z.number().min(0).max(1),
-  }))
+    })
+  ),
+});
+
+// Schema for enriching transactions
+const enrichSchema = z.object({
+  matches: z.array(
+    z.object({
+      csvData: z.object({
+        date: z.string(),
+        amount: z.number(),
+        description: z.string().optional(),
+        category: z.string().optional(),
+        merchant: z.string().optional(),
+        receiptUrl: z.string().url().optional(),
+        tags: z.array(z.string()).optional(),
+        company: z.string().optional(),
+      }),
+      existingTransaction: z.object({
+        id: z.string(),
+        amount: z.number(),
+        date: z.string(),
+      }),
+      matchConfidence: z.number().min(0).max(1),
+    })
+  ),
 });
 
 async function downloadAndUploadReceipt(url: string): Promise<string> {
@@ -94,12 +100,14 @@ async function downloadAndUploadReceipt(url: string): Promise<string> {
     const key = `receipts/${hash}.${extension}`;
 
     // Upload to R2
-    await s3Client.send(new PutObjectCommand({
-      Bucket: process.env['R2_BUCKET_NAME'],
-      Key: key,
-      Body: buffer,
-      ContentType: response.headers.get('content-type') || 'application/pdf',
-    }));
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: process.env['R2_BUCKET_NAME'],
+        Key: key,
+        Body: buffer,
+        ContentType: response.headers.get('content-type') || 'application/pdf',
+      })
+    );
 
     // Return the R2 URL
     return `${process.env['R2_PUBLIC_URL']}/${key}`;
@@ -121,14 +129,17 @@ function calculateMatchConfidence(csvTransaction: any, existingTransaction: any)
   const csvDate = new Date(csvTransaction.date);
   const existingDate = new Date(existingTransaction.date);
   const daysDiff = Math.abs((csvDate.getTime() - existingDate.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   if (daysDiff > 3) {
     return 0; // No match if dates are too far apart
   }
-  
+
   // Additional confidence boosters
   if (daysDiff === 0) confidence += 0.2; // Exact date match
-  if (csvTransaction.merchant && existingTransaction.description?.toLowerCase().includes(csvTransaction.merchant.toLowerCase())) {
+  if (
+    csvTransaction.merchant &&
+    existingTransaction.description?.toLowerCase().includes(csvTransaction.merchant.toLowerCase())
+  ) {
     confidence += 0.1;
   }
 
@@ -145,8 +156,8 @@ router.patch('/:id', validateRequest({ body: expenseUpdateSchema }), async (req,
     const collection = db.collection('expenses');
 
     // Validate that the expense exists
-    const existingExpense = await collection.findOne({ 
-      _id: new ObjectId(id) 
+    const existingExpense = await collection.findOne({
+      _id: new ObjectId(id),
     });
 
     if (!existingExpense) {
@@ -184,7 +195,7 @@ router.post('/bulk-import', validateRequest({ body: bulkImportSchema }), async (
     res.json({
       success: true,
       insertedCount: result.insertedCount,
-      insertedIds: result.insertedIds
+      insertedIds: result.insertedIds,
     });
   } catch (error) {
     console.error('Error bulk importing expenses:', error);
@@ -214,7 +225,7 @@ router.post('/find-matches', validateRequest({ body: findMatchesSchema }), async
           date: {
             $gte: startDate.toISOString(),
             $lte: endDate.toISOString(),
-          }
+          },
         })
         .toArray();
 
@@ -225,9 +236,9 @@ router.post('/find-matches', validateRequest({ body: findMatchesSchema }), async
             csvData: csvTransaction,
             existingTransaction: {
               id: existingTransaction._id.toString(),
-              ...existingTransaction
+              ...existingTransaction,
             },
-            matchConfidence: confidence
+            matchConfidence: confidence,
           });
         }
       }
@@ -251,7 +262,7 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
     for (const match of matches) {
       if (match.matchConfidence >= 0.8) {
         const updateData: any = {};
-        
+
         // Only update fields that exist in the CSV and aren't already set
         if (match.csvData.description) updateData.description = match.csvData.description;
         if (match.csvData.category) updateData.category = match.csvData.category;
@@ -265,7 +276,10 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
             const r2Url = await downloadAndUploadReceipt(match.csvData.receiptUrl);
             updateData.receiptUrl = r2Url;
           } catch (error) {
-            console.error(`Failed to process receipt for transaction ${match.existingTransaction.id}:`, error);
+            console.error(
+              `Failed to process receipt for transaction ${match.existingTransaction.id}:`,
+              error
+            );
           }
         }
 
@@ -275,7 +289,7 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
             { _id: new ObjectId(match.existingTransaction.id) },
             { $set: updateData }
           );
-          
+
           if (result.modifiedCount > 0) {
             enrichedCount++;
           }
@@ -290,4 +304,4 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
   }
 });
 
-export default router; 
+export default router;

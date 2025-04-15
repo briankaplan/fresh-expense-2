@@ -17,4 +17,4 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   lastName!: string;
-} 
+}

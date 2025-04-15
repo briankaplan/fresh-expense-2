@@ -15,4 +15,4 @@ import { MulterModule } from '@nestjs/platform-express';
   providers: [OCRService],
   exports: [OCRService],
 })
-export class OCRModule {} 
+export class OCRModule {}

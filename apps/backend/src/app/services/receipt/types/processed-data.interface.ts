@@ -20,4 +20,4 @@ export interface ProcessedData {
       tax?: number;
     };
   };
-} 
+}

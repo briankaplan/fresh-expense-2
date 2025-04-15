@@ -14,13 +14,7 @@ import {
   Stack,
   useMediaQuery,
 } from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  Email,
-  Lock,
-  Person,
-} from '@mui/icons-material';
+import { Visibility, VisibilityOff, Email, Lock, Person } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
@@ -109,12 +103,12 @@ const Register: React.FC = () => {
               >
                 Fresh Expense
               </Typography>
-              <Typography 
-                variant="subtitle1" 
+              <Typography
+                variant="subtitle1"
                 color="text.secondary"
-                sx={{ 
+                sx={{
                   opacity: 0.8,
-                  mt: 1 
+                  mt: 1,
                 }}
               >
                 Create your account

@@ -4,7 +4,9 @@ let db: Db | null = null;
 
 export async function connectToDb() {
   if (!db) {
-    const client = await MongoClient.connect(process.env['MONGODB_URI'] || 'mongodb://localhost:27017/expense-tracker');
+    const client = await MongoClient.connect(
+      process.env['MONGODB_URI'] || 'mongodb://localhost:27017/expense-tracker'
+    );
     db = client.db();
   }
   return db;
@@ -15,4 +17,4 @@ export async function getDb(): Promise<Db> {
     db = await connectToDb();
   }
   return db;
-} 
+}

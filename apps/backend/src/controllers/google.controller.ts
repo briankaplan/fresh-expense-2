@@ -22,10 +22,7 @@ export class GoogleController {
   }
 
   @Get('receipts')
-  async searchReceipts(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string
-  ) {
+  async searchReceipts(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
     try {
       const receipts = await this.googleService.searchGmailReceipts(
         `subject:receipt after:${startDate} before:${endDate}`
@@ -37,15 +34,9 @@ export class GoogleController {
   }
 
   @Get('photos')
-  async searchPhotos(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string
-  ) {
+  async searchPhotos(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
     try {
-      const photos = await this.googleService.searchPhotos(
-        new Date(startDate),
-        new Date(endDate)
-      );
+      const photos = await this.googleService.searchPhotos(new Date(startDate), new Date(endDate));
       return { success: true, photos };
     } catch (error) {
       return { success: false, error: error.message };
@@ -73,4 +64,4 @@ export class GoogleController {
       return { success: false, error: error.message };
     }
   }
-} 
+}

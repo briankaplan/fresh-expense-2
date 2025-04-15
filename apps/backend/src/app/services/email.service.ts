@@ -34,4 +34,4 @@ export class EmailService {
     // Implement receipt extraction logic
     return null;
   }
-} 
+}

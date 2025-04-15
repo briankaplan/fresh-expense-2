@@ -1,14 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
-import { 
-  TransactionType, 
-  TransactionStatus, 
-  TransactionProcessingStatus, 
+import {
+  TransactionType,
+  TransactionStatus,
+  TransactionProcessingStatus,
   TransactionSource,
   TransactionCompany,
   TransactionPaymentMethod,
   TransactionPaymentProcessor,
-  TransactionReimbursementStatus
+  TransactionReimbursementStatus,
 } from '../transactions/enums/transaction.enums';
 
 export type TransactionDocument = Transaction & Document;

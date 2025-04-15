@@ -1,13 +1,13 @@
 {
-	"folders": [
-		{
-			"path": "../../../../.."
-		}
-	],
-	"settings": {
-		"tailwindCSS.includeLanguages": {
-			"typescript": "javascript",
-			"typescriptreact": "javascript"
-		}
-	}
+  "folders": [
+    {
+      "path": "../../../../..",
+    },
+  ],
+  "settings": {
+    "tailwindCSS.includeLanguages": {
+      "typescript": "javascript",
+      "typescriptreact": "javascript",
+    },
+  },
 }

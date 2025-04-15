@@ -14,7 +14,7 @@ export default {
     try {
       // Get the raw body for signature verification
       const rawBody = await request.clone().text();
-      
+
       // Verify Teller signature
       const signature = request.headers.get('x-teller-signature');
       if (!signature) {
@@ -22,11 +22,7 @@ export default {
       }
 
       // Verify the signature using the Teller signing key
-      const isValid = await verifyTellerSignature(
-        rawBody,
-        signature,
-        env.TELLER_SIGNING_KEY
-      );
+      const isValid = await verifyTellerSignature(rawBody, signature, env.TELLER_SIGNING_KEY);
 
       if (!isValid) {
         return new Response('Invalid signature', { status: 401 });
@@ -34,7 +30,7 @@ export default {
 
       // Parse the webhook payload
       const payload = JSON.parse(rawBody);
-      
+
       // Forward the webhook to your backend
       const response = await fetch(env.WEBHOOK_URL, {
         method: 'POST',
@@ -89,4 +85,4 @@ function hexToArrayBuffer(hex: string): ArrayBuffer {
     bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
   }
   return bytes.buffer;
-} 
+}

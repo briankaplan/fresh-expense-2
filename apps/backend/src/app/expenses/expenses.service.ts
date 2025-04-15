@@ -9,7 +9,10 @@ import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { MongoDBService } from '../../services/database/mongodb.service';
-import { EXPENSE_COLLECTION, BUDGET_COLLECTION } from '../../services/database/schemas/expense.schema';
+import {
+  EXPENSE_COLLECTION,
+  BUDGET_COLLECTION,
+} from '../../services/database/schemas/expense.schema';
 
 @Injectable()
 export class ExpensesService {
@@ -33,13 +36,15 @@ export class ExpensesService {
   }
 
   async findAll(req: AuthenticatedRequest) {
-    return this.mongoDBService.getCollection(EXPENSE_COLLECTION)
+    return this.mongoDBService
+      .getCollection(EXPENSE_COLLECTION)
       .find({ userId: req.user.id })
       .toArray();
   }
 
   async findOne(id: string, req: AuthenticatedRequest) {
-    const expense = await this.mongoDBService.getCollection(EXPENSE_COLLECTION)
+    const expense = await this.mongoDBService
+      .getCollection(EXPENSE_COLLECTION)
       .findOne({ _id: id, userId: req.user.id });
     if (!expense) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
@@ -54,15 +59,15 @@ export class ExpensesService {
       ...updateExpenseDto,
       updatedAt: new Date(),
     };
-    await this.mongoDBService.getCollection(EXPENSE_COLLECTION)
+    await this.mongoDBService
+      .getCollection(EXPENSE_COLLECTION)
       .updateOne({ _id: id }, { $set: updatedExpense });
     return updatedExpense;
   }
 
   async remove(id: string, req: AuthenticatedRequest) {
     const expense = await this.findOne(id, req);
-    await this.mongoDBService.getCollection(EXPENSE_COLLECTION)
-      .deleteOne({ _id: id });
+    await this.mongoDBService.getCollection(EXPENSE_COLLECTION).deleteOne({ _id: id });
     return expense;
   }
 
@@ -83,7 +88,8 @@ export class ExpensesService {
   }
 
   async updateBudget(id: string, updateBudgetDto: UpdateBudgetDto, req: AuthenticatedRequest) {
-    const budget = await this.mongoDBService.getCollection(BUDGET_COLLECTION)
+    const budget = await this.mongoDBService
+      .getCollection(BUDGET_COLLECTION)
       .findOne({ _id: id, userId: req.user.id });
     if (!budget) {
       throw new NotFoundException(`Budget with ID ${id} not found`);
@@ -93,33 +99,36 @@ export class ExpensesService {
       ...updateBudgetDto,
       updatedAt: new Date(),
     };
-    await this.mongoDBService.getCollection(BUDGET_COLLECTION)
+    await this.mongoDBService
+      .getCollection(BUDGET_COLLECTION)
       .updateOne({ _id: id }, { $set: updatedBudget });
     return updatedBudget;
   }
 
   async deleteBudget(id: string, req: AuthenticatedRequest) {
-    const budget = await this.mongoDBService.getCollection(BUDGET_COLLECTION)
+    const budget = await this.mongoDBService
+      .getCollection(BUDGET_COLLECTION)
       .findOne({ _id: id, userId: req.user.id });
     if (!budget) {
       throw new NotFoundException(`Budget with ID ${id} not found`);
     }
-    await this.mongoDBService.getCollection(BUDGET_COLLECTION)
-      .deleteOne({ _id: id });
+    await this.mongoDBService.getCollection(BUDGET_COLLECTION).deleteOne({ _id: id });
     return budget;
   }
 
   // Budget Tracking
   async getBudgetStatus(userId: string, budgetId: string): Promise<any> {
     const budget = await this.budgetModel.findById(budgetId).exec();
-    const expenses = await this.expenseModel.find({
-      userId,
-      category: budget.category,
-      date: {
-        $gte: budget.startDate,
-        $lte: budget.endDate,
-      },
-    }).exec();
+    const expenses = await this.expenseModel
+      .find({
+        userId,
+        category: budget.category,
+        date: {
+          $gte: budget.startDate,
+          $lte: budget.endDate,
+        },
+      })
+      .exec();
 
     const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     const remaining = budget.amount - totalSpent;
@@ -149,10 +158,12 @@ export class ExpensesService {
 
   async processRecurringExpenses(): Promise<void> {
     const now = new Date();
-    const recurringExpenses = await this.expenseModel.find({
-      isRecurring: true,
-      'recurringDetails.nextDate': { $lte: now },
-    }).exec();
+    const recurringExpenses = await this.expenseModel
+      .find({
+        isRecurring: true,
+        'recurringDetails.nextDate': { $lte: now },
+      })
+      .exec();
 
     for (const expense of recurringExpenses) {
       // Create new expense instance
@@ -206,17 +217,23 @@ export class ExpensesService {
     }
   }
 
-  async getExpenseSummary(userId: string, startDate: Date, endDate: Date): Promise<{
+  async getExpenseSummary(
+    userId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<{
     total: number;
     count: number;
     average: number;
     categories: Record<string, number>;
   }> {
-    const expenses = await this.expenseModel.find({
-      userId,
-      date: { $gte: startDate, $lte: endDate },
-    }).exec();
-    
+    const expenses = await this.expenseModel
+      .find({
+        userId,
+        date: { $gte: startDate, $lte: endDate },
+      })
+      .exec();
+
     if (!expenses || expenses.length === 0) {
       return {
         total: 0,
@@ -225,15 +242,15 @@ export class ExpensesService {
         categories: {},
       };
     }
-    
+
     // Calculate summary
     const initialSummary = {
       total: 0,
       count: 0,
       average: 0,
-      categories: {} as Record<string, number>
+      categories: {} as Record<string, number>,
     };
-    
+
     const summary = expenses.reduce((acc, expense) => {
       acc.total += expense.amount;
       acc.count += 1;
@@ -241,14 +258,14 @@ export class ExpensesService {
       acc.categories[categoryId] = (acc.categories[categoryId] || 0) + expense.amount;
       return acc;
     }, initialSummary);
-    
+
     summary.average = summary.total / summary.count;
-    
+
     return {
       total: summary.total,
       count: summary.count,
       average: summary.average,
-      categories: summary.categories
+      categories: summary.categories,
     };
   }
-} 
+}

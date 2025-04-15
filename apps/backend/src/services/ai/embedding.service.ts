@@ -14,12 +14,9 @@ export class EmbeddingService extends BaseAIService {
     logger: LoggingService
   ) {
     super(configService, rateLimiter, errorHandler, logger, EmbeddingService.name);
-    this.initializeClient(
-      'https://api-inference.huggingface.co/models',
-      {
-        'Authorization': `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
-      }
-    );
+    this.initializeClient('https://api-inference.huggingface.co/models', {
+      Authorization: `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
+    });
   }
 
   async calculateSimilarity(text1: string, text2: string): Promise<number> {
@@ -30,11 +27,14 @@ export class EmbeddingService extends BaseAIService {
 
       const embedding1 = response.data[0];
       const embedding2 = response.data[1];
-      
-      const dotProduct = embedding1.reduce((sum: number, val: number, i: number) => sum + val * embedding2[i], 0);
+
+      const dotProduct = embedding1.reduce(
+        (sum: number, val: number, i: number) => sum + val * embedding2[i],
+        0
+      );
       const norm1 = Math.sqrt(embedding1.reduce((sum: number, val: number) => sum + val * val, 0));
       const norm2 = Math.sqrt(embedding2.reduce((sum: number, val: number) => sum + val * val, 0));
-      
+
       return dotProduct / (norm1 * norm2);
     });
   }
@@ -48,4 +48,4 @@ export class EmbeddingService extends BaseAIService {
       return response.data[0];
     });
   }
-} 
+}

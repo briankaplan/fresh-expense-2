@@ -118,4 +118,4 @@ const router = createBrowserRouter(routes);
 
 // Export both for better HMR support
 export { router };
-export default router; 
+export default router;

@@ -19,4 +19,4 @@ export function AppProviders() {
   );
 }
 
-export default AppProviders; 
+export default AppProviders;

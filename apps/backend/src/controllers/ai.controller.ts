@@ -33,9 +33,7 @@ export class AIController {
   }
 
   @Post('calculate-similarity')
-  async calculateSimilarity(
-    @Body() body: { text1: string; text2: string }
-  ): Promise<number> {
+  async calculateSimilarity(@Body() body: { text1: string; text2: string }): Promise<number> {
     return this.similarityService.calculateSimilarity(body.text1, body.text2);
   }
-} 
+}

@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDate, IsObject, IsBoolean, ValidateNested } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsDate,
+  IsObject,
+  IsBoolean,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ReportType, ReportFormat } from '../schemas/report.schema';
 
@@ -67,4 +76,4 @@ export class CreateReportDto {
   @ValidateNested()
   @Type(() => ScheduleDto)
   schedule?: ScheduleDto;
-} 
+}

@@ -9,11 +9,11 @@ import { Budget, BudgetSchema } from './schemas/budget.schema';
   imports: [
     MongooseModule.forFeature([
       { name: Expense.name, schema: ExpenseSchema },
-      { name: Budget.name, schema: BudgetSchema }
-    ])
+      { name: Budget.name, schema: BudgetSchema },
+    ]),
   ],
   controllers: [ExpensesController],
   providers: [ExpensesService],
-  exports: [ExpensesService]
+  exports: [ExpensesService],
 })
-export class ExpensesModule {} 
+export class ExpensesModule {}

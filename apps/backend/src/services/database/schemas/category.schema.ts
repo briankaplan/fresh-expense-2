@@ -14,4 +14,4 @@ export interface CategorySchema extends BaseSchema {
   };
 }
 
-export const CATEGORY_COLLECTION = 'categories'; 
+export const CATEGORY_COLLECTION = 'categories';

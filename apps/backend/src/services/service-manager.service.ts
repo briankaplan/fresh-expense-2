@@ -14,18 +14,11 @@ export interface ServiceState {
 export class ServiceManagerService extends BaseService {
   private readonly serviceStates: Map<string, ServiceState> = new Map();
 
-  constructor(
-    notificationService: NotificationService,
-    eventEmitter: EventEmitter2
-  ) {
+  constructor(notificationService: NotificationService, eventEmitter: EventEmitter2) {
     super(notificationService, eventEmitter, ServiceManagerService.name);
   }
 
-  async executeWithRetry<T>(
-    operation: string,
-    fn: () => Promise<T>,
-    maxRetries = 3
-  ): Promise<T> {
+  async executeWithRetry<T>(operation: string, fn: () => Promise<T>, maxRetries = 3): Promise<T> {
     return super.executeWithRetry(operation, fn, maxRetries);
   }
 
@@ -45,17 +38,11 @@ export class ServiceManagerService extends BaseService {
     return this.serviceStates.get(serviceName) || { isConnected: false };
   }
 
-  async executeWithLoading<T>(
-    operation: string,
-    fn: () => Promise<T>
-  ): Promise<T> {
+  async executeWithLoading<T>(operation: string, fn: () => Promise<T>): Promise<T> {
     return super.executeWithLoading(operation, fn);
   }
 
-  async executeWithNotification<T>(
-    operation: string,
-    fn: () => Promise<T>
-  ): Promise<T> {
+  async executeWithNotification<T>(operation: string, fn: () => Promise<T>): Promise<T> {
     try {
       const result = await fn();
       await this.notify('success', `Operation ${operation} completed successfully`);
@@ -66,4 +53,4 @@ export class ServiceManagerService extends BaseService {
       throw typedError;
     }
   }
-} 
+}

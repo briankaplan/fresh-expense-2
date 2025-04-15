@@ -21,4 +21,4 @@ export class NotificationExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
     });
   }
-} 
+}

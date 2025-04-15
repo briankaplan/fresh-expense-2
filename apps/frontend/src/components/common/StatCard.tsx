@@ -14,13 +14,7 @@ interface StatCardProps {
   color?: string;
 }
 
-export const StatCard: React.FC<StatCardProps> = ({
-  title,
-  value,
-  icon,
-  trend,
-  color,
-}) => {
+export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, color }) => {
   const theme = useTheme();
   const IconComponent = icon ? Icons[icon].Filled : null;
   const defaultColor = theme.palette.primary.main;
@@ -68,11 +62,7 @@ export const StatCard: React.FC<StatCardProps> = ({
               <IconComponent />
             </Box>
           )}
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            sx={{ fontWeight: 500 }}
-          >
+          <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 500 }}>
             {title}
           </Typography>
         </Box>
@@ -99,9 +89,7 @@ export const StatCard: React.FC<StatCardProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 ml: 1,
-                color: trend.isPositive
-                  ? theme.palette.success.main
-                  : theme.palette.error.main,
+                color: trend.isPositive ? theme.palette.success.main : theme.palette.error.main,
               }}
             >
               {trend.isPositive ? (
@@ -118,4 +106,4 @@ export const StatCard: React.FC<StatCardProps> = ({
       </Box>
     </motion.div>
   );
-}; 
+};

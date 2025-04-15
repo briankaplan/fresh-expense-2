@@ -53,7 +53,7 @@ const ExpensesTable: React.FC = () => {
       id: '2',
       date: '2024-03-19',
       description: 'Monthly Rent',
-      amount: 2000.00,
+      amount: 2000.0,
       category: 'Housing',
       status: 'completed',
     },
@@ -67,7 +67,10 @@ const ExpensesTable: React.FC = () => {
     },
   ];
 
-  const handlePageChange = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handlePageChange = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
     setPage(newPage);
   };
 
@@ -79,7 +82,7 @@ const ExpensesTable: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(amount);
   };
 
@@ -110,9 +113,9 @@ const ExpensesTable: React.FC = () => {
   };
 
   const MobileExpenseCard = ({ expense }: { expense: Expense }) => (
-    <Card 
-      sx={{ 
-        mb: 2, 
+    <Card
+      sx={{
+        mb: 2,
         cursor: 'pointer',
         '&:hover': {
           bgcolor: 'action.hover',
@@ -129,28 +132,20 @@ const ExpensesTable: React.FC = () => {
             {formatCurrency(expense.amount)}
           </Typography>
         </Box>
-        
+
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
           <Typography variant="body2" color="text.secondary">
             {new Date(expense.date).toLocaleDateString()}
           </Typography>
-          <Chip
-            label={expense.category}
-            size="small"
-            sx={{ ml: 1 }}
-          />
-          <Chip
-            label={expense.status}
-            color={getStatusColor(expense.status)}
-            size="small"
-          />
+          <Chip label={expense.category} size="small" sx={{ ml: 1 }} />
+          <Chip label={expense.status} color={getStatusColor(expense.status)} size="small" />
         </Stack>
 
         <Collapse in={expandedRow === expense.id}>
           <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
             <IconButton
               size="small"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleEdit(expense.id);
               }}
@@ -159,7 +154,7 @@ const ExpensesTable: React.FC = () => {
             </IconButton>
             <IconButton
               size="small"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleDelete(expense.id);
               }}
@@ -176,11 +171,9 @@ const ExpensesTable: React.FC = () => {
     return (
       <Box>
         <Box sx={{ p: 2 }}>
-          {expenses
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((expense) => (
-              <MobileExpenseCard key={expense.id} expense={expense} />
-            ))}
+          {expenses.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(expense => (
+            <MobileExpenseCard key={expense.id} expense={expense} />
+          ))}
         </Box>
         <TablePagination
           component="div"
@@ -214,47 +207,38 @@ const ExpensesTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {expenses
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((expense) => (
-                <TableRow 
-                  key={expense.id}
-                  sx={{ 
-                    '&:hover': { 
-                      bgcolor: 'action.hover',
-                    },
-                  }}
-                >
-                  <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
-                  <TableCell>{expense.description}</TableCell>
-                  <TableCell>
-                    <Chip label={expense.category} size="small" />
-                  </TableCell>
-                  <TableCell align="right">{formatCurrency(expense.amount)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={expense.status}
-                      color={getStatusColor(expense.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEdit(expense.id)}
-                      sx={{ mr: 1 }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDelete(expense.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+            {expenses.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(expense => (
+              <TableRow
+                key={expense.id}
+                sx={{
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                }}
+              >
+                <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
+                <TableCell>{expense.description}</TableCell>
+                <TableCell>
+                  <Chip label={expense.category} size="small" />
+                </TableCell>
+                <TableCell align="right">{formatCurrency(expense.amount)}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={expense.status}
+                    color={getStatusColor(expense.status)}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton size="small" onClick={() => handleEdit(expense.id)} sx={{ mr: 1 }}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => handleDelete(expense.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -270,4 +254,4 @@ const ExpensesTable: React.FC = () => {
   );
 };
 
-export default ExpensesTable; 
+export default ExpensesTable;

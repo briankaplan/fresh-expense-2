@@ -18,10 +18,7 @@ export class GoogleController {
   }
 
   @Post('auth-callback')
-  async handleAuthCallback(
-    @Body('email') email: string,
-    @Body('code') code: string
-  ) {
+  async handleAuthCallback(@Body('email') email: string, @Body('code') code: string) {
     try {
       const tokens = await this.googleService.handleAuthCallback(email, code);
       return { success: true, tokens };
@@ -31,10 +28,7 @@ export class GoogleController {
   }
 
   @Get('receipts')
-  async searchReceipts(
-    @Query('email') email: string,
-    @Query('query') query: string
-  ) {
+  async searchReceipts(@Query('email') email: string, @Query('query') query: string) {
     try {
       const messages = await this.googleService.searchGmailReceipts(email, query);
       return { success: true, messages };
@@ -44,18 +38,12 @@ export class GoogleController {
   }
 
   @Get('photos')
-  async searchPhotos(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string
-  ) {
+  async searchPhotos(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
     try {
-      const photos = await this.googleService.searchPhotos(
-        new Date(startDate),
-        new Date(endDate)
-      );
+      const photos = await this.googleService.searchPhotos(new Date(startDate), new Date(endDate));
       return { success: true, photos };
     } catch (error) {
       return { success: false, error: error.message };
     }
   }
-} 
+}

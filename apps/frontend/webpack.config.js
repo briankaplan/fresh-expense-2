@@ -4,10 +4,10 @@ const { withReact } = require('@nx/react');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // Nx plugins for webpack.
-module.exports = composePlugins(withNx(), withReact(), (config) => {
+module.exports = composePlugins(withNx(), withReact(), config => {
   // Update the webpack config as needed here.
   config.plugins = [
-    ...config.plugins || [],
+    ...(config.plugins || []),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
       filename: 'index.html',
@@ -34,4 +34,4 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
   };
 
   return config;
-}); 
+});

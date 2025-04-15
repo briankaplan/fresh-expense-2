@@ -44,7 +44,7 @@ describe('AuthController (e2e)', () => {
         .post('/auth/register')
         .send(testUser)
         .expect(201)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body).toHaveProperty('accessToken');
           expect(res.body).toHaveProperty('refreshToken');
           expect(res.body.user).toHaveProperty('email', testUser.email);
@@ -65,9 +65,7 @@ describe('AuthController (e2e)', () => {
 
   describe('/auth/login (POST)', () => {
     beforeEach(async () => {
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(testUser);
+      await request(app.getHttpServer()).post('/auth/register').send(testUser);
     });
 
     it('should login successfully', () => {
@@ -78,7 +76,7 @@ describe('AuthController (e2e)', () => {
           password: testUser.password,
         })
         .expect(200)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body).toHaveProperty('accessToken');
           expect(res.body).toHaveProperty('refreshToken');
         });
@@ -94,4 +92,4 @@ describe('AuthController (e2e)', () => {
         .expect(401);
     });
   });
-}); 
+});

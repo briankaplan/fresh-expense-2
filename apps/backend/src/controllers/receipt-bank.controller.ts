@@ -51,10 +51,7 @@ export class ReceiptBankController {
 
   @Post('upload/single')
   @UseInterceptors(FileInterceptor('receipt'))
-  async uploadReceipt(
-    @UploadedFile() file: Express.Multer.File,
-    @CurrentUser() userId: string
-  ) {
+  async uploadReceipt(@UploadedFile() file: Express.Multer.File, @CurrentUser() userId: string) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
@@ -112,27 +109,18 @@ export class ReceiptBankController {
   }
 
   @Get(':id')
-  async getReceipt(
-    @Param('id') id: string,
-    @CurrentUser() userId: string
-  ) {
+  async getReceipt(@Param('id') id: string, @CurrentUser() userId: string) {
     return this.receiptBankService.findReceiptById(id, userId);
   }
 
   @Delete(':id')
-  async deleteReceipt(
-    @Param('id') id: string,
-    @CurrentUser() userId: string
-  ) {
+  async deleteReceipt(@Param('id') id: string, @CurrentUser() userId: string) {
     await this.receiptBankService.deleteReceipt(id, userId);
     return { message: 'Receipt deleted successfully' };
   }
 
   @Post(':id/find-matches')
-  async findMatches(
-    @Param('id') id: string,
-    @CurrentUser() userId: string
-  ) {
+  async findMatches(@Param('id') id: string, @CurrentUser() userId: string) {
     const matches = await this.receiptBankService.findMatchesForReceiptById(id, userId);
     return {
       message: `Found ${matches.length} potential matches`,
@@ -149,4 +137,4 @@ export class ReceiptBankController {
     await this.receiptBankService.linkReceiptToTransactionById(id, transactionId, userId);
     return { message: 'Receipt linked to transaction successfully' };
   }
-} 
+}

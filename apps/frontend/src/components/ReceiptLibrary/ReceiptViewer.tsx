@@ -36,11 +36,11 @@ export const ReceiptViewer: React.FC<ReceiptViewerProps> = ({
   const [zoom, setZoom] = useState(1);
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.25, 3));
+    setZoom(prev => Math.min(prev + 0.25, 3));
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.25, 0.5));
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
   };
 
   const handleDownload = async () => {
@@ -66,11 +66,7 @@ export const ReceiptViewer: React.FC<ReceiptViewerProps> = ({
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Receipt Details
         </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ color: 'grey.500' }}
-        >
+        <IconButton aria-label="close" onClick={onClose} sx={{ color: 'grey.500' }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -122,7 +118,7 @@ export const ReceiptViewer: React.FC<ReceiptViewerProps> = ({
                 Receipt Information
               </Typography>
               <Divider sx={{ my: 2 }} />
-              
+
               <Typography variant="subtitle2" color="text.secondary">
                 Merchant
               </Typography>
@@ -169,4 +165,4 @@ export const ReceiptViewer: React.FC<ReceiptViewerProps> = ({
       </DialogActions>
     </>
   );
-}; 
+};

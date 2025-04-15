@@ -9,4 +9,4 @@ export const ROUTES = {
   EDIT_EXPENSE: '/expenses/edit/:id',
   PROFILE: '/profile',
   SETTINGS: '/settings',
-} as const; 
+} as const;

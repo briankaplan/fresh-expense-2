@@ -36,7 +36,7 @@ export class ReceiptService {
     @InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>,
     private readonly storageService: ReceiptStorageService,
     private readonly processorService: ReceiptProcessorService,
-    private readonly matcherService: ReceiptMatcherService,
+    private readonly matcherService: ReceiptMatcherService
   ) {}
 
   async create(dto: CreateReceiptDto): Promise<ReceiptDocument> {
@@ -76,7 +76,7 @@ export class ReceiptService {
 
       // Find similar receipts
       const similarReceipts = await this.matcherService.findSimilar(savedReceipt);
-      
+
       // If we found similar receipts with high confidence, we might want to
       // update the receipt with additional information from the matches
       if (similarReceipts.length > 0) {
@@ -163,7 +163,7 @@ export class ReceiptService {
             }),
           },
         },
-        { new: true },
+        { new: true }
       );
 
       if (!receipt) {
@@ -203,4 +203,4 @@ export class ReceiptService {
       throw error;
     }
   }
-} 
+}

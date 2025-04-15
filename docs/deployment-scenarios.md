@@ -131,6 +131,7 @@ This document outlines various deployment scenarios for the Expense Tracking app
 ### CI/CD Pipeline Setup
 
 1. Configure repository secrets:
+
    - DOCKERHUB_USERNAME
    - DOCKERHUB_TOKEN
    - PROD_JWT_SECRET

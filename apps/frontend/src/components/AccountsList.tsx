@@ -31,7 +31,7 @@ const AccountsList: React.FC = () => {
       id: '1',
       name: 'Primary Checking',
       type: 'checking',
-      balance: 5432.10,
+      balance: 5432.1,
       institution: 'Chase Bank',
       lastFour: '4321',
       status: 'active',
@@ -40,7 +40,7 @@ const AccountsList: React.FC = () => {
       id: '2',
       name: 'High Yield Savings',
       type: 'savings',
-      balance: 15000.00,
+      balance: 15000.0,
       institution: 'Ally Bank',
       lastFour: '8765',
       status: 'active',
@@ -70,7 +70,7 @@ const AccountsList: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(amount);
   };
 
@@ -89,9 +89,7 @@ const AccountsList: React.FC = () => {
           <Typography variant="h6" color="textSecondary" gutterBottom>
             Total Balance
           </Typography>
-          <Typography variant="h3">
-            {formatCurrency(getTotalBalance())}
-          </Typography>
+          <Typography variant="h3">{formatCurrency(getTotalBalance())}</Typography>
           <Box sx={{ mt: 2 }}>
             <Typography variant="body2" color="textSecondary">
               {accounts.length} Connected Accounts
@@ -102,7 +100,7 @@ const AccountsList: React.FC = () => {
 
       {/* Account Cards */}
       <Grid container spacing={3}>
-        {accounts.map((account) => (
+        {accounts.map(account => (
           <Grid item xs={12} md={6} lg={4} key={account.id}>
             <Card>
               <CardContent>
@@ -161,4 +159,4 @@ const AccountsList: React.FC = () => {
   );
 };
 
-export default AccountsList; 
+export default AccountsList;

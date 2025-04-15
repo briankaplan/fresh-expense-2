@@ -35,11 +35,7 @@ export const BarChart: React.FC<BarChartProps> = ({
     <ResponsiveContainer width="100%" height={height}>
       <RechartsBarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
         {showGrid && (
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke={theme.palette.divider}
-          />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
         )}
         <XAxis
           dataKey="name"
@@ -47,11 +43,7 @@ export const BarChart: React.FC<BarChartProps> = ({
           tickLine={false}
           tick={{ fill: theme.palette.text.secondary }}
         />
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: theme.palette.text.secondary }}
-        />
+        <YAxis axisLine={false} tickLine={false} tick={{ fill: theme.palette.text.secondary }} />
         <Tooltip
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
@@ -69,4 +61,4 @@ export const BarChart: React.FC<BarChartProps> = ({
       </RechartsBarChart>
     </ResponsiveContainer>
   );
-}; 
+};

@@ -6,4 +6,4 @@
     "webpack": true,
     "tsConfigPath": "tsconfig.app.json"
   }
-} 
+}

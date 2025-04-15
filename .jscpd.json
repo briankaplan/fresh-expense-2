@@ -1,0 +1,36 @@
+{
+  "threshold": 0,
+  "reporters": [
+    "console",
+    "json",
+    "html"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "ignore": [
+    "**/.git/**",
+    "**/coverage/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.test.tsx",
+    "**/*.spec.tsx",
+    "**/*.schema.ts",
+    "**/*.model.ts",
+    "**/schemas/**",
+    "**/models/**",
+    "**/migrations/**",
+    "**/dto/**"
+  ],
+  "absolute": true,
+  "gitignore": true,
+  "min-lines": 5,
+  "min-tokens": 50,
+  "blame": true,
+  "format": [
+    "typescript",
+    "javascript"
+  ]
+}

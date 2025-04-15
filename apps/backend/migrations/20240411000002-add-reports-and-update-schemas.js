@@ -22,8 +22,8 @@ module.exports = {
               properties: {
                 startDate: { bsonType: 'date' },
                 endDate: { bsonType: 'date' },
-                period: { enum: ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'] }
-              }
+                period: { enum: ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'] },
+              },
             },
             filters: {
               bsonType: 'object',
@@ -33,8 +33,8 @@ module.exports = {
                 tags: { bsonType: 'array', items: { bsonType: 'objectId' } },
                 minAmount: { bsonType: 'double' },
                 maxAmount: { bsonType: 'double' },
-                currency: { bsonType: 'string' }
-              }
+                currency: { bsonType: 'string' },
+              },
             },
             format: { enum: ['pdf', 'csv', 'xlsx'] },
             schedule: {
@@ -43,8 +43,8 @@ module.exports = {
                 frequency: { enum: ['daily', 'weekly', 'monthly'] },
                 lastRun: { bsonType: 'date' },
                 nextRun: { bsonType: 'date' },
-                recipients: { bsonType: 'array', items: { bsonType: 'string' } }
-              }
+                recipients: { bsonType: 'array', items: { bsonType: 'string' } },
+              },
             },
             status: { enum: ['pending', 'processing', 'completed', 'failed'] },
             fileUrl: { bsonType: 'string' },
@@ -60,9 +60,9 @@ module.exports = {
                     properties: {
                       categoryId: { bsonType: 'objectId' },
                       amount: { bsonType: 'double' },
-                      count: { bsonType: 'int' }
-                    }
-                  }
+                      count: { bsonType: 'int' },
+                    },
+                  },
                 },
                 merchantBreakdown: {
                   bsonType: 'array',
@@ -71,28 +71,30 @@ module.exports = {
                     properties: {
                       merchantId: { bsonType: 'objectId' },
                       amount: { bsonType: 'double' },
-                      count: { bsonType: 'int' }
-                    }
-                  }
-                }
-              }
+                      count: { bsonType: 'int' },
+                    },
+                  },
+                },
+              },
             },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Create indexes for reports
-    await db.collection('reports').createIndexes([
-      { key: { userId: 1 } },
-      { key: { companyId: 1 } },
-      { key: { type: 1 } },
-      { key: { status: 1 } },
-      { key: { 'dateRange.startDate': 1 } },
-      { key: { 'dateRange.endDate': 1 } }
-    ]);
+    await db
+      .collection('reports')
+      .createIndexes([
+        { key: { userId: 1 } },
+        { key: { companyId: 1 } },
+        { key: { type: 1 } },
+        { key: { status: 1 } },
+        { key: { 'dateRange.startDate': 1 } },
+        { key: { 'dateRange.endDate': 1 } },
+      ]);
 
     // Update expenses schema to ensure all required fields
     await db.command({
@@ -109,9 +111,9 @@ module.exports = {
             description: { bsonType: 'string' },
             merchantId: { bsonType: 'objectId' },
             categoryId: { bsonType: 'objectId' },
-            tags: { 
+            tags: {
               bsonType: 'array',
-              items: { bsonType: 'objectId' }
+              items: { bsonType: 'objectId' },
             },
             currency: { bsonType: 'string', enum: ['USD'] }, // Enforcing USD only
             receiptId: { bsonType: 'objectId' },
@@ -125,9 +127,9 @@ module.exports = {
                 address: { bsonType: 'string' },
                 coordinates: {
                   bsonType: 'array',
-                  items: { bsonType: 'double' }
-                }
-              }
+                  items: { bsonType: 'double' },
+                },
+              },
             },
             metadata: {
               bsonType: 'object',
@@ -136,22 +138,24 @@ module.exports = {
                 originalCurrency: { bsonType: 'string' },
                 exchangeRate: { bsonType: 'double' },
                 isRecurring: { bsonType: 'bool' },
-                subscriptionId: { bsonType: 'objectId' }
-              }
+                subscriptionId: { bsonType: 'objectId' },
+              },
             },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
 
     // Additional indexes for expenses
-    await db.collection('expenses').createIndexes([
-      { key: { merchantId: 1 } },
-      { key: { currency: 1 } },
-      { key: { 'metadata.subscriptionId': 1 } }
-    ]);
+    await db
+      .collection('expenses')
+      .createIndexes([
+        { key: { merchantId: 1 } },
+        { key: { currency: 1 } },
+        { key: { 'metadata.subscriptionId': 1 } },
+      ]);
 
     // Update merchants schema to ensure proper category relationship
     await db.command({
@@ -170,7 +174,7 @@ module.exports = {
             isVerified: { bsonType: 'bool' },
             aliases: {
               bsonType: 'array',
-              items: { bsonType: 'string' }
+              items: { bsonType: 'string' },
             },
             metadata: {
               bsonType: 'object',
@@ -180,9 +184,9 @@ module.exports = {
                 currency: { bsonType: 'string' },
                 tags: {
                   bsonType: 'array',
-                  items: { bsonType: 'string' }
-                }
-              }
+                  items: { bsonType: 'string' },
+                },
+              },
             },
             locations: {
               bsonType: 'array',
@@ -196,32 +200,32 @@ module.exports = {
                   postalCode: { bsonType: 'string' },
                   coordinates: {
                     bsonType: 'array',
-                    items: { bsonType: 'double' }
-                  }
-                }
-              }
+                    items: { bsonType: 'double' },
+                  },
+                },
+              },
             },
             tellerMerchantId: { bsonType: 'string' },
             createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' }
-          }
-        }
-      }
+            updatedAt: { bsonType: 'date' },
+          },
+        },
+      },
     });
   },
 
   async down(db) {
     await db.dropCollection('reports');
-    
+
     // Revert schema changes
     await db.command({
       collMod: 'expenses',
-      validator: {}
+      validator: {},
     });
-    
+
     await db.command({
       collMod: 'merchants',
-      validator: {}
+      validator: {},
     });
-  }
-}; 
+  },
+};

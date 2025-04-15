@@ -128,7 +128,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
             fullWidth
             label="Merchant"
             value={merchant}
-            onChange={(e) => setMerchant(e.target.value)}
+            onChange={e => setMerchant(e.target.value)}
             margin="normal"
             required
           />
@@ -137,7 +137,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
             fullWidth
             label="Amount"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={e => setAmount(e.target.value)}
             margin="normal"
             required
             type="number"
@@ -153,14 +153,10 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={loading || !file}
-        >
+        <Button onClick={handleSubmit} variant="contained" disabled={loading || !file}>
           {loading ? <CircularProgress size={24} /> : 'Upload'}
         </Button>
       </DialogActions>
     </>
   );
-}; 
+};

@@ -18,14 +18,16 @@ const transactionUpdateSchema = z.object({
 
 // Schema for bulk import
 const bulkImportSchema = z.object({
-  data: z.array(z.object({
-    date: z.string(),
-    description: z.string(),
-    amount: z.number(),
-    category: z.string(),
-    status: z.string().optional(),
-    type: z.enum(['income', 'expense'])
-  }))
+  data: z.array(
+    z.object({
+      date: z.string(),
+      description: z.string(),
+      amount: z.number(),
+      category: z.string(),
+      status: z.string().optional(),
+      type: z.enum(['income', 'expense']),
+    })
+  ),
 });
 
 // PATCH /api/transactions/:id
@@ -38,8 +40,8 @@ router.patch('/:id', validateRequest({ body: transactionUpdateSchema }), async (
     const collection = db.collection('transactions');
 
     // Validate that the transaction exists
-    const existingTransaction = await collection.findOne({ 
-      _id: new ObjectId(id) 
+    const existingTransaction = await collection.findOne({
+      _id: new ObjectId(id),
     });
 
     if (!existingTransaction) {
@@ -77,7 +79,7 @@ router.post('/bulk-import', validateRequest({ body: bulkImportSchema }), async (
     res.json({
       success: true,
       insertedCount: result.insertedCount,
-      insertedIds: result.insertedIds
+      insertedIds: result.insertedIds,
     });
   } catch (error) {
     console.error('Error bulk importing transactions:', error);
@@ -85,4 +87,4 @@ router.post('/bulk-import', validateRequest({ body: bulkImportSchema }), async (
   }
 });
 
-export default router; 
+export default router;

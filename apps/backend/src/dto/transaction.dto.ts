@@ -1,4 +1,13 @@
-import { IsString, IsNumber, IsDate, IsOptional, IsEnum, IsArray, IsBoolean, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsDate,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsBoolean,
+  IsObject,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TransactionDto {
@@ -136,4 +145,4 @@ export class TransactionQueryDto {
   @IsBoolean()
   @IsOptional()
   isRecurring?: boolean;
-} 
+}

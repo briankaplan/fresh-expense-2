@@ -39,4 +39,4 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsEmail({}, { message: 'Please provide a valid email' })
   email?: string;
-} 
+}

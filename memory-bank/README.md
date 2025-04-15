@@ -6,7 +6,7 @@ This memory bank contains comprehensive documentation for the Fresh Expense appl
 
 ### Core Documentation
 
-- [Technical Context](./techContext.md) - Technical architecture, stack choices, and implementation details
+- [Technical Context](./technicalContext.md) - Technical architecture, stack choices, and implementation details
 - [System Patterns](./systemPatterns.md) - Design patterns, coding standards, and architectural decisions
 - [Project Brief](./projectbrief.md) - Project overview, goals, and requirements
 - [Active Context](./activeContext.md) - Current development context and ongoing work
@@ -23,18 +23,21 @@ This memory bank contains comprehensive documentation for the Fresh Expense appl
 ## Key Features
 
 1. **Receipt Management**
+
    - OCR Processing
    - Automatic Matching
    - Digital Storage
    - Metadata Extraction
 
 2. **Expense Tracking**
+
    - Transaction Import
    - Category Management
    - Budget Analysis
    - Receipt Linking
 
 3. **Reporting System**
+
    - Custom Templates
    - Scheduled Reports
    - Multiple Formats
@@ -49,7 +52,7 @@ This memory bank contains comprehensive documentation for the Fresh Expense appl
 ## Getting Started
 
 1. Check the [Project Brief](./projectbrief.md) for an overview
-2. Review [Technical Context](./techContext.md) for architecture details
+2. Review [Technical Context](./technicalContext.md) for architecture details
 3. Follow [System Patterns](./systemPatterns.md) for development guidelines
 4. Track progress in [Progress](./progress.md)
 5. Stay updated with [Active Context](./activeContext.md)

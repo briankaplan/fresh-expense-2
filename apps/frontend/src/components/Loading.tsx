@@ -40,4 +40,4 @@ const Loading: React.FC<LoadingProps> = ({ size = 'medium', color = 'primary' })
   );
 };
 
-export default Loading; 
+export default Loading;

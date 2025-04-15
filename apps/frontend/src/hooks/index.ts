@@ -1,2 +1,2 @@
 export * from './useSpendingAnalytics';
-export * from './useDataExport'; 
+export * from './useDataExport';

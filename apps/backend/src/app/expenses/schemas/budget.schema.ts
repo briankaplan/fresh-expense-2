@@ -27,4 +27,4 @@ export class Budget {
   metadata?: Record<string, any>;
 }
 
-export const BudgetSchema = SchemaFactory.createForClass(Budget); 
+export const BudgetSchema = SchemaFactory.createForClass(Budget);

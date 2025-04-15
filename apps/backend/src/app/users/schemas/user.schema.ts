@@ -50,7 +50,7 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function (next) {
   try {
     if (this.isModified('password')) {
       this['password'] = await argon2.hash(this['password']);
@@ -61,6 +61,8 @@ UserSchema.pre('save', async function(next) {
   }
 });
 
-UserSchema.methods['comparePassword'] = async function(candidatePassword: string): Promise<boolean> {
+UserSchema.methods['comparePassword'] = async function (
+  candidatePassword: string
+): Promise<boolean> {
   return argon2.verify(this['password'], candidatePassword);
-}; 
+};

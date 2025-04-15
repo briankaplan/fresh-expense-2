@@ -19,9 +19,7 @@ interface ReportQuery {
 export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
-  constructor(
-    @InjectModel(Report.name) private readonly reportModel: Model<ReportDocument>,
-  ) {}
+  constructor(@InjectModel(Report.name) private readonly reportModel: Model<ReportDocument>) {}
 
   async create(createReportDto: CreateReportDto): Promise<ReportDocument> {
     const createdReport = new this.reportModel(createReportDto);
@@ -41,7 +39,9 @@ export class ReportsService {
   }
 
   async update(id: string, updateReportDto: UpdateReportDto): Promise<ReportDocument> {
-    const report = await this.reportModel.findByIdAndUpdate(id, updateReportDto, { new: true }).exec();
+    const report = await this.reportModel
+      .findByIdAndUpdate(id, updateReportDto, { new: true })
+      .exec();
     if (!report) {
       throw new NotFoundException(`Report with ID ${id} not found`);
     }
@@ -65,7 +65,7 @@ export class ReportsService {
 
   async generateReport(id: string): Promise<ReportDocument> {
     const report = await this.findOne(id);
-    
+
     try {
       // Update status to processing
       await this.update(id, { status: 'processing' } as UpdateReportDto);
@@ -110,10 +110,12 @@ export class ReportsService {
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async processScheduledReports() {
-    const scheduledReports = await this.reportModel.find({
-      isScheduled: true,
-      status: { $ne: 'processing' },
-    }).exec();
+    const scheduledReports = await this.reportModel
+      .find({
+        isScheduled: true,
+        status: { $ne: 'processing' },
+      })
+      .exec();
 
     for (const report of scheduledReports) {
       await this.generateReport(report._id.toString());
@@ -171,4 +173,4 @@ export class ReportsService {
     // Implementation for file generation based on format
     return 'https://example.com/reports/' + report._id + '.' + report.format;
   }
-} 
+}

@@ -66,4 +66,4 @@ ReceiptSchema.index({ category: 1 });
 ReceiptSchema.index({ matched: 1 });
 ReceiptSchema.index({ 'metadata.processingStatus': 1 });
 ReceiptSchema.index({ 'googleAuth.userId': 1 });
-ReceiptSchema.index({ 'googleAuth.tokenExpiry': 1 }); 
+ReceiptSchema.index({ 'googleAuth.tokenExpiry': 1 });

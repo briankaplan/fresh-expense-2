@@ -22,27 +22,27 @@ interface BatchProcessingOptions {
 }
 
 interface VerificationResult {
-    score: number;
-    merchantMatch: boolean;
-    amountMatch: boolean;
-    dateMatch: boolean;
-    itemsMatch?: boolean;
-    isMatch: boolean;
-    merchantScore: number;
-    amountScore: number;
-    dateScore: number;
-    itemsScore?: number;
-    details: {
-        transactionId?: string;
-        paymentMethod?: string;
-        tax?: number;
-    };
+  score: number;
+  merchantMatch: boolean;
+  amountMatch: boolean;
+  dateMatch: boolean;
+  itemsMatch?: boolean;
+  isMatch: boolean;
+  merchantScore: number;
+  amountScore: number;
+  dateScore: number;
+  itemsScore?: number;
+  details: {
+    transactionId?: string;
+    paymentMethod?: string;
+    tax?: number;
+  };
 }
 
 interface EmailAttachment {
-    content: Buffer;
-    filename: string;
-    contentType: string;
+  content: Buffer;
+  filename: string;
+  contentType: string;
 }
 
 @Injectable()
@@ -58,11 +58,11 @@ export class ReceiptConverterService {
   }> = [];
   private isProcessing = false;
   private readonly datePatterns = [
-    /(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/,  // MM/DD/YYYY, DD/MM/YYYY, etc.
-    /(?:date|dated)(?:[:\s]+)(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/i,  // Date: MM/DD/YYYY
+    /(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/, // MM/DD/YYYY, DD/MM/YYYY, etc.
+    /(?:date|dated)(?:[:\s]+)(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/i, // Date: MM/DD/YYYY
     /(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4})/i, // 01 Jan 2023
     /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}\s*,?\s*\d{2,4}/i, // Jan. 01, 2023
-    /(\d{4}-\d{2}-\d{2})/ // YYYY-MM-DD
+    /(\d{4}-\d{2}-\d{2})/, // YYYY-MM-DD
   ];
 
   private readonly amountPatterns = [
@@ -70,7 +70,7 @@ export class ReceiptConverterService {
     /(?:total|amount|sum|due|balance)[^0-9$]*[$]?\s*(\d+\.\d{2})/i,
     /(?:^|[\s\n])[$]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})(?:\s*(?:total|amount|due))/i,
     /(?:grand\s+total)[^0-9$]*[$]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})/i,
-    /(?:grand\s+total)[^0-9$]*[$]?\s*(\d+\.\d{2})/i
+    /(?:grand\s+total)[^0-9$]*[$]?\s*(\d+\.\d{2})/i,
   ];
 
   private readonly merchantCache: NodeCache;
@@ -80,9 +80,9 @@ export class ReceiptConverterService {
     private readonly ocrService: OCRService,
     private readonly options: BatchProcessingOptions = {}
   ) {
-    this.cache = new NodeCache({ 
+    this.cache = new NodeCache({
       stdTTL: 3600, // 1 hour default
-      checkperiod: 120 // Check for expired keys every 2 minutes
+      checkperiod: 120, // Check for expired keys every 2 minutes
     });
     this.merchantCache = new NodeCache({ stdTTL: 3600 }); // 1 hour cache
     this.receiptCache = new NodeCache({ stdTTL: 86400 }); // 24 hour cache
@@ -116,7 +116,7 @@ export class ReceiptConverterService {
     maxRetries = 3
   ): Promise<ProcessedData> {
     let lastError: Error | undefined;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await processor(item);
@@ -127,7 +127,7 @@ export class ReceiptConverterService {
         }
       }
     }
-    
+
     throw lastError;
   }
 
@@ -144,15 +144,15 @@ export class ReceiptConverterService {
 
   private async processQueue(): Promise<void> {
     if (this.isProcessing || this.processingQueue.length === 0) return;
-    
+
     this.isProcessing = true;
     const batchSize = this.options.batchSize || 10;
     const maxConcurrent = this.options.maxConcurrent || 3;
     const batch = this.processingQueue.splice(0, Math.min(batchSize, maxConcurrent));
-    
+
     try {
       const results = await Promise.all(
-        batch.map(({ item, filename, expectedData }) => 
+        batch.map(({ item, filename, expectedData }) =>
           this.processWithRetry(
             { buffer: item, filename, expectedData },
             async ({ buffer, filename, expectedData }) => {
@@ -170,7 +170,7 @@ export class ReceiptConverterService {
                 stream: null as any,
                 destination: '',
                 filename: filename,
-                path: ''
+                path: '',
               };
 
               const result = await this.processUploadedFile(fileObj);
@@ -181,7 +181,7 @@ export class ReceiptConverterService {
           )
         )
       );
-      
+
       batch.forEach(({ resolve }, index) => resolve(results[index]));
     } catch (error) {
       batch.forEach(({ reject }) => reject(error as Error));
@@ -203,7 +203,7 @@ export class ReceiptConverterService {
 
     for (const batch of batches) {
       const batchResults = await Promise.all(
-        batch.map(({ buffer, filename, expectedData }) => 
+        batch.map(({ buffer, filename, expectedData }) =>
           this.addToQueue(buffer, filename, expectedData)
         )
       );
@@ -225,12 +225,12 @@ export class ReceiptConverterService {
     try {
       const page = await browser.newPage();
       await page.setContent(html);
-      
+
       const pdf = await page.pdf({
         width: options.width ? `${options.width}px` : undefined,
         height: options.height ? `${options.height}px` : undefined,
         printBackground: true,
-        format: options.width ? undefined : 'A4'
+        format: options.width ? undefined : 'A4',
       });
 
       return pdf;
@@ -242,7 +242,10 @@ export class ReceiptConverterService {
   /**
    * Convert PDF to image
    */
-  async pdfToImage(pdfBuffer: Buffer, options: ConversionOptions = {}): Promise<{ buffer: Buffer; pages: number }> {
+  async pdfToImage(
+    pdfBuffer: Buffer,
+    options: ConversionOptions = {}
+  ): Promise<{ buffer: Buffer; pages: number }> {
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pages = pdfDoc.getPageCount();
 
@@ -261,7 +264,7 @@ export class ReceiptConverterService {
     const image = await sharp(singlePageBuffer)
       .resize(options.width || width, options.height || height, {
         fit: 'contain',
-        background: { r: 255, g: 255, b: 255, alpha: 1 }
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
       })
       .png({ quality: options.quality || 100 })
       .toBuffer();
@@ -272,7 +275,11 @@ export class ReceiptConverterService {
   /**
    * Generate image preview
    */
-  async generatePreview(buffer: Buffer, mimeType: string, options: ConversionOptions = {}): Promise<Buffer> {
+  async generatePreview(
+    buffer: Buffer,
+    mimeType: string,
+    options: ConversionOptions = {}
+  ): Promise<Buffer> {
     if (mimeType === 'application/pdf') {
       const { buffer: imageBuffer } = await this.pdfToImage(buffer, options);
       return imageBuffer;
@@ -282,7 +289,7 @@ export class ReceiptConverterService {
     return sharp(buffer)
       .resize(options.width || 800, options.height, {
         fit: 'inside',
-        withoutEnlargement: true
+        withoutEnlargement: true,
       })
       .jpeg({ quality: options.quality || 80 })
       .toBuffer();
@@ -321,8 +328,10 @@ export class ReceiptConverterService {
     if (cleanFoundNoSuffix === cleanExpectedNoSuffix) return 0.95;
 
     // Check if one contains the other
-    if (cleanFoundNoSuffix.includes(cleanExpectedNoSuffix) ||
-        cleanExpectedNoSuffix.includes(cleanFoundNoSuffix)) {
+    if (
+      cleanFoundNoSuffix.includes(cleanExpectedNoSuffix) ||
+      cleanExpectedNoSuffix.includes(cleanFoundNoSuffix)
+    ) {
       return 0.9;
     }
 
@@ -359,15 +368,12 @@ export class ReceiptConverterService {
     return Math.abs(date1.getTime() - date2.getTime()) <= 24 * 60 * 60 * 1000 ? 1 : 0;
   }
 
-  private calculateItemsScore(
-    extractedItems: string[],
-    expectedItems: string[]
-  ): number {
+  private calculateItemsScore(extractedItems: string[], expectedItems: string[]): number {
     if (!extractedItems || extractedItems.length === 0) return 0;
-    
+
     const extractedSet = new Set(extractedItems.map(item => item.toLowerCase()));
     const expectedSet = new Set(expectedItems.map(item => item.toLowerCase()));
-    
+
     const intersection = new Set([...extractedSet].filter(x => expectedSet.has(x)));
     return intersection.size / Math.max(extractedSet.size, expectedSet.size);
   }
@@ -375,42 +381,39 @@ export class ReceiptConverterService {
   private verifyReceipt(
     extracted: ExtractedReceiptData,
     expected: {
-        merchant?: string;
-        amount?: number;
-        date?: Date | null;
-        items?: string[];
+      merchant?: string;
+      amount?: number;
+      date?: Date | null;
+      items?: string[];
     }
   ): VerificationResult {
-    const merchantScore = this.calculateMerchantScore(
-        extracted.merchant,
-        expected.merchant ?? ''
-    );
-    const amountScore = this.calculateAmountScore(
-        extracted.amount,
-        expected.amount ?? 0
-    );
+    const merchantScore = this.calculateMerchantScore(extracted.merchant, expected.merchant ?? '');
+    const amountScore = this.calculateAmountScore(extracted.amount, expected.amount ?? 0);
     const dateScore = this.calculateDateScore(extracted.date, expected.date ?? null);
-    const itemsScore = expected.items ? this.calculateItemsScore(extracted.items, expected.items) : undefined;
+    const itemsScore = expected.items
+      ? this.calculateItemsScore(extracted.items, expected.items)
+      : undefined;
 
-    const overallScore = (merchantScore + amountScore + dateScore + (itemsScore ?? 0)) / 
-        (itemsScore !== undefined ? 4 : 3);
+    const overallScore =
+      (merchantScore + amountScore + dateScore + (itemsScore ?? 0)) /
+      (itemsScore !== undefined ? 4 : 3);
 
     return {
-        score: overallScore,
-        merchantMatch: merchantScore >= 0.8,
-        amountMatch: amountScore >= 0.8,
-        dateMatch: dateScore >= 0.8,
-        itemsMatch: itemsScore !== undefined ? itemsScore >= 0.8 : undefined,
-        isMatch: overallScore >= 0.8,
-        merchantScore,
-        amountScore,
-        dateScore,
-        itemsScore,
-        details: {
-            transactionId: extracted.transactionId,
-            paymentMethod: extracted.paymentMethod,
-            tax: extracted.tax
-        }
+      score: overallScore,
+      merchantMatch: merchantScore >= 0.8,
+      amountMatch: amountScore >= 0.8,
+      dateMatch: dateScore >= 0.8,
+      itemsMatch: itemsScore !== undefined ? itemsScore >= 0.8 : undefined,
+      isMatch: overallScore >= 0.8,
+      merchantScore,
+      amountScore,
+      dateScore,
+      itemsScore,
+      details: {
+        transactionId: extracted.transactionId,
+        paymentMethod: extracted.paymentMethod,
+        tax: extracted.tax,
+      },
     };
   }
 
@@ -465,17 +468,17 @@ export class ReceiptConverterService {
 
     // Convert to lowercase and remove special characters
     const normalized = merchant.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-    
+
     // Common merchant name variations
     const variations = {
-      'doordash': ['door dash', 'door-dash', 'doordash.com', 'door dash order'],
-      'uber': ['uber.com', 'uber eats', 'uber-eats', 'uber receipt'],
-      'amazon': ['amazon.com', 'amazon prime', 'amazon order'],
-      'apple': ['apple.com', 'apple bill', 'apple receipt'],
-      'spotify': ['spotify usa', 'spotify.com', 'spotify receipt'],
-      'starbucks': ['starbucks coffee', 'starbucks.com', 'starbucks order']
+      doordash: ['door dash', 'door-dash', 'doordash.com', 'door dash order'],
+      uber: ['uber.com', 'uber eats', 'uber-eats', 'uber receipt'],
+      amazon: ['amazon.com', 'amazon prime', 'amazon order'],
+      apple: ['apple.com', 'apple bill', 'apple receipt'],
+      spotify: ['spotify usa', 'spotify.com', 'spotify receipt'],
+      starbucks: ['starbucks coffee', 'starbucks.com', 'starbucks order'],
     };
-    
+
     // Check for exact matches first
     for (const [standard, vars] of Object.entries(variations)) {
       if (normalized === standard || vars.includes(normalized)) {
@@ -483,18 +486,18 @@ export class ReceiptConverterService {
         return standard;
       }
     }
-    
+
     // If no exact match, try fuzzy matching
     let bestMatch = null;
     let bestScore = 0;
-    
+
     for (const [standard, vars] of Object.entries(variations)) {
       const standardScore = this.calculateStringSimilarity(normalized, standard) * 1.2;
       if (standardScore > bestScore) {
         bestScore = standardScore;
         bestMatch = standard;
       }
-      
+
       for (const variation of vars) {
         const variationScore = this.calculateStringSimilarity(normalized, variation);
         if (variationScore > bestScore) {
@@ -503,13 +506,15 @@ export class ReceiptConverterService {
         }
       }
     }
-    
+
     if (bestScore >= 0.8 && bestMatch) {
-      this.logger.debug(`Found fuzzy match: ${normalized} -> ${bestMatch} (score: ${bestScore.toFixed(2)})`);
+      this.logger.debug(
+        `Found fuzzy match: ${normalized} -> ${bestMatch} (score: ${bestScore.toFixed(2)})`
+      );
       this.merchantCache.set(cacheKey, bestMatch);
       return bestMatch;
     }
-    
+
     this.merchantCache.set(cacheKey, normalized);
     return normalized;
   }
@@ -517,7 +522,7 @@ export class ReceiptConverterService {
   private calculateStringSimilarity(str1: string, str2: string): number {
     const maxLength = Math.max(str1.length, str2.length);
     const distance = this.levenshteinDistance(str1, str2);
-    return 1 - (distance / maxLength);
+    return 1 - distance / maxLength;
   }
 
   private levenshteinDistance(a: string, b: string): number {
@@ -556,7 +561,7 @@ export class ReceiptConverterService {
     if (date1.toDateString() === date2.toDateString()) {
       return true;
     }
-    
+
     // Within 1 day
     const diffDays = Math.abs((date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24));
     return diffDays <= 1;
@@ -565,7 +570,9 @@ export class ReceiptConverterService {
   private async extractTextFromAttachment(attachment: EmailAttachment): Promise<string> {
     const worker = await createWorker();
     try {
-      const { data: { text } } = await worker.recognize(attachment.content);
+      const {
+        data: { text },
+      } = await worker.recognize(attachment.content);
       return text;
     } finally {
       await worker.terminate();
@@ -575,7 +582,9 @@ export class ReceiptConverterService {
   private async extractTextFromFile(file: Express.Multer.File): Promise<string> {
     const worker = await createWorker();
     try {
-      const { data: { text } } = await worker.recognize(file.buffer);
+      const {
+        data: { text },
+      } = await worker.recognize(file.buffer);
       return text;
     } finally {
       await worker.terminate();
@@ -586,49 +595,47 @@ export class ReceiptConverterService {
     const csvData = file.buffer.toString('utf-8');
     const lines = csvData.split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
-    
+
     // Find relevant columns
-    const merchantIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('merchant') || h.toLowerCase().includes('store')
+    const merchantIndex = headers.findIndex(
+      h => h.toLowerCase().includes('merchant') || h.toLowerCase().includes('store')
     );
-    const amountIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('amount') || h.toLowerCase().includes('total')
+    const amountIndex = headers.findIndex(
+      h => h.toLowerCase().includes('amount') || h.toLowerCase().includes('total')
     );
-    const dateIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('date')
-    );
-    
+    const dateIndex = headers.findIndex(h => h.toLowerCase().includes('date'));
+
     // Process first data row
     const data = lines[1].split(',').map(d => d.trim());
-    
+
     return JSON.stringify({
-        merchant: merchantIndex >= 0 ? data[merchantIndex] : null,
-        amount: amountIndex >= 0 ? parseFloat(data[amountIndex]) : null,
-        date: dateIndex >= 0 ? new Date(data[dateIndex].replace(/\s+/g, 'T')) : null
+      merchant: merchantIndex >= 0 ? data[merchantIndex] : null,
+      amount: amountIndex >= 0 ? parseFloat(data[amountIndex]) : null,
+      date: dateIndex >= 0 ? new Date(data[dateIndex].replace(/\s+/g, 'T')) : null,
     });
   }
 
   async processEmailAttachment(
     attachment: EmailAttachment,
     expectedData?: {
-        merchant?: string;
-        amount?: number;
-        date?: Date;
-        items?: string[];
+      merchant?: string;
+      amount?: number;
+      date?: Date;
+      items?: string[];
     }
   ): Promise<ProcessedData> {
     const text = await this.extractTextFromAttachment(attachment);
     const extracted = await this.extractReceiptData(text);
-    
+
     const result: ProcessedData = {
-        merchant: extracted.merchant ?? '',
-        amount: extracted.amount ?? 0,
-        date: extracted.date ?? undefined,
-        items: extracted.items
+      merchant: extracted.merchant ?? '',
+      amount: extracted.amount ?? 0,
+      date: extracted.date ?? undefined,
+      items: extracted.items,
     };
 
     if (expectedData) {
-        result.verification = this.verifyReceipt(extracted, expectedData);
+      result.verification = this.verifyReceipt(extracted, expectedData);
     }
 
     return result;
@@ -637,24 +644,24 @@ export class ReceiptConverterService {
   async processUploadedFile(
     file: Express.Multer.File,
     expectedData?: {
-        merchant?: string;
-        amount?: number;
-        date?: Date;
-        items?: string[];
+      merchant?: string;
+      amount?: number;
+      date?: Date;
+      items?: string[];
     }
   ): Promise<ProcessedData> {
     const text = await this.extractTextFromFile(file);
     const extracted = await this.extractReceiptData(text);
-    
+
     const result: ProcessedData = {
-        merchant: extracted.merchant ?? '',
-        amount: extracted.amount ?? 0,
-        date: extracted.date ?? undefined,
-        items: extracted.items
+      merchant: extracted.merchant ?? '',
+      amount: extracted.amount ?? 0,
+      date: extracted.date ?? undefined,
+      items: extracted.items,
     };
 
     if (expectedData) {
-        result.verification = this.verifyReceipt(extracted, expectedData);
+      result.verification = this.verifyReceipt(extracted, expectedData);
     }
 
     return result;
@@ -663,24 +670,24 @@ export class ReceiptConverterService {
   async processCSVFile(
     file: Express.Multer.File,
     expectedData?: {
-        merchant?: string;
-        amount?: number;
-        date?: Date;
-        items?: string[];
+      merchant?: string;
+      amount?: number;
+      date?: Date;
+      items?: string[];
     }
   ): Promise<ProcessedData> {
     const csvData = this.parseCSV(file);
     const extracted = await this.extractReceiptData(csvData);
-    
+
     const result: ProcessedData = {
-        merchant: extracted.merchant ?? '',
-        amount: extracted.amount ?? 0,
-        date: extracted.date ?? undefined,
-        items: extracted.items
+      merchant: extracted.merchant ?? '',
+      amount: extracted.amount ?? 0,
+      date: extracted.date ?? undefined,
+      items: extracted.items,
     };
 
     if (expectedData) {
-        result.verification = this.verifyReceipt(extracted, expectedData);
+      result.verification = this.verifyReceipt(extracted, expectedData);
     }
 
     return result;
@@ -695,7 +702,7 @@ export class ReceiptConverterService {
       items: [],
       transactionId: undefined,
       paymentMethod: undefined,
-      tax: undefined
+      tax: undefined,
     };
   }
-} 
+}

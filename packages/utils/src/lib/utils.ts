@@ -1,4 +1,5 @@
-import { ExpenseCategory } from '@expense/types';
+// Define the ExpenseCategory type locally to avoid dependency issues
+export type ExpenseCategory = 'FOOD' | 'TRANSPORT' | 'SHOPPING' | 'ENTERTAINMENT' | 'OTHER';
 
 /**
  * Formats a number as currency
@@ -19,7 +20,10 @@ export function formatCurrency(amount: number, currency = 'USD'): string {
  * @returns Formatted date string
  */
 export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  const date = new Date(dateString);
+  // Add timezone offset to handle UTC dates correctly
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -43,11 +47,14 @@ export function calculateTotal(expenses: { amount: number }[]): number {
 export function groupByCategory(
   expenses: { category: ExpenseCategory; amount: number }[]
 ): Record<ExpenseCategory, number> {
-  return expenses.reduce((groups, expense) => {
-    const category = expense.category;
-    groups[category] = (groups[category] || 0) + expense.amount;
-    return groups;
-  }, {} as Record<ExpenseCategory, number>);
+  return expenses.reduce(
+    (groups, expense) => {
+      const category = expense.category;
+      groups[category] = (groups[category] || 0) + expense.amount;
+      return groups;
+    },
+    {} as Record<ExpenseCategory, number>
+  );
 }
 
 /**
@@ -56,6 +63,15 @@ export function groupByCategory(
  * @returns boolean indicating if the date is valid
  */
 export function isValidISODate(dateString: string): boolean {
-  const date = new Date(dateString);
-  return date instanceof Date && !isNaN(date.getTime()) && dateString === date.toISOString();
+  try {
+    const date = new Date(dateString);
+    return (
+      date instanceof Date &&
+      !isNaN(date.getTime()) &&
+      dateString.includes('T') && // Ensure it's a full ISO string
+      dateString.includes('Z')
+    ); // Ensure it's UTC
+  } catch {
+    return false;
+  }
 }

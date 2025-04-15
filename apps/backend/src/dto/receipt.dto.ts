@@ -1,4 +1,13 @@
-import { IsString, IsNumber, IsDate, IsOptional, IsEnum, IsArray, IsBoolean, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsDate,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsBoolean,
+  IsObject,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ReceiptDto {
@@ -68,4 +77,4 @@ export class ReceiptDto {
   @IsString()
   @IsOptional()
   location?: string;
-} 
+}

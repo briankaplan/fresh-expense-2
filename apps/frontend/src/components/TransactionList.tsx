@@ -40,25 +40,17 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions }
   return (
     <Paper elevation={2}>
       <List>
-        {transactions.map((transaction) => (
+        {transactions.map(transaction => (
           <ListItem key={transaction.id} divider>
             <ListItemText
               primary={transaction.description}
               secondary={
                 <Box component="span" sx={{ display: 'flex', gap: 1 }}>
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="text.secondary"
-                  >
+                  <Typography component="span" variant="body2" color="text.secondary">
                     {formatDate(transaction.date)}
                   </Typography>
                   {transaction.category && (
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      color="text.secondary"
-                    >
+                    <Typography component="span" variant="body2" color="text.secondary">
                       • {transaction.category}
                     </Typography>
                   )}
@@ -66,10 +58,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions }
               }
             />
             <ListItemSecondaryAction>
-              <Typography
-                variant="body2"
-                color={transaction.amount < 0 ? 'error' : 'success.main'}
-              >
+              <Typography variant="body2" color={transaction.amount < 0 ? 'error' : 'success.main'}>
                 {formatCurrency(transaction.amount)}
               </Typography>
             </ListItemSecondaryAction>
@@ -78,4 +67,4 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions }
       </List>
     </Paper>
   );
-}; 
+};

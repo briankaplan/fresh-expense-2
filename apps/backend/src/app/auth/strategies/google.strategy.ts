@@ -10,7 +10,7 @@ import { User } from '../../users/schemas/user.schema';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
     private configService: ConfigService,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>
   ) {
     super({
       clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
@@ -38,4 +38,4 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
     return newUser;
   }
-} 
+}

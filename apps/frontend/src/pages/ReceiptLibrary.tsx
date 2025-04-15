@@ -111,38 +111,41 @@ export const ReceiptLibrary: React.FC = () => {
     categories: [] as string[],
     dateRange: {
       start: null as Date | null,
-      end: null as Date | null
-    }
+      end: null as Date | null,
+    },
   });
   const [selectedReceipts, setSelectedReceipts] = useState<string[]>([]);
   const [sortOption] = useState<string>('date');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const debouncedSearch = useDebouncedCallback(
-    (value: string) => {
-      setFilters(prev => ({ ...prev, search: value }));
-    },
-    500
-  );
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setFilters(prev => ({ ...prev, search: value }));
+  }, 500);
 
   const filteredReceipts = useMemo(() => {
-    return receipts.filter(receipt => {
-      const matchesSearch = receipt.metadata.merchant?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        receipt.metadata.text?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        false;
-      const matchesCategories = filters.categories.length === 0 || 
-        filters.categories.includes(receipt.status);
-      const matchesDateRange = (!filters.dateRange.start || new Date(receipt.metadata.date || '') >= filters.dateRange.start) &&
-        (!filters.dateRange.end || new Date(receipt.metadata.date || '') <= filters.dateRange.end);
-      return matchesSearch && matchesCategories && matchesDateRange;
-    }).sort((a, b) => {
-      if (!a || !b) return 0;
-      const aValue = a[sortOption as keyof Receipt];
-      const bValue = b[sortOption as keyof Receipt];
-      if (!aValue || !bValue) return 0;
-      const modifier = sortOption === 'date' ? -1 : 1;
-      return aValue > bValue ? modifier : -modifier;
-    });
+    return receipts
+      .filter(receipt => {
+        const matchesSearch =
+          receipt.metadata.merchant?.toLowerCase().includes(filters.search.toLowerCase()) ||
+          receipt.metadata.text?.toLowerCase().includes(filters.search.toLowerCase()) ||
+          false;
+        const matchesCategories =
+          filters.categories.length === 0 || filters.categories.includes(receipt.status);
+        const matchesDateRange =
+          (!filters.dateRange.start ||
+            new Date(receipt.metadata.date || '') >= filters.dateRange.start) &&
+          (!filters.dateRange.end ||
+            new Date(receipt.metadata.date || '') <= filters.dateRange.end);
+        return matchesSearch && matchesCategories && matchesDateRange;
+      })
+      .sort((a, b) => {
+        if (!a || !b) return 0;
+        const aValue = a[sortOption as keyof Receipt];
+        const bValue = b[sortOption as keyof Receipt];
+        if (!aValue || !bValue) return 0;
+        const modifier = sortOption === 'date' ? -1 : 1;
+        return aValue > bValue ? modifier : -modifier;
+      });
   }, [receipts, filters, sortOption]);
 
   const virtualizer = useVirtualizer({
@@ -230,7 +233,7 @@ export const ReceiptLibrary: React.FC = () => {
       transition={{
         type: 'spring',
         stiffness: 300,
-        damping: 30
+        damping: 30,
       }}
       whileHover={{ y: -4, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
       whileTap={{ scale: 0.98 }}
@@ -243,7 +246,7 @@ export const ReceiptLibrary: React.FC = () => {
           cursor: 'pointer',
           position: 'relative',
           outline: selectedReceipts.includes(receipt.id) ? '2px solid' : 'none',
-          outlineColor: 'primary.main'
+          outlineColor: 'primary.main',
         }}
       >
         <Box
@@ -251,15 +254,17 @@ export const ReceiptLibrary: React.FC = () => {
             position: 'absolute',
             top: 8,
             left: 8,
-            zIndex: 1
+            zIndex: 1,
           }}
         >
           <Checkbox
             checked={selectedReceipts.includes(receipt.id)}
-            onChange={(e) => {
+            onChange={e => {
               e.stopPropagation();
               setSelectedReceipts(prev => {
-                const next = prev.includes(receipt.id) ? prev.filter(id => id !== receipt.id) : [...prev, receipt.id];
+                const next = prev.includes(receipt.id)
+                  ? prev.filter(id => id !== receipt.id)
+                  : [...prev, receipt.id];
                 return next;
               });
             }}
@@ -273,30 +278,39 @@ export const ReceiptLibrary: React.FC = () => {
           alt={`Receipt from ${receipt.metadata.merchant || 'Unknown Merchant'}`}
           sx={{
             objectFit: 'cover',
-            filter: selectedReceipts.includes(receipt.id) ? 'brightness(0.9)' : 'none'
+            filter: selectedReceipts.includes(receipt.id) ? 'brightness(0.9)' : 'none',
           }}
           onClick={() => setSelectedReceipt(receipt)}
         />
 
         <CardContent>
-          <Typography variant="h6" noWrap>{receipt.metadata.merchant || 'Unknown Merchant'}</Typography>
+          <Typography variant="h6" noWrap>
+            {receipt.metadata.merchant || 'Unknown Merchant'}
+          </Typography>
           <Typography variant="body2" color="text.secondary">
-            {receipt.metadata.date ? new Date(receipt.metadata.date).toLocaleDateString() : 'Unknown'}
+            {receipt.metadata.date
+              ? new Date(receipt.metadata.date).toLocaleDateString()
+              : 'Unknown'}
           </Typography>
           <Typography variant="body1" sx={{ mt: 1 }}>
-            {receipt.metadata.amount ? new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD'
-            }).format(receipt.metadata.amount) : 'Unknown'}
+            {receipt.metadata.amount
+              ? new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                }).format(receipt.metadata.amount)
+              : 'Unknown'}
           </Typography>
-          
+
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
             <Chip
               size="small"
               label={receipt.status}
               color={
-                receipt.status === 'matched' ? 'success' :
-                receipt.status === 'unmatched' ? 'warning' : 'info'
+                receipt.status === 'matched'
+                  ? 'success'
+                  : receipt.status === 'unmatched'
+                    ? 'warning'
+                    : 'info'
               }
             />
           </Stack>
@@ -313,7 +327,7 @@ export const ReceiptLibrary: React.FC = () => {
               <IconButton
                 size="small"
                 color="primary"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   // TODO: Implement find matches
                 }}
@@ -326,7 +340,7 @@ export const ReceiptLibrary: React.FC = () => {
             <IconButton
               size="small"
               color="error"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleDelete(receipt.id);
               }}
@@ -344,7 +358,7 @@ export const ReceiptLibrary: React.FC = () => {
     const [exportOptions, setExportOptions] = useState<ReceiptExportOptions>({
       format: 'pdf',
       includeAnnotations: true,
-      includeMetadata: true
+      includeMetadata: true,
     });
 
     return (
@@ -352,16 +366,12 @@ export const ReceiptLibrary: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<SaveIcon />}
-          onClick={(e) => setAnchorEl(e.currentTarget)}
+          onClick={e => setAnchorEl(e.currentTarget)}
           disabled={selectedReceipts.length === 0}
         >
           Export Selected ({selectedReceipts.length})
         </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={() => setAnchorEl(null)}
-        >
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
           <MenuItem onClick={() => handleExport({ ...exportOptions, format: 'pdf' })}>
             Export as PDF
           </MenuItem>
@@ -377,10 +387,12 @@ export const ReceiptLibrary: React.FC = () => {
               control={
                 <Checkbox
                   checked={exportOptions.includeAnnotations}
-                  onChange={(e) => setExportOptions(prev => ({
-                    ...prev,
-                    includeAnnotations: e.target.checked
-                  }))}
+                  onChange={e =>
+                    setExportOptions(prev => ({
+                      ...prev,
+                      includeAnnotations: e.target.checked,
+                    }))
+                  }
                 />
               }
               label="Include Annotations"
@@ -391,10 +403,12 @@ export const ReceiptLibrary: React.FC = () => {
               control={
                 <Checkbox
                   checked={exportOptions.includeMetadata}
-                  onChange={(e) => setExportOptions(prev => ({
-                    ...prev,
-                    includeMetadata: e.target.checked
-                  }))}
+                  onChange={e =>
+                    setExportOptions(prev => ({
+                      ...prev,
+                      includeMetadata: e.target.checked,
+                    }))
+                  }
                 />
               }
               label="Include Metadata"
@@ -422,10 +436,7 @@ export const ReceiptLibrary: React.FC = () => {
         img.crossOrigin = 'anonymous';
         img.src = selectedReceipt.fullImageUrl;
         img.onload = () => {
-          const scale = Math.min(
-            stageSize.width / img.width,
-            stageSize.height / img.height
-          );
+          const scale = Math.min(stageSize.width / img.width, stageSize.height / img.height);
           setImage(img);
           setZoom(scale);
         };
@@ -488,9 +499,7 @@ export const ReceiptLibrary: React.FC = () => {
     };
 
     const handleAnnotationChange = (id: string, changes: Partial<Annotation>) => {
-      setAnnotations(prev =>
-        prev.map(ann => (ann.id === id ? { ...ann, ...changes } : ann))
-      );
+      setAnnotations(prev => prev.map(ann => (ann.id === id ? { ...ann, ...changes } : ann)));
     };
 
     const handleDeleteAnnotation = (id: string) => {
@@ -561,7 +570,9 @@ export const ReceiptLibrary: React.FC = () => {
           <>
             <DialogTitle>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h6">{selectedReceipt.metadata.merchant || 'Unknown Merchant'}</Typography>
+                <Typography variant="h6">
+                  {selectedReceipt.metadata.merchant || 'Unknown Merchant'}
+                </Typography>
                 <Box>
                   <IconButton onClick={() => handleZoom(0.1)} title="Zoom In">
                     <ZoomInIcon />
@@ -575,7 +586,10 @@ export const ReceiptLibrary: React.FC = () => {
                   <IconButton onClick={() => handleRotate(90)} title="Rotate Right">
                     <RotateRightIcon />
                   </IconButton>
-                  <IconButton onClick={() => setIsAnnotating(!isAnnotating)} title="Toggle Annotations">
+                  <IconButton
+                    onClick={() => setIsAnnotating(!isAnnotating)}
+                    title="Toggle Annotations"
+                  >
                     <EditIcon color={isAnnotating ? 'primary' : 'inherit'} />
                   </IconButton>
                 </Box>
@@ -617,14 +631,17 @@ export const ReceiptLibrary: React.FC = () => {
                         {annotations.map(renderAnnotation)}
                       </Layer>
                     </Stage>
-                    
+
                     {isAnnotating && (
                       <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
                         <Paper elevation={3} sx={{ p: 1 }}>
                           <IconButton onClick={() => handleAddAnnotation('text')} title="Add Text">
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton onClick={() => handleAddAnnotation('highlight')} title="Highlight">
+                          <IconButton
+                            onClick={() => handleAddAnnotation('highlight')}
+                            title="Highlight"
+                          >
                             <ZoomInIcon fontSize="small" />
                           </IconButton>
                         </Paper>
@@ -633,30 +650,42 @@ export const ReceiptLibrary: React.FC = () => {
                   </Box>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Typography variant="h6" gutterBottom>Receipt Details</Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Receipt Details
+                  </Typography>
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle2">Date</Typography>
-                    <Typography>{selectedReceipt.metadata.date ? new Date(selectedReceipt.metadata.date).toLocaleDateString() : 'Unknown'}</Typography>
+                    <Typography>
+                      {selectedReceipt.metadata.date
+                        ? new Date(selectedReceipt.metadata.date).toLocaleDateString()
+                        : 'Unknown'}
+                    </Typography>
                   </Box>
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle2">Amount</Typography>
                     <Typography>
-                      {selectedReceipt.metadata.amount ? new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD'
-                      }).format(selectedReceipt.metadata.amount) : 'Unknown'}
+                      {selectedReceipt.metadata.amount
+                        ? new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                          }).format(selectedReceipt.metadata.amount)
+                        : 'Unknown'}
                     </Typography>
                   </Box>
                   {selectedReceipt.metadata.text && (
                     <>
-                      <Typography variant="h6" gutterBottom>OCR Data</Typography>
+                      <Typography variant="h6" gutterBottom>
+                        OCR Data
+                      </Typography>
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2">Text</Typography>
                         <Typography>{selectedReceipt.metadata.text}</Typography>
                       </Box>
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2">Confidence</Typography>
-                        <Typography>{(selectedReceipt.metadata.confidence || 0 * 100).toFixed(1)}%</Typography>
+                        <Typography>
+                          {(selectedReceipt.metadata.confidence || 0 * 100).toFixed(1)}%
+                        </Typography>
                       </Box>
                       {selectedReceipt.metadata.items && (
                         <Box sx={{ mb: 2 }}>
@@ -675,14 +704,18 @@ export const ReceiptLibrary: React.FC = () => {
                   )}
                   {isAnnotating && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="h6" gutterBottom>Annotations</Typography>
-                      {annotations.map((annotation) => (
+                      <Typography variant="h6" gutterBottom>
+                        Annotations
+                      </Typography>
+                      {annotations.map(annotation => (
                         <Box key={annotation.id} sx={{ mb: 1 }}>
                           <TextField
                             fullWidth
                             size="small"
                             value={annotation.content}
-                            onChange={(e) => handleAnnotationChange(annotation.id, { content: e.target.value })}
+                            onChange={e =>
+                              handleAnnotationChange(annotation.id, { content: e.target.value })
+                            }
                             InputProps={{
                               endAdornment: (
                                 <InputAdornment position="end">
@@ -715,18 +748,14 @@ export const ReceiptLibrary: React.FC = () => {
         <Typography variant="h4">Receipt Library</Typography>
         <Stack direction="row" spacing={2}>
           <ExportMenu />
-          <Button
-            variant="contained"
-            startIcon={<UploadIcon />}
-            component="label"
-          >
+          <Button variant="contained" startIcon={<UploadIcon />} component="label">
             Upload Receipts
             <input
               type="file"
               hidden
               multiple
               accept="image/*,.pdf"
-              onChange={(e) => e.target.files && handleUpload(e.target.files)}
+              onChange={e => e.target.files && handleUpload(e.target.files)}
             />
           </Button>
         </Stack>
@@ -739,7 +768,7 @@ export const ReceiptLibrary: React.FC = () => {
               fullWidth
               placeholder="Search receipts..."
               value={filters.search}
-              onChange={(e) => debouncedSearch(e.target.value)}
+              onChange={e => debouncedSearch(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -754,7 +783,9 @@ export const ReceiptLibrary: React.FC = () => {
               <DatePicker
                 label="Start Date"
                 value={filters.dateRange.start}
-                onChange={(date) => setFilters(prev => ({ ...prev, dateRange: { ...prev.dateRange, start: date } }))}
+                onChange={date =>
+                  setFilters(prev => ({ ...prev, dateRange: { ...prev.dateRange, start: date } }))
+                }
                 slotProps={{ textField: { fullWidth: true } }}
               />
             </Grid>
@@ -762,7 +793,9 @@ export const ReceiptLibrary: React.FC = () => {
               <DatePicker
                 label="End Date"
                 value={filters.dateRange.end}
-                onChange={(date) => setFilters(prev => ({ ...prev, dateRange: { ...prev.dateRange, end: date } }))}
+                onChange={date =>
+                  setFilters(prev => ({ ...prev, dateRange: { ...prev.dateRange, end: date } }))
+                }
                 slotProps={{ textField: { fullWidth: true } }}
               />
             </Grid>
@@ -773,10 +806,12 @@ export const ReceiptLibrary: React.FC = () => {
               fullWidth
               label="Status"
               value={filters.categories.join(', ')}
-              onChange={(e) => setFilters(prev => ({
-                ...prev,
-                categories: e.target.value.split(',').map(s => s.trim())
-              }))}
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  categories: e.target.value.split(',').map(s => s.trim()),
+                }))
+              }
             >
               <MenuItem value="matched">Matched</MenuItem>
               <MenuItem value="unmatched">Unmatched</MenuItem>
@@ -794,10 +829,16 @@ export const ReceiptLibrary: React.FC = () => {
         <Box ref={containerRef} sx={{ height: 'calc(100vh - 300px)', overflow: 'auto' }}>
           <AnimatePresence>
             <Grid container spacing={3} sx={{ minHeight: virtualizer.getTotalSize() }}>
-              {virtualizer.getVirtualItems().map((virtualRow) => {
+              {virtualizer.getVirtualItems().map(virtualRow => {
                 const receipt = filteredReceipts[virtualRow.index];
                 return (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={virtualRow.key}
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    lg={3}
+                    key={virtualRow.key}
                     style={{
                       position: 'absolute',
                       top: 0,
@@ -819,4 +860,4 @@ export const ReceiptLibrary: React.FC = () => {
       <ReceiptDialog />
     </Box>
   );
-}; 
+};
