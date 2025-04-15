@@ -1,18 +1,20 @@
-name = "fresh-expense"
-main = "src/index.ts"
+name = "expense-app-api"
+main = "dist/apps/backend/main.js"
 compatibility_date = "2024-03-01"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
-workers_dev = true
-route = "fresh-expense.com/*"
+name = "expense-app-api-prod"
+workers_dev = false
+route = { pattern = "api.expense-app.com/*", zone_id = "$CLOUDFLARE_ZONE_ID" }
 
 [env.staging]
+name = "expense-app-api-staging"
 workers_dev = true
-route = "staging.fresh-expense.com/*"
 
 [vars]
 ENVIRONMENT = "production"
-API_URL = "https://api.tallyup.com"
+API_URL = "https://api.expense-app.com"
 WEBHOOK_URL = "https://api.tallyup.com/webhooks/tallyup"
 MONGODB_URI = { secret = true }
 MONGODB_DB = "expense_db"
@@ -57,17 +59,24 @@ id = ""
 
 [[kv_namespaces]]
 binding = "CACHE"
-id = ""
+id = "$KV_NAMESPACE_ID"
+preview_id = "$KV_PREVIEW_NAMESPACE_ID"
 
 [triggers]
 crons = ["0 * * * *", "0 0 * * *"]
 
 [build]
-command = "pnpm build"
-watch_dir = "src"
+command = "pnpm run build:backend"
+watch_dir = "apps/backend/src"
 
 [site]
-bucket = "./dist"
+bucket = "dist/apps/frontend"
+entry-point = "dist/apps/backend/main.js"
+
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "expense-files"
+preview_bucket_name = "expense-files-dev"
 
 [[d1_databases]]
 binding = "DB"
