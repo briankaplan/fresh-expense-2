@@ -147,7 +147,7 @@ const Transactions: React.FC = () => {
       let value: string | number = editValue;
       if (editingCell.field === "amount") {
         value = Number.parseFloat(editValue.replace(/[^0-9.-]+/g, ""));
-        if (isNaN(value)) {
+        if (Number.isNaN(value)) {
           toast.error("Please enter a valid amount");
           return;
         }

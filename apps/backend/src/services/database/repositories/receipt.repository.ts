@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
   protected readonly collectionName = RECEIPT_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByUserId(userId: string): Promise<ReceiptSchema[]> {
     return this.find({ userId });
   }

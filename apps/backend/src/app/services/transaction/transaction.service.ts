@@ -136,9 +136,7 @@ export class TransactionService {
           tx.merchant && tx.merchant !== "Unknown"
             ? tx.merchant
             : tx.details?.counterparty?.name ||
-              (tx.description && tx.description.includes(" - ")
-                ? tx.description.split(" - ")[0]
-                : null) ||
+              (tx.description?.includes(" - ") ? tx.description.split(" - ")[0] : null) ||
               "Unknown",
         description: tx.description || "",
         category: tx.category || "Uncategorized",

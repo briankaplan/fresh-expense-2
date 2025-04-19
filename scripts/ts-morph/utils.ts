@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import {
   ClassDeclaration,
   FunctionDeclaration,
@@ -115,7 +115,7 @@ export function generateTypeReport(files: SourceFile[]): string {
     const classes = files.flatMap((f) => f.getClasses());
     const functions = files.flatMap((f) => f.getFunctions());
 
-    report += `Total Types Found:\n`;
+    report += "Total Types Found:\n";
     report += `- Interfaces: ${interfaces.length}\n`;
     report += `- Type Aliases: ${typeAliases.length}\n`;
     report += `- Classes: ${classes.length}\n`;
@@ -124,7 +124,7 @@ export function generateTypeReport(files: SourceFile[]): string {
     // Find duplicates
     const duplicates = findDuplicateTypes(files);
     if (duplicates.size > 0) {
-      report += `Duplicate Types Found:\n`;
+      report += "Duplicate Types Found:\n";
       duplicates.forEach((files, typeName) => {
         report += `- ${typeName}:\n`;
         files.forEach((file) => (report += `  - ${file.getFilePath()}\n`));
@@ -135,7 +135,7 @@ export function generateTypeReport(files: SourceFile[]): string {
     // Find inconsistent imports
     const inconsistentImports = findInconsistentImports(files);
     if (inconsistentImports.size > 0) {
-      report += `Inconsistent Imports Found:\n`;
+      report += "Inconsistent Imports Found:\n";
       inconsistentImports.forEach((files, importPath) => {
         report += `- ${importPath}:\n`;
         files.forEach((file) => (report += `  - ${file}\n`));
@@ -146,7 +146,7 @@ export function generateTypeReport(files: SourceFile[]): string {
     // Find any types
     const anyTypes = findAnyTypes(files);
     if (anyTypes.size > 0) {
-      report += `Any Types Found:\n`;
+      report += "Any Types Found:\n";
       anyTypes.forEach((locations, file) => {
         report += `- ${file}:\n`;
         locations.forEach((loc) => (report += `  - ${loc}\n`));

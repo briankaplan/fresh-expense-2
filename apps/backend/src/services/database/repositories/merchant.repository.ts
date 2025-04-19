@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class MerchantRepository extends BaseRepository<MerchantSchema> {
   protected readonly collectionName = MERCHANT_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByName(name: string): Promise<MerchantSchema | null> {
     return this.findOne({ name });
   }

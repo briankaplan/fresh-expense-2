@@ -1,6 +1,6 @@
-import { exec } from "child_process";
-import path from "path";
-import { promisify } from "util";
+import { exec } from "node:child_process";
+import path from "node:path";
+import { promisify } from "node:util";
 import { Octokit } from "@octokit/rest";
 import chalk from "chalk";
 import dotenv from "dotenv";

@@ -17,9 +17,11 @@ export function getRequestFromContext(context: ExecutionContext): any {
   const contextType = context.getType();
   if (contextType === "http") {
     return context.switchToHttp().getRequest();
-  } else if (contextType === "ws") {
+  }
+  if (contextType === "ws") {
     return context.switchToWs().getClient();
-  } else if (contextType === "rpc") {
+  }
+  if (contextType === "rpc") {
     return context.switchToRpc().getData();
   }
   throw new Error(`Unsupported context type: ${contextType}`);

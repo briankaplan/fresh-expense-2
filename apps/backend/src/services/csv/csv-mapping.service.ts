@@ -129,9 +129,9 @@ export class CsvMappingService {
   validateCsvRecord(record: CsvRecord): string | null {
     try {
       if (!record.id) return "Missing id";
-      if (!record.date || isNaN(new Date(record.date).getTime())) return "Invalid date";
+      if (!record.date || Number.isNaN(new Date(record.date).getTime())) return "Invalid date";
       if (!record.merchant) return "Missing merchant";
-      if (!record.amount || isNaN(Number.parseFloat(record.amount))) return "Invalid amount";
+      if (!record.amount || Number.isNaN(Number.parseFloat(record.amount))) return "Invalid amount";
       if (
         record.company &&
         !VALID_COMPANIES.includes(record.company as (typeof VALID_COMPANIES)[number])

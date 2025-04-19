@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class TransactionRepository extends BaseRepository<TransactionSchema> {
   protected readonly collectionName = TRANSACTION_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByUserId(userId: string): Promise<TransactionSchema[]> {
     return this.find({ userId });
   }

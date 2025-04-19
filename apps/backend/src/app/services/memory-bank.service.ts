@@ -1,6 +1,6 @@
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
-import * as fs from "fs/promises";
 
 interface MemoryItem<T> {
   data: T;

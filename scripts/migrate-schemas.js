@@ -1,7 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb_1 = require("mongodb");
 const dotenv_1 = require("dotenv");
-const path_1 = require("path");
+const path_1 = require("node:path");
 // Load environment variables from root .env
 (0, dotenv_1.config)({ path: (0, path_1.join)(process.cwd(), "..", ".env") });
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/fresh-expense";

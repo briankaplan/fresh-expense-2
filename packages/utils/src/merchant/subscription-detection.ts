@@ -31,8 +31,7 @@ export function detectSubscription(transactions: BaseTransactionData[]): Subscri
 
   // Check if intervals are consistent
   const averageInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-  const variance =
-    intervals.reduce((a, b) => a + Math.pow(b - averageInterval, 2), 0) / intervals.length;
+  const variance = intervals.reduce((a, b) => a + (b - averageInterval) ** 2, 0) / intervals.length;
   const standardDeviation = Math.sqrt(variance);
 
   // If standard deviation is more than 20% of average interval, it's not consistent enough
@@ -98,7 +97,7 @@ export function calculateFrequency(
   // Calculate standard deviation of intervals
   const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
   const stdDev = Math.sqrt(
-    intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length,
+    intervals.reduce((a, b) => a + (b - avgInterval) ** 2, 0) / intervals.length,
   );
 
   // If standard deviation is low relative to average interval, it's recurring

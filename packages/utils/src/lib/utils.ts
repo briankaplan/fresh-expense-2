@@ -95,7 +95,7 @@ export function isValidISODate(dateString: string): boolean {
     const date = new Date(dateString);
     return (
       date instanceof Date &&
-      !isNaN(date.getTime()) &&
+      !Number.isNaN(date.getTime()) &&
       dateString.includes("T") && // Ensure it's a full ISO string
       dateString.includes("Z")
     ); // Ensure it's UTC

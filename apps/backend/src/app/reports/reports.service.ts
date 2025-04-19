@@ -173,6 +173,6 @@ export class ReportsService {
 
   private async generateReportFile(report: ReportDocument, summary: any): Promise<string> {
     // Implementation for file generation based on format
-    return "https://example.com/reports/" + report._id + "." + report.format;
+    return `https://example.com/reports/${report._id}.${report.format}`;
   }
 }

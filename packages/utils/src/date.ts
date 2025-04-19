@@ -5,7 +5,7 @@ import { ValidationError } from "./errors";
  * @throws {ValidationError} If the date is invalid
  */
 export function formatDateToISO(date: Date): string {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid date provided");
   }
 
@@ -26,7 +26,7 @@ export function parseISODate(dateString: string): Date {
   }
 
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid date string provided");
   }
 
@@ -54,13 +54,13 @@ export function getEndOfCurrentMonth(): Date {
  * @throws {ValidationError} If any date is invalid
  */
 export function isDateInRange(date: Date, startDate: Date, endDate: Date): boolean {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid date provided");
   }
-  if (!(startDate instanceof Date) || isNaN(startDate.getTime())) {
+  if (!(startDate instanceof Date) || Number.isNaN(startDate.getTime())) {
     throw new ValidationError("Invalid start date provided");
   }
-  if (!(endDate instanceof Date) || isNaN(endDate.getTime())) {
+  if (!(endDate instanceof Date) || Number.isNaN(endDate.getTime())) {
     throw new ValidationError("Invalid end date provided");
   }
 
@@ -72,10 +72,10 @@ export function isDateInRange(date: Date, startDate: Date, endDate: Date): boole
  * @throws {ValidationError} If any date is invalid
  */
 export function getDaysBetween(startDate: Date, endDate: Date): number {
-  if (!(startDate instanceof Date) || isNaN(startDate.getTime())) {
+  if (!(startDate instanceof Date) || Number.isNaN(startDate.getTime())) {
     throw new ValidationError("Invalid start date provided");
   }
-  if (!(endDate instanceof Date) || isNaN(endDate.getTime())) {
+  if (!(endDate instanceof Date) || Number.isNaN(endDate.getTime())) {
     throw new ValidationError("Invalid end date provided");
   }
 
@@ -88,7 +88,7 @@ export function getDaysBetween(startDate: Date, endDate: Date): number {
  * @throws {ValidationError} If the date is invalid
  */
 export function addDays(date: Date, days: number): Date {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid date provided");
   }
 
@@ -102,7 +102,7 @@ export function addDays(date: Date, days: number): Date {
  * @throws {ValidationError} If the date is invalid
  */
 export function formatDateHumanReadable(date: Date): string {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid date provided");
   }
 

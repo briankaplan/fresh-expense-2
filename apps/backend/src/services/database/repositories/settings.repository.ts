@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class SettingsRepository extends BaseRepository<SettingsSchema> {
   protected readonly collectionName = SETTINGS_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByUserId(userId: string): Promise<SettingsSchema | null> {
     return this.findOne({ userId });
   }

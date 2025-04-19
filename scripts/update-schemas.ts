@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { glob } from "glob";
 import * as ts from "typescript";
 
@@ -54,7 +54,7 @@ function updateSchemaFile(filePath: string) {
 
     updatedText = [
       updatedText.slice(0, insertPosition),
-      "\n  " + BASE_DOCUMENT_FIELDS.join("\n  "),
+      `\n  ${BASE_DOCUMENT_FIELDS.join("\n  ")}`,
       updatedText.slice(insertPosition),
     ].join("");
     changesMade = true;

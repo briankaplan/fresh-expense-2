@@ -9,7 +9,7 @@ interface ValidateSchema {
 }
 
 export const validateRequest = (schema: ValidateSchema) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void | Response> => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<undefined | Response> => {
     try {
       if (schema.body) {
         req.body = await schema.body.parseAsync(req.body);

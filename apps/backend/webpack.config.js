@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("node:path");
 
 const { composePlugins, withNx } = require("@nx/webpack");
 const nodeExternals = require("webpack-node-externals");

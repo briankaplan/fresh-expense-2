@@ -90,7 +90,7 @@ function TransactionListContainer({ company, onCompanyChange }) {
   const handleEdit = async (transaction, field, value) => {
     try {
       // Validate the value based on the field type
-      if (field === "amount" && isNaN(Number(value))) {
+      if (field === "amount" && Number.isNaN(Number(value))) {
         throw new Error("Invalid amount");
       }
       if (field === "date" && !isValidDate(value)) {
@@ -219,6 +219,6 @@ function TransactionListContainer({ company, onCompanyChange }) {
   );
 }
 function isValidDate(date) {
-  return !isNaN(Date.parse(date));
+  return !Number.isNaN(Date.parse(date));
 }
 //# sourceMappingURL=TransactionListContainer.js.map

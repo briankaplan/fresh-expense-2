@@ -129,68 +129,56 @@ describe("ReceiptMatcherService", () => {
     };
 
     it("should return 1 for exact matches", () => {
-      const score = service["calculateMerchantScore"](
-        "Test Store",
-        "Test Store",
-        defaultPreferences,
-      );
+      const score = service.calculateMerchantScore("Test Store", "Test Store", defaultPreferences);
       expect(score).toBe(1);
     });
 
     it("should return 0.8 for substring matches", () => {
-      const score = service["calculateMerchantScore"]("Test Store", "Store", defaultPreferences);
+      const score = service.calculateMerchantScore("Test Store", "Store", defaultPreferences);
       expect(score).toBe(0.8);
     });
 
     it("should calculate similarity for partial matches", () => {
-      const score = service["calculateMerchantScore"](
-        "Test Store",
-        "Test Shop",
-        defaultPreferences,
-      );
+      const score = service.calculateMerchantScore("Test Store", "Test Shop", defaultPreferences);
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThan(1);
     });
 
     it("should handle empty strings", () => {
-      const score = service["calculateMerchantScore"]("", "Test Store", defaultPreferences);
+      const score = service.calculateMerchantScore("", "Test Store", defaultPreferences);
       expect(score).toBe(0);
     });
 
     it("should handle special characters", () => {
-      const score = service["calculateMerchantScore"](
-        "Test-Store",
-        "Test Store",
-        defaultPreferences,
-      );
+      const score = service.calculateMerchantScore("Test-Store", "Test Store", defaultPreferences);
       expect(score).toBe(1);
     });
   });
 
   describe("calculateAmountScore", () => {
     it("should return 1 for exact matches", () => {
-      const score = service["calculateAmountScore"](100, 100, 0.1);
+      const score = service.calculateAmountScore(100, 100, 0.1);
       expect(score).toBe(1);
     });
 
     it("should return partial score within tolerance", () => {
-      const score = service["calculateAmountScore"](100, 95, 0.1);
+      const score = service.calculateAmountScore(100, 95, 0.1);
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThan(1);
     });
 
     it("should return 0 outside tolerance", () => {
-      const score = service["calculateAmountScore"](100, 50, 0.1);
+      const score = service.calculateAmountScore(100, 50, 0.1);
       expect(score).toBe(0);
     });
 
     it("should handle zero amounts", () => {
-      const score = service["calculateAmountScore"](0, 0, 0.1);
+      const score = service.calculateAmountScore(0, 0, 0.1);
       expect(score).toBe(1);
     });
 
     it("should handle negative amounts", () => {
-      const score = service["calculateAmountScore"](-100, -100, 0.1);
+      const score = service.calculateAmountScore(-100, -100, 0.1);
       expect(score).toBe(1);
     });
   });
@@ -198,30 +186,22 @@ describe("ReceiptMatcherService", () => {
   describe("calculateDateScore", () => {
     it("should return 1 for same day", () => {
       const date = new Date("2023-01-01");
-      const score = service["calculateDateScore"](date, date, 3);
+      const score = service.calculateDateScore(date, date, 3);
       expect(score).toBe(1);
     });
 
     it("should return 0.9 for next day", () => {
-      const score = service["calculateDateScore"](
-        new Date("2023-01-01"),
-        new Date("2023-01-02"),
-        3,
-      );
+      const score = service.calculateDateScore(new Date("2023-01-01"), new Date("2023-01-02"), 3);
       expect(score).toBe(0.9);
     });
 
     it("should return 0 for dates beyond range", () => {
-      const score = service["calculateDateScore"](
-        new Date("2023-01-01"),
-        new Date("2023-01-05"),
-        3,
-      );
+      const score = service.calculateDateScore(new Date("2023-01-01"), new Date("2023-01-05"), 3);
       expect(score).toBe(0);
     });
 
     it("should handle same day different times", () => {
-      const score = service["calculateDateScore"](
+      const score = service.calculateDateScore(
         new Date("2023-01-01T12:00:00"),
         new Date("2023-01-01T18:00:00"),
         3,
@@ -230,7 +210,7 @@ describe("ReceiptMatcherService", () => {
     });
 
     it("should handle invalid dates", () => {
-      const score = service["calculateDateScore"](new Date("invalid"), new Date("2023-01-01"), 3);
+      const score = service.calculateDateScore(new Date("invalid"), new Date("2023-01-01"), 3);
       expect(score).toBe(0);
     });
   });
@@ -267,12 +247,12 @@ describe("ReceiptMatcherService", () => {
     };
 
     it("should return 1 for same location", () => {
-      const score = service["calculateLocationScore"](receipt, transaction);
+      const score = service.calculateLocationScore(receipt, transaction);
       expect(score).toBe(1);
     });
 
     it("should return 0 for missing location data", () => {
-      const score = service["calculateLocationScore"](
+      const score = service.calculateLocationScore(
         { metadata: {} } as ReceiptDocument,
         { metadata: {} } as BaseTransactionData,
       );
@@ -289,7 +269,7 @@ describe("ReceiptMatcherService", () => {
           },
         },
       };
-      const score = service["calculateLocationScore"](receipt, nearbyTransaction);
+      const score = service.calculateLocationScore(receipt, nearbyTransaction);
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThan(1);
     });
@@ -304,7 +284,7 @@ describe("ReceiptMatcherService", () => {
           },
         },
       };
-      const score = service["calculateLocationScore"](receipt, invalidTransaction);
+      const score = service.calculateLocationScore(receipt, invalidTransaction);
       expect(score).toBe(0);
     });
   });

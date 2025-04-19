@@ -7,10 +7,6 @@ import { BaseRepository } from "./base.repository";
 export class CategoryRepository extends BaseRepository<CategorySchema> {
   protected readonly collectionName = CATEGORY_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByUserId(userId: string): Promise<CategorySchema[]> {
     return this.find({ userId });
   }

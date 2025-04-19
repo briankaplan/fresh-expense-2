@@ -114,7 +114,7 @@ export function TransactionListContainer({
   const handleEdit = async (transaction: Transaction, field: keyof Transaction, value: any) => {
     try {
       // Validate the value based on the field type
-      if (field === "amount" && isNaN(Number(value))) {
+      if (field === "amount" && Number.isNaN(Number(value))) {
         throw new Error("Invalid amount");
       }
       if (field === "date" && !isValidDate(value)) {
@@ -245,5 +245,5 @@ export function TransactionListContainer({
 }
 
 function isValidDate(date: any): boolean {
-  return !isNaN(Date.parse(date));
+  return !Number.isNaN(Date.parse(date));
 }

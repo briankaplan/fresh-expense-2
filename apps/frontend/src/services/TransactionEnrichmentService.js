@@ -69,7 +69,7 @@ class TransactionEnrichmentService {
           confidence: score,
           source: "pattern_match",
           details: {
-            matchedText: combinedText.substring(0, 50) + "...",
+            matchedText: `${combinedText.substring(0, 50)}...`,
           },
         };
       }

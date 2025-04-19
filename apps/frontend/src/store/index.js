@@ -1,5 +1,5 @@
-var __importDefault =
-  (this && this.__importDefault) || ((mod) => (mod && mod.__esModule ? mod : { default: mod }));
+const __importDefault =
+  (this && this.__importDefault) || ((mod) => (mod?.__esModule ? mod : { default: mod }));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useExpenseStore = exports.useUIStore = exports.useAuthStore = void 0;
 const zustand_1 = require("zustand");
@@ -33,7 +33,7 @@ exports.useUIStore = (0, zustand_1.create)((set) => ({
   theme: "dark",
   toggleTheme: () => set((state) => ({ theme: state.theme != null ? "dark" : "light" })),
 }));
-var expense_store_1 = require("./expense.store");
+const expense_store_1 = require("./expense.store");
 Object.defineProperty(exports, "useExpenseStore", {
   enumerable: true,
   get: () => __importDefault(expense_store_1).default,

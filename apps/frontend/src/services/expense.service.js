@@ -1,11 +1,10 @@
-var __importDefault =
-  (this && this.__importDefault) || ((mod) => (mod && mod.__esModule ? mod : { default: mod }));
+const __importDefault =
+  (this && this.__importDefault) || ((mod) => (mod?.__esModule ? mod : { default: mod }));
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = __importDefault(require("./api"));
 class ExpenseService {
   static instance;
   baseUrl = "/api/expenses";
-  constructor() {}
   static getInstance() {
     if (!ExpenseService.instance) {
       ExpenseService.instance = new ExpenseService();

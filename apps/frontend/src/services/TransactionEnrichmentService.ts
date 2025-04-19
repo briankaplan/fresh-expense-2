@@ -94,7 +94,7 @@ class TransactionEnrichmentService {
           confidence: score,
           source: "pattern_match",
           details: {
-            matchedText: combinedText.substring(0, 50) + "...",
+            matchedText: `${combinedText.substring(0, 50)}...`,
           },
         };
       }
@@ -229,7 +229,7 @@ class TransactionEnrichmentService {
       if (needsBackendProcessing.length === 0) {
         // All transactions were categorized locally with high confidence
         return transactions.map((tx) => {
-          const localCategory = localCategories.find((item) => item.id === tx.id)!.category;
+          const localCategory = localCategories.find((item) => item.id === tx.id)?.category;
           const aiData: AIProcessedData = {
             category: localCategory,
             processedAt: new Date(),
@@ -252,7 +252,7 @@ class TransactionEnrichmentService {
             merchant: tx.merchant,
             amount: tx.amount,
             date: tx.date,
-            localCategory: localCategories.find((item) => item.id === tx.id)!.category,
+            localCategory: localCategories.find((item) => item.id === tx.id)?.category,
           })),
         ),
       });
@@ -269,7 +269,7 @@ class TransactionEnrichmentService {
           // Use local categorization if backend didn't process this transaction
           const localCategory = localCategories.find(
             (item) => item.id === transaction.id,
-          )!.category;
+          )?.category;
           const fallbackData: AIProcessedData = {
             category: localCategory,
             processedAt: new Date(),

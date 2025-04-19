@@ -52,7 +52,7 @@ export function determineFrequency(intervals: number[]): "daily" | "weekly" | "m
 
   const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
   const stdDev = Math.sqrt(
-    intervals.reduce((sum, interval) => sum + Math.pow(interval - averageInterval, 2), 0) /
+    intervals.reduce((sum, interval) => sum + (interval - averageInterval) ** 2, 0) /
       intervals.length,
   );
 
@@ -68,7 +68,7 @@ function isRecurring(intervals: number[]): boolean {
 
   const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
   const variance =
-    intervals.reduce((sum, interval) => sum + Math.pow(interval - averageInterval, 2), 0) /
+    intervals.reduce((sum, interval) => sum + (interval - averageInterval) ** 2, 0) /
     intervals.length;
   const stdDev = Math.sqrt(variance);
 
@@ -117,7 +117,7 @@ export function detectSubscription(transactions: TransactionData[]): Subscriptio
 
   // Check amount consistency
   const amountVariance =
-    sortedTransactions.reduce((variance, t) => variance + Math.pow(t.amount - amount, 2), 0) /
+    sortedTransactions.reduce((variance, t) => variance + (t.amount - amount) ** 2, 0) /
     sortedTransactions.length;
   const amountStdDev = Math.sqrt(amountVariance);
   const isAmountConsistent = amountStdDev < amount * 0.1; // 10% variance threshold

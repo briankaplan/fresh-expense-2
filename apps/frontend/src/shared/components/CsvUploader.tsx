@@ -72,7 +72,7 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
     }
 
     const amount = Number.parseFloat(String(row.amount));
-    if (isNaN(amount)) {
+    if (Number.isNaN(amount)) {
       throw new Error("Invalid amount format");
     }
 
@@ -158,7 +158,7 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
       // Only process matches that have a confidence score above threshold
       const validMatches = matchResults.filter((match) => match.matchConfidence >= 0.8);
 
-      const response = await fetch(`/api/expenses/enrich`, {
+      const response = await fetch("/api/expenses/enrich", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

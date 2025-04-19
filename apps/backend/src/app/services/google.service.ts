@@ -85,7 +85,7 @@ export class GoogleService {
     if (!account.credentials || !account.credentials.access_token) {
       await this.refreshTokenForAccount(email);
     }
-    return account.credentials!.access_token!;
+    return account.credentials?.access_token!;
   }
 
   protected async withAuth<T>(

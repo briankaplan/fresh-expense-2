@@ -155,9 +155,9 @@ export class UnifiedReceiptProcessorService {
 
     return await this.withRetry(async () => {
       const matchedReceipts = await this.googlePhotosService.findReceiptsByExpense({
-        merchant: options.expenseData!.merchant,
-        amount: options.expenseData!.amount,
-        date: options.expenseData!.date,
+        merchant: options.expenseData?.merchant,
+        amount: options.expenseData?.amount,
+        date: options.expenseData?.date,
         userId: options.userId,
       });
 
@@ -178,18 +178,18 @@ export class UnifiedReceiptProcessorService {
     return await this.withRetry(async () => {
       // Process the email attachment
       const processedData = await this.receiptConverter.processEmailAttachment(
-        options.file!.buffer,
-        options.file!.filename,
+        options.file?.buffer,
+        options.file?.filename,
       );
 
       // Store in R2
-      const r2Key = this.r2Service.generateKey(options.userId, options.file!.filename);
+      const r2Key = this.r2Service.generateKey(options.userId, options.file?.filename);
       const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
 
-      await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
+      await this.r2Service.uploadReceipt(options.file?.buffer, r2Key, options.file?.mimeType);
 
       // Generate and upload thumbnail
-      const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
+      const thumbnail = await this.r2Service.generateThumbnail(options.file?.buffer);
       await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, "image/jpeg");
 
       // Get signed URLs
@@ -198,7 +198,7 @@ export class UnifiedReceiptProcessorService {
 
       // Create receipt record
       return await this.receiptModel.create({
-        filename: options.file!.filename,
+        filename: options.file?.filename,
         thumbnailUrl,
         fullImageUrl,
         merchant: options.expenseData?.merchant,
@@ -208,8 +208,8 @@ export class UnifiedReceiptProcessorService {
         r2ThumbnailKey,
         source: "EMAIL",
         metadata: {
-          mimeType: options.file!.mimeType,
-          size: options.file!.buffer.length,
+          mimeType: options.file?.mimeType,
+          size: options.file?.buffer.length,
         },
         ...processedData,
       });
@@ -224,18 +224,18 @@ export class UnifiedReceiptProcessorService {
     return await this.withRetry(async () => {
       // Process the uploaded file
       const processedData = await this.receiptConverter.processUploadedFile(
-        options.file!.buffer,
-        options.file!.filename,
+        options.file?.buffer,
+        options.file?.filename,
       );
 
       // Store in R2
-      const r2Key = this.r2Service.generateKey(options.userId, options.file!.filename);
+      const r2Key = this.r2Service.generateKey(options.userId, options.file?.filename);
       const r2ThumbnailKey = this.r2Service.generateThumbnailKey(r2Key);
 
-      await this.r2Service.uploadReceipt(options.file!.buffer, r2Key, options.file!.mimeType);
+      await this.r2Service.uploadReceipt(options.file?.buffer, r2Key, options.file?.mimeType);
 
       // Generate and upload thumbnail
-      const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
+      const thumbnail = await this.r2Service.generateThumbnail(options.file?.buffer);
       await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, "image/jpeg");
 
       // Get signed URLs
@@ -244,7 +244,7 @@ export class UnifiedReceiptProcessorService {
 
       // Create receipt record
       return await this.receiptModel.create({
-        filename: options.file!.filename,
+        filename: options.file?.filename,
         thumbnailUrl,
         fullImageUrl,
         merchant: options.expenseData?.merchant,
@@ -254,8 +254,8 @@ export class UnifiedReceiptProcessorService {
         r2ThumbnailKey,
         source: "UPLOAD",
         metadata: {
-          mimeType: options.file!.mimeType,
-          size: options.file!.buffer.length,
+          mimeType: options.file?.mimeType,
+          size: options.file?.buffer.length,
         },
         ...processedData,
       });
@@ -270,20 +270,20 @@ export class UnifiedReceiptProcessorService {
     return await this.withRetry(async () => {
       // Process the CSV file
       const processedData = await this.receiptConverter.processCSVFile(
-        options.file!.buffer,
-        options.file!.filename,
+        options.file?.buffer,
+        options.file?.filename,
       );
 
       // Create receipt record
       return await this.receiptModel.create({
-        filename: options.file!.filename,
+        filename: options.file?.filename,
         merchant: options.expenseData?.merchant,
         amount: options.expenseData?.amount,
         userId: options.userId,
         source: "CSV",
         metadata: {
-          mimeType: options.file!.mimeType,
-          size: options.file!.buffer.length,
+          mimeType: options.file?.mimeType,
+          size: options.file?.buffer.length,
         },
         ...processedData,
       });
@@ -298,9 +298,9 @@ export class UnifiedReceiptProcessorService {
     return await this.withRetry(async () => {
       // Create receipt record
       return await this.receiptModel.create({
-        merchant: options.expenseData!.merchant,
-        amount: options.expenseData!.amount,
-        date: options.expenseData!.date,
+        merchant: options.expenseData?.merchant,
+        amount: options.expenseData?.amount,
+        date: options.expenseData?.date,
         userId: options.userId,
         source: "MANUAL",
         metadata: {

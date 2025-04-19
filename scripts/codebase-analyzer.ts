@@ -1,7 +1,7 @@
-import { exec } from "child_process";
-import * as fs from "fs";
-import * as path from "path";
-import { promisify } from "util";
+import { exec } from "node:child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { promisify } from "node:util";
 import * as glob from "glob";
 import * as ts from "typescript";
 
@@ -141,7 +141,7 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
 function resolveImportPath(sourceFile: string, importPath: string): string | null {
   // Basic path resolution - you might want to enhance this
   if (importPath.startsWith(".")) {
-    return path.resolve(path.dirname(sourceFile), importPath) + ".ts";
+    return `${path.resolve(path.dirname(sourceFile), importPath)}.ts`;
   }
   return null;
 }
@@ -189,7 +189,7 @@ function generateRecommendations(report: AnalysisReport): string[] {
     if (!issuesByFile.has(issue.file)) {
       issuesByFile.set(issue.file, []);
     }
-    issuesByFile.get(issue.file)!.push(issue);
+    issuesByFile.get(issue.file)?.push(issue);
   });
 
   // Sort files by number of issues

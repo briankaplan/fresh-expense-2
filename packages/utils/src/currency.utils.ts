@@ -62,7 +62,7 @@ export function convertCurrency(
  * @returns The rounded number
  */
 export function roundToDecimal(number: number, decimals = 2): number {
-  const factor = Math.pow(10, decimals);
+  const factor = 10 ** decimals;
   return Math.round(number * factor) / factor;
 }
 
@@ -104,7 +104,7 @@ export function calculatePercentageDifference(
 export function isValidCurrency(amount: string, currency = "USD", locale = "en-US"): boolean {
   try {
     const parsed = parseCurrency(amount, currency, locale);
-    return !isNaN(parsed);
+    return !Number.isNaN(parsed);
   } catch {
     return false;
   }

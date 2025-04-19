@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 
 import { ConfigService } from "@nestjs/config";
 import * as dotenv from "dotenv";

@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class UserRepository extends BaseRepository<UserSchema> {
   protected readonly collectionName = USER_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByEmail(email: string): Promise<UserSchema | null> {
     return this.findOne({ email });
   }

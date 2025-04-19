@@ -122,7 +122,7 @@ export class ReceiptConverterService {
       } catch (error) {
         lastError = error as Error;
         if (attempt < maxRetries) {
-          await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000)); // Exponential backoff
+          await new Promise((resolve) => setTimeout(resolve, 2 ** attempt * 1000)); // Exponential backoff
         }
       }
     }

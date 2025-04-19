@@ -205,24 +205,20 @@ AnalyticsSchema.index({ userId: 1, companyId: 1, startDate: 1, endDate: 1 }, { u
 
 // Pre-save middleware
 AnalyticsSchema.pre("save", function (next: (err?: Error) => void) {
-  this["metadata"].updatedBy = this["metadata"].createdBy;
+  this.metadata.updatedBy = this.metadata.createdBy;
   next();
 });
 
 // Static methods
-AnalyticsSchema.statics["findByUser"] = function (userId: string) {
+AnalyticsSchema.statics.findByUser = function (userId: string) {
   return this.find({ userId });
 };
 
-AnalyticsSchema.statics["findByCompany"] = function (companyId: string) {
+AnalyticsSchema.statics.findByCompany = function (companyId: string) {
   return this.find({ companyId });
 };
 
-AnalyticsSchema.statics["findByPeriod"] = function (
-  userId: string,
-  startDate: Date,
-  endDate: Date,
-) {
+AnalyticsSchema.statics.findByPeriod = function (userId: string, startDate: Date, endDate: Date) {
   return this.find({
     userId,
     startDate: { $gte: startDate },
@@ -231,7 +227,7 @@ AnalyticsSchema.statics["findByPeriod"] = function (
 };
 
 // Instance methods
-AnalyticsSchema.methods["updateInsights"] = async function (
+AnalyticsSchema.methods.updateInsights = async function (
   insights: Array<{
     type: string;
     message: string;
@@ -239,17 +235,17 @@ AnalyticsSchema.methods["updateInsights"] = async function (
     date: Date;
   }>,
 ) {
-  this["insights"] = insights;
-  return this["save"]();
+  this.insights = insights;
+  return this.save();
 };
 
-AnalyticsSchema.methods["updateBudgetStatus"] = async function (budgetStatus: {
+AnalyticsSchema.methods.updateBudgetStatus = async function (budgetStatus: {
   overBudget: boolean;
   budgetLimit: number;
   currentSpending: number;
   remainingBudget: number;
   percentageUsed: number;
 }) {
-  this["budgetStatus"] = budgetStatus;
-  return this["save"]();
+  this.budgetStatus = budgetStatus;
+  return this.save();
 };

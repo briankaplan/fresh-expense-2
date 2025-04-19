@@ -1,9 +1,9 @@
-var __createBinding =
+const __createBinding =
   (this && this.__createBinding) ||
   (Object.create
     ? (o, m, k, k2) => {
         if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
+        let desc = Object.getOwnPropertyDescriptor(m, k);
         if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
           desc = {
             enumerable: true,
@@ -16,33 +16,33 @@ var __createBinding =
         if (k2 === undefined) k2 = k;
         o[k2] = m[k];
       });
-var __setModuleDefault =
+const __setModuleDefault =
   (this && this.__setModuleDefault) ||
   (Object.create
     ? (o, v) => {
         Object.defineProperty(o, "default", { enumerable: true, value: v });
       }
     : (o, v) => {
-        o["default"] = v;
+        o.default = v;
       });
-var __importStar =
+const __importStar =
   (this && this.__importStar) ||
   (() => {
-    var ownKeys = (o) => {
+    let ownKeys = (o) => {
       ownKeys =
         Object.getOwnPropertyNames ||
         ((o) => {
-          var ar = [];
-          for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+          const ar = [];
+          for (const k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
           return ar;
         });
       return ownKeys(o);
     };
     return (mod) => {
-      if (mod && mod.__esModule) return mod;
-      var result = {};
+      if (mod?.__esModule) return mod;
+      const result = {};
       if (mod != null)
-        for (var k = ownKeys(mod), i = 0; i < k.length; i++)
+        for (let k = ownKeys(mod), i = 0; i < k.length; i++)
           if (k[i] !== "default") __createBinding(result, mod, k[i]);
       __setModuleDefault(result, mod);
       return result;
@@ -162,7 +162,7 @@ const MetricsPage = () => {
       metric.description || "",
     ]);
     switch (format) {
-      case "excel":
+      case "excel": {
         const worksheet = xlsx_1.utils.aoa_to_sheet([headers, ...data]);
         const workbook = xlsx_1.utils.book_new();
         xlsx_1.utils.book_append_sheet(workbook, worksheet, "Metrics");
@@ -177,18 +177,21 @@ const MetricsPage = () => {
           "metrics.xlsx",
         );
         break;
-      case "csv":
+      }
+      case "csv": {
         const csvContent = [headers, ...data].map((row) => row.join(",")).join("\n");
         const csvBlob = new Blob([csvContent], {
           type: "text/csv;charset=utf-8;",
         });
         (0, file_saver_1.saveAs)(csvBlob, "metrics.csv");
         break;
-      case "json":
+      }
+      case "json": {
         const jsonContent = JSON.stringify(metrics, null, 2);
         const jsonBlob = new Blob([jsonContent], { type: "application/json" });
         (0, file_saver_1.saveAs)(jsonBlob, "metrics.json");
         break;
+      }
     }
   };
   const renderMetricsSummary = (data) => (

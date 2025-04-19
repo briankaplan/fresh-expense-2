@@ -1,5 +1,5 @@
-var __importDefault =
-  (this && this.__importDefault) || ((mod) => (mod && mod.__esModule ? mod : { default: mod }));
+const __importDefault =
+  (this && this.__importDefault) || ((mod) => (mod?.__esModule ? mod : { default: mod }));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.healthService = void 0;
 const react_hot_toast_1 = require("react-hot-toast");
@@ -8,9 +8,6 @@ class HealthService {
   static instance;
   checkInterval = 30000; // 30 seconds
   intervalId;
-  constructor() {
-    // Private constructor for singleton
-  }
   static getInstance() {
     if (!HealthService.instance) {
       HealthService.instance = new HealthService();

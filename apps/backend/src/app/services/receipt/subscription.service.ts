@@ -147,7 +147,8 @@ export class SubscriptionService {
   private detectFrequency(text: string): SubscriptionDetectionResult["frequency"] {
     if (text.includes("annual") || text.includes("yearly")) {
       return "annual";
-    } else if (text.includes("weekly")) {
+    }
+    if (text.includes("weekly")) {
       return "weekly";
     }
     return "monthly"; // Default to monthly

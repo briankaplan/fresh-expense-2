@@ -1,4 +1,4 @@
-import { Stream } from "stream";
+import { Stream } from "node:stream";
 import { Injectable, Logger } from "@nestjs/common";
 import PDFDocument from "pdfkit";
 

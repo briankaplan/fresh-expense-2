@@ -61,7 +61,7 @@ export class RateLimiterService {
       case "linear":
         return 1000 * attempt; // 1s, 2s, 3s, etc.
       case "exponential":
-        return 1000 * Math.pow(2, attempt - 1); // 1s, 2s, 4s, 8s, etc.
+        return 1000 * 2 ** (attempt - 1); // 1s, 2s, 4s, 8s, etc.
       default:
         return 1000 * attempt;
     }

@@ -1,5 +1,5 @@
-var __importDefault =
-  (this && this.__importDefault) || ((mod) => (mod && mod.__esModule ? mod : { default: mod }));
+const __importDefault =
+  (this && this.__importDefault) || ((mod) => (mod?.__esModule ? mod : { default: mod }));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DashboardLayout = void 0;
 const react_1 = __importDefault(require("react"));

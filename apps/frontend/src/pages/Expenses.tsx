@@ -137,7 +137,7 @@ export const Expenses: React.FC = () => {
       let value: string | number = editValue;
       if (editingCell.field === "amount") {
         value = Number.parseFloat(editValue.replace(/[^0-9.-]+/g, ""));
-        if (isNaN(value)) {
+        if (Number.isNaN(value)) {
           toast.error("Please enter a valid amount");
           return;
         }
@@ -341,9 +341,8 @@ export const Expenses: React.FC = () => {
       const isSelected = prev.some((e) => e.id === expense.id);
       if (isSelected) {
         return prev.filter((e) => e.id !== expense.id);
-      } else {
-        return [...prev, expense];
       }
+      return [...prev, expense];
     });
   };
 

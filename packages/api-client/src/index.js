@@ -26,7 +26,7 @@ class ApiClient {
       ...options.headers,
     };
     if (this.token) {
-      headers["Authorization"] = `Bearer ${this.token}`;
+      headers.Authorization = `Bearer ${this.token}`;
     }
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: options.method || "GET",

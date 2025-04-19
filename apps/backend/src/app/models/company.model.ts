@@ -172,20 +172,20 @@ CompanySchema.index({ userId: 1, industry: 1 });
 
 // Pre-save middleware
 CompanySchema.pre("save", function (next: (err?: Error) => void) {
-  this["metadata"].updatedBy = this["metadata"].createdBy;
+  this.metadata.updatedBy = this.metadata.createdBy;
   next();
 });
 
 // Static methods
-CompanySchema.statics["findByUser"] = function (userId: string) {
+CompanySchema.statics.findByUser = function (userId: string) {
   return this.find({ userId });
 };
 
-CompanySchema.statics["findByIndustry"] = function (userId: string, industry: string) {
+CompanySchema.statics.findByIndustry = function (userId: string, industry: string) {
   return this.find({ userId, industry });
 };
 
-CompanySchema.statics["findNearLocation"] = function (
+CompanySchema.statics.findNearLocation = function (
   userId: string,
   coordinates: [number, number],
   maxDistance: number,
@@ -205,26 +205,26 @@ CompanySchema.statics["findNearLocation"] = function (
 };
 
 // Instance methods
-CompanySchema.methods["updateStatus"] = async function (status: string) {
-  this["status"] = status;
-  return this["save"]();
+CompanySchema.methods.updateStatus = async function (status: string) {
+  this.status = status;
+  return this.save();
 };
 
-CompanySchema.methods["updateSettings"] = async function (settings: {
+CompanySchema.methods.updateSettings = async function (settings: {
   currency?: string;
   timezone?: string;
   dateFormat?: string;
   fiscalYearStart?: Date;
   fiscalYearEnd?: Date;
 }) {
-  this["settings"] = {
-    ...this["settings"],
+  this.settings = {
+    ...this.settings,
     ...settings,
   };
-  return this["save"]();
+  return this.save();
 };
 
-CompanySchema.methods["updateIntegrations"] = async function (
+CompanySchema.methods.updateIntegrations = async function (
   integrationType: "teller" | "email" | "storage",
   data: {
     enabled?: boolean;
@@ -232,14 +232,14 @@ CompanySchema.methods["updateIntegrations"] = async function (
     syncStatus?: string;
   },
 ) {
-  this["integrations"][integrationType] = {
-    ...this["integrations"][integrationType],
+  this.integrations[integrationType] = {
+    ...this.integrations[integrationType],
     ...data,
   };
-  return this["save"]();
+  return this.save();
 };
 
-CompanySchema.methods["updateLocation"] = async function (location: {
+CompanySchema.methods.updateLocation = async function (location: {
   address?: string;
   city?: string;
   state?: string;
@@ -247,21 +247,21 @@ CompanySchema.methods["updateLocation"] = async function (location: {
   postalCode?: string;
   coordinates?: [number, number];
 }) {
-  this["location"] = {
-    ...this["location"],
+  this.location = {
+    ...this.location,
     ...location,
   };
-  return this["save"]();
+  return this.save();
 };
 
-CompanySchema.methods["updateContact"] = async function (contact: {
+CompanySchema.methods.updateContact = async function (contact: {
   phone?: string;
   email?: string;
   website?: string;
 }) {
-  this["contact"] = {
-    ...this["contact"],
+  this.contact = {
+    ...this.contact,
     ...contact,
   };
-  return this["save"]();
+  return this.save();
 };

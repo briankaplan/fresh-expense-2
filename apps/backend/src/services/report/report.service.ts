@@ -1,4 +1,4 @@
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Cron, CronExpression } from "@nestjs/schedule";
@@ -156,7 +156,7 @@ export class ReportService {
         // Generate report based on format
         let reportBuffer: Buffer;
         switch (template.format) {
-          case "pdf":
+          case "pdf": {
             const pdfStream = await this.pdfService.generateReport(data, {
               ...template.customization,
               title: template.name || "Report",
@@ -166,6 +166,7 @@ export class ReportService {
             });
             reportBuffer = await this.streamToBuffer(pdfStream as unknown as Readable);
             break;
+          }
           case "csv":
             reportBuffer = await this.generateCSV(data, template.customization);
             break;
@@ -259,7 +260,7 @@ export class ReportService {
   private async generateCSV(data: any[], customization?: any): Promise<Buffer> {
     try {
       const headers = customization?.headers || Object.keys(data[0] || {});
-      let csvContent = headers.join(",") + "\n";
+      let csvContent = `${headers.join(",")}\n`;
 
       // Add data rows
       data.forEach((row) => {
@@ -274,7 +275,7 @@ export class ReportService {
           }
           return value || "";
         });
-        csvContent += rowData.join(",") + "\n";
+        csvContent += `${rowData.join(",")}\n`;
       });
 
       return Buffer.from(csvContent);
@@ -290,7 +291,7 @@ export class ReportService {
       const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
 
       // Apply customization if provided
-      worksheet["name"] = customization.sheetName;
+      worksheet.name = customization.sheetName;
 
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, customization?.sheetName || "Report");

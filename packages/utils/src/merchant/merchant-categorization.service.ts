@@ -139,7 +139,6 @@ export class MerchantCategorizationService {
           return await this.getDataFromTransactions(merchantName, userId);
         case "api":
           return await this.getDataFromAPI(merchantName, userId);
-        case "manual":
         default:
           return this.getDefaultData(merchantName, userId);
       }

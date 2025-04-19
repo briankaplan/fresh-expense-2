@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as https from "https";
+import * as fs from "node:fs";
+import * as https from "node:https";
 import type {
   TellerAccount,
   TellerQuery,
@@ -58,7 +58,7 @@ export class TellerService {
       baseURL: "https://api.teller.io",
       httpsAgent,
       headers: {
-        Authorization: `Basic ${Buffer.from(token + ":").toString("base64")}`,
+        Authorization: `Basic ${Buffer.from(`${token}:`).toString("base64")}`,
         "Content-Type": "application/json",
       },
     });

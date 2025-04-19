@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 import { getDb } from "@/core/database";
 import { validateRequest } from "@/shared/middleware/validateRequest";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
@@ -9,11 +9,11 @@ import { z } from "zod";
 
 const router = Router();
 const s3Client = new S3Client({
-  region: process.env["AWS_REGION"] || "auto",
-  endpoint: process.env["R2_ENDPOINT"],
+  region: process.env.AWS_REGION || "auto",
+  endpoint: process.env.R2_ENDPOINT,
   credentials: {
-    accessKeyId: process.env["R2_ACCESS_KEY_ID"] || "",
-    secretAccessKey: process.env["R2_SECRET_ACCESS_KEY"] || "",
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
   },
 });
 
@@ -102,7 +102,7 @@ async function downloadAndUploadReceipt(url: string): Promise<string> {
     // Upload to R2
     await s3Client.send(
       new PutObjectCommand({
-        Bucket: process.env["R2_BUCKET_NAME"],
+        Bucket: process.env.R2_BUCKET_NAME,
         Key: key,
         Body: buffer,
         ContentType: response.headers.get("content-type") || "application/pdf",
@@ -110,7 +110,7 @@ async function downloadAndUploadReceipt(url: string): Promise<string> {
     );
 
     // Return the R2 URL
-    return `${process.env["R2_PUBLIC_URL"]}/${key}`;
+    return `${process.env.R2_PUBLIC_URL}/${key}`;
   } catch (error) {
     console.error("Error processing receipt:", error);
     throw error;

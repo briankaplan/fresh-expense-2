@@ -1,9 +1,9 @@
-var __createBinding =
+const __createBinding =
   (this && this.__createBinding) ||
   (Object.create
     ? (o, m, k, k2) => {
         if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
+        let desc = Object.getOwnPropertyDescriptor(m, k);
         if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
           desc = {
             enumerable: true,
@@ -16,33 +16,33 @@ var __createBinding =
         if (k2 === undefined) k2 = k;
         o[k2] = m[k];
       });
-var __setModuleDefault =
+const __setModuleDefault =
   (this && this.__setModuleDefault) ||
   (Object.create
     ? (o, v) => {
         Object.defineProperty(o, "default", { enumerable: true, value: v });
       }
     : (o, v) => {
-        o["default"] = v;
+        o.default = v;
       });
-var __importStar =
+const __importStar =
   (this && this.__importStar) ||
   (() => {
-    var ownKeys = (o) => {
+    let ownKeys = (o) => {
       ownKeys =
         Object.getOwnPropertyNames ||
         ((o) => {
-          var ar = [];
-          for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+          const ar = [];
+          for (const k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
           return ar;
         });
       return ownKeys(o);
     };
     return (mod) => {
-      if (mod && mod.__esModule) return mod;
-      var result = {};
+      if (mod?.__esModule) return mod;
+      const result = {};
       if (mod != null)
-        for (var k = ownKeys(mod), i = 0; i < k.length; i++)
+        for (let k = ownKeys(mod), i = 0; i < k.length; i++)
           if (k[i] !== "default") __createBinding(result, mod, k[i]);
       __setModuleDefault(result, mod);
       return result;
@@ -56,8 +56,8 @@ exports.findInconsistentImports = findInconsistentImports;
 exports.findAnyTypes = findAnyTypes;
 exports.generateTypeReport = generateTypeReport;
 const ts_morph_1 = require("ts-morph");
-const path = __importStar(require("path"));
-const fs = __importStar(require("fs"));
+const path = __importStar(require("node:path"));
+const fs = __importStar(require("node:fs"));
 function createProject(tsConfigPath = "tsconfig.json") {
   try {
     const absolutePath = path.resolve(process.cwd(), tsConfigPath);
@@ -147,7 +147,7 @@ function generateTypeReport(files) {
     const typeAliases = files.flatMap((f) => f.getTypeAliases());
     const classes = files.flatMap((f) => f.getClasses());
     const functions = files.flatMap((f) => f.getFunctions());
-    report += `Total Types Found:\n`;
+    report += "Total Types Found:\n";
     report += `- Interfaces: ${interfaces.length}\n`;
     report += `- Type Aliases: ${typeAliases.length}\n`;
     report += `- Classes: ${classes.length}\n`;
@@ -155,7 +155,7 @@ function generateTypeReport(files) {
     // Find duplicates
     const duplicates = findDuplicateTypes(files);
     if (duplicates.size > 0) {
-      report += `Duplicate Types Found:\n`;
+      report += "Duplicate Types Found:\n";
       duplicates.forEach((files, typeName) => {
         report += `- ${typeName}:\n`;
         files.forEach((file) => (report += `  - ${file.getFilePath()}\n`));
@@ -165,7 +165,7 @@ function generateTypeReport(files) {
     // Find inconsistent imports
     const inconsistentImports = findInconsistentImports(files);
     if (inconsistentImports.size > 0) {
-      report += `Inconsistent Imports Found:\n`;
+      report += "Inconsistent Imports Found:\n";
       inconsistentImports.forEach((files, importPath) => {
         report += `- ${importPath}:\n`;
         files.forEach((file) => (report += `  - ${file}\n`));
@@ -175,7 +175,7 @@ function generateTypeReport(files) {
     // Find any types
     const anyTypes = findAnyTypes(files);
     if (anyTypes.size > 0) {
-      report += `Any Types Found:\n`;
+      report += "Any Types Found:\n";
       anyTypes.forEach((locations, file) => {
         report += `- ${file}:\n`;
         locations.forEach((loc) => (report += `  - ${loc}\n`));

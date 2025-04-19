@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
   protected readonly collectionName = SUBSCRIPTION_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByUserId(userId: string): Promise<SubscriptionSchema[]> {
     return this.find({ userId });
   }

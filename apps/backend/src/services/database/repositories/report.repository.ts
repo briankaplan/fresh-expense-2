@@ -6,10 +6,6 @@ import { BaseRepository } from "./base.repository";
 export class ReportRepository extends BaseRepository<ReportSchema> {
   protected readonly collectionName = REPORT_COLLECTION;
 
-  constructor(mongoDBService: MongoDBService) {
-    super(mongoDBService);
-  }
-
   async findByUserId(userId: string): Promise<ReportSchema[]> {
     return this.find({ userId });
   }

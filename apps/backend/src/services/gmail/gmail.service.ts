@@ -319,7 +319,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
     if (!amountMatch) return 0;
 
     const extractedAmount = Number.parseFloat(amountMatch[1]);
-    if (isNaN(extractedAmount)) return 0;
+    if (Number.isNaN(extractedAmount)) return 0;
 
     const difference = Math.abs(extractedAmount - targetAmount);
     return Math.max(0, 1 - difference / targetAmount);

@@ -1,5 +1,5 @@
-import { createHash } from "crypto";
-import { Readable } from "stream";
+import { createHash } from "node:crypto";
+import { Readable } from "node:stream";
 import {
   HeadObjectCommand,
   PutObjectCommand,
@@ -47,11 +47,11 @@ interface ReceiptProcessingResult {
 }
 
 const s3Client = new S3Client({
-  region: process.env["AWS_REGION"] || "auto",
-  endpoint: process.env["R2_ENDPOINT"] || undefined,
+  region: process.env.AWS_REGION || "auto",
+  endpoint: process.env.R2_ENDPOINT || undefined,
   credentials: {
-    accessKeyId: process.env["R2_ACCESS_KEY_ID"] || "",
-    secretAccessKey: process.env["R2_SECRET_ACCESS_KEY"] || "",
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
   },
 });
 
@@ -67,8 +67,8 @@ export class ReceiptProcessor {
 
   private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   private static readonly DOWNLOAD_TIMEOUT = 30000; // 30 seconds
-  private static readonly OCR_ENDPOINT = process.env["OCR_API_ENDPOINT"] || "";
-  private static readonly OCR_API_KEY = process.env["OCR_API_KEY"] || "";
+  private static readonly OCR_ENDPOINT = process.env.OCR_API_ENDPOINT || "";
+  private static readonly OCR_API_KEY = process.env.OCR_API_KEY || "";
 
   private static async checkIfReceiptExists(
     key: string,
@@ -76,7 +76,7 @@ export class ReceiptProcessor {
     try {
       const result = await s3Client.send(
         new HeadObjectCommand({
-          Bucket: process.env["R2_BUCKET_NAME"] || "",
+          Bucket: process.env.R2_BUCKET_NAME || "",
           Key: key,
         }),
       );
@@ -93,16 +93,16 @@ export class ReceiptProcessor {
     buffer: Buffer,
     mimeType: string,
   ): Promise<UnifiedReceipt | null> {
-    if (!this.OCR_ENDPOINT || !this.OCR_API_KEY) {
+    if (!ReceiptProcessor.OCR_ENDPOINT || !ReceiptProcessor.OCR_API_KEY) {
       return null;
     }
 
     try {
-      const response = await fetch(this.OCR_ENDPOINT, {
+      const response = await fetch(ReceiptProcessor.OCR_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": mimeType,
-          "X-API-Key": this.OCR_API_KEY,
+          "X-API-Key": ReceiptProcessor.OCR_API_KEY,
         },
         body: buffer,
       });
@@ -112,7 +112,7 @@ export class ReceiptProcessor {
       }
 
       const result = await response.json();
-      return this.normalizeOCRResult(result);
+      return ReceiptProcessor.normalizeOCRResult(result);
     } catch (error) {
       console.error("OCR processing error:", error);
       return null;
@@ -164,7 +164,7 @@ export class ReceiptProcessor {
 
   private static async downloadWithTimeout(url: string): Promise<Response> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), this.DOWNLOAD_TIMEOUT);
+    const timeout = setTimeout(() => controller.abort(), ReceiptProcessor.DOWNLOAD_TIMEOUT);
 
     try {
       const response = await fetch(url, { signal: controller.signal });
@@ -178,7 +178,7 @@ export class ReceiptProcessor {
 
   private static validateContentType(contentType: string | null): boolean {
     if (!contentType) return false;
-    return this.ALLOWED_MIME_TYPES.has(contentType.toLowerCase());
+    return ReceiptProcessor.ALLOWED_MIME_TYPES.has(contentType.toLowerCase());
   }
 
   private static async streamToBuffer(
@@ -211,7 +211,7 @@ export class ReceiptProcessor {
     const chunks: Buffer[] = [];
     return new Promise((resolve, reject) => {
       nodeStream.on("data", (chunk: Buffer) => {
-        if (Buffer.concat(chunks).length > this.MAX_FILE_SIZE) {
+        if (Buffer.concat(chunks).length > ReceiptProcessor.MAX_FILE_SIZE) {
           const destroyableStream = nodeStream as { destroy?: () => void };
           if (typeof destroyableStream.destroy === "function") {
             destroyableStream.destroy();
@@ -232,11 +232,11 @@ export class ReceiptProcessor {
       const baseKey = `receipts/${hash}`;
 
       // Check if receipt already exists
-      const { exists, metadata } = await this.checkIfReceiptExists(baseKey);
+      const { exists, metadata } = await ReceiptProcessor.checkIfReceiptExists(baseKey);
       if (exists && metadata?.unifiedReceipt) {
         return {
           success: true,
-          url: `${process.env["R2_PUBLIC_URL"]}/${baseKey}`,
+          url: `${process.env.R2_PUBLIC_URL}/${baseKey}`,
           originalUrl: url,
           unifiedReceipt: JSON.parse(metadata.unifiedReceipt),
           metadata: {
@@ -248,26 +248,29 @@ export class ReceiptProcessor {
       }
 
       // Download and process the receipt
-      const response = await this.downloadWithTimeout(url);
+      const response = await ReceiptProcessor.downloadWithTimeout(url);
       if (!response.ok) {
         throw new Error(`Failed to download receipt: ${response.statusText}`);
       }
 
       const contentType = response.headers.get("content-type");
-      if (!this.validateContentType(contentType)) {
+      if (!ReceiptProcessor.validateContentType(contentType)) {
         throw new Error("Invalid file type");
       }
 
-      const extension = this.getFileExtensionFromUrl(url, contentType);
+      const extension = ReceiptProcessor.getFileExtensionFromUrl(url, contentType);
       const finalKey = `${baseKey}.${extension}`;
 
       // Convert to buffer and perform OCR
-      const buffer = await this.streamToBuffer(response.body as NodeJS.ReadableStream);
-      const unifiedReceipt = await this.performOCR(buffer, contentType || "application/pdf");
+      const buffer = await ReceiptProcessor.streamToBuffer(response.body as NodeJS.ReadableStream);
+      const unifiedReceipt = await ReceiptProcessor.performOCR(
+        buffer,
+        contentType || "application/pdf",
+      );
 
       // Upload to S3
       const putObjectParams: PutObjectCommandInput = {
-        Bucket: process.env["R2_BUCKET_NAME"] || "",
+        Bucket: process.env.R2_BUCKET_NAME || "",
         Key: finalKey,
         Body: buffer,
         ContentType: contentType || undefined,
@@ -282,7 +285,7 @@ export class ReceiptProcessor {
 
       return {
         success: true,
-        url: `${process.env["R2_PUBLIC_URL"]}/${finalKey}`,
+        url: `${process.env.R2_PUBLIC_URL}/${finalKey}`,
         originalUrl: url,
         unifiedReceipt: unifiedReceipt || undefined,
         metadata: {
@@ -301,6 +304,6 @@ export class ReceiptProcessor {
   }
 
   public static async processReceiptBatch(urls: string[]): Promise<ReceiptProcessingResult[]> {
-    return Promise.all(urls.map((url) => this.processReceipt(url)));
+    return Promise.all(urls.map((url) => ReceiptProcessor.processReceipt(url)));
   }
 }

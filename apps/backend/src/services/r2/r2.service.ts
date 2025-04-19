@@ -1,4 +1,4 @@
-import * as path from "path";
+import * as path from "node:path";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -218,7 +218,7 @@ export class R2Service {
         model: "microsoft/trocr-base-printed",
       });
 
-      if (result && result.generated_text) {
+      if (result?.generated_text) {
         const parsedData = this.parseLines(result.generated_text);
         return {
           data: parsedData,

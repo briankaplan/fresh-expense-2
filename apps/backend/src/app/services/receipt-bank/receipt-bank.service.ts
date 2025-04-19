@@ -252,7 +252,7 @@ export class ReceiptBankService {
             const description = isAmountFirst ? part2 : part1;
             const amount = Number.parseFloat((isAmountFirst ? part1 : part2).replace(/,/g, ""));
 
-            if (!isNaN(amount) && description) {
+            if (!Number.isNaN(amount) && description) {
               items.push({
                 description: description.trim(),
                 amount,
@@ -408,12 +408,10 @@ export class ReceiptBankService {
           try {
             // Try to parse the date
             const date = new Date(line);
-            if (!isNaN(date.getTime())) {
+            if (!Number.isNaN(date.getTime())) {
               return date;
             }
-          } catch (e) {
-            continue;
-          }
+          } catch (e) {}
         }
       }
     }

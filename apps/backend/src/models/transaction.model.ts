@@ -52,8 +52,8 @@ const transactionSchema = new Schema<ITransaction>(
       virtuals: true,
       transform: (_, ret) => {
         ret.id = ret._id;
-        delete ret._id;
-        delete ret.__v;
+        ret._id = undefined;
+        ret.__v = undefined;
         return ret;
       },
     },

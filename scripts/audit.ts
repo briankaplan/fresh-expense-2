@@ -1,7 +1,7 @@
-import { exec } from "child_process";
-import * as fs from "fs";
-import * as path from "path";
-import { promisify } from "util";
+import { exec } from "node:child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { promisify } from "node:util";
 import * as glob from "glob";
 import * as ts from "typescript";
 
@@ -175,7 +175,7 @@ function findRelatedFiles(file: string, message: string): string[] {
 
 function resolveImportPath(sourceFile: string, importPath: string): string | null {
   if (importPath.startsWith(".")) {
-    return path.resolve(path.dirname(sourceFile), importPath) + ".ts";
+    return `${path.resolve(path.dirname(sourceFile), importPath)}.ts`;
   }
   return null;
 }

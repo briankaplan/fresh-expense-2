@@ -1,11 +1,11 @@
-var __importDefault =
-  (this && this.__importDefault) || ((mod) => (mod && mod.__esModule ? mod : { default: mod }));
+const __importDefault =
+  (this && this.__importDefault) || ((mod) => (mod?.__esModule ? mod : { default: mod }));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.projectManager = exports.ProjectManager = void 0;
 const mongodb_1 = require("mongodb");
 const rest_1 = require("@octokit/rest");
-const child_process_1 = require("child_process");
-const util_1 = require("util");
+const child_process_1 = require("node:child_process");
+const util_1 = require("node:util");
 const chalk_1 = __importDefault(require("chalk"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const execAsync = (0, util_1.promisify)(child_process_1.exec);

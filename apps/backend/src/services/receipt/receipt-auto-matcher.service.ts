@@ -142,7 +142,8 @@ export class ReceiptAutoMatcherService {
         await this.processMatch(receipt, transaction, matchScore);
         this.metricsService.recordMatchSuccess(matchScore, Date.now() - startTime);
         return { matched: true, confidence: matchScore };
-      } else if (matchScore >= matchThreshold * 0.7) {
+      }
+      if (matchScore >= matchThreshold * 0.7) {
         // Send to review queue for low-confidence matches
         await this.sendToReview(receipt, transaction, matchScore);
       }

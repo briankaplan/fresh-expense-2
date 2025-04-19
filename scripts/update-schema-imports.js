@@ -1,7 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
-const child_process_1 = require("child_process");
-const fs_1 = require("fs");
-const path_1 = require("path");
+const child_process_1 = require("node:child_process");
+const fs_1 = require("node:fs");
+const path_1 = require("node:path");
 // Get the root directory (two levels up from scripts)
 const rootDir = (0, path_1.join)(__dirname, "..");
 const backendDir = (0, path_1.join)(rootDir, "apps", "backend", "src");

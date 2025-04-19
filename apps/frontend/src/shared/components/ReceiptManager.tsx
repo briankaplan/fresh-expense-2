@@ -85,7 +85,7 @@ const ReceiptManager: React.FC = () => {
     if (dates) {
       filters.dates = dates;
     } else {
-      delete filters.dates;
+      filters.dates = undefined;
     }
     setTableParams({
       ...tableParams,
@@ -99,7 +99,7 @@ const ReceiptManager: React.FC = () => {
     if (value) {
       filters.status = [value];
     } else {
-      delete filters.status;
+      filters.status = undefined;
     }
     setTableParams({
       ...tableParams,

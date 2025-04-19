@@ -149,7 +149,7 @@ const MetricsPage = () => {
 
     return Object.entries(dailyTotals)
       .map(([date, value]) => ({ date, value }))
-      .sort((a: ChartData, b: ChartData) => a.date!.localeCompare(b.date!));
+      .sort((a: ChartData, b: ChartData) => a.date?.localeCompare(b.date!));
   }, [metrics, chartType]);
 
   const handleDateChange = (field: "startDate" | "endDate", date: Date | null) => {
@@ -196,7 +196,7 @@ const MetricsPage = () => {
     ]);
 
     switch (format) {
-      case "excel":
+      case "excel": {
         const worksheet = xlsxUtils.aoa_to_sheet([headers, ...data]);
         const workbook = xlsxUtils.book_new();
         xlsxUtils.book_append_sheet(workbook, worksheet, "Metrics");
@@ -211,18 +211,21 @@ const MetricsPage = () => {
           "metrics.xlsx",
         );
         break;
-      case "csv":
+      }
+      case "csv": {
         const csvContent = [headers, ...data].map((row) => row.join(",")).join("\n");
         const csvBlob = new Blob([csvContent], {
           type: "text/csv;charset=utf-8;",
         });
         saveAs(csvBlob, "metrics.csv");
         break;
-      case "json":
+      }
+      case "json": {
         const jsonContent = JSON.stringify(metrics, null, 2);
         const jsonBlob = new Blob([jsonContent], { type: "application/json" });
         saveAs(jsonBlob, "metrics.json");
         break;
+      }
     }
   };
 
