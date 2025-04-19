@@ -2,8 +2,29 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist/app",
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@fresh-expense/types": ["../../packages/types/dist"],
+      "@fresh-expense/types/*": ["../../packages/types/dist/*"],
+      "@fresh-expense/utils": ["../../packages/utils/dist"],
+      "@fresh-expense/utils/*": ["../../packages/utils/dist/*"],
+      "@fresh-expense/ui": ["../../packages/ui/dist"],
+      "@fresh-expense/ui/*": ["../../packages/ui/dist/*"]
+    }
   },
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "../../packages/types"
+    },
+    {
+      "path": "../../packages/utils"
+    },
+    {
+      "path": "../../packages/ui"
+    }
+  ]
 }

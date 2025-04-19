@@ -1,18 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+import { User } from '@fresh-expense/types';
 
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
   logout: () => void;
 }
 
@@ -28,10 +25,12 @@ export const useAuthStore = create<AuthState>()(
     set => ({
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
       setUser: user => set({ user, isAuthenticated: !!user }),
       setToken: token => set({ token }),
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      setRefreshToken: refreshToken => set({ refreshToken }),
+      logout: () => set({ user: null, token: null, refreshToken: null, isAuthenticated: false }),
     }),
     {
       name: 'auth-storage',
@@ -43,5 +42,7 @@ export const useUIStore = create<UIState>(set => ({
   isLoading: false,
   setIsLoading: loading => set({ isLoading: loading }),
   theme: 'dark',
-  toggleTheme: () => set(state => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+  toggleTheme: () => set(state => ({ theme: state.theme != null ? 'dark' : 'light' })),
 }));
+
+export { default as useExpenseStore } from './expense.store';

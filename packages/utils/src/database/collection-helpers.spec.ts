@@ -37,7 +37,7 @@ describe('Database Collection Helpers', () => {
       } as unknown as Collection<TestDocument>;
 
       await expect(findEntityById(mockCollection, new ObjectId().toString())).rejects.toThrow(
-        NotFoundException
+        NotFoundException,
       );
     });
   });
@@ -57,7 +57,7 @@ describe('Database Collection Helpers', () => {
       expect(mockCollection.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: expect.any(ObjectId) },
         { $set: { name: 'Updated' } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       );
     });
 
@@ -67,7 +67,7 @@ describe('Database Collection Helpers', () => {
       } as unknown as Collection<TestDocument>;
 
       await expect(updateEntity(mockCollection, new ObjectId().toString(), {})).rejects.toThrow(
-        NotFoundException
+        NotFoundException,
       );
     });
   });

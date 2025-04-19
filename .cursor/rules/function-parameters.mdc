@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Function Parameters
+
+- Use default parameter values for optional parameters:
+  ```typescript
+  function processData(data: string, options: Options = {}) {
+    // ...
+  }
+  ```
+- Use destructuring with defaults for object parameters:
+  ```typescript
+  function processConfig({ 
+    maxRetries = 3, 
+    timeout = 1000 
+  }: Partial<Config> = {}) {
+    // ...
+  }

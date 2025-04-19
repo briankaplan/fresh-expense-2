@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Specific Issues from This Project
+
+- Use proper MongoDB type imports for collection operations
+- Fix interface compatibility issues between ValidationResult types
+- Properly handle the relationship between types from different packages
+- Address path mapping issues with multiple wildcards
+- Fix property access on potentially undefined objects
+- Add proper import for ImportInfo type
+- Fix wrong property access (`allowedFileTypes` vs `allowedFiles`)

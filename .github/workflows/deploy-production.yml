@@ -106,4 +106,4 @@ jobs:
           accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
           workingDirectory: dist
-          environment: production 
+          environment: production

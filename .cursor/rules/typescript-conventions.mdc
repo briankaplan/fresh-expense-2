@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# TypeScript Conventions
+
+- Use interfaces for object shapes rather than type aliases
+- Follow camelCase for variables and functions
+- Use PascalCase for classes, interfaces, and types
+- Prefer async/await over Promise chains
+- Use strong typing, avoid any when possible
+- Prefer readonly properties when values shouldn't change
+- Use function overloads for complex function signatures
+- Prefer optional parameters over undefined
+- Export named functions instead of default exports

@@ -186,7 +186,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
     const results: Array<{ key: string; data: any }> = [];
 
     for (const [key, item] of this.store.entries()) {
-      if (item.metadata.source === source) {
+      if (item.metadata.source != null) {
         results.push({ key, data: item.data });
       }
     }

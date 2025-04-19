@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Utility Functions
+- Keep utility functions pure and focused
+- Document utility functions with JSDoc
+- Use strong typing for parameters and return values
+- Write unit tests for all utility functions
+- Group related utilities in appropriate files

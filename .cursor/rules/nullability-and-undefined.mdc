@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Nullability and Undefined
+
+- Use optional chaining (`?.`) for potentially undefined properties
+- Use nullish coalescing (`??`) instead of logical OR (`||`) for undefined values
+- Add null checks for potentially undefined values:
+  ```typescript
+  if (results.metrics?.complexity) {
+    // safe to use
+  }
+  ```

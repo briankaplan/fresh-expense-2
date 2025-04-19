@@ -185,7 +185,7 @@ export class CsvMappingService {
 
         // Find existing record if checking for duplicates
         const existingRecord = checkDuplicates
-          ? existingRecords.find(r => r.csvRecordId === record.csvRecordId) || undefined
+          ? existingRecords.find(r => r.csvRecordId != null) || undefined
           : undefined;
 
         // Convert to database format

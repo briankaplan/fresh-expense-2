@@ -1,0 +1,1 @@
+{"version":3,"file":"ReceiptScanner.d.ts","sourceRoot":"","sources":["ReceiptScanner.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAmB,MAAM,OAAO,CAAC;AACxC,OAAO,sBAAsB,CAAC;AAK9B,UAAU,mBAAmB;IAC3B,cAAc,EAAE,CAAC,IAAI,EAAE,GAAG,KAAK,IAAI,CAAC;CACrC;AAED,eAAO,MAAM,cAAc,EAAE,KAAK,CAAC,EAAE,CAAC,mBAAmB,CAoGxD,CAAC;AAEF,eAAe,cAAc,CAAC"}

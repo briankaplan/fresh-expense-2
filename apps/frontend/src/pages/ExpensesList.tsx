@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import ExpensesTable from '../components/ExpensesTable';
+import ExpensesTable from '@/shared/components/ExpensesTable';
 
 const ExpensesList: React.FC = () => {
   return (

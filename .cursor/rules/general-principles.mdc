@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+General Principles
+- Follow TypeScript best practices throughout the codebase
+- Use proper error handling with try/catch blocks
+- Implement comprehensive logging
+- Write self-documenting code with clear variable names
+- Keep functions focused on a single responsibility
+- Avoid duplicated code and logic

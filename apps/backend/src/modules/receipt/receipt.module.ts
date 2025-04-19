@@ -1,20 +1,14 @@
+import { Receipt } from '@fresh-expense/types';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Receipt, ReceiptSchema } from '@schemas/receipt.schema';
-import { ReceiptService } from './services/receipt.service';
-import { ReceiptStorageService } from './services/receipt-storage.service';
-import { ReceiptProcessorService } from './services/receipt-processor.service';
-import { ReceiptMatcherService } from './services/receipt-matcher.service';
+import { ReceiptSchema } from '@schemas/receipt.schema';
 import { R2Module } from '@services/r2/r2.module';
 
-@Module({
-  imports: [MongooseModule.forFeature([{ name: Receipt.name, schema: ReceiptSchema }]), R2Module],
-  providers: [
-    ReceiptService,
-    ReceiptStorageService,
-    ReceiptProcessorService,
-    ReceiptMatcherService,
-  ],
-  exports: [ReceiptService],
-})
+import { ReceiptMatcherService } from './services/receipt-matcher.service';
+import { ReceiptProcessorService } from './services/receipt-processor.service';
+import { ReceiptStorageService } from './services/receipt-storage.service';
+import { ReceiptService } from './services/receipt.service';
+
+
+
 export class ReceiptModule {}

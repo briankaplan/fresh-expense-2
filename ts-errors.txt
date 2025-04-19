@@ -1,0 +1,6 @@
+error TS6305: Output file '/Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/dist/src/app/services/receipt/unified-receipt.service.d.ts' has not been built from source file '/Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/app/services/receipt/unified-receipt.service.ts'.
+  The file is in the program because:
+    Matched by include pattern '**/*.ts' in '/Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/tsconfig.json'
+error TS6305: Output file '/Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/dist/src/controllers/receipt-bank.controller.d.ts' has not been built from source file '/Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/apps/backend/src/controllers/receipt-bank.controller.ts'.
+  The file is in the program because:
+    Matched by include pattern '**/*.ts' in '/Users/briankaplan/Backup/Desktop/EXPENSE/fresh-expense-2/tsconfig.json'

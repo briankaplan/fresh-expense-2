@@ -1,104 +1,91 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { User } from '../app/users/decorators/user.decorator';
-import { TransactionService } from '../services/teller/teller.service';
-import { ReceiptService } from '../services/receipt/receipt.service';
-import { UserType } from '../app/users/schemas/user.schema';
-import { Receipt } from '../app/schemas/receipt.schema';
-import { Transaction } from '../app/schemas/transaction.schema';
+import { Controller, Get, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { TransactionService } from '../services/transaction/transaction.service';
+import type { Transaction, User } from '@fresh-expense/types';
 
 interface MonthlyStats {
-  income: number[];
-  expenses: number[];
+  income: number;
+  expenses: number;
+  companyExpenses: number;
 }
 
+interface DashboardData {
+  monthlyStats: MonthlyStats;
+  recentTransactions: Transaction[];
+  recentReceipts: any[];
+}
+
+/**
+ * Controller for handling dashboard-related requests
+ * Provides endpoints for retrieving dashboard data and statistics
+ */
 @Controller('dashboard')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(new JwtAuthGuard())
 export class DashboardController {
-  constructor(
-    private readonly transactionService: TransactionService,
-    private readonly receiptService: ReceiptService
-  ) {}
+  constructor(private readonly transactionService: TransactionService) {}
 
+  /**
+   * Retrieves dashboard data for the authenticated user
+   * @param user - The authenticated user
+   * @returns Promise containing dashboard data
+   * @throws HttpException if data retrieval fails
+   */
   @Get()
-  async getDashboardData(@User() user: UserType) {
-    const [transactions, receipts] = (await Promise.all([
-      this.transactionService.findByUserId(user.id),
-      this.receiptService.findByUserId(user.id),
-    ])) as [Transaction[], Receipt[]];
+  async getDashboardData(user: User): Promise<DashboardData> {
+    try {
+      const transactions = await this.transactionService.findAll();
+      const userTransactions = transactions.filter(t => t.accountId === user.id);
 
-    // Calculate monthly income and expenses
-    const monthlyStats = transactions.reduce(
-      (acc: MonthlyStats, t) => {
-        const month = new Date(t.date).getMonth();
-        if (t.amount > 0) {
-          acc.income[month] = (acc.income[month] || 0) + t.amount;
-        } else {
-          acc.expenses[month] = (acc.expenses[month] || 0) + Math.abs(t.amount);
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+
+      const monthlyStats: MonthlyStats = {
+        income: 0,
+        expenses: 0,
+        companyExpenses: 0
+      };
+
+      userTransactions.forEach(transaction => {
+        const transactionDate = new Date(transaction.date);
+        if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+          const amount = transaction.amount.value;
+          if (amount > 0) {
+            monthlyStats.income += amount;
+          } else {
+            monthlyStats.expenses += Math.abs(amount);
+            if (transaction.merchant.category === 'company') {
+              monthlyStats.companyExpenses += Math.abs(amount);
+            }
+          }
         }
-        return acc;
-      },
-      { income: Array(12).fill(0), expenses: Array(12).fill(0) }
-    );
+      });
 
-    // Calculate company expenses
-    const companyExpenses = transactions
-      .filter(t => t.amount < 0 && t.merchantInfo?.name)
-      .reduce(
-        (acc, t) => {
-          const company = t.merchantInfo?.name || 'Unknown';
-          acc[company] = (acc[company] || 0) + Math.abs(t.amount);
-          return acc;
-        },
-        {} as Record<string, number>
+      const recentTransactions = userTransactions
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5);
+
+      const recentReceipts = userTransactions
+        .filter(t => t.attachments && t.attachments.length > 0)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5)
+        .map(t => ({
+          id: t.id,
+          date: t.date,
+          amount: t.amount,
+          merchant: t.merchant,
+          attachments: t.attachments
+        }));
+
+      return {
+        monthlyStats,
+        recentTransactions,
+        recentReceipts
+      };
+    } catch (error) {
+      throw new HttpException(
+        error instanceof Error ? error.message : 'Failed to fetch dashboard data',
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
-
-    // Calculate category breakdown
-    const categoryBreakdown = transactions
-      .filter(t => t.amount < 0)
-      .reduce(
-        (acc, t) => {
-          const category = t.category || 'Uncategorized';
-          acc[category] = (acc[category] || 0) + Math.abs(t.amount);
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-    // Get recent transactions
-    const recentTransactions = transactions
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5);
-
-    // Calculate receipt matching statistics
-    const now = new Date();
-    const lastBatchTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
-
-    const matchedReceipts = receipts.filter(r => r.transactionId);
-    const highConfidenceMatches = matchedReceipts.filter(r => r.confidence && r.confidence > 0.8);
-
-    const receiptMatching = {
-      waitingToMatch: receipts.filter(r => !r.transactionId).length,
-      matchedThisBatch: receipts.filter(
-        r => r.transactionId && r.updatedAt && new Date(r.updatedAt) > lastBatchTime
-      ).length,
-      lastBatchTime: lastBatchTime.toISOString(),
-      totalMatched: matchedReceipts.length,
-      matchAccuracy:
-        matchedReceipts.length > 0
-          ? (highConfidenceMatches.length / matchedReceipts.length) * 100
-          : 0,
-    };
-
-    return {
-      monthlyStats,
-      companyExpenses,
-      categoryBreakdown,
-      recentTransactions,
-      receiptMatching,
-      totalTransactions: transactions.length,
-      totalReceipts: receipts.length,
-      unmatchedReceipts: receipts.filter(r => !r.transactionId).length,
-    };
+    }
   }
 }

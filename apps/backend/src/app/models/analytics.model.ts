@@ -1,10 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 
-export type AnalyticsDocument = Analytics & Document;
-export type AnalyticsModel = Model<AnalyticsDocument>;
 
-@Schema({ timestamps: true })
 export class Analytics {
   @Prop({
     type: String,

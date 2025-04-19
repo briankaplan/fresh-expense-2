@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Performance Standards
+
+## Backend Performance
+- Use appropriate database indexes
+- Implement caching for expensive operations
+- Optimize database queries
+- Use pagination for large result sets
+- Implement request timeouts
+- Monitor resource usage

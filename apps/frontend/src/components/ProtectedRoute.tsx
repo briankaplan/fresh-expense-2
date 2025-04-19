@@ -1,44 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useUIStore } from '../store';
-import LoadingOverlay from './LoadingOverlay';
+import { useAuth } from '@/context/AuthContext';
+import { CircularProgress, Box } from '@mui/material';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const [isChecking, setIsChecking] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { checkAuth } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
+  const { user, loading } = useAuth();
   const location = useLocation();
-  const setIsLoading = useUIStore(state => state.setIsLoading);
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      setIsLoading(true);
-      try {
-        const isAuthed = await checkAuth();
-        setIsAuthenticated(isAuthed);
-      } finally {
-        setIsChecking(false);
-        setIsLoading(false);
-      }
-    };
-
-    verifyAuth();
-  }, [checkAuth, setIsLoading]);
-
-  if (isChecking) {
-    return <LoadingOverlay message="Verifying authentication..." />;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;
 };
-
-export default ProtectedRoute;

@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Service Implementation
+- Services should be stateless when possible
+- Use dependency injection for all dependencies
+- Document dependencies and their purpose
+- Implement proper error handling and propagation
+- Add logging for significant operations
+```

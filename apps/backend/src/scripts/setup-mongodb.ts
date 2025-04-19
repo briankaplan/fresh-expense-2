@@ -25,7 +25,7 @@ async function setupMongoDB() {
       transactions: {
         indexes: [
           { key: { date: 1 }, name: 'date_idx' },
-          { key: { amount: 1 }, name: 'amount_idx' },
+          { key: { amount: { value: 1, currency: "USD" } }, name: 'amount_idx' },
           { key: { category: 1 }, name: 'category_idx' },
           { key: { merchant: 1 }, name: 'merchant_idx' },
           { key: { userId: 1 }, name: 'user_idx' },

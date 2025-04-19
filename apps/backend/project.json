@@ -32,10 +32,11 @@
       }
     },
     "serve": {
-      "executor": "@nx/js:node",
+      "executor": "@nx/webpack:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "backend:build"
+        "buildTarget": "backend:build",
+        "hmr": true
       },
       "configurations": {
         "development": {

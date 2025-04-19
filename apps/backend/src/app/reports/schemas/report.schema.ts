@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
-export type ReportDocument = Report & Document;
-
 export enum ReportType {
   EXPENSE = 'expense',
   CATEGORY = 'category',
@@ -17,7 +15,7 @@ export enum ReportFormat {
   XLSX = 'xlsx',
 }
 
-@Schema({ timestamps: true })
+
 export class Report {
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'User' })
   userId: MongooseSchema.Types.ObjectId;

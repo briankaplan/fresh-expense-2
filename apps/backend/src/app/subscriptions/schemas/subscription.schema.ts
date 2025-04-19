@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
-export type SubscriptionDocument = Subscription & Document;
-
 export enum SubscriptionStatus {
   ACTIVE = 'active',
   CANCELLED = 'cancelled',
@@ -17,7 +15,7 @@ export enum BillingCycle {
   CUSTOM = 'custom',
 }
 
-@Schema({ timestamps: true })
+
 export class Subscription {
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'User' })
   userId: MongooseSchema.Types.ObjectId;

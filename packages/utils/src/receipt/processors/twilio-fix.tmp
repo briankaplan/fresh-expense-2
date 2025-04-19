@@ -1,0 +1,10 @@
+async processSMS(document: SmsDocument, options?: ProcessingOptions): Promise<ProcessingResult> {
+  // Implement your processing logic
+  console.log('Processing SMS document', document);
+  
+  // Return a valid ProcessingResult
+  return {
+    success: true,
+    message: 'SMS processed successfully'
+  };
+} 

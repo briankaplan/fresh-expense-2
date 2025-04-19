@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Testing Standards
+- Write unit tests for all services and utilities
+- Test components with React Testing Library
+- Mock external dependencies
+- Use descriptive test names (should/when pattern)
+- Organize tests with describe and it blocks

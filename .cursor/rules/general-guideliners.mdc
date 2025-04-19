@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+## General Guidelines
+- Avoid N+1 query problems
+- Batch database operations when possible
+- Optimize critical rendering paths
+- Implement proper error boundaries

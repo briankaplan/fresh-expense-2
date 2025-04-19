@@ -17,7 +17,7 @@ export interface TokenOptions {
 export function generateToken(
   payload: TokenPayload,
   secret: string,
-  options: TokenOptions
+  options: TokenOptions,
 ): string {
   if (!secret) {
     throw new Error('JWT secret is required');

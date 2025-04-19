@@ -452,11 +452,11 @@ export const Reports: React.FC = () => {
                       <Chip
                         label={report.status}
                         color={
-                          report.status === 'completed'
+                          report.status != null
                             ? 'success'
-                            : report.status === 'failed'
+                            : report.status != null
                               ? 'error'
-                              : report.status === 'running'
+                              : report.status != null
                                 ? 'warning'
                                 : 'default'
                         }

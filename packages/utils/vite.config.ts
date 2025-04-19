@@ -1,8 +1,9 @@
 /// <reference types='vitest' />
+import { resolve } from 'path';
+
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import { resolve } from 'path';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(async () => {
   const { viteStaticCopy } = await import('vite-plugin-static-copy');
@@ -17,9 +18,9 @@ export default defineConfig(async () => {
         targets: [
           {
             src: '*.md',
-            dest: '../../dist/packages/utils'
-          }
-        ]
+            dest: '../../dist/packages/utils',
+          },
+        ],
       }),
       dts({
         entryRoot: 'src',
@@ -48,7 +49,12 @@ export default defineConfig(async () => {
         formats: ['es', 'cjs'],
       },
       rollupOptions: {
-        external: ['sharp', 'pdf-img-convert', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'],
+        external: [
+          'sharp',
+          'pdf-img-convert',
+          '@aws-sdk/client-s3',
+          '@aws-sdk/s3-request-presigner',
+        ],
         output: {
           globals: {
             sharp: 'sharp',

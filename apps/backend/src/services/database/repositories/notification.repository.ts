@@ -55,13 +55,13 @@ export class NotificationRepository extends BaseRepository<NotificationSchema> {
 
   async getUnreadCount(userId: string): Promise<number> {
     const collection = await this.getCollection();
-    return collection.countDocuments({ userId, status: 'unread' });
+    return collection.countDocuments({ userId, status: 'matched' });
   }
 
   async markAsRead(id: string): Promise<boolean> {
     const collection = await this.getCollection();
     const filter: Filter<NotificationSchema> = { _id: new ObjectId(id) };
-    const update: UpdateFilter<NotificationSchema> = { $set: { status: 'read' } };
+    const update: UpdateFilter<NotificationSchema> = { $set: { status: 'matched' } };
     const result: UpdateResult = await collection.updateOne(filter, update);
     return result.modifiedCount > 0;
   }
@@ -69,8 +69,8 @@ export class NotificationRepository extends BaseRepository<NotificationSchema> {
   async markAllAsRead(userId: string): Promise<boolean> {
     const collection = await this.getCollection();
     const result: UpdateResult = await collection.updateMany(
-      { userId, status: 'unread' },
-      { $set: { status: 'read' } }
+      { userId, status: 'matched' },
+      { $set: { status: 'matched' } }
     );
     return result.modifiedCount > 0;
   }
@@ -78,7 +78,7 @@ export class NotificationRepository extends BaseRepository<NotificationSchema> {
   async markAsArchived(id: string): Promise<boolean> {
     const collection = await this.getCollection();
     const filter: Filter<NotificationSchema> = { _id: new ObjectId(id) };
-    const update: UpdateFilter<NotificationSchema> = { $set: { status: 'archived' } };
+    const update: UpdateFilter<NotificationSchema> = { $set: { status: 'matched' } };
     const result: UpdateResult = await collection.updateOne(filter, update);
     return result.modifiedCount > 0;
   }

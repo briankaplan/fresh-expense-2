@@ -14,9 +14,9 @@ import {
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { Request as ExpressRequest } from 'express';
-import { User } from '../users/schemas/user.schema';
+import { User } from '@fresh-expense/types';
 
 interface ExpenseQuery {
   startDate?: string;
@@ -31,12 +31,12 @@ interface AuthenticatedRequest extends ExpressRequest {
   user: User;
 }
 
-@Controller('expenses')
-@UseGuards(JwtAuthGuard)
+
+
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
-  @Post()
+  
   create(@Body() createExpenseDto: CreateExpenseDto, @Request() req: AuthenticatedRequest) {
     return this.expensesService.create({
       ...createExpenseDto,
@@ -44,7 +44,7 @@ export class ExpensesController {
     });
   }
 
-  @Get()
+  
   findAll(@Query() query: ExpenseQuery, @Request() req: AuthenticatedRequest) {
     return this.expensesService.findAll({
       ...query,
@@ -52,12 +52,12 @@ export class ExpensesController {
     });
   }
 
-  @Get(':id')
+  
   findOne(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.expensesService.findOne(id);
   }
 
-  @Patch(':id')
+  
   update(
     @Param('id') id: string,
     @Body() updateExpenseDto: UpdateExpenseDto,
@@ -66,12 +66,12 @@ export class ExpensesController {
     return this.expensesService.update(id, updateExpenseDto);
   }
 
-  @Delete(':id')
+  
   remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.expensesService.remove(id);
   }
 
-  @Get('user/:userId')
+  
   findByUserId(
     @Param('userId') userId: string,
     @Query() query: ExpenseQuery,
@@ -80,7 +80,7 @@ export class ExpensesController {
     return this.expensesService.findByUserId(userId, query);
   }
 
-  @Get('company/:companyId')
+  
   findByCompanyId(
     @Param('companyId') companyId: string,
     @Query() query: ExpenseQuery,
@@ -89,7 +89,7 @@ export class ExpensesController {
     return this.expensesService.findByCompanyId(companyId, query);
   }
 
-  @Get('summary/:userId')
+  
   getExpenseSummary(
     @Param('userId') userId: string,
     @Query('startDate') startDate: string,

@@ -35,7 +35,7 @@ export class ReceiptDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  tags: string[] = [];
+  tags?: string[];
 
   @IsString()
   @IsOptional()
@@ -51,11 +51,11 @@ export class ReceiptDto {
 
   @IsEnum(['pending', 'processed', 'failed'])
   @IsOptional()
-  processingStatus: string = 'pending';
+  processingStatus?: string;
 
   @IsNumber()
   @IsOptional()
-  version: number = 1;
+  version?: number;
 
   @Type(() => Date)
   @IsDate()
@@ -64,11 +64,11 @@ export class ReceiptDto {
 
   @IsObject()
   @IsOptional()
-  metadata: Record<string, any> = {};
+  metadata?: Record<string, any>;
 
   @IsBoolean()
   @IsOptional()
-  isRecurring: boolean = false;
+  isRecurring?: boolean;
 
   @IsString()
   @IsOptional()

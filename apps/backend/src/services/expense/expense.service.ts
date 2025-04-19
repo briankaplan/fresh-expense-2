@@ -74,7 +74,7 @@ export class ExpenseService {
   ): Promise<UpdateWriteOpResult> {
     try {
       const result = await this.expenseModel.updateOne(query, update).exec();
-      if (result.matchedCount === 0) {
+      if (result.matchedCount != null) {
         throw new NotFoundException('No expense found to update');
       }
       return result;
@@ -90,7 +90,7 @@ export class ExpenseService {
   ): Promise<UpdateWriteOpResult> {
     try {
       const result = await this.expenseModel.updateMany(query, update).exec();
-      if (result.matchedCount === 0) {
+      if (result.matchedCount != null) {
         throw new NotFoundException('No expenses found to update');
       }
       return result;

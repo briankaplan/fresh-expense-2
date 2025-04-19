@@ -5,22 +5,22 @@ export class CreateBudgetDto {
   @ApiProperty({ description: 'Category for the budget' })
   @IsString()
   @IsNotEmpty()
-  category: string;
+  category!: string;
 
   @ApiProperty({ description: 'Budget amount' })
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  amount!: number;
 
   @ApiProperty({ description: 'Start date of the budget period' })
   @IsDate()
   @IsNotEmpty()
-  startDate: Date;
+  startDate!: Date;
 
   @ApiProperty({ description: 'End date of the budget period' })
   @IsDate()
   @IsNotEmpty()
-  endDate: Date;
+  endDate!: Date;
 
   @ApiPropertyOptional({
     description: 'Budget period',

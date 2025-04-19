@@ -4,15 +4,20 @@
 
 ```mermaid
 flowchart TD
-    PB[projectbrief.md] --> PC[productContext.md]
-    PB --> SP[systemPatterns.md]
-    PB --> TC[techContext.md]
+    A[apps] --> B[backend]
+    A --> C[frontend]
+    A --> D[workers]
+    A --> E[backend-e2e]
 
-    PC --> AC[activeContext.md]
-    SP --> AC
-    TC --> AC
+    B --> B1[src]
+    B1 --> B2[core]
+    B1 --> B3[modules]
+    B1 --> B4[shared]
 
-    AC --> P[progress.md]
+    C --> C1[src]
+    C1 --> C2[core]
+    C1 --> C3[features]
+    C1 --> C4[shared]
 ```
 
 ```text
@@ -20,28 +25,45 @@ fresh-expense/
 ├── apps/
 │   ├── backend/           # NestJS backend application
 │   │   ├── src/
-│   │   │   ├── app/      # Main application code
-│   │   │   │   ├── models/      # Database models
-│   │   │   │   ├── controllers/ # API controllers
-│   │   │   │   ├── services/    # Business logic
-│   │   │   │   ├── dto/        # Data Transfer Objects
-│   │   │   │   ├── interfaces/ # TypeScript interfaces
-│   │   │   │   └── utils/      # Utility functions
-│   │   │   └── main.ts
+│   │   │   ├── core/     # Core application code
+│   │   │   │   ├── config/      # Configuration files
+│   │   │   │   ├── database/    # Database setup and models
+│   │   │   │   └── utils/       # Core utilities
+│   │   │   ├── modules/  # Feature modules
+│   │   │   │   ├── auth/       # Authentication module
+│   │   │   │   ├── receipts/   # Receipt processing
+│   │   │   │   └── expenses/   # Expense management
+│   │   │   └── shared/   # Shared resources
+│   │   │       ├── decorators/ # Custom decorators
+│   │   │       ├── interceptors/ # HTTP interceptors
+│   │   │       ├── middleware/  # Express middleware
+│   │   │       ├── types/      # Shared types
+│   │   │       └── utils/      # Shared utilities
 │   │   └── test/         # Backend tests
-│   └── frontend/         # React frontend application
-│       ├── src/
-│       │   ├── components/  # Reusable UI components
-│       │   ├── pages/      # Page components
-│       │   ├── hooks/      # Custom React hooks
-│       │   ├── store/      # State management
-│       │   ├── utils/      # Utility functions
-│       │   └── types/      # TypeScript types
-│       └── test/          # Frontend tests
+│   ├── frontend/         # React frontend application
+│   │   ├── src/
+│   │   │   ├── core/    # Core application code
+│   │   │   │   ├── api/        # API client setup
+│   │   │   │   ├── config/     # Configuration
+│   │   │   │   ├── router/     # Routing setup
+│   │   │   │   ├── theme/      # Theme configuration
+│   │   │   │   └── utils/      # Core utilities
+│   │   │   ├── features/ # Feature modules
+│   │   │   │   ├── auth/      # Authentication
+│   │   │   │   ├── receipts/  # Receipt management
+│   │   │   │   └── expenses/  # Expense tracking
+│   │   │   └── shared/  # Shared resources
+│   │   │       ├── components/ # Reusable components
+│   │   │       ├── hooks/     # Custom hooks
+│   │   │       ├── types/     # Shared types
+│   │   │       └── utils/     # Shared utilities
+│   │   └── test/        # Frontend tests
+│   ├── workers/         # Cloudflare Workers
+│   └── backend-e2e/     # End-to-end tests
 ├── packages/
-│   ├── types/            # Shared TypeScript types
-│   └── utils/            # Shared utility functions
-└── tools/                # Build and development tools
+│   ├── types/          # Shared TypeScript types
+│   └── utils/          # Shared utility functions
+└── tools/              # Build and development tools
 ```
 
 ## Naming Conventions
@@ -78,29 +100,28 @@ fresh-expense/
 
 ## File Organization
 
-### Models
+### Backend
 
-- One model per file
-- File name matches model name in kebab-case
-- Include schema, types, and related interfaces in the same file
+- Core functionality in `core/` directory
+- Feature modules in `modules/` directory
+- Shared resources in `shared/` directory
+- One module per feature
+- Include related files in module directory
 
-### Components
+### Frontend
 
-- One component per file
-- Include related styles and tests in the same directory
-- Use index.ts for barrel exports
-
-### Services
-
-- Group related functionality
-- One service per file
-- Include related interfaces and types
+- Core functionality in `core/` directory
+- Feature modules in `features/` directory
+- Shared resources in `shared/` directory
+- One feature per directory
+- Include related components, hooks, and types
 
 ### Tests
 
 - Place test files next to the code they test
 - Use `.spec.ts` or `.test.ts` suffix
 - Group related tests in describe blocks
+- Follow the same directory structure as source code
 
 ## Import/Export Rules
 

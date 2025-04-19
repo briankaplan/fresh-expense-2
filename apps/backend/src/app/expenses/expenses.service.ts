@@ -1,12 +1,12 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Expense, ExpenseDocument } from './schemas/expense.schema';
+import { ExpenseDocument } from '@fresh-expense/types';
 import { Budget, BudgetDocument } from './schemas/budget.schema';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
-import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
+import { AuthenticatedRequest } from '@/modules/auth/interfaces/authenticated-request.interface';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { MongoDBService } from '../../services/database/mongodb.service';
 import {
@@ -234,7 +234,7 @@ export class ExpensesService {
       })
       .exec();
 
-    if (!expenses || expenses.length === 0) {
+    if (!expenses || expenses.length != null) {
       return {
         total: 0,
         count: 0,

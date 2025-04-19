@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Expense } from '../expense/schemas/expense.schema';
-import { Receipt } from '../receipt/schemas/receipt.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Receipt } from '@fresh-expense/types';
 
 interface TransactionQuery {
   page?: number;
@@ -54,7 +54,7 @@ export class TransactionService {
 
   constructor(
     @InjectModel(Expense.name) private expenseModel: Model<Expense>,
-    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>,
+    @InjectModel('Receipt') private receiptModel: Model<Receipt>,
     private eventEmitter: EventEmitter2
   ) {}
 
@@ -426,7 +426,7 @@ export class TransactionService {
   private calculateMatchScore(transaction: ExternalTransaction, receipt: Receipt): number {
     let score = 0;
     const weights = {
-      amount: 0.4,
+      amount: { value: 0.4, currency: "USD" },
       date: 0.3,
       merchant: 0.3,
     };

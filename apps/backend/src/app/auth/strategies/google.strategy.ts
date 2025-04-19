@@ -4,7 +4,7 @@ import { Strategy } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from '../../users/schemas/user.schema';
+import { User } from '@fresh-expense/types';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {

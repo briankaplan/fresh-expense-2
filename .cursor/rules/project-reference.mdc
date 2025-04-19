@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Project References
+
+- When referencing other projects, ensure they have `"composite": true` in their tsconfig.json
+- For referenced projects that may disable emit, add `"disableSourceOfProjectReferenceRedirect": true`
+- Use path mappings consistently across projects:
+  ```json
+  "paths": {
+    "@app/*": ["apps/*/src/*"],
+    "@lib/*": ["packages/*/src/*"]
+  }

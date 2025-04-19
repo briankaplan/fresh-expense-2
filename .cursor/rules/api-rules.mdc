@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+#API Rules (api.mdc)
+```
+---
+description: API standards and patterns
+globs: **/controllers/**/*.ts
+---

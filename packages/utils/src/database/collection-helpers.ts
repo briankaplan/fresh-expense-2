@@ -9,7 +9,7 @@ export async function findEntityById<T extends Document & { _id: string | Object
   collection: Collection<T>,
   id: string,
   userId?: string,
-  errorMessage = 'Entity not found'
+  errorMessage = 'Entity not found',
 ): Promise<WithId<T>> {
   const query: any = { _id: new ObjectId(id) };
 
@@ -37,7 +37,7 @@ export async function updateEntity<T extends Document & { _id: string | ObjectId
   id: string,
   update: Partial<T>,
   userId?: string,
-  errorMessage = 'Entity not found'
+  errorMessage = 'Entity not found',
 ): Promise<WithId<T>> {
   const query: any = { _id: new ObjectId(id) };
 
@@ -49,7 +49,7 @@ export async function updateEntity<T extends Document & { _id: string | ObjectId
   const result = await collection.findOneAndUpdate(
     query,
     { $set: update },
-    { returnDocument: 'after' }
+    { returnDocument: 'after' },
   );
 
   if (!result) {
@@ -66,7 +66,7 @@ export async function updateEntity<T extends Document & { _id: string | ObjectId
 export async function deleteEntity<T extends Document & { _id: string | ObjectId }>(
   collection: Collection<T>,
   id: string,
-  userId?: string
+  userId?: string,
 ): Promise<boolean> {
   const query: any = { _id: new ObjectId(id) };
 
@@ -85,7 +85,7 @@ export async function deleteEntity<T extends Document & { _id: string | ObjectId
 export function buildDateRangeQuery(
   field: string,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
 ): Record<string, any> {
   const query: Record<string, any> = {};
 
@@ -152,7 +152,7 @@ export async function getPaginatedResults<T extends Document>(
   query: Record<string, any>,
   page = 1,
   limit = 10,
-  sort?: SortOptions
+  sort?: SortOptions,
 ): Promise<PaginatedResponse<T>> {
   const skip = (page - 1) * limit;
 
@@ -180,7 +180,7 @@ export async function getPaginatedResults<T extends Document>(
  */
 export function calculateNextDate(
   currentDate: Date | string,
-  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly',
 ): Date {
   const nextDate = new Date(currentDate);
 

@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Error Logging
+- Log error type, message, and stack trace
+- Include request context (user, endpoint, parameters)
+- Use appropriate log levels (error, warn, info)
+- Mask sensitive data in logs
+```

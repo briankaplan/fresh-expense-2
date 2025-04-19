@@ -1,11 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-export type ReportTemplateDocument = ReportTemplate & Document;
-export type ReportScheduleDocument = ReportSchedule & Document;
-export type ReportDocument = Report & Document;
 
-@Schema({ timestamps: true })
 export class ReportTemplate {
   @Prop({ required: true, type: Types.ObjectId })
   userId!: Types.ObjectId;
@@ -106,7 +102,7 @@ export class ReportTemplate {
   };
 }
 
-@Schema({ timestamps: true })
+
 export class Report {
   @Prop({ required: true, type: Types.ObjectId })
   userId!: Types.ObjectId;
@@ -136,7 +132,7 @@ export class Report {
   completedAt?: Date;
 }
 
-@Schema({ timestamps: true })
+
 export class ReportSchedule {
   @Prop({ required: true, type: Types.ObjectId })
   userId!: Types.ObjectId;

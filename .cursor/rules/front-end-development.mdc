@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Frontend Development (React)
+- Use functional components with hooks instead of class components
+- Create explicit Props interfaces for all components
+- Keep components small and focused (<250 lines)
+- Use useMemo and useCallback to optimize performance
+- Extract reusable hooks for shared logic

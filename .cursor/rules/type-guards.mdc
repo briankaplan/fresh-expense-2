@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Type Guards
+
+- Create custom type guards for complex type checking:
+  ```typescript
+  function isDocumentationResult(obj: unknown): obj is DocumentationResult {
+    return (
+      typeof obj === 'object' && 
+      obj !== null && 
+      'missing' in obj && 
+      'outdated' in obj
+    );
+  }
+  ```
+- Use type predicates to narrow down union types
+- Combine type guards with assertion functions:
+  ```typescript
+  function assertIsDocumentationResult(obj: unknown): asserts obj is DocumentationResult {
+    if (!isDocumentationResult(obj)) {
+      throw new Error('Expected DocumentationResult');
+    }
+  }

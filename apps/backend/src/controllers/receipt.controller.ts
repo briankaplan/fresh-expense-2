@@ -16,7 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../app/auth/guards/jwt-auth.guard';
 import { ReceiptService } from '../services/receipt/receipt.service';
 import { Request as ExpressRequest } from 'express';
-import { User } from '../app/users/schemas/user.schema';
+import { User } from '@fresh-expense/types';
 
 interface AuthenticatedRequest extends ExpressRequest {
   user: User;
@@ -28,13 +28,13 @@ interface ReceiptBody {
   transactionId?: string;
 }
 
-@Controller('receipts')
-@UseGuards(JwtAuthGuard)
+
+
 export class ReceiptController {
   constructor(private readonly receiptService: ReceiptService) {}
 
-  @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  
+  
   async uploadReceipt(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: ReceiptBody,
@@ -51,17 +51,17 @@ export class ReceiptController {
     });
   }
 
-  @Get()
+  
   async getReceipts(@Query('search') search: string, @Request() req: AuthenticatedRequest) {
     return this.receiptService.findByUserId(req.user._id.toString(), search);
   }
 
-  @Get(':id')
+  
   async getReceipt(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.receiptService.findById(id, req.user._id.toString());
   }
 
-  @Put(':id')
+  
   async updateReceipt(
     @Param('id') id: string,
     @Body() body: Partial<ReceiptBody>,
@@ -74,7 +74,7 @@ export class ReceiptController {
     });
   }
 
-  @Delete(':id')
+  
   async deleteReceipt(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     await this.receiptService.delete(id, req.user._id.toString());
     return { success: true };

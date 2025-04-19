@@ -21,15 +21,6 @@ interface GenerateReportOptions {
   status?: string[];
 }
 
-interface ReportCustomization {
-  title: string;
-  headers?: string[];
-  groupBy?: string;
-  sortBy?: string[];
-  filters?: Record<string, any>;
-  template?: string;
-}
-
 @Injectable()
 export class ReportService {
   private readonly logger = new Logger(ReportService.name);
@@ -107,7 +98,7 @@ export class ReportService {
         ...schedule,
         templateId: template._id,
         userId: new Types.ObjectId(userId),
-        status: 'scheduled',
+        status: 'matched',
         createdAt: new Date(),
       });
 
@@ -134,7 +125,7 @@ export class ReportService {
       const report = new this.reportModel({
         templateId: template._id,
         userId: new Types.ObjectId(options.userId),
-        status: 'running',
+        status: 'matched',
         createdAt: new Date(),
       });
 
@@ -222,12 +213,12 @@ export class ReportService {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  
   async processScheduledReports() {
     try {
       const now = new Date();
       const scheduledReports = await this.reportScheduleModel.find({
-        status: 'scheduled',
+        status: 'matched',
         nextRun: { $lte: now },
         active: true,
       });
@@ -335,7 +326,7 @@ export class ReportService {
         },
         {
           $set: {
-            status: 'reported',
+            status: 'matched',
             reportedAt: new Date(),
           },
         }
@@ -352,7 +343,7 @@ export class ReportService {
     try {
       return await this.expenseService.findByUserId(userId, {
         ...filters,
-        status: 'reported',
+        status: 'matched',
       });
     } catch (error) {
       this.logger.error('Error fetching reported expenses:', error);
@@ -365,7 +356,7 @@ export class ReportService {
       const expense = await this.expenseService.findOne({
         _id: new Types.ObjectId(expenseId),
         userId: new Types.ObjectId(userId),
-        status: 'reported',
+        status: 'matched',
       });
 
       if (!expense) {

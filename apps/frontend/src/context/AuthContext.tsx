@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from '../services/auth.service';
 
 interface User {
   id: string;
@@ -8,130 +7,119 @@ interface User {
   firstName: string;
   lastName: string;
   role: string;
-}
-
-interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  companyId?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  logout: () => void;
   loading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (userData: Partial<User> & { password: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [state, setState] = useState({
-    user: null as User | null,
-    token: localStorage.getItem('token'),
-    loading: true,
-  });
 
   useEffect(() => {
-    const initAuth = async () => {
-      const savedToken = localStorage.getItem('token');
-      if (savedToken) {
-        try {
-          const userData = await authService.getCurrentUser();
-          setState(prev => ({
-            ...prev,
-            user: userData,
-            loading: false,
-          }));
-        } catch (error) {
-          console.error('Error fetching user:', error);
-          handleLogout();
-        }
-      } else {
-        setState(prev => ({ ...prev, loading: false }));
-      }
-    };
-
-    initAuth();
+    checkAuth();
   }, []);
 
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    setState({
-      user: null,
-      token: null,
-      loading: false,
-    });
-    navigate('/login');
-  }, [navigate]);
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      }
+    } catch (err) {
+      console.error('Auth check failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await authService.login({ email, password });
-      localStorage.setItem('token', response.token);
-      setState(prev => ({
-        ...prev,
-        user: response.user,
-        token: response.token,
-        loading: false,
-      }));
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      setLoading(true);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const register = async (data: RegisterData) => {
+  const logout = async () => {
     try {
-      const response = await authService.register(data);
-      localStorage.setItem('token', response.token);
-      setState(prev => ({
-        ...prev,
-        user: response.user,
-        token: response.token,
-        loading: false,
-      }));
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+      setLoading(true);
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      navigate('/login');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Logout failed');
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const forgotPassword = async (email: string) => {
+  const register = async (userData: Partial<User> & { password: string }) => {
     try {
-      await authService.forgotPassword(email);
-    } catch (error) {
-      console.error('Forgot password error:', error);
-      throw error;
+      setLoading(true);
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const value = {
-    user: state.user,
-    token: state.token,
-    isAuthenticated: !!state.user,
-    login,
-    register,
-    forgotPassword,
-    logout: handleLogout,
-    loading: state.loading,
-  };
+  return (
+    <AuthContext.Provider value={{ user, loading, error, login, logout, register }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
 
 export default AuthContext;

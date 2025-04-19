@@ -1,0 +1,30 @@
+export enum UserRole {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN'
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED'
+}
+
+export enum ExpenseStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  PAID = 'PAID',
+  VOIDED = 'VOIDED'
+}
+
+export enum ExpenseCategory {
+  TRAVEL = 'TRAVEL',
+  MEALS = 'MEALS',
+  ENTERTAINMENT = 'ENTERTAINMENT',
+  OFFICE_SUPPLIES = 'OFFICE_SUPPLIES',
+  SOFTWARE = 'SOFTWARE',
+  HARDWARE = 'HARDWARE',
+  SERVICES = 'SERVICES',
+  OTHER = 'OTHER'
+} 

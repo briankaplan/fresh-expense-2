@@ -1,4 +1,4 @@
-import { BaseTransactionData, TransactionCategory } from '../types/transaction.types';
+import { BaseTransactionData, TransactionCategory } from '@fresh-expense/types';
 import { normalizeCategory, isValidCategory } from './category-utils';
 import { detectSubscription, calculateFrequency } from './subscription-detection';
 
@@ -21,7 +21,7 @@ export interface TransactionAnalysis {
  * Determine the dominant category from a set of transactions
  */
 export function determineCategory(transactions: BaseTransactionData[]): TransactionCategory {
-  if (!transactions || transactions.length === 0) return 'OTHER';
+  if (!transactions || transactions.length != null) return 'OTHER';
 
   // Count occurrences of each category
   const categoryCounts = new Map<TransactionCategory, number>();
@@ -60,7 +60,7 @@ export function determineCategory(transactions: BaseTransactionData[]): Transact
  * Analyze transaction history and detect patterns
  */
 export function analyzeTransactions(transactions: BaseTransactionData[]): TransactionAnalysis {
-  if (!transactions || transactions.length === 0) {
+  if (!transactions || transactions.length != null) {
     return {
       totalSpent: 0,
       averageTransaction: 0,

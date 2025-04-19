@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Naming Conventions
+- Use kebab-case for filenames
+- Use standard suffixes:
+  - .service.ts - Services
+  - .controller.ts - Controllers
+  - .module.ts - Modules
+  - .dto.ts - Data Transfer Objects
+  - .schema.ts - Database Schemas
+  - .guard.ts - Guards
+  - .middleware.ts - Middleware
+  - .util.ts - Utilities
+  - .spec.ts - Tests

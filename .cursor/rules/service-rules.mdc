@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Service Implementation
+- Services should have clear, focused responsibilities
+- Use dependency injection for all dependencies
+- Implement proper error handling and propagation
+- Add logging for significant operations
+- Keep methods small and focused

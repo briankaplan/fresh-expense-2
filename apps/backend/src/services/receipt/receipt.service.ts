@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Receipt, IReceipt } from '../../models/receipt.model';
+import { IReceipt } from '../../models/receipt.model';
 import { R2Service } from '../r2/r2.service';
+import { Receipt } from '@fresh-expense/types';
 
 interface CreateReceiptDto {
   file: Buffer;
@@ -23,7 +24,7 @@ interface UpdateReceiptDto {
 @Injectable()
 export class ReceiptService {
   constructor(
-    @InjectModel(Receipt.name) private receiptModel: Model<IReceipt>,
+    @InjectModel('Receipt') private receiptModel: Model<IReceipt>,
     private r2Service: R2Service
   ) {}
 

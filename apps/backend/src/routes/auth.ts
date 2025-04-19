@@ -1,7 +1,8 @@
-import { Router } from 'express';
-import { User } from '../models/user.model';
-import { generateToken } from '../utils/auth';
+import { User } from '@fresh-expense/types';
 import * as argon2 from 'argon2';
+import { Router } from 'express';
+
+import { generateToken } from '@/core/utils/auth';
 
 const router = Router();
 

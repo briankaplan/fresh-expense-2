@@ -1,7 +1,23 @@
-import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Query,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { GoogleService } from '../services/google.service';
 import { TokenManagerService } from '../services/token-manager.service';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../modules/auth/guards/auth.guard';
+
+interface GoogleResponse<T> {
+  success: boolean;
+  message?: string;
+  error?: string;
+  data?: T;
+}
 
 @Controller('google')
 @UseGuards(AuthGuard)
@@ -12,56 +28,63 @@ export class GoogleController {
   ) {}
 
   @Post('connect')
-  async connectGoogleAccount(@Body() body: { code: string }) {
+  async connectGoogleAccount(@Body('code') code: string): Promise<GoogleResponse<void>> {
     try {
-      const response = await this.tokenManager.getNewRefreshToken();
+      await this.tokenManager.getNewRefreshToken();
       return { success: true, message: 'Google account connected successfully' };
     } catch (error) {
-      return { success: false, error: error.message };
+      const message = error instanceof Error ? error.message : 'Failed to connect Google account';
+      throw new HttpException(message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Get('receipts')
-  async searchReceipts(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
+  async searchReceipts(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string
+  ): Promise<GoogleResponse<any[]>> {
     try {
-      const receipts = await this.googleService.searchGmailReceipts(
-        `subject:receipt after:${startDate} before:${endDate}`
-      );
-      return { success: true, receipts };
+      const query = `subject:receipt after:${startDate} before:${endDate}`;
+      const receipts = await this.googleService.searchGmailReceipts(query);
+      return { success: true, data: receipts };
     } catch (error) {
-      return { success: false, error: error.message };
+      const message = error instanceof Error ? error.message : 'Failed to search receipts';
+      throw new HttpException(message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Get('photos')
-  async searchPhotos(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
+  async searchPhotos(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string
+  ): Promise<GoogleResponse<any[]>> {
     try {
       const photos = await this.googleService.searchPhotos(new Date(startDate), new Date(endDate));
-      return { success: true, photos };
+      return { success: true, data: photos };
     } catch (error) {
-      return { success: false, error: error.message };
+      const message = error instanceof Error ? error.message : 'Failed to search photos';
+      throw new HttpException(message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Post('sync')
-  async syncGoogleData() {
+  async syncGoogleData(): Promise<GoogleResponse<{ receipts: number; photos: number }>> {
     try {
-      // Sync both Gmail and Photos
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const now = new Date();
+      
       const [receipts, photos] = await Promise.all([
         this.googleService.searchGmailReceipts('subject:receipt'),
-        this.googleService.searchPhotos(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
-          new Date()
-        ),
+        this.googleService.searchPhotos(thirtyDaysAgo, now),
       ]);
-
+      
       return {
         success: true,
-        receipts: receipts.length,
-        photos: photos.length,
+        data: { receipts: receipts.length, photos: photos.length },
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      const message = error instanceof Error ? error.message : 'Failed to sync Google data';
+      throw new HttpException(message, HttpStatus.BAD_REQUEST);
     }
   }
 }

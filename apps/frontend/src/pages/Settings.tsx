@@ -19,7 +19,7 @@ import {
   Stack,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import AnimatedWrapper from '../components/AnimatedWrapper';
+import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
 
 const Settings: React.FC = () => {
   const theme = useTheme();

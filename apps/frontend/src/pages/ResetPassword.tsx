@@ -16,7 +16,7 @@ import {
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '@/shared/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 
 interface ResetPasswordFormInputs {

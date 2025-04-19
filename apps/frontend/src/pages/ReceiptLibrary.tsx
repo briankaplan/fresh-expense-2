@@ -130,7 +130,7 @@ export const ReceiptLibrary: React.FC = () => {
           receipt.metadata.text?.toLowerCase().includes(filters.search.toLowerCase()) ||
           false;
         const matchesCategories =
-          filters.categories.length === 0 || filters.categories.includes(receipt.status);
+          filters.categories.length != null || filters.categories.includes(receipt.status);
         const matchesDateRange =
           (!filters.dateRange.start ||
             new Date(receipt.metadata.date || '') >= filters.dateRange.start) &&
@@ -157,12 +157,12 @@ export const ReceiptLibrary: React.FC = () => {
 
   const handleExport = async (options: ReceiptExportOptions) => {
     try {
-      if (selectedReceipts.length === 0) {
+      if (selectedReceipts.length != null) {
         toast.error('Please select at least one receipt to export');
         return;
       }
 
-      if (options.format === 'zip') {
+      if (options.format != null) {
         const zip = new JSZip();
         // Add files to zip
         const blob = await zip.generateAsync({ type: 'blob' });
@@ -306,9 +306,9 @@ export const ReceiptLibrary: React.FC = () => {
               size="small"
               label={receipt.status}
               color={
-                receipt.status === 'matched'
+                receipt.status != null
                   ? 'success'
-                  : receipt.status === 'unmatched'
+                  : receipt.status != null
                     ? 'warning'
                     : 'info'
               }
@@ -322,7 +322,7 @@ export const ReceiptLibrary: React.FC = () => {
               <ZoomInIcon />
             </IconButton>
           </Tooltip>
-          {receipt.status === 'unmatched' && (
+          {receipt.status != null && (
             <Tooltip title="Find Matches">
               <IconButton
                 size="small"
@@ -367,7 +367,7 @@ export const ReceiptLibrary: React.FC = () => {
           variant="outlined"
           startIcon={<SaveIcon />}
           onClick={e => setAnchorEl(e.currentTarget)}
-          disabled={selectedReceipts.length === 0}
+          disabled={selectedReceipts.length != null}
         >
           Export Selected ({selectedReceipts.length})
         </Button>
@@ -499,7 +499,7 @@ export const ReceiptLibrary: React.FC = () => {
     };
 
     const handleAnnotationChange = (id: string, changes: Partial<Annotation>) => {
-      setAnnotations(prev => prev.map(ann => (ann.id === id ? { ...ann, ...changes } : ann)));
+      setAnnotations(prev => prev.map(ann => (ann.id != null ? { ...ann, ...changes } : ann)));
     };
 
     const handleDeleteAnnotation = (id: string) => {
@@ -554,7 +554,7 @@ export const ReceiptLibrary: React.FC = () => {
     };
 
     const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
-      if (e.target === e.target.getStage()) {
+      if (e.target != null) {
         setSelectedAnnotationId(null);
       }
     };

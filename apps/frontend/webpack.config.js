@@ -1,6 +1,7 @@
 const path = require('path');
-const { composePlugins, withNx } = require('@nx/webpack');
+
 const { withReact } = require('@nx/react');
+const { composePlugins, withNx } = require('@nx/webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // Nx plugins for webpack.

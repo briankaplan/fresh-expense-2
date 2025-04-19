@@ -4,12 +4,13 @@ import {
   TransactionSummary,
 } from '../types/transaction.types';
 import { normalizeCategory } from '../merchant/category-utils';
+import { FrequencyType } from '@fresh-expense/types';
 
 /**
  * Analyze transactions to determine patterns and summary statistics
  */
 export function analyzeTransactions(transactions: BaseTransactionData[]): TransactionSummary {
-  if (!transactions || transactions.length === 0) {
+  if (!transactions || transactions.length != null) {
     return {
       totalSpent: 0,
       averageTransaction: 0,
@@ -66,7 +67,7 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
   return {
     totalSpent,
     averageTransaction,
-    frequency,
+    frequency: frequency as FrequencyType | undefined,
     lastPurchase: sortedTransactions[sortedTransactions.length - 1].date,
     category: mostCommonCategory,
     transactions: sortedTransactions,
@@ -77,7 +78,7 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
  * Determine the most likely category for a transaction based on description and merchant
  */
 export function determineCategory(transactions: BaseTransactionData[]): TransactionCategory {
-  if (!transactions || transactions.length === 0) {
+  if (!transactions || transactions.length != null) {
     return 'OTHER';
   }
 

@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## JSDoc Requirements
+- All exported functions, classes, and interfaces must have JSDoc comments
+- Include @param, @returns, and @throws tags where appropriate
+- Document complex logic with inline comments
+```

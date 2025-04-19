@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { validateRequest } from '../middleware/validateRequest';
+import { validateRequest } from '@/shared/middleware/validateRequest';
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db';
+import { getDb } from '@/core/database';
 import fetch from 'node-fetch';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createHash } from 'crypto';

@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# React Development Standards
+
+- Use functional components with hooks instead of class components
+- Create explicit Props interface for all components
+- Keep components small and focused (<250 lines)
+- Use useMemo and useCallback to optimize performance
+- Extract reusable hooks for shared logic
+- Separate UI components from container/logic components
+- Implement proper error boundaries
+- Use Suspense for loading states
+- Keep styling consistent with the project's approach

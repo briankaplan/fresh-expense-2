@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+// 2. TypeScript Rules (typescript.mdc)
+```
+---
+description: TypeScript conventions and patterns
+globs: *.ts,*.tsx
+---

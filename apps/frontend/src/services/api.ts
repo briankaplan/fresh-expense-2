@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { toast } from 'react-hot-toast';
-import { useUIStore } from '../store';
+import { validateEnvironment } from '../utils/env-validation';
 
 export interface ApiError {
   message: string;
@@ -27,11 +27,16 @@ class ApiClient {
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   private constructor() {
+    // Validate environment variables
+    validateEnvironment();
+
     this.axiosInstance = axios.create({
       baseURL: import.meta.env.VITE_API_URL,
       timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
       headers: {
         'Content-Type': 'application/json',
+        'X-Application-Id': import.meta.env.VITE_TELLER_APPLICATION_ID,
+        'X-Environment': import.meta.env.VITE_TELLER_ENVIRONMENT,
       },
     });
     this.cache = new Map();
@@ -53,6 +58,13 @@ class ApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // Add Teller-specific headers for Teller API endpoints
+        if (config.url?.includes('/teller/')) {
+          config.headers['X-Application-Id'] = import.meta.env.VITE_TELLER_APPLICATION_ID;
+          config.headers['X-Environment'] = import.meta.env.VITE_TELLER_ENVIRONMENT;
+        }
+
         if (import.meta.env.DEV) {
           console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.data);
         }
@@ -78,9 +90,6 @@ class ApiClient {
         return response;
       },
       async (error: AxiosError<ApiError>) => {
-        const setIsLoading = useUIStore.getState().setIsLoading;
-        setIsLoading(false);
-
         if (import.meta.env.DEV) {
           console.error('[API Error]', error.response?.data || error.message);
         }

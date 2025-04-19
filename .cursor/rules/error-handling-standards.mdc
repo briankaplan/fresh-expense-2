@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Error Handling Standards
+
+- Use try/catch blocks for async operations
+- Create custom error classes for different error types
+- Include meaningful error messages
+- Log errors with appropriate context
+- Propagate errors to the proper handling layer
+- Return consistent error responses from APIs
+- Handle edge cases explicitly
+
+- Define custom error classes for better error handling:
+  ```typescript
+  class ValidationError extends Error {
+    constructor(message: string, public field: string) {
+      super(message);
+      this.name = 'ValidationError';
+    }
+  }

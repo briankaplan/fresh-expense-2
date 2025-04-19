@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# NestJS Architecture Standards
+
+- Follow NestJS module structure (controllers, services, modules)
+- Use constructor dependency injection for all services
+- Controllers should delegate business logic to services
+- Use DTOs for all request/response data
+- Implement proper validation with class-validator
+- Follow proper exception handling with filters
+- Use guards for authentication and authorization
+- Keep controllers thin, move logic to services
+- Use repositories for database operations

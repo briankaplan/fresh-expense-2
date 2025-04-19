@@ -1,0 +1,24 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Module Imports
+
+- Check for missing modules before importing
+- Use import type for type-only imports:
+  ```typescript
+  import type { UserConfig } from './types';
+  ```
+- Ensure circular dependencies are resolved
+
+## Error Handling
+
+- Define custom error classes for better error handling:
+  ```typescript
+  class ValidationError extends Error {
+    constructor(message: string, public field: string) {
+      super(message);
+      this.name = 'ValidationError';
+    }
+  }

@@ -8,16 +8,30 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/expense
       - JWT_SECRET=${JWT_SECRET}
-      - JWT_ISSUER=${JWT_ISSUER}
-      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - GMAIL_CLIENT_ID_1=${GMAIL_CLIENT_ID_1}
+      - GMAIL_CLIENT_SECRET_1=${GMAIL_CLIENT_SECRET_1}
+      - GMAIL_REFRESH_TOKEN_1=${GMAIL_REFRESH_TOKEN_1}
+      - GMAIL_CLIENT_ID_2=${GMAIL_CLIENT_ID_2}
+      - GMAIL_CLIENT_SECRET_2=${GMAIL_CLIENT_SECRET_2}
+      - GMAIL_REFRESH_TOKEN_2=${GMAIL_REFRESH_TOKEN_2}
+      - GMAIL_CLIENT_ID_3=${GMAIL_CLIENT_ID_3}
+      - GMAIL_CLIENT_SECRET_3=${GMAIL_CLIENT_SECRET_3}
+      - GMAIL_REFRESH_TOKEN_3=${GMAIL_REFRESH_TOKEN_3}
+      - GMAIL_CLIENT_ID_4=${GMAIL_CLIENT_ID_4}
+      - GMAIL_CLIENT_SECRET_4=${GMAIL_CLIENT_SECRET_4}
+      - GMAIL_REFRESH_TOKEN_4=${GMAIL_REFRESH_TOKEN_4}
+      - GMAIL_CLIENT_ID_5=${GMAIL_CLIENT_ID_5}
+      - GMAIL_CLIENT_SECRET_5=${GMAIL_CLIENT_SECRET_5}
+      - GMAIL_REFRESH_TOKEN_5=${GMAIL_REFRESH_TOKEN_5}
+      - PROD_HUGGINGFACE_API_KEY=${PROD_HUGGINGFACE_API_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
       - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
       - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
       - R2_BUCKET=${R2_BUCKET}
       - R2_ENDPOINT=${R2_ENDPOINT}
-      - TELLER_API_KEY=${TELLER_API_KEY}
-      - TELLER_ENV=${TELLER_ENV}
     ports:
       - '3000:3000'
     networks:
@@ -38,8 +52,9 @@ services:
       context: .
       dockerfile: apps/frontend/Dockerfile
     environment:
-      - NEXT_PUBLIC_API_URL=${API_URL}
-      - NEXT_PUBLIC_STORAGE_URL=${R2_ENDPOINT}
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_STORAGE_URL=${NEXT_PUBLIC_STORAGE_URL}
     ports:
       - '80:80'
     networks:
@@ -56,7 +71,10 @@ services:
     restart: unless-stopped
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
       - mongodb_data:/data/db
     ports:
@@ -72,10 +90,10 @@ services:
       start_period: 5s
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:alpine
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./apps/frontend/dist:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./apps/frontend/out:/usr/share/nginx/html:ro
     ports:
       - '80:80'
     networks:
@@ -94,20 +112,40 @@ services:
     image: prom/prometheus:latest
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
     networks:
       - app-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9090/-/healthy']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
     restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - app-network
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
     restart: unless-stopped
 
 networks:
@@ -117,4 +155,7 @@ networks:
 volumes:
   mongodb_data:
     driver: local
+  prometheus_data:
+    driver: local
   grafana_data:
+    driver: local

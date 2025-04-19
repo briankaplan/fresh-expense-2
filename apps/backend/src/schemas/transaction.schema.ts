@@ -1,11 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { TransactionCategory } from '@packages/utils';
+import { Document, Types } from 'mongoose';
+import { BaseDocument } from '@fresh-expense/types';
 
 export type TransactionDocument = Transaction & Document;
 
 @Schema({ timestamps: true })
-export class Transaction {
+export class Transaction implements BaseDocument {
+  _id!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
+  deletedAt?: Date;
+  isDeleted!: boolean;
+
+  @Prop({ required: true })
+  userId!: string;
+
   @Prop({ required: true })
   accountId!: string;
 
@@ -13,63 +22,63 @@ export class Transaction {
   amount!: number;
 
   @Prop({ required: true })
+  currency!: string;
+
+  @Prop({ required: true })
   date!: Date;
 
   @Prop({ required: true })
   description!: string;
 
-  @Prop({ required: true, enum: ['debit', 'credit'] })
-  type!: string;
-
-  @Prop({ required: true, enum: ['pending', 'posted', 'canceled'] })
-  status!: string;
-
-  @Prop()
-  category?: string[];
-
-  @Prop()
-  merchant?: string;
-
   @Prop()
   merchantName?: string;
 
   @Prop()
-  merchantCategory?: string;
-
-  @Prop({
-    type: {
-      address: String,
-      city: String,
-      state: String,
-      country: String,
-      postalCode: String,
-    }
-  })
-  location?: {
-    address?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    postalCode?: string;
-  };
+  merchantId?: string;
 
   @Prop()
-  runningBalance?: number;
+  category?: string;
+
+  @Prop()
+  subcategory?: string;
+
+  @Prop()
+  tags?: string[];
+
+  @Prop()
+  receiptId?: string;
+
+  @Prop()
+  notes?: string;
+
+  @Prop({ type: Object })
+  metadata?: Record<string, any>;
 
   @Prop({ default: false })
   isRecurring!: boolean;
 
   @Prop()
-  notes?: string;
+  recurringPattern?: {
+    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    interval: number;
+    startDate: Date;
+    endDate?: Date;
+  };
 
-  @Prop([String])
-  tags?: string[];
-
-  @Prop({ type: Object })
-  metadata?: Record<string, any>;
+  @Prop({ default: false })
+  isSplit!: boolean;
 
   @Prop()
-  lastUpdated?: Date;
+  splits?: {
+    userId: string;
+    amount: number;
+    percentage: number;
+    status: 'pending' | 'approved' | 'rejected';
+  }[];
+
+  constructor(partial: Partial<Transaction>) {
+    Object.assign(this, partial);
+  }
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

@@ -28,12 +28,6 @@ interface EmailMessage {
   account: string;
 }
 
-interface GoogleApiError extends Error {
-  response?: {
-    status: number;
-  };
-}
-
 interface GmailMessageHeader {
   name: string;
   value: string;
@@ -57,15 +51,6 @@ interface GmailMessagePayload {
 interface GmailMessage {
   id: string;
   payload: GmailMessagePayload;
-}
-
-interface GmailMessageListResponse {
-  data: {
-    messages?: Array<{
-      id: string;
-      threadId: string;
-    }>;
-  };
 }
 
 interface SearchProgress {
@@ -96,7 +81,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
   }
 
   async init() {
-    if (this.accounts.size === 0) {
+    if (this.accounts.size != null) {
       this.logger.warn('No Google accounts configured for Gmail service');
       return;
     }
@@ -116,7 +101,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
       account,
       total: 0,
       processed: 0,
-      status: 'searching',
+      status: 'matched',
     };
     this.progressMap.set(account, { ...current, ...progress });
     this.eventEmitter.emit('gmail.search.progress', this.progressMap.get(account));
@@ -200,7 +185,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
     let body = '';
     if (messageData.payload.parts) {
       for (const part of messageData.payload.parts) {
-        if (part.mimeType === 'text/plain' && part.body?.data) {
+        if (part.mimeType != null && part.body?.data) {
           body = Buffer.from(part.body.data, 'base64').toString('utf-8');
           break;
         }

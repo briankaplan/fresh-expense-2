@@ -1,5 +1,5 @@
 import { calculateStringSimilarity, normalizeText } from '../string/string-comparison';
-import { BaseTransactionData } from '../types/transaction.types';
+import { BaseTransactionData } from '@fresh-expense/types';
 
 export interface ReceiptMatchScore {
   score: number;
@@ -13,7 +13,7 @@ export interface ReceiptMatchScore {
  */
 export function calculateMerchantMatchScore(
   receiptMerchant: string,
-  transactionMerchant: string
+  transactionMerchant: string,
 ): number {
   const normalized1 = normalizeText(receiptMerchant);
   const normalized2 = normalizeText(transactionMerchant);
@@ -28,7 +28,7 @@ export function calculateMerchantMatchScore(
 export function calculateAmountMatchScore(
   receiptAmount: number,
   transactionAmount: number,
-  tolerance = 0.1 // 10% tolerance by default
+  tolerance = 0.1, // 10% tolerance by default
 ): number {
   if (receiptAmount === transactionAmount) return 1;
 
@@ -49,7 +49,7 @@ export function calculateAmountMatchScore(
 export function calculateDateMatchScore(
   receiptDate: Date,
   transactionDate: Date,
-  maxDaysDifference = 3
+  maxDaysDifference = 3,
 ): number {
   const diffInDays =
     Math.abs(receiptDate.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -68,22 +68,23 @@ export function calculateDateMatchScore(
 export function calculateReceiptMatchScore(
   receipt: {
     merchantName: string;
-    amount: number;
+    amount: number | { value: number; currency: string };
     date: Date;
   },
   transaction: BaseTransactionData,
-  weights = {
-    merchant: 0.5,
-    amount: 0.3,
-    date: 0.2,
-  }
+  weights: { merchant: number; amount: number; date: number } = {
+    merchant: 0.7,
+    amount: 0.2,
+    date: 0.1,
+  },
 ): ReceiptMatchScore {
   const merchantScore = calculateMerchantMatchScore(
     receipt.merchantName,
-    transaction.merchantName || ''
+    transaction.merchant.name || '',
   );
 
-  const amountScore = calculateAmountMatchScore(receipt.amount, transaction.amount);
+  const receiptAmount = typeof receipt.amount === 'number' ? receipt.amount : receipt.amount.value;
+  const amountScore = calculateAmountMatchScore(receiptAmount, transaction.amount.value);
 
   const dateScore = calculateDateMatchScore(receipt.date, transaction.date);
 
@@ -105,11 +106,11 @@ export function calculateReceiptMatchScore(
 export function findBestMatchingTransaction(
   receipt: {
     merchantName: string;
-    amount: number;
+    amount: number | { value: number; currency: string };
     date: Date;
   },
   transactions: BaseTransactionData[],
-  minScore = 0.7
+  minScore = 0.7,
 ): { transaction: BaseTransactionData; score: ReceiptMatchScore } | null {
   let bestMatch: BaseTransactionData | null = null;
   let bestScore: ReceiptMatchScore | null = null;

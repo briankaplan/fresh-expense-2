@@ -2,7 +2,28 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist/spec",
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@fresh-expense/types": ["../../packages/types/dist"],
+      "@fresh-expense/types/*": ["../../packages/types/dist/*"],
+      "@fresh-expense/utils": ["../../packages/utils/dist"],
+      "@fresh-expense/utils/*": ["../../packages/utils/dist/*"],
+      "@fresh-expense/ui": ["../../packages/ui/dist"],
+      "@fresh-expense/ui/*": ["../../packages/ui/dist/*"]
+    }
   },
-  "include": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/**/*.d.ts"]
+  "include": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/**/*.d.ts"],
+  "references": [
+    {
+      "path": "../../packages/types"
+    },
+    {
+      "path": "../../packages/utils"
+    },
+    {
+      "path": "../../packages/ui"
+    }
+  ]
 }

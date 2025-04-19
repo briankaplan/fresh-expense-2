@@ -1,330 +1,242 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Box,
   Container,
-  Card,
+  Typography,
   TextField,
   Button,
-  Typography,
-  IconButton,
+  Paper,
   InputAdornment,
-  useTheme,
-  Link,
-  Stack,
-  useMediaQuery,
+  IconButton,
+  Alert,
+  Fade,
+  Grid,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock, Person } from '@mui/icons-material';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Business as BusinessIcon,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
+import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
 
-const Register: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate();
-  const { register } = useAuth();
+export default function Register() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    companyName: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-    setError(''); // Clear error when user types
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    setIsLoading(true);
+    setError('');
+
     try {
-      await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-      });
+      await register(formData);
       navigate('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account');
-    } finally {
-      setIsLoading(false);
+      setError('Registration failed. Please try again.');
     }
   };
 
   return (
     <Box
       sx={{
-        width: '100vw',
-        height: '100vh',
+        minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'background.default',
-        overflow: 'hidden',
-        position: 'fixed',
-        top: 0,
-        left: 0,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}
     >
-      <Container maxWidth="xs">
+      <Container maxWidth="sm">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          style={{ width: '100%' }}
+          transition={{ duration: 0.5 }}
         >
-          <Stack spacing={4} sx={{ width: '100%', p: isMobile ? 2 : 3 }}>
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Typography
-                variant={isMobile ? 'h4' : 'h3'}
-                gutterBottom
-                sx={{
-                  fontWeight: 700,
-                  background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                Fresh Expense
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                color="text.secondary"
-                sx={{
-                  opacity: 0.8,
-                  mt: 1,
-                }}
-              >
-                Create your account
-              </Typography>
-            </Box>
-
-            <Card
+          <Paper
+            elevation={24}
+            sx={{
+              p: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              borderRadius: 2,
+              background: 'rgba(255, 255, 255, 0.95)',
+            }}
+          >
+            <Typography
+              component="h1"
+              variant="h4"
               sx={{
-                bgcolor: 'background.paper',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid',
-                borderColor: 'divider',
-                boxShadow: theme.shadows[8],
-                borderRadius: 2,
-                p: { xs: 2, sm: 3 },
+                mb: 3,
+                fontWeight: 'bold',
+                background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
               }}
             >
-              <form onSubmit={handleSubmit}>
-                <Stack spacing={3}>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                    <TextField
-                      fullWidth
-                      label="First Name"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Person sx={{ color: theme.palette.text.secondary }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          bgcolor: 'background.default',
-                        },
-                      }}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Person sx={{ color: theme.palette.text.secondary }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          bgcolor: 'background.default',
-                        },
-                      }}
-                    />
-                  </Stack>
+              Create Account
+            </Typography>
 
+            {error && (
+              <Fade in={!!error}>
+                <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+                  {error}
+                </Alert>
+              </Fade>
+            )}
+
+            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
                   <TextField
+                    required
                     fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
+                    name="firstName"
+                    label="First Name"
+                    value={formData.firstName}
                     onChange={handleChange}
-                    error={!!error && error.includes('email')}
-                    disabled={isLoading}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Email sx={{ color: theme.palette.text.secondary }} />
+                          <PersonIcon color="primary" />
                         </InputAdornment>
                       ),
                     }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: 'background.default',
-                      },
-                    }}
                   />
-
+                </Grid>
+                <Grid item xs={12} sm={6}>
                   <TextField
+                    required
                     fullWidth
-                    label="Password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
+                    name="lastName"
+                    label="Last Name"
+                    value={formData.lastName}
                     onChange={handleChange}
-                    error={!!error && error.includes('password')}
-                    disabled={isLoading}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Lock sx={{ color: theme.palette.text.secondary }} />
+                          <PersonIcon color="primary" />
                         </InputAdornment>
                       ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                            disabled={isLoading}
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: 'background.default',
-                      },
                     }}
                   />
+                </Grid>
+              </Grid>
 
-                  <TextField
-                    fullWidth
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    error={!!error && error.includes('password')}
-                    helperText={error}
-                    disabled={isLoading}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Lock sx={{ color: theme.palette.text.secondary }} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            edge="end"
-                            disabled={isLoading}
-                          >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: 'background.default',
-                      },
-                    }}
-                  />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="email"
+                label="Email Address"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mt: 2 }}
+              />
 
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    disabled={isLoading}
-                    sx={{
-                      py: 1.5,
-                      mt: 2,
-                      background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                      '&:hover': {
-                        background: `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
-                      },
-                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-                    }}
-                  >
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                </Stack>
-              </form>
-            </Card>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="companyName"
+                label="Company Name"
+                value={formData.companyName}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <BusinessIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mt: 2 }}
+              />
 
-            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              Already have an account?{' '}
-              <Link
-                component={RouterLink}
-                to="/login"
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mt: 2 }}
+              />
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
                 sx={{
-                  color: 'primary.main',
-                  textDecoration: 'none',
-                  fontWeight: 500,
+                  mt: 3,
+                  mb: 2,
+                  py: 1.5,
+                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
                   '&:hover': {
-                    textDecoration: 'underline',
+                    background: 'linear-gradient(45deg, #764ba2, #667eea)',
                   },
                 }}
               >
-                Sign in
-              </Link>
-            </Typography>
-          </Stack>
+                Sign Up
+              </Button>
+
+              <Typography variant="body2" sx={{ textAlign: 'center' }}>
+                Already have an account?{' '}
+                <Link
+                  to="/login"
+                  style={{
+                    textDecoration: 'none',
+                    color: '#667eea',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Sign in
+                </Link>
+              </Typography>
+            </Box>
+          </Paper>
         </motion.div>
       </Container>
-
-      {/* Background Gradient */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          background: `
-            radial-gradient(circle at 0% 0%, ${theme.palette.primary.dark}40 0%, transparent 50%),
-            radial-gradient(circle at 100% 0%, ${theme.palette.secondary.dark}40 0%, transparent 50%),
-            radial-gradient(circle at 50% 100%, ${theme.palette.error.dark}40 0%, transparent 50%)
-          `,
-          opacity: 0.4,
-        }}
-      />
     </Box>
   );
-};
-
-export default Register;
+}

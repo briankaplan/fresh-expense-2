@@ -3,13 +3,13 @@ import { Request } from 'express';
 import { TellerService } from '../teller.service';
 import { Logger } from '@nestjs/common';
 
-@Controller('webhooks/teller')
+
 export class TellerWebhookController {
   private readonly logger = new Logger(TellerWebhookController.name);
 
   constructor(private readonly tellerService: TellerService) {}
 
-  @Post()
+  
   async handleWebhook(
     @Headers('x-teller-signature') signature: string,
     @Req() request: RawBodyRequest<Request>,
@@ -20,7 +20,7 @@ export class TellerWebhookController {
     try {
       if (!request.rawBody) {
         this.logger.warn('No raw body found in request');
-        return { status: 'error', message: 'No request body' };
+        return { status: 'matched', message: 'No request body' };
       }
 
       // Verify the signature
@@ -31,7 +31,7 @@ export class TellerWebhookController {
 
       if (!isValid) {
         this.logger.warn('Invalid webhook signature');
-        return { status: 'error', message: 'Invalid signature' };
+        return { status: 'matched', message: 'Invalid signature' };
       }
 
       // Process the webhook based on its type
@@ -49,13 +49,13 @@ export class TellerWebhookController {
           this.logger.warn(`Unhandled webhook type: ${payload.type}`);
       }
 
-      return { status: 'success' };
+      return { status: 'matched' };
     } catch (error) {
       this.logger.error(
         'Error processing webhook:',
         error instanceof Error ? error.message : 'Unknown error'
       );
-      return { status: 'error', message: error instanceof Error ? error.message : 'Unknown error' };
+      return { status: 'matched', message: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 }

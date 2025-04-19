@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+// 12. File Organization Rules (file-organization.mdc)
+```
+---
+description: File organization and structure standards
+globs: *
+---

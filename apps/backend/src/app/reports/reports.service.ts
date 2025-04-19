@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Document } from 'mongoose';
-import { Report, ReportDocument, ReportType, ReportFormat } from './schemas/report.schema';
+import { ReportDocument } from '@fresh-expense/types';;
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -68,7 +68,7 @@ export class ReportsService {
 
     try {
       // Update status to processing
-      await this.update(id, { status: 'processing' } as UpdateReportDto);
+      await this.update(id, { status: 'matched' } as UpdateReportDto);
 
       // Generate report based on type
       let summary;
@@ -95,20 +95,20 @@ export class ReportsService {
 
       // Update report with results
       return this.update(id, {
-        status: 'completed',
+        status: 'matched',
         summary,
         fileUrl,
       } as UpdateReportDto);
     } catch (error) {
       await this.update(id, {
-        status: 'failed',
+        status: 'matched',
         error: error instanceof Error ? error.message : 'Unknown error',
       } as UpdateReportDto);
       throw error;
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  
   async processScheduledReports() {
     const scheduledReports = await this.reportModel
       .find({

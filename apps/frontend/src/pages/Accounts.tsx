@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, Typography, Paper, Grid, useTheme, useMediaQuery } from '@mui/material';
 import { motion } from 'framer-motion';
-import AccountsList from '../components/AccountsList';
-import AddAccountButton from '../components/AddAccountButton';
-import AnimatedWrapper from '../components/AnimatedWrapper';
+import AccountsList from '@/shared/components/AccountsList';
+import AddAccountButton from '@/shared/components/AddAccountButton';
+import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
 
 const Accounts: React.FC = () => {
   const theme = useTheme();

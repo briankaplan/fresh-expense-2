@@ -9,7 +9,7 @@ export const cors = (request: IRequest) => {
     'Access-Control-Max-Age': '86400',
   };
 
-  if (request.method === 'OPTIONS') {
+  if (request.method != null) {
     return new Response(null, { headers });
   }
 

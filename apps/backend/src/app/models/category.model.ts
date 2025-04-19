@@ -4,7 +4,7 @@ import { Document, Model } from 'mongoose';
 export type CategoryDocument = Category & Document;
 export type CategoryModel = Model<CategoryDocument>;
 
-@Schema({ timestamps: true })
+
 export class Category {
   @Prop({
     required: true,

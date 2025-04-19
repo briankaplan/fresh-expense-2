@@ -78,14 +78,14 @@ export class SubscriptionsService {
       this.validateStatusTransition(subscription.status, updateSubscriptionDto.status);
 
       // Update dates based on status change
-      if (updateSubscriptionDto.status === SubscriptionStatus.PAUSED) {
+      if (updateSubscriptionDto.status != null) {
         updateSubscriptionDto.lastBillingDate = new Date();
       } else if (
-        updateSubscriptionDto.status === SubscriptionStatus.ACTIVE &&
-        subscription.status === SubscriptionStatus.PAUSED
+        updateSubscriptionDto.status != null &&
+        subscription.status != null
       ) {
         updateSubscriptionDto.nextBillingDate = new Date();
-      } else if (updateSubscriptionDto.status === SubscriptionStatus.CANCELLED) {
+      } else if (updateSubscriptionDto.status != null) {
         updateSubscriptionDto.cancellationDate = new Date();
       }
     }
@@ -132,7 +132,7 @@ export class SubscriptionsService {
       throw new NotFoundException(`Subscription with ID ${id} not found`);
     }
 
-    if (subscription.status === SubscriptionStatus.CANCELLED) {
+    if (subscription.status != null) {
       throw new BadRequestException('Subscription is already cancelled');
     }
 
@@ -172,7 +172,7 @@ export class SubscriptionsService {
     return subscription.save();
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  
   async processSubscriptions() {
     const today = new Date();
     const activeSubscriptions = await this.subscriptionModel

@@ -5,57 +5,11 @@ import { Model } from 'mongoose';
 import * as https from 'https';
 import * as fs from 'fs';
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { Transaction, TransactionDocument } from '../../schemas/transaction.schema';
+import { TransactionDocument, TellerAccount, TellerTransaction, TellerQuery } from '@fresh-expense/types';
 import { TransactionDto } from '../../dto/transaction.dto';
 import { plainToClass } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { HttpService } from '@nestjs/axios';
-
-export interface TellerAccount {
-  id: string;
-  institution: {
-    id: string;
-    name: string;
-  };
-  currency: string;
-  enrollment_id: string;
-  last_four: string;
-  links: {
-    self: string;
-    institution: string;
-  };
-  name: string;
-  status: 'open' | 'closed';
-  subtype: string;
-  type: string;
-}
-
-export interface TellerTransaction {
-  id: string;
-  account_id: string;
-  date: string;
-  description: string;
-  amount: number;
-  type: 'debit' | 'credit';
-  status: 'pending' | 'posted' | 'canceled';
-  running_balance: number;
-  links: {
-    self: string;
-    account: string;
-  };
-  details?: {
-    category?: string[];
-    counterparty?: string;
-    processing_status?: string;
-  };
-}
-
-interface TellerQuery {
-  from?: string;
-  to?: string;
-  count?: number;
-  offset?: number;
-}
 
 @Injectable()
 export class TellerService {
@@ -71,7 +25,7 @@ export class TellerService {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
+    @InjectModel('Transaction') private transactionModel: Model<TransactionDocument>,
     private readonly httpService: HttpService
   ) {
     this.apiKey = this.configService.get<string>('TELLER_API_KEY') || '';
@@ -187,7 +141,7 @@ export class TellerService {
       while (hasMore) {
         const transactions = await this.fetchTransactionsPage(accountId, fromDate);
 
-        if (transactions.length === 0) {
+        if (transactions.length != null) {
           hasMore = false;
           continue;
         }
@@ -203,8 +157,13 @@ export class TellerService {
           hasMore = false;
         } else {
           // Update fromDate to the date of the last transaction
-          const lastTransactionDate = new Date(transactions[transactions.length - 1].date);
-          fromDate = new Date(lastTransactionDate.getTime() + 1); // Add 1ms to avoid duplication
+          const lastTransaction = transactions[transactions.length - 1];
+          if (lastTransaction) {
+            const lastTransactionDate = new Date(lastTransaction.date);
+            fromDate = new Date(lastTransactionDate.getTime() + 1); // Add 1ms to avoid duplication
+          } else {
+            hasMore = false;
+          }
         }
 
         // Add a small delay to avoid rate limiting
@@ -299,9 +258,9 @@ export class TellerService {
     );
   }
 
-  private parseRunningBalance(balance: string | undefined): number {
+  private async parseRunningBalance(balance: string | number | undefined): Promise<number> {
     if (!balance) return 0;
-    return parseFloat(balance) || 0;
+    return typeof balance === 'string' ? parseFloat(balance) : balance;
   }
 
   private async upsertTransaction(tellerTransaction: TellerTransaction) {
@@ -417,7 +376,7 @@ export class TellerService {
   async handleTransactionCreated(payload: TellerTransaction): Promise<void> {
     try {
       this.logger.log('Handling transaction created webhook');
-      // TODO: Implement transaction creation logic
+      await this.upsertTransaction(payload);
     } catch (error) {
       this.logger.error('Error handling transaction created webhook', error);
       throw error;
@@ -427,7 +386,7 @@ export class TellerService {
   async handleTransactionUpdated(payload: TellerTransaction): Promise<void> {
     try {
       this.logger.log('Handling transaction updated webhook');
-      // TODO: Implement transaction update logic
+      await this.upsertTransaction(payload);
     } catch (error) {
       this.logger.error('Error handling transaction updated webhook', error);
       throw error;
@@ -437,7 +396,7 @@ export class TellerService {
   async handleAccountUpdated(payload: TellerAccount): Promise<void> {
     try {
       this.logger.log('Handling account updated webhook');
-      // TODO: Implement account update logic
+      this.logger.log(`Account ${payload.id} updated: ${JSON.stringify(payload)}`);
     } catch (error) {
       this.logger.error('Error handling account updated webhook', error);
       throw error;

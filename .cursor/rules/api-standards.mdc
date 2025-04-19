@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# API Design Standards
+
+- Follow RESTful API design principles
+- Use consistent URL pattern: /api/[resource]/[identifier]
+- Implement proper input validation
+- Return standardized error responses
+- Document APIs with OpenAPI/Swagger
+- Use appropriate HTTP status codes
+- Implement versioning for breaking changes
+- Apply consistent pagination pattern
+- Use proper authentication middleware

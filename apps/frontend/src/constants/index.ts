@@ -1,3 +1,5 @@
+import { CATEGORY_METADATA, ExpenseCategoryType } from '@fresh-expense/types';
+
 // API Constants
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -19,16 +21,10 @@ export const REFRESH_TOKEN_KEY = 'refreshToken';
 export const USER_KEY = 'user';
 
 // Expense Categories
-export const EXPENSE_CATEGORIES = [
-  'food',
-  'transportation',
-  'housing',
-  'utilities',
-  'entertainment',
-  'healthcare',
-  'shopping',
-  'other',
-] as const;
+export const EXPENSE_CATEGORIES = Object.keys(CATEGORY_METADATA) as ExpenseCategoryType[];
+
+// Export category metadata for easy access
+export { CATEGORY_METADATA };
 
 // UI Constants
 export const TOAST_DURATION = 5000;

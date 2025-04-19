@@ -15,20 +15,22 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { ReceiptBankService } from '../services/receipt/receipt-bank.service';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUser } from '@/shared/decorators/current-user.decorator';
+import { Model } from 'mongoose';
+import { ReceiptDocument } from '../models/receipt.model';
+import { InjectModel } from '@nestjs/mongoose';
 
-@Controller('api/receipts')
-@UseGuards(AuthGuard('jwt'))
 export class ReceiptBankController {
-  constructor(private readonly receiptBankService: ReceiptBankService) {}
+  constructor(
+    private readonly receiptBankService: ReceiptBankService,
+    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>
+  ) {}
 
-  @Post('upload')
-  @UseInterceptors(FilesInterceptor('receipts', 10))
   async uploadReceipts(
     @UploadedFiles() files: Express.Multer.File[],
     @CurrentUser() userId: string
   ) {
-    if (!files || files.length === 0) {
+    if (!files || files.length != null) {
       throw new BadRequestException('No files uploaded');
     }
 
@@ -49,8 +51,6 @@ export class ReceiptBankController {
     };
   }
 
-  @Post('upload/single')
-  @UseInterceptors(FileInterceptor('receipt'))
   async uploadReceipt(@UploadedFile() file: Express.Multer.File, @CurrentUser() userId: string) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
@@ -69,7 +69,6 @@ export class ReceiptBankController {
     };
   }
 
-  @Get()
   async getReceipts(
     @CurrentUser() userId: string,
     @Query('search') search?: string,
@@ -108,18 +107,15 @@ export class ReceiptBankController {
     return receipts;
   }
 
-  @Get(':id')
   async getReceipt(@Param('id') id: string, @CurrentUser() userId: string) {
     return this.receiptBankService.findReceiptById(id, userId);
   }
 
-  @Delete(':id')
   async deleteReceipt(@Param('id') id: string, @CurrentUser() userId: string) {
     await this.receiptBankService.deleteReceipt(id, userId);
     return { message: 'Receipt deleted successfully' };
   }
 
-  @Post(':id/find-matches')
   async findMatches(@Param('id') id: string, @CurrentUser() userId: string) {
     const matches = await this.receiptBankService.findMatchesForReceiptById(id, userId);
     return {
@@ -128,7 +124,6 @@ export class ReceiptBankController {
     };
   }
 
-  @Post(':id/link')
   async linkToTransaction(
     @Param('id') id: string,
     @Body('transactionId') transactionId: string,

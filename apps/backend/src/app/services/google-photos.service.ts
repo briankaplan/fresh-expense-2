@@ -5,13 +5,13 @@ import { OCRService } from '../../services/ocr/ocr.service';
 import { R2Service } from '../../services/r2/r2.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Receipt } from '../receipts/schemas/receipt.schema';
 import { TokenManagerService } from './token-manager.service';
 import { RateLimiter } from 'limiter';
 import { retry } from 'ts-retry-promise';
 import { GoogleService } from './google.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GaxiosResponse } from 'gaxios';
+import { Receipt } from '@fresh-expense/types';
 
 interface SearchFilters {
   dateFilter?: {
@@ -30,21 +30,6 @@ interface GooglePhoto {
   id: string;
   baseUrl: string;
   filename: string;
-}
-
-interface OCRResult {
-  text: string;
-  confidence: number;
-  blocks: {
-    text: string;
-    confidence: number;
-    bbox: {
-      x0: number;
-      y0: number;
-      x1: number;
-      y1: number;
-    };
-  }[];
 }
 
 interface MediaItemsResponse {
@@ -67,7 +52,7 @@ export class GooglePhotosService extends GoogleService {
     protected readonly eventEmitter: EventEmitter2,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
-    @InjectModel(Receipt.name) private receiptModel: Model<Receipt>
+    @InjectModel('Receipt') private receiptModel: Model<Receipt>
   ) {
     super(configService, tokenManager, eventEmitter);
   }

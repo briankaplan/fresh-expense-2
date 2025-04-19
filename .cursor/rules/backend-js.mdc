@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+// 3. Backend NestJS Rules (backend-nestjs.mdc)
+```
+---
+description: NestJS architecture patterns and conventions
+globs: apps/backend/src/**/*.ts
+---

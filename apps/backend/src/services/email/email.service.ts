@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { BaseService } from '../base.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationService } from '../notification/notification.service';
 
 interface EmailOptions {
   to: string | string[];
@@ -16,11 +19,15 @@ interface EmailOptions {
 }
 
 @Injectable()
-export class EmailService {
-  private readonly logger = new Logger(EmailService.name);
+export class EmailService extends BaseService {
   private readonly transporter: nodemailer.Transporter;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    notificationService: NotificationService,
+    eventEmitter: EventEmitter2
+  ) {
+    super(notificationService, eventEmitter, EmailService.name);
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('SMTP_HOST'),
       port: this.configService.get<number>('SMTP_PORT'),
@@ -33,40 +40,44 @@ export class EmailService {
   }
 
   async sendEmail(options: EmailOptions): Promise<void> {
-    try {
-      const from = this.configService.get<string>('SMTP_FROM');
-      await this.transporter.sendMail({
-        from,
-        to: Array.isArray(options.to) ? options.to.join(',') : options.to,
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-        attachments: options.attachments,
-      });
-    } catch (error) {
-      this.logger.error('Error sending email:', error);
-      throw error;
-    }
+    return this.executeWithRetry('sendEmail', async () => {
+      try {
+        await this.transporter.sendMail({
+          from: this.configService.get<string>('SMTP_FROM'),
+          ...options,
+        });
+      } catch (error) {
+        const typedError = error instanceof Error ? error : new Error(String(error));
+        this.logger.error(`Failed to send email: ${typedError.message}`);
+        throw typedError;
+      }
+    });
   }
 
   async sendReportEmail(options: EmailOptions): Promise<void> {
-    try {
-      const html = `
-        <h2>Your Report is Ready</h2>
-        <p>Your requested report has been generated and is now available for download.</p>
-        <p>You can access your report using the following link:</p>
-        <p><a href="${options.reportUrl}">Download Report</a></p>
-        <p>This link will expire in 1 hour.</p>
-        <p>Best regards,<br>Your Expense App Team</p>
-      `;
+    return this.executeWithRetry('sendReportEmail', async () => {
+      try {
+        const reportUrl = options.reportUrl;
+        if (!reportUrl) {
+          throw new Error('Report URL is required for report emails');
+        }
 
-      await this.sendEmail({
-        ...options,
-        html,
-      });
-    } catch (error) {
-      this.logger.error('Error sending report email:', error);
-      throw error;
-    }
+        const html = `
+          <h1>Report Available</h1>
+          <p>Your report is ready. Click the link below to view it:</p>
+          <a href="${reportUrl}">View Report</a>
+        `;
+
+        await this.transporter.sendMail({
+          from: this.configService.get<string>('SMTP_FROM'),
+          ...options,
+          html,
+        });
+      } catch (error) {
+        const typedError = error instanceof Error ? error : new Error(String(error));
+        this.logger.error(`Failed to send report email: ${typedError.message}`);
+        throw typedError;
+      }
+    });
   }
 }

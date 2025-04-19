@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## TSConfig Settings
+
+- Use strict mode: `"strict": true`
+- Enable strictNullChecks: `"strictNullChecks": true`
+- Enable noImplicitAny: `"noImplicitAny": true`
+- For better error messages, enable noImplicitReturns: `"noImplicitReturns": true`
+- Set skipLibCheck to avoid errors in node_modules: `"skipLibCheck": true`

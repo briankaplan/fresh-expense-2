@@ -10,8 +10,7 @@ export function normalizeText(text: string): string {
   if (!text) return '';
   return text
     .toLowerCase()
-    .replace(/[^\w\s]/g, '') // Remove special characters
-    .replace(/\s+/g, ' ') // Standardize whitespace
+    .replace(/[^\w\s]/g, '')
     .trim();
 }
 
@@ -39,7 +38,7 @@ export function calculateLevenshteinDistance(str1: string, str2: string): number
         dp[i][j] = Math.min(
           dp[i - 1][j - 1] + 1, // substitution
           dp[i - 1][j] + 1, // deletion
-          dp[i][j - 1] + 1 // insertion
+          dp[i][j - 1] + 1, // insertion
         );
       }
     }
@@ -53,16 +52,29 @@ export function calculateLevenshteinDistance(str1: string, str2: string): number
  * 1 means strings are identical, 0 means completely different
  */
 export function calculateStringSimilarity(str1: string, str2: string): number {
-  const normalized1 = normalizeText(str1);
-  const normalized2 = normalizeText(str2);
+  if (!str1 || !str2) return 0;
+  if (str1 === str2) return 1;
 
-  if (normalized1 === normalized2) return 1;
-  if (!normalized1 || !normalized2) return 0;
+  const matrix = Array(str1.length + 1)
+    .fill(null)
+    .map(() => Array(str2.length + 1).fill(null));
 
-  const maxLength = Math.max(normalized1.length, normalized2.length);
-  const distance = calculateLevenshteinDistance(normalized1, normalized2);
+  for (let i = 0; i <= str1.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= str2.length; j++) matrix[0][j] = j;
 
-  return 1 - distance / maxLength;
+  for (let i = 1; i <= str1.length; i++) {
+    for (let j = 1; j <= str2.length; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost,
+      );
+    }
+  }
+
+  const distance = matrix[str1.length][str2.length];
+  return 1 - distance / Math.max(str1.length, str2.length);
 }
 
 /**

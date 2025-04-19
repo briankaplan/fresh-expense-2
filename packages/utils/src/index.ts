@@ -1,45 +1,50 @@
-// Core utilities
-export * from './lib/utils.js';
+// Currency utilities
+export {
+  formatCurrency,
+  parseCurrency,
+  convertCurrency,
+  roundToDecimal,
+  calculatePercentage,
+  calculatePercentageDifference,
+  isValidCurrency,
+  getCurrencySymbol,
+} from './currency.utils';
 
-// Text and string comparison utilities
-export * from './string/string-comparison';
+// Date utilities
+export {
+  formatDate,
+  parseDate,
+  isValidDate,
+  addDays,
+  subDays,
+  differenceInDays,
+} from './date.utils';
 
-// Receipt matching utilities
-export * from './receipt/receipt-matching';
+// String utilities
+export { truncateString } from './string.utils';
 
-// Image utilities
-export * from './image/image-processing';
+// ID utilities
+export { generateId } from './id.utils';
 
-// Cloudflare utilities
-export * from './cloudflare/r2-helpers';
+// Debounce utilities
+export { debounce } from './debounce.utils';
 
-// Merchant analysis utilities
-export * from './merchant/category-utils';
-export * from './merchant/subscription-detection';
-export * from './merchant/transaction-analysis';
+// Types
+export type { PaginatedResponse, SortOptions } from '@fresh-expense/types';
 
-// Auth utilities
-export * from './auth/jwt-helpers';
-export * from './email/email-templates';
-export * from './auth/auth-utils';
+export * from './storage/r2.service';
 
-// Export types
-export * from './types/transaction.types';
+// Receipt utilities
+export {
+  calculateReceiptMatchScore,
+  ReceiptMatchScore
+} from './receipt/receipt-matching';
 
-// Export database utilities
-export * from './database/collection-helpers';
-
-// Export transaction utilities
-export * from './transaction/transaction-analysis';
-
-export * from './receipt';
+// Export utility functions
 export * from './auth';
-export * from './email';
-export * from './merchant';
-export * from './string';
-export * from './text';
-export * from './cloudflare';
-export * from './image';
 export * from './database';
+export * from './email';
+export * from './image';
+export * from './receipt';
+export * from './string';
 export * from './transaction';
-export * from './types';

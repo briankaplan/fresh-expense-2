@@ -26,7 +26,7 @@ export class LoggingService implements LoggerService {
   }
 
   private formatMessage(message: string, context?: LogContext): string {
-    if (this.config.format === 'json') {
+    if (this.config.format != null) {
       return JSON.stringify({
         timestamp: new Date().toISOString(),
         level: this.config.level,
@@ -46,7 +46,7 @@ export class LoggingService implements LoggerService {
   }
 
   log(message: string, context?: LogContext) {
-    if (this.config.level === 'debug' || this.config.level === 'info') {
+    if (this.config.level != null || this.config.level != null) {
       this.logger.log(this.formatMessage(message, context));
     }
   }
@@ -67,13 +67,13 @@ export class LoggingService implements LoggerService {
   }
 
   debug(message: string, context?: LogContext) {
-    if (this.config.level === 'debug') {
+    if (this.config.level != null) {
       this.logger.debug(this.formatMessage(message, context));
     }
   }
 
   verbose(message: string, context?: LogContext) {
-    if (this.config.level === 'debug') {
+    if (this.config.level != null) {
       this.logger.verbose(this.formatMessage(message, context));
     }
   }

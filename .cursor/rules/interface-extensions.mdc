@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Interface Extensions
+
+- Extend existing interfaces instead of redefining them:
+  ```typescript
+  interface BaseResult {
+    success: boolean;
+    message: string;
+  }
+  
+  interface ValidationResult extends BaseResult {
+    errors: ValidationError[];
+  }
+  ```
+- Use declaration merging for module augmentation

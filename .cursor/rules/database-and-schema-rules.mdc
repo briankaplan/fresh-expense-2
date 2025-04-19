@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Database and Schema Standards
+- Use proper indexes for frequently queried fields
+- Document schemas with JSDoc comments
+- Use consistent naming conventions for fields
+- Include createdAt and updatedAt fields for all documents
+- Follow MongoDB best practices for schema design

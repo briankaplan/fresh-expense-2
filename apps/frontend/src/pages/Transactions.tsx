@@ -34,7 +34,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
-import AnimatedWrapper from '../components/AnimatedWrapper';
+import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
 import { toast } from 'react-hot-toast';
 
 interface Transaction {
@@ -70,26 +70,25 @@ const Transactions: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Mock data - replace with actual API call
-  const transactions: Transaction[] = [
+  const mockTransactions = [
     {
       id: '1',
-      date: '2024-04-08',
-      description: 'Grocery Store',
-      amount: -125.5,
-      category: 'Food',
-      type: 'expense',
+      description: 'Grocery shopping',
+      amount: 85.50,
+      date: new Date('2024-04-08'),
+      category: 'Groceries',
+      merchant: 'Whole Foods',
       status: 'completed',
     },
     {
       id: '2',
-      date: '2024-04-01',
-      description: 'Salary Deposit',
-      amount: 4500.0,
-      category: 'Income',
-      type: 'income',
+      description: 'Monthly rent',
+      amount: 1200.00,
+      date: new Date('2024-04-01'),
+      category: 'Housing',
+      merchant: 'Apartment Complex',
       status: 'completed',
     },
-    // Add more mock transactions as needed
   ];
 
   const categories = ['Food', 'Income', 'Transportation', 'Entertainment', 'Bills'];
@@ -114,7 +113,7 @@ const Transactions: React.FC = () => {
     setter(date);
   };
 
-  const filteredTransactions = transactions.filter(transaction => {
+  const filteredTransactions = mockTransactions.filter(transaction => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !category || transaction.category === category;
     const matchesDateRange =
@@ -169,7 +168,7 @@ const Transactions: React.FC = () => {
       }
 
       // Update local state
-      const updatedTransactions = transactions.map(t => {
+      const updatedTransactions = mockTransactions.map(t => {
         if (t.id === transaction.id) {
           return { ...t, [editingCell.field]: value };
         }

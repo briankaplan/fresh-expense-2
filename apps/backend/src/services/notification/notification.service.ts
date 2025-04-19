@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationRepository } from '../database/repositories/notification.repository';
-import { NotificationSchema } from '../database/schemas/notification.schema';
+import { NotificationRepository } from '@/core/database/repositories/notification.repository';
+import { NotificationSchema } from '@/core/database/schemas/notification.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Notification, NotificationDocument } from '../../models/notification.model';
 
 export interface Notification {
   type: 'success' | 'error' | 'info' | 'warning';
@@ -12,6 +15,15 @@ export interface Notification {
   metadata?: Record<string, any>;
 }
 
+interface MatchNotification {
+  receiptId: string;
+  transactionId: string;
+  confidence: number;
+  merchant: string;
+  amount: number;
+  date: Date;
+}
+
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
@@ -19,7 +31,8 @@ export class NotificationService {
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationRepository: NotificationRepository
+    private readonly notificationRepository: NotificationRepository,
+    @InjectModel(Notification.name) private notificationModel: Model<NotificationDocument>
   ) {}
 
   async notify(notification: Omit<Notification, 'timestamp'>): Promise<void> {
@@ -109,7 +122,7 @@ export class NotificationService {
     return this.notificationRepository.createNotification({
       ...data,
       priority: data.priority || 'medium',
-      status: 'unread',
+      status: 'matched',
     });
   }
 
@@ -139,5 +152,43 @@ export class NotificationService {
 
   async getRecentNotifications(userId: string, limit?: number): Promise<NotificationSchema[]> {
     return this.notificationRepository.getRecentNotifications(userId, limit);
+  }
+
+  async sendMatchNotification(userId: string, data: MatchNotification): Promise<void> {
+    try {
+      this.logger.log(`Sending match notification for user ${userId}`);
+
+      const notification = new this.notificationModel({
+        userId,
+        type: 'receipt_match',
+        data,
+        read: false,
+        createdAt: new Date(),
+      });
+
+      await notification.save();
+
+      // TODO: Implement real-time notification delivery (e.g., WebSocket, push notification)
+      this.logger.log(`Match notification created: ${notification._id}`);
+    } catch (error) {
+      this.logger.error('Error sending match notification:', error);
+      throw error;
+    }
+  }
+
+  async getUnreadNotifications(userId: string): Promise<NotificationDocument[]> {
+    return this.notificationModel.find({ userId, read: false }).sort({ createdAt: -1 }).exec();
+  }
+
+  async markAsRead(notificationId: string): Promise<void> {
+    await this.notificationModel
+      .updateOne({ _id: notificationId }, { $set: { read: true } })
+      .exec();
+  }
+
+  async markAllAsRead(userId: string): Promise<void> {
+    await this.notificationModel
+      .updateMany({ userId, read: false }, { $set: { read: true } })
+      .exec();
   }
 }

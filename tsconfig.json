@@ -1,67 +1,39 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    "moduleResolution": "NodeNext",
+    "target": "es2020",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
     "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fresh-expense/types": ["packages/types/src"],
+      "@fresh-expense/types/*": ["packages/types/src/*"],
+      "@fresh-expense/utils": ["packages/utils/src"],
+      "@fresh-expense/utils/*": ["packages/utils/src/*"],
+      "@fresh-expense/hooks": ["packages/hooks/src"],
+      "@fresh-expense/hooks/*": ["packages/hooks/src/*"],
+      "@fresh-expense/ui": ["packages/ui/src"],
+      "@fresh-expense/ui/*": ["packages/ui/src/*"]
+    },
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@packages/utils": [
-        "packages/utils/src"
-      ]
-    },
-    "types": [
-      "vitest/globals",
-      "node",
-      "multer"
-    ],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "sourceMap": true,
-    "declaration": true
+    "emitDecoratorMetadata": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "test/**/*.ts",
-    "test/**/*.tsx"
-  ],
   "exclude": [
-    "node_modules",
-    "dist",
-    "build"
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/twilio.processor.*",
+    "**/twilio.processor.d.ts"
   ],
   "references": [
-    {
-      "path": "./packages/types"
-    },
-    {
-      "path": "./packages/utils"
-    },
-    {
-      "path": "./apps/frontend"
-    },
-    {
-      "path": "./apps/backend"
-    }
+    { "path": "packages/types" },
+    { "path": "packages/utils" },
+    { "path": "packages/hooks" },
+    { "path": "packages/ui" },
+    { "path": "apps/backend", "composite": true },
+    { "path": "apps/frontend", "composite": true }
   ]
 }

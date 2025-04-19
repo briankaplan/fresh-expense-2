@@ -17,20 +17,20 @@ export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  title: string;
+  title!: string;
 
   @ApiProperty({ description: 'Message content of the notification', maxLength: 500 })
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
-  message: string;
+  message!: string;
 
   @ApiProperty({
     description: 'Type of notification',
     enum: ['info', 'warning', 'error', 'success'],
   })
   @IsEnum(['info', 'warning', 'error', 'success'])
-  type: NotificationSchema['type'];
+  type!: NotificationSchema['type'];
 
   @ApiPropertyOptional({
     description: 'Priority level of the notification',

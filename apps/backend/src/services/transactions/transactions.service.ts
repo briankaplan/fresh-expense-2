@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { MongoDBService } from '../database/mongodb.service';
-import { TransactionSchema, TRANSACTION_COLLECTION } from '../database/schemas/transaction.schema';
+import { MongoDBService } from '@/core/database/mongodb.service';
+import {
+  TransactionSchema,
+  TRANSACTION_COLLECTION,
+} from '@/core/database/schemas/transaction.schema';
 
 @Injectable()
 export class TransactionsService {

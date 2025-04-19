@@ -3,26 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { OAuth2Client, Credentials } from 'google-auth-library';
 import { Auth } from 'googleapis';
 
-interface TokenCache {
-  token: string;
-  expiry: number;
-}
-
-interface AccountConfig {
-  clientId: string;
-  clientSecret: string;
-  refreshToken: string;
-  scopes: string[];
-  oAuth2Client: OAuth2Client | null;
-  credentials: {
-    access_token?: string;
-    refresh_token?: string;
-    scope?: string;
-    token_type?: string;
-    expiry_date?: number;
-  } | null;
-}
-
 @Injectable()
 export class TokenManagerService implements OnModuleInit {
   private readonly logger = new Logger(TokenManagerService.name);

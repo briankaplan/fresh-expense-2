@@ -38,14 +38,14 @@ interface Subscription {
   merchant: string;
   amount: number;
   billingCycle: 'monthly' | 'quarterly' | 'annual' | 'custom';
-  nextBillingDate: string;
+  nextBillingDate: Date;
   category: string;
   type: 'business' | 'personal';
   businessEntity?: 'Down Home' | 'Music City Rodeo';
   active: boolean;
   autoRenew: boolean;
-  startDate: string;
-  lastBillingDate?: string;
+  startDate: Date;
+  lastBillingDate?: Date;
 }
 
 interface SubscriptionFormData extends Omit<Subscription, 'id'> {
@@ -58,13 +58,13 @@ const initialFormData: SubscriptionFormData = {
   merchant: '',
   amount: 0,
   billingCycle: 'monthly',
-  nextBillingDate: new Date().toISOString().split('T')[0],
+  nextBillingDate: new Date(),
   category: 'Software',
   type: 'business',
   businessEntity: 'Down Home',
   active: true,
   autoRenew: true,
-  startDate: new Date().toISOString().split('T')[0],
+  startDate: new Date(),
 };
 
 const Subscriptions: React.FC = () => {
@@ -87,14 +87,14 @@ const Subscriptions: React.FC = () => {
         description: 'Design software suite',
         amount: 52.99,
         billingCycle: 'monthly',
-        nextBillingDate: '2025-05-10',
+        nextBillingDate: new Date('2025-05-10'),
         category: 'Software',
         type: 'business',
         businessEntity: 'Down Home',
         active: true,
         autoRenew: true,
-        startDate: '2023-01-15',
-        lastBillingDate: '2025-04-10',
+        startDate: new Date('2023-01-15'),
+        lastBillingDate: new Date('2025-04-10'),
       },
       {
         id: '2',
@@ -102,13 +102,13 @@ const Subscriptions: React.FC = () => {
         merchant: 'Spotify',
         amount: 9.99,
         billingCycle: 'monthly',
-        nextBillingDate: '2025-05-03',
+        nextBillingDate: new Date('2025-05-03'),
         category: 'Entertainment',
         type: 'personal',
         active: true,
         autoRenew: true,
-        startDate: '2022-05-03',
-        lastBillingDate: '2025-04-03',
+        startDate: new Date('2022-05-03'),
+        lastBillingDate: new Date('2025-04-03'),
       },
       {
         id: '3',
@@ -117,14 +117,14 @@ const Subscriptions: React.FC = () => {
         description: 'Email marketing platform',
         amount: 79.99,
         billingCycle: 'monthly',
-        nextBillingDate: '2025-04-21',
+        nextBillingDate: new Date('2025-04-21'),
         category: 'Marketing',
         type: 'business',
         businessEntity: 'Music City Rodeo',
         active: true,
         autoRenew: true,
-        startDate: '2023-10-21',
-        lastBillingDate: '2025-03-21',
+        startDate: new Date('2023-10-21'),
+        lastBillingDate: new Date('2025-03-21'),
       },
     ];
 
@@ -166,7 +166,7 @@ const Subscriptions: React.FC = () => {
 
   // Sort subscriptions by next billing date
   const sortedSubscriptions = [...filteredSubscriptions].sort(
-    (a, b) => new Date(a.nextBillingDate).getTime() - new Date(b.nextBillingDate).getTime()
+    (a, b) => a.nextBillingDate.getTime() - b.nextBillingDate.getTime()
   );
 
   const handleAddSubscription = () => {
@@ -374,7 +374,7 @@ const Subscriptions: React.FC = () => {
                 </TableCell>
                 <TableCell align="right">${subscription.amount.toFixed(2)}</TableCell>
                 <TableCell>{subscription.billingCycle}</TableCell>
-                <TableCell>{new Date(subscription.nextBillingDate).toLocaleDateString()}</TableCell>
+                <TableCell>{subscription.nextBillingDate.toLocaleDateString()}</TableCell>
                 <TableCell>
                   <Chip
                     label={
@@ -467,8 +467,13 @@ const Subscriptions: React.FC = () => {
                 name="nextBillingDate"
                 type="date"
                 fullWidth
-                value={formData.nextBillingDate}
-                onChange={handleFormChange}
+                value={formData.nextBillingDate.toISOString().split('T')[0]}
+                onChange={e =>
+                  setFormData(prev => ({
+                    ...prev,
+                    nextBillingDate: new Date(e.target.value),
+                  }))
+                }
                 InputLabelProps={{
                   shrink: true,
                 }}

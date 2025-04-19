@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Frontend Performance
+- Use React.memo for pure components
+- Implement useCallback for event handlers
+- Virtualize long lists
+- Optimize bundle size
+- Use code splitting and lazy loading
+- Implement appropriate caching

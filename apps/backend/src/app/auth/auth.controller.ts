@@ -5,15 +5,15 @@ import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from '../users/users.service';
 
-@Controller('auth')
+
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService
   ) {}
 
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
+  
+  
   async login(@Body() loginDto: LoginDto) {
     const { accessToken, refreshToken } = await this.authService.login(loginDto);
     const user = await this.usersService.findByEmail(loginDto.email);
@@ -31,7 +31,7 @@ export class AuthController {
     };
   }
 
-  @Post('register')
+  
   async register(@Body() registerDto: RegisterDto) {
     const { user, accessToken, refreshToken } = await this.authService.register(registerDto);
 
@@ -48,16 +48,16 @@ export class AuthController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('refresh')
+  
+  
   async refreshToken(@Request() req) {
     const { refreshToken } = req.body;
     return this.authService.refreshToken(refreshToken);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
+  
+  
+  
   async logout(@Request() req) {
     const { userId } = req.user;
     await this.authService.logout(userId);

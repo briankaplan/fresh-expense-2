@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Naming Conventions
+- Services: [name].service.ts
+- Controllers: [name].controller.ts
+- DTOs: create-[name].dto.ts, update-[name].dto.ts
+- Schemas: [name].schema.ts
+- Guards: [name].guard.ts
+- Decorators: [name].decorator.ts

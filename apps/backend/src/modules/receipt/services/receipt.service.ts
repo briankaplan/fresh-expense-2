@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Receipt, ReceiptDocument } from '@schemas/receipt.schema';
+import { ReceiptDocument } from '@fresh-expense/types';
 import { ReceiptStorageService } from './receipt-storage.service';
 import { ReceiptProcessorService } from './receipt-processor.service';
 import { ReceiptMatcherService } from './receipt-matcher.service';
@@ -33,7 +33,7 @@ export class ReceiptService {
   private readonly logger = new Logger(ReceiptService.name);
 
   constructor(
-    @InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>,
+    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
     private readonly storageService: ReceiptStorageService,
     private readonly processorService: ReceiptProcessorService,
     private readonly matcherService: ReceiptMatcherService

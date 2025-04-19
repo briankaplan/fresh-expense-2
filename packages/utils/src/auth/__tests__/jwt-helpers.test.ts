@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import {
   generateToken,
   verifyToken,
@@ -19,7 +20,7 @@ describe('JWT Helpers', () => {
 
     it('should throw error if secret is missing', () => {
       expect(() => generateToken({ userId: testUserId }, '', { expiresIn: '1h' })).toThrow(
-        'JWT secret is required'
+        'JWT secret is required',
       );
     });
   });

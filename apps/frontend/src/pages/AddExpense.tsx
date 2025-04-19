@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import ExpenseForm from '../components/ExpenseForm';
+import ExpenseForm from '@/shared/components/ExpenseForm';
 
 const AddExpense: React.FC = () => {
   return (

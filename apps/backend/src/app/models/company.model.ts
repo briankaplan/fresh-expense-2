@@ -1,10 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 
-export type CompanyDocument = Company & Document;
-export type CompanyModel = Model<CompanyDocument>;
 
-@Schema({ timestamps: true })
 export class Company {
   @Prop({
     type: String,

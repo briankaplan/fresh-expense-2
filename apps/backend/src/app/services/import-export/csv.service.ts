@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 const { parse } = require('csv-parse/sync');
 const { stringify } = require('csv-stringify/sync');
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Receipt, ReceiptDocument } from '../../receipts/schemas/receipt.schema';
-import { Transaction, TransactionDocument } from '../../transactions/schemas/transaction.schema';
+import { Model, Document } from 'mongoose';
+import { ReceiptDocument, Receipt, Transaction } from '@fresh-expense/types';
+import { TransactionDocument } from '@fresh-expense/types';
 
 interface CSVExpense {
   merchant: string;
@@ -43,8 +43,8 @@ export class CSVService {
   private readonly logger = new Logger(CSVService.name);
 
   constructor(
-    @InjectModel(Receipt.name) private readonly receiptModel: Model<ReceiptDocument>,
-    @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>
+    @InjectModel('Receipt') private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel('Transaction') private readonly transactionModel: Model<TransactionDocument>
   ) {}
 
   /**
@@ -67,24 +67,19 @@ export class CSVService {
   /**
    * Export receipts to CSV
    */
-  async exportReceipts(receipts: Receipt[]): Promise<string> {
+  async exportReceipts(receipts: ReceiptDocument[]): Promise<string> {
     const data = receipts.map(receipt => ({
       merchant: receipt.merchant,
       amount: receipt.amount,
       date: receipt.date,
       category: receipt.category,
-      imageUrl: receipt.urls?.original,
-      ocrText: receipt.ocrData?.text,
-      items: receipt.items?.map(item => ({
-        description: item.description,
-        amount: item.amount,
-        quantity: item.quantity,
-        price: item.price,
-      })),
+      imageUrl: receipt.fullImageUrl,
+      ocrText: receipt.metadata?.ocrData?.text,
       metadata: {
-        source: receipt.metadata?.source,
-        importDate: receipt.metadata?.importDate,
-        processingStatus: receipt.metadata?.processingStatus,
+        status: receipt.status,
+        matchConfidence: receipt.matchConfidence,
+        createdAt: receipt.createdAt,
+        updatedAt: receipt.updatedAt
       },
     }));
 
@@ -97,8 +92,7 @@ export class CSVService {
         'category',
         'imageUrl',
         'ocrText',
-        'items',
-        'metadata',
+        'metadata'
       ],
     });
   }
@@ -106,10 +100,10 @@ export class CSVService {
   /**
    * Import receipts from CSV
    */
-  async importReceipts(content: string): Promise<Receipt[]> {
+  async importReceipts(content: string): Promise<ReceiptDocument[]> {
     try {
       const expenses = await this.parseCSV<CSVExpense>(content);
-      const receipts: Receipt[] = [];
+      const receipts: ReceiptDocument[] = [];
 
       for (const expense of expenses) {
         const receipt = new this.receiptModel({
@@ -146,24 +140,34 @@ export class CSVService {
   /**
    * Import bank transactions from CSV
    */
-  async importBankTransactions(content: string, userId: string): Promise<Transaction[]> {
+  async importBankTransactions(content: string, userId: string): Promise<TransactionDocument[]> {
     try {
       const csvTransactions = await this.parseCSV<BankTransaction>(content);
-      const transactions: Transaction[] = [];
+      const transactions: TransactionDocument[] = [];
 
       for (const csvTx of csvTransactions) {
         const transaction = new this.transactionModel({
-          userId,
+          accountId: userId,
           date: new Date(csvTx.date),
           description: csvTx.description,
-          amount: parseFloat(csvTx.amount),
-          type: csvTx.type,
-          category: csvTx.category,
-          source: 'CSV_IMPORT',
+          amount: {
+            value: parseFloat(csvTx.amount),
+            currency: 'USD'
+          },
+          category: csvTx.category || 'Uncategorized',
+          merchant: {
+            name: csvTx.description,
+            category: csvTx.category
+          },
+          status: 'COMPLETED',
+          type: csvTx.type?.toUpperCase() || 'DEBIT',
+          source: 'import',
           metadata: {
             importDate: new Date(),
-            source: 'bank_csv',
+            source: 'bank_csv'
           },
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
 
         await transaction.save();
@@ -180,26 +184,35 @@ export class CSVService {
   /**
    * Import Expensify transactions from CSV
    */
-  async importExpensifyTransactions(content: string, userId: string): Promise<Transaction[]> {
+  async importExpensifyTransactions(content: string, userId: string): Promise<TransactionDocument[]> {
     try {
       const csvTransactions = await this.parseCSV<ExpensifyTransaction>(content);
-      const transactions: Transaction[] = [];
+      const transactions: TransactionDocument[] = [];
 
       for (const csvTx of csvTransactions) {
         const transaction = new this.transactionModel({
-          userId,
+          accountId: userId,
           date: new Date(csvTx.date),
           description: csvTx.merchant,
-          amount: parseFloat(csvTx.amount),
-          category: csvTx.category,
+          amount: {
+            value: parseFloat(csvTx.amount),
+            currency: 'USD'
+          },
+          category: csvTx.category || 'Uncategorized',
+          merchant: {
+            name: csvTx.merchant,
+            category: csvTx.category
+          },
+          status: 'COMPLETED',
           type: 'EXPENSE',
-          source: 'EXPENSIFY',
+          source: 'import',
           metadata: {
             expensifyId: csvTx.expenseId,
             reimbursable: csvTx.reimbursable === 'Yes',
-            importDate: new Date(),
-            source: 'expensify_csv',
+            importDate: new Date()
           },
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
 
         await transaction.save();

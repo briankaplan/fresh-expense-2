@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '../config.service';
+import { ConfigService } from '@/core/config.service';
 import { RateLimiterService } from '../rate-limiter.service';
 import { ErrorHandlerService } from '../error-handler.service';
 import { LoggingService } from '../logging.service';
@@ -42,8 +42,8 @@ export class ExtractionService extends BaseAIService {
 
       // Process and structure the response
       const result: ExtractedReceiptInfo = {
-        merchant: '',
-        date: '',
+        merchant: { name: '' },
+        date: new Date(""),
         total: 0,
         items: [],
         confidence: 0,

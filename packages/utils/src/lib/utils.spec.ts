@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { ExpenseCategory } from '@fresh-expense/types';
+
 import {
   formatCurrency,
   formatDate,
@@ -6,7 +8,6 @@ import {
   groupByCategory,
   isValidISODate,
 } from './utils';
-import { ExpenseCategory } from '@expense/types';
 
 describe('Utils', () => {
   describe('formatCurrency', () => {
@@ -39,7 +40,11 @@ describe('Utils', () => {
 
   describe('calculateTotal', () => {
     it('should calculate total of expenses', () => {
-      const expenses = [{ amount: 100 }, { amount: 200 }, { amount: 300 }];
+      const expenses = [
+        { amount: 100 },
+        { amount: 200 },
+        { amount: 300 }
+      ];
       expect(calculateTotal(expenses)).toBe(600);
     });
   });
@@ -47,14 +52,15 @@ describe('Utils', () => {
   describe('groupByCategory', () => {
     it('should group expenses by category', () => {
       const expenses = [
-        { category: 'FOOD', amount: 100 },
-        { category: 'FOOD', amount: 200 },
-        { category: 'TRANSPORT', amount: 300 },
+        { category: ExpenseCategory.FOOD, amount: 100 },
+        { category: ExpenseCategory.TRANSPORTATION, amount: 50 },
+        { category: ExpenseCategory.FOOD, amount: 75 },
       ];
-      expect(groupByCategory(expenses)).toEqual({
-        FOOD: 300,
-        TRANSPORT: 300,
-      });
+
+      const result = groupByCategory(expenses);
+
+      expect(result[ExpenseCategory.FOOD]).toBe(175);
+      expect(result[ExpenseCategory.TRANSPORTATION]).toBe(50);
     });
   });
 

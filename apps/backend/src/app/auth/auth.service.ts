@@ -5,7 +5,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as argon2 from 'argon2';
-import { User, UserDocument } from '../users/schemas/user.schema';
+import { UserDocument } from '@fresh-expense/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Request, Response } from 'express';
 

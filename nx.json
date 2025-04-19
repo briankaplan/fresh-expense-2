@@ -8,7 +8,7 @@
     "packageManager": "pnpm",
     "defaultCollection": "@nx/webpack",
     "analytics": false,
-    "useNxDaemon": true,
+    "useNxDaemon": false,
     "defaultBase": "main"
   },
   "targetDefaults": {

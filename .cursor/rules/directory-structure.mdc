@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Group files by feature or domain
+- Place shared utilities in packages/utils
+- Place shared types in packages/types
+- Keep related files together
+- Limit directory depth to 5 levels or less

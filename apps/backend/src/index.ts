@@ -9,3 +9,5 @@ export * from './dto';
 // Export public API
 export * from './controllers';
 export * from './services';
+
+// App entry point

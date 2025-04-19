@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Naming Conventions
+- Components: PascalCase
+- Hooks: camelCase, start with 'use'
+- Props interfaces: ComponentNameProps
+- Handler functions: handleEventName

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema as MongooseSchema } from 'mongoose';
-import { Receipt, ReceiptDocument } from '../receipts/schemas/receipt.schema';
+import { ReceiptDocument } from '@fresh-expense/types';
 import { OCRService } from '../../services/ocr/ocr.service';
 import { R2Service } from '../../services/r2/r2.service';
 import { GooglePhotosService } from '../services/google-photos.service';
@@ -54,7 +54,7 @@ export class UnifiedReceiptProcessorService {
   private readonly progressMap = new Map<string, ProcessingProgress>();
 
   constructor(
-    @InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>,
+    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
     private readonly googlePhotosService: GooglePhotosService,
@@ -91,7 +91,7 @@ export class UnifiedReceiptProcessorService {
   private updateProgress(source: string, progress: Partial<ProcessingProgress>) {
     const current = this.progressMap.get(source) || {
       source,
-      status: 'initializing',
+      status: 'matched',
       progress: 0,
       total: 1,
     };
@@ -104,7 +104,7 @@ export class UnifiedReceiptProcessorService {
 
   async processReceipt(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     try {
-      this.updateProgress(options.source, { status: 'processing' });
+      this.updateProgress(options.source, { status: 'matched' });
 
       let receipt: ReceiptDocument;
 
@@ -129,7 +129,7 @@ export class UnifiedReceiptProcessorService {
       }
 
       this.updateProgress(options.source, {
-        status: 'completed',
+        status: 'matched',
         progress: 1,
         total: 1,
       });
@@ -138,7 +138,7 @@ export class UnifiedReceiptProcessorService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.updateProgress(options.source, {
-        status: 'error',
+        status: 'matched',
         error: errorMessage,
       });
       throw error;
@@ -158,7 +158,7 @@ export class UnifiedReceiptProcessorService {
         userId: options.userId,
       });
 
-      if (matchedReceipts.length === 0) {
+      if (matchedReceipts.length != null) {
         throw new Error('No matching receipts found in Google Photos');
       }
 

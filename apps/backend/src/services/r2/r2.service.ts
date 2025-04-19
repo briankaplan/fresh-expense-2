@@ -58,16 +58,6 @@ interface ProcessReceiptResult {
   createdAt?: Date;
 }
 
-interface HuggingFaceOCRResult {
-  text: string;
-  confidence: number;
-}
-
-interface HuggingFaceClassificationResult {
-  label: string;
-  score: number;
-}
-
 @Injectable()
 export class R2Service {
   private readonly logger = new Logger(R2Service.name);
@@ -92,10 +82,7 @@ export class R2Service {
     const publicUrl = this.configService.get<string>('R2_PUBLIC_URL');
     const huggingfaceApiKey = this.configService.get<string>('HUGGING_FACE_API_KEY');
 
-    if (
-      !publicUrl ||
-      !huggingfaceApiKey
-    ) {
+    if (!publicUrl || !huggingfaceApiKey) {
       throw new Error('Missing required configuration for R2Service');
     }
 
@@ -107,7 +94,7 @@ export class R2Service {
       maxRequests: 100,
       timeWindow: 60 * 1000, // 1 minute
       backoffStrategy: 'exponential',
-      maxRetries: 3
+      maxRetries: 3,
     });
   }
 
@@ -241,7 +228,9 @@ export class R2Service {
 
       // Fallback to Tesseract if HF fails
       const worker = await createWorker();
-      const { data: { text, confidence } } = await worker.recognize(imageBuffer);
+      const {
+        data: { text, confidence },
+      } = await worker.recognize(imageBuffer);
       await worker.terminate();
 
       const parsedData = this.parseLines(text);
@@ -268,7 +257,7 @@ export class R2Service {
       status: 'processed',
       createdAt: new Date(),
       updatedAt: new Date(),
-      metadata: {}
+      metadata: {},
     };
 
     return data;

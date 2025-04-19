@@ -1,15 +1,13 @@
 import api from './api';
+import { ApiError, User, AuthResponse } from '@fresh-expense/types';
 
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+export interface RegisterData extends LoginCredentials {
+  name: string;
 }
 
 export interface AuthResponse {
@@ -21,6 +19,15 @@ export interface AuthResponse {
     role: string;
   };
   token: string;
+  refreshToken: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -28,95 +35,90 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      return data;
+      const response = await api.post<AuthResponse>('/auth/login', credentials);
+      return response.data;
     } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Login failed');
     }
   },
 
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Registration failed');
-      }
-
-      const responseData = await response.json();
-      localStorage.setItem('token', responseData.token);
-      return responseData;
+      const response = await api.post<AuthResponse>('/auth/register', data);
+      return response.data;
     } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Registration failed');
     }
   },
 
-  async logout() {
-    localStorage.removeItem('token');
-  },
-
-  async getCurrentUser() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No token found');
-    }
-
+  async logout(): Promise<void> {
     try {
-      const response = await fetch(`${API_URL}/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get current user');
-      }
-
-      return await response.json();
+      await api.post('/auth/logout');
     } catch (error) {
-      console.error('Get current user error:', error);
-      throw error;
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
     }
   },
 
-  async refreshToken(refreshToken: string) {
-    const response = await api.post('/auth/refresh', { refreshToken });
-    return response.data;
+  async getCurrentUser(): Promise<User> {
+    try {
+      const response = await api.get<User>('/auth/me');
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Failed to get current user');
+    }
   },
 
-  async updatePassword(currentPassword: string, newPassword: string) {
-    const response = await api.patch('/auth/password', {
-      currentPassword,
-      newPassword,
-    });
-    return response.data;
+  async refreshToken(): Promise<{ token: string; refreshToken: string }> {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token found');
+      }
+
+      const response = await api.post<{ token: string; refreshToken: string }>('/auth/refresh', {
+        refreshToken,
+      });
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Failed to refresh token');
+    }
+  },
+
+  async updatePassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      await api.patch('/auth/password', {
+        currentPassword,
+        newPassword,
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Failed to update password');
+    }
   },
 
   async forgotPassword(email: string): Promise<void> {
-    await api.post('/auth/forgot-password', { email });
+    try {
+      await api.post('/auth/forgot-password', { email });
+    } catch (error) {
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Failed to send password reset email');
+    }
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      await api.post('/auth/reset-password', { token, newPassword });
+    } catch (error) {
+      const apiError = error as ApiError;
+      throw new Error(apiError.message || 'Failed to reset password');
+    }
   },
 };
 

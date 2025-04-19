@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { z } from 'zod';
-import { validateRequest } from '../middleware/validateRequest';
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db';
+import { z } from 'zod';
+
+import { getDb } from '@/core/database';
+import { validateRequest } from '@/shared/middleware/validateRequest';
 
 const router = Router();
 
@@ -26,7 +27,7 @@ const bulkImportSchema = z.object({
       category: z.string(),
       status: z.string().optional(),
       type: z.enum(['income', 'expense']),
-    })
+    }),
   ),
 });
 
@@ -52,7 +53,7 @@ router.patch('/:id', validateRequest({ body: transactionUpdateSchema }), async (
     const result = await collection.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: updateData },
-      { returnDocument: 'after' }
+      { returnDocument: 'after' },
     );
 
     if (!result.value) {

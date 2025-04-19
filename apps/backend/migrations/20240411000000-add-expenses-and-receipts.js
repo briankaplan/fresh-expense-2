@@ -1,3 +1,5 @@
+const { CATEGORY_METADATA } = require('@fresh-expense/types');
+
 module.exports = {
   async up(db) {
     // Create collections if they don't exist
@@ -160,19 +162,13 @@ module.exports = {
     await db.collection('tags').createIndexes([{ key: { userId: 1, name: 1 }, unique: true }]);
 
     // Insert default categories
-    const defaultCategories = [
-      { name: 'Food & Dining', type: 'expense', icon: '🍽️', color: '#FF5733', isSystem: true },
-      { name: 'Transportation', type: 'expense', icon: '🚗', color: '#33FF57', isSystem: true },
-      { name: 'Shopping', type: 'expense', icon: '🛍️', color: '#3357FF', isSystem: true },
-      { name: 'Bills & Utilities', type: 'expense', icon: '📱', color: '#FF33F6', isSystem: true },
-      { name: 'Entertainment', type: 'expense', icon: '🎬', color: '#33FFF6', isSystem: true },
-      { name: 'Travel', type: 'expense', icon: '✈️', color: '#F6FF33', isSystem: true },
-      { name: 'Healthcare', type: 'expense', icon: '🏥', color: '#FF3333', isSystem: true },
-      { name: 'Education', type: 'expense', icon: '📚', color: '#33FFB5', isSystem: true },
-      { name: 'Business', type: 'expense', icon: '💼', color: '#B533FF', isSystem: true },
-      { name: 'Other', type: 'expense', icon: '📌', color: '#808080', isSystem: true },
-    ].map(cat => ({
-      ...cat,
+    const defaultCategories = Object.entries(CATEGORY_METADATA).map(([type, metadata]) => ({
+      type,
+      name: metadata.name,
+      icon: metadata.icon,
+      color: metadata.color,
+      description: metadata.description,
+      isSystem: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     }));

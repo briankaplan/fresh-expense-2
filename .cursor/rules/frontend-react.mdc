@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+// 4. Frontend React Rules (frontend-react.mdc)
+```
+---
+description: React development standards
+globs: apps/frontend/src/**/*.tsx
+---

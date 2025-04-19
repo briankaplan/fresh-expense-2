@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { useUIStore } from '../store';
+import api from './api';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -16,7 +15,7 @@ interface HealthStatus {
 class HealthService {
   private static instance: HealthService;
   private checkInterval: number = 30000; // 30 seconds
-  private intervalId?: NodeJS.Timeout;
+  private intervalId?: ReturnType<typeof setInterval>;
 
   private constructor() {
     // Private constructor for singleton
@@ -31,7 +30,7 @@ class HealthService {
 
   public async checkHealth(): Promise<HealthStatus> {
     try {
-      const response = await axios.get<HealthStatus>(`${import.meta.env.VITE_API_URL}/api/health`);
+      const response = await api.get<HealthStatus>('/api/health');
       return response.data;
     } catch (error) {
       console.error('Health check failed:', error);
@@ -62,10 +61,7 @@ class HealthService {
   }
 
   private async performHealthCheck() {
-    const setIsLoading = useUIStore.getState().setIsLoading;
-
     try {
-      setIsLoading(true);
       const health = await this.checkHealth();
 
       if (health.status !== 'healthy') {
@@ -75,8 +71,6 @@ class HealthService {
     } catch (error) {
       toast.error('Unable to connect to the server');
       console.error('Health check error:', error);
-    } finally {
-      setIsLoading(false);
     }
   }
 }

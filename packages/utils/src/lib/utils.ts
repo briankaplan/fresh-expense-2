@@ -1,5 +1,4 @@
-// Define the ExpenseCategory type locally to avoid dependency issues
-export type ExpenseCategory = 'FOOD' | 'TRANSPORT' | 'SHOPPING' | 'ENTERTAINMENT' | 'OTHER';
+import { ExpenseCategory } from '@fresh-expense/types';
 
 /**
  * Formats a number as currency
@@ -32,7 +31,7 @@ export function formatDate(dateString: string): string {
 
 /**
  * Calculates the total amount for a list of expenses
- * @param expenses Array of expenses
+ * @param expenses Array of expenses with amounts
  * @returns Total amount
  */
 export function calculateTotal(expenses: { amount: number }[]): number {
@@ -40,20 +39,49 @@ export function calculateTotal(expenses: { amount: number }[]): number {
 }
 
 /**
- * Groups expenses by category
- * @param expenses Array of expenses
- * @returns Object with expenses grouped by category
+ * Groups expenses by category and returns total amount per category
+ * @param expenses Array of expenses with category and amount
+ * @returns Object with expenses grouped by category name with total amounts
  */
 export function groupByCategory(
-  expenses: { category: ExpenseCategory; amount: number }[]
+  expenses: { category: ExpenseCategory; amount: number }[],
 ): Record<ExpenseCategory, number> {
   return expenses.reduce(
     (groups, expense) => {
-      const category = expense.category;
-      groups[category] = (groups[category] || 0) + expense.amount;
+      groups[expense.category] = (groups[expense.category] || 0) + expense.amount;
       return groups;
     },
-    {} as Record<ExpenseCategory, number>
+    {} as Record<ExpenseCategory, number>,
+  );
+}
+
+/**
+ * Groups expenses by category with full category information
+ * @param expenses Array of expenses with category and amount
+ * @param categories Array of available expense categories
+ * @returns Object with expenses grouped by category ID with category details and total amounts
+ */
+export function groupByCategoryWithDetails(
+  expenses: { categoryId: string; amount: number }[],
+  categories: { id: string; name: string; icon: string }[],
+): Record<string, { category: { id: string; name: string; icon: string }; total: number }> {
+  const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+
+  return expenses.reduce(
+    (groups, expense) => {
+      const category = categoryMap.get(expense.categoryId);
+      if (!category) return groups;
+
+      if (!groups[expense.categoryId]) {
+        groups[expense.categoryId] = {
+          category,
+          total: 0,
+        };
+      }
+      groups[expense.categoryId].total += expense.amount;
+      return groups;
+    },
+    {} as Record<string, { category: { id: string; name: string; icon: string }; total: number }>,
   );
 }
 
@@ -74,4 +102,13 @@ export function isValidISODate(dateString: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Validates if a category is a valid expense category
+ * @param category The category to validate
+ * @returns boolean indicating if the category is valid
+ */
+export function isValidExpenseCategory(category: string): category is ExpenseCategory {
+  return Object.values(ExpenseCategory).includes(category as ExpenseCategory);
 }

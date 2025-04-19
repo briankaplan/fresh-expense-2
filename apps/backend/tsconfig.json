@@ -1,30 +1,12 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "strict": true,
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "strictBindCallApply": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@fresh-expense/shared": ["../../libs/shared/src"],
-      "@fresh-expense/types": ["../../libs/types/src"],
-      "@packages/utils": ["../../packages/utils/src"]
-    }
+    "noEmit": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "include": ["src/**/*"]
 }

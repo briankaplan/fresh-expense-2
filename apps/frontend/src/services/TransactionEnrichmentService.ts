@@ -1,4 +1,4 @@
-import { Transaction } from '../types/models';
+import { TellerAccount, TellerTransaction, Transaction } from '@fresh-expense/types';
 import {
   AIProcessedData,
   updateTransactionWithAI,
@@ -6,7 +6,7 @@ import {
   TransactionCategory,
   TRANSACTION_CATEGORIES,
   CategoryResult,
-} from '../types/teller';
+} from '@/shared/types/teller';
 
 interface CachedMerchantData {
   category: CategoryResult;

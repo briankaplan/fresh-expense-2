@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MongoDBService } from '../database/mongodb.service';
-import { TransactionSchema, TRANSACTION_COLLECTION } from '../database/schemas/transaction.schema';
-import { ExpenseSchema, EXPENSE_COLLECTION } from '../database/schemas/expense.schema';
-import { BaseSchema } from '../database/schemas/base.schema';
+import { MongoDBService } from '@/core/database/mongodb.service';
+import {
+  TransactionSchema,
+  TRANSACTION_COLLECTION,
+} from '@/core/database/schemas/transaction.schema';
+import { ExpenseSchema, EXPENSE_COLLECTION } from '@/core/database/schemas/expense.schema';
+import { BaseSchema } from '@/core/database/schemas/base.schema';
 import { Collection } from 'mongodb';
 
 @Injectable()

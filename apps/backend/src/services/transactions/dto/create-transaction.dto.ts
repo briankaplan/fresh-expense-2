@@ -6,22 +6,22 @@ export class CreateTransactionDto {
   @ApiProperty({ description: 'Amount of the transaction' })
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  amount!: number;
 
   @ApiProperty({ description: 'Description of the transaction' })
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @ApiProperty({ description: 'Date of the transaction' })
   @IsDate()
   @IsNotEmpty()
-  date: Date;
+  date!: Date;
 
   @ApiProperty({ description: 'Category of the transaction' })
   @IsString()
   @IsNotEmpty()
-  category: string;
+  category!: string;
 
   @ApiPropertyOptional({ description: 'Type of transaction', enum: ['income', 'expense'] })
   @IsEnum(['income', 'expense'])

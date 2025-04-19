@@ -8,12 +8,12 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { TellerService, TellerAccount } from '../services/teller/teller.service';
+import { TellerService, TellerAccount, TellerQuery } from '../services/teller/teller.service';
 import { TellerSyncTask } from '../tasks/teller-sync.task';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
-@Controller('api/teller')
-@UseGuards(JwtAuthGuard)
+
+
 export class TellerController {
   private readonly logger = new Logger(TellerController.name);
 
@@ -22,7 +22,7 @@ export class TellerController {
     private readonly tellerSyncTask: TellerSyncTask
   ) {}
 
-  @Get('accounts')
+  
   async getAccounts(): Promise<TellerAccount[]> {
     try {
       return await this.tellerService.getAccounts();
@@ -31,7 +31,7 @@ export class TellerController {
     }
   }
 
-  @Post('sync')
+  
   async syncTransactions() {
     try {
       return await this.tellerSyncTask.manualSync();
@@ -40,7 +40,7 @@ export class TellerController {
     }
   }
 
-  @Post('sync/historical')
+  
   async syncHistoricalTransactions() {
     try {
       this.logger.log('Starting historical transaction sync from January 2024');
@@ -54,42 +54,28 @@ export class TellerController {
     }
   }
 
-  @Get('transactions')
+  
   async getTransactions(
     @Query('accountId') accountId?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('limit') limit = '100',
-    @Query('offset') offset = '0',
-    @Query('minAmount') minAmount?: string,
-    @Query('maxAmount') maxAmount?: string,
-    @Query('category') category?: string
+    @Query('offset') offset = '0'
   ) {
     try {
-      const query: any = {};
-
-      if (accountId) {
-        query.accountId = accountId;
+      if (!accountId) {
+        throw new HttpException('Account ID is required', HttpStatus.BAD_REQUEST);
       }
 
-      if (startDate || endDate) {
-        query.date = {};
-        if (startDate) query.date.$gte = new Date(startDate);
-        if (endDate) query.date.$lte = new Date(endDate);
-      }
-
-      if (minAmount || maxAmount) {
-        query.amount = {};
-        if (minAmount) query.amount.$gte = parseFloat(minAmount);
-        if (maxAmount) query.amount.$lte = parseFloat(maxAmount);
-      }
-
-      if (category) {
-        query.category = category;
-      }
+      const query: TellerQuery = {
+        from: startDate,
+        to: endDate,
+        count: parseInt(limit),
+        offset: parseInt(offset),
+      };
 
       const [transactions, total] = await Promise.all([
-        this.tellerService.getTransactions(query, parseInt(limit), parseInt(offset)),
+        this.tellerService.getTransactions(accountId, query),
         this.tellerService.countTransactions(query),
       ]);
 
@@ -100,6 +86,9 @@ export class TellerController {
         offset: parseInt(offset),
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException('Failed to fetch transactions', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

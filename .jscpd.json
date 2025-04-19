@@ -1,15 +1,7 @@
 {
   "threshold": 0,
-  "reporters": [
-    "console",
-    "json",
-    "html"
-  ],
-  "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**"
-  ],
+  "reporters": ["console", "json", "html"],
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**"],
   "ignore": [
     "**/.git/**",
     "**/coverage/**",
@@ -29,8 +21,5 @@
   "min-lines": 5,
   "min-tokens": 50,
   "blame": true,
-  "format": [
-    "typescript",
-    "javascript"
-  ]
+  "format": ["typescript", "javascript"]
 }

@@ -1,115 +1,86 @@
-# @packages/utils
+# Fresh Expense Utils
 
-Shared utilities for the expense application. This package provides a collection of reusable functions and utilities for handling common tasks across the application.
+Shared utilities for the Fresh Expense application.
+
+## Features
+
+- Common utility functions and helpers
+- Shared constants and configurations
+- Type definitions and interfaces
+- Error handling utilities
+- Validation helpers
+- Date and time utilities
+- String manipulation functions
+- Number formatting utilities
 
 ## Installation
 
 ```bash
-pnpm add @packages/utils
+pnpm add @fresh-expense/utils
 ```
-
-## Features
-
-### String Comparison
-
-- `normalizeText`: Normalize text for comparison
-- `calculateLevenshteinDistance`: Calculate edit distance between strings
-- `calculateLevenshteinSimilarity`: Calculate similarity ratio between strings
-- `calculateJaccardSimilarity`: Calculate Jaccard similarity between texts
-
-### Receipt Matching
-
-- `calculateMerchantMatchScore`: Calculate similarity between merchant names
-- `calculateAmountMatchScore`: Compare transaction amounts
-- `calculateDateMatchScore`: Compare transaction dates
-- `findBestReceiptMatch`: Find the best matching receipt for a transaction
-
-### Image Processing
-
-- `convertPdfToImages`: Convert PDF files to images
-- `optimizeImage`: Optimize images with various options
-- `generateThumbnail`: Create thumbnails from images
-- `extractImageMetadata`: Extract metadata from images
-
-### Cloudflare R2
-
-- `createR2Client`: Create an S3 client for Cloudflare R2
-- `getSignedDownloadUrl`: Generate signed URLs for downloading
-- `getSignedUploadUrl`: Generate signed URLs for uploading
-- `getPublicUrl`: Get public URLs for R2 objects
-- `generateStorageKey`: Generate unique storage keys
-
-### Merchant Analysis
-
-- Category Utils:
-
-  - `isValidCategory`: Check if a category is valid
-  - `normalizeCategory`: Normalize category strings
-  - `getCategoryDisplayName`: Get display names for categories
-
-- Subscription Detection:
-
-  - `detectSubscription`: Detect subscription patterns
-  - `calculateFrequency`: Calculate transaction frequency
-
-- Transaction Analysis:
-  - `analyzeTransactions`: Analyze transaction patterns
-  - `determineCategory`: Determine dominant category
 
 ## Usage
 
 ```typescript
-import {
-  normalizeText,
-  calculateLevenshteinSimilarity,
-  detectSubscription,
-  analyzeTransactions,
-  convertPdfToImages,
-  createR2Client,
-} from '@packages/utils';
+import { formatCurrency, parseDate } from '@fresh-expense/utils';
 
-// String comparison
-const similarity = calculateLevenshteinSimilarity('text1', 'text2');
+// Format currency
+const formattedAmount = formatCurrency(1234.56); // "$1,234.56"
 
-// Subscription detection
-const subscription = detectSubscription(transactions);
-
-// Transaction analysis
-const analysis = analyzeTransactions(transactions);
-
-// Image processing
-const images = await convertPdfToImages(pdfBuffer, {
-  width: 1200,
-  quality: 80,
-});
-
-// R2 storage
-const r2Client = createR2Client({
-  accountId: 'your-account-id',
-  accessKeyId: 'your-access-key',
-  secretAccessKey: 'your-secret-key',
-  bucket: 'your-bucket',
-});
+// Parse date
+const date = parseDate('2024-03-15'); // Date object
 ```
 
 ## Development
 
+### Setup
+
+1. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Build the package:
+   ```bash
+   pnpm build
+   ```
+
+### Testing
+
+Run tests:
+
 ```bash
-# Install dependencies
-pnpm install
-
-# Build the package
-pnpm build
-
-# Run tests
 pnpm test
+```
 
-# Type check
-pnpm typecheck
+Run tests with coverage:
 
-# Lint
+```bash
+pnpm test:cov
+```
+
+### Linting
+
+Run linter:
+
+```bash
 pnpm lint
 ```
+
+Fix linting issues:
+
+```bash
+pnpm lint:fix
+```
+
+## Contributing
+
+1. Create a new branch for your feature
+2. Make your changes
+3. Add tests for new functionality
+4. Run tests and ensure they pass
+5. Submit a pull request
 
 ## License
 

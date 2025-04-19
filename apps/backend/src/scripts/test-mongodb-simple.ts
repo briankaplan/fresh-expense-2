@@ -40,7 +40,7 @@ async function testMongoDB() {
     const testDoc = {
       message: 'Test document',
       timestamp: new Date(),
-      status: 'active',
+      status: 'matched',
     };
     const insertResult = await testCollection.insertOne(testDoc);
     console.log('✅ Document insert successful:', insertResult.insertedId);
@@ -52,7 +52,7 @@ async function testMongoDB() {
     // Test update
     const updateResult = await testCollection.updateOne(
       { _id: insertResult.insertedId },
-      { $set: { status: 'updated' } }
+      { $set: { status: 'matched' } }
     );
     console.log('✅ Document update successful:', updateResult.modifiedCount);
 

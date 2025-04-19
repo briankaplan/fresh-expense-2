@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { GoogleService } from '../services/google.service';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '@/modules/auth/auth.guard';
 
-@Controller('google')
-@UseGuards(AuthGuard)
+
+
 export class GoogleController {
   constructor(private readonly googleService: GoogleService) {}
 
-  @Get('auth-url')
+  
   async getAuthUrl(@Query('email') email: string) {
     try {
       const url = await this.googleService.getAuthUrl(email);
@@ -17,7 +17,7 @@ export class GoogleController {
     }
   }
 
-  @Post('auth-callback')
+  
   async handleAuthCallback(@Body('email') email: string, @Body('code') code: string) {
     try {
       const tokens = await this.googleService.handleAuthCallback(email, code);
@@ -27,7 +27,7 @@ export class GoogleController {
     }
   }
 
-  @Get('receipts')
+  
   async searchReceipts(@Query('email') email: string, @Query('query') query: string) {
     try {
       const messages = await this.googleService.searchGmailReceipts(email, query);
@@ -37,7 +37,7 @@ export class GoogleController {
     }
   }
 
-  @Get('photos')
+  
   async searchPhotos(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
     try {
       const photos = await this.googleService.searchPhotos(new Date(startDate), new Date(endDate));

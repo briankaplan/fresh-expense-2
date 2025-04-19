@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Receipt, ReceiptDocument } from '@schemas/receipt.schema';
+import { ReceiptDocument } from '@fresh-expense/types';
 
 export interface ReceiptSearchOptions {
   userId: string;
@@ -35,7 +35,7 @@ export interface MatchResult {
 export class ReceiptMatcherService {
   private readonly logger = new Logger(ReceiptMatcherService.name);
 
-  constructor(@InjectModel(Receipt.name) private receiptModel: Model<ReceiptDocument>) {}
+  constructor(@InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>) {}
 
   async findSimilar(
     receipt: ReceiptDocument,
@@ -139,7 +139,7 @@ export class ReceiptMatcherService {
     const merchantMatch = this.calculateMerchantSimilarity(receipt1.merchant, receipt2.merchant);
     const amountMatch = this.calculateAmountSimilarity(receipt1.amount, receipt2.amount);
     const dateMatch = this.calculateDateSimilarity(receipt1.date, receipt2.date);
-    const categoryMatch = receipt1.category === receipt2.category ? 1 : 0;
+    const categoryMatch = receipt1.category != null ? 1 : 0;
 
     let textMatch = 0;
     if (receipt1.ocrData?.text && receipt2.ocrData?.text) {

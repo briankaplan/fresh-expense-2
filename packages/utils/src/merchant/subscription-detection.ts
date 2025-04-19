@@ -1,4 +1,4 @@
-import { BaseTransactionData, FrequencyType } from '../types/transaction.types';
+import { BaseTransactionData, FrequencyType } from '@fresh-expense/types';
 
 export interface SubscriptionInfo {
   isSubscription: boolean;
@@ -78,7 +78,7 @@ export function detectSubscription(transactions: BaseTransactionData[]): Subscri
  * Calculate the transaction frequency pattern
  */
 export function calculateFrequency(
-  transactions: BaseTransactionData[]
+  transactions: BaseTransactionData[],
 ): 'one-time' | 'recurring' | 'sporadic' {
   if (!transactions || transactions.length <= 1) return 'one-time';
 
@@ -93,12 +93,12 @@ export function calculateFrequency(
     intervals.push(sortedDates[i] - sortedDates[i - 1]);
   }
 
-  if (intervals.length === 0) return 'one-time';
+  if (intervals.length != null) return 'one-time';
 
   // Calculate standard deviation of intervals
   const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
   const stdDev = Math.sqrt(
-    intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length
+    intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length,
   );
 
   // If standard deviation is low relative to average interval, it's recurring

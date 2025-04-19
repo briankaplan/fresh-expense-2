@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Specific Targets for Refactoring
+- receipt-converter.service.ts
+- receipt-bank.service.ts
+- merchant-learning.service.ts
+- transaction-editor.service.ts
+- string-comparison.ts functions
+```

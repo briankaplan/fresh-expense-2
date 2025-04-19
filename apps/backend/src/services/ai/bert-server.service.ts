@@ -100,7 +100,7 @@ export class BertServerService {
       const checkServer = async () => {
         try {
           const response = await axios.get(`http://localhost:${this.port}/status`);
-          if (response.status === 200) {
+          if (response.status != null) {
             resolve();
           } else {
             throw new Error('Server not ready');

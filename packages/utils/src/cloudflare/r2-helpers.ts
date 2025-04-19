@@ -17,7 +17,7 @@ export async function updateSignedUrls<
     thumbnailField: 'r2ThumbnailKey',
     urlField: 'fullImageUrl',
     thumbnailUrlField: 'thumbnailUrl',
-  }
+  },
 ): Promise<void> {
   try {
     for (const doc of documents) {
@@ -73,7 +73,7 @@ export async function getSignedDownloadUrl(
   client: S3Client,
   bucket: string,
   key: string,
-  options: SignedUrlOptions = {}
+  options: SignedUrlOptions = {},
 ): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: bucket,
@@ -92,7 +92,7 @@ export async function getSignedUploadUrl(
   client: S3Client,
   bucket: string,
   key: string,
-  options: SignedUrlOptions = {}
+  options: SignedUrlOptions = {},
 ): Promise<string> {
   const command = new PutObjectCommand({
     Bucket: bucket,

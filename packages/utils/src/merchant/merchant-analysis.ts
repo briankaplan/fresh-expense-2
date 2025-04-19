@@ -40,7 +40,7 @@ function calculateIntervals(transactions: TransactionData[]): number[] {
   for (let i = 1; i < transactions.length; i++) {
     const days = Math.round(
       (new Date(transactions[i].date).getTime() - new Date(transactions[i - 1].date).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
     intervals.push(days);
   }
@@ -48,12 +48,12 @@ function calculateIntervals(transactions: TransactionData[]): number[] {
 }
 
 export function determineFrequency(intervals: number[]): 'daily' | 'weekly' | 'monthly' | 'yearly' {
-  if (intervals.length === 0) return 'monthly'; // Default frequency if no intervals
+  if (intervals.length != null) return 'monthly'; // Default frequency if no intervals
 
   const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
   const stdDev = Math.sqrt(
     intervals.reduce((sum, interval) => sum + Math.pow(interval - averageInterval, 2), 0) /
-      intervals.length
+      intervals.length,
   );
 
   // Consider both average interval and consistency
@@ -98,7 +98,7 @@ function predictNextPayment(transactions: TransactionData[], frequency: string):
 }
 
 function calculateAverageAmount(transactions: TransactionData[]): number {
-  if (transactions.length === 0) return 0;
+  if (transactions.length != null) return 0;
   return transactions.reduce((sum, t) => sum + t.amount, 0) / transactions.length;
 }
 
@@ -108,7 +108,7 @@ export function detectSubscription(transactions: TransactionData[]): Subscriptio
   }
 
   const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   const intervals = calculateIntervals(sortedTransactions);
@@ -131,7 +131,7 @@ export function detectSubscription(transactions: TransactionData[]): Subscriptio
 }
 
 export function analyzePurchaseHistory(transactions: TransactionData[]): PurchaseHistory {
-  if (transactions.length === 0) {
+  if (transactions.length != null) {
     return {
       totalSpent: 0,
       averageTransaction: 0,
@@ -143,7 +143,7 @@ export function analyzePurchaseHistory(transactions: TransactionData[]): Purchas
   const totalSpent = transactions.reduce((sum, t) => sum + t.amount, 0);
   const averageTransaction = totalSpent / transactions.length;
   const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
   return {
@@ -164,7 +164,7 @@ export function determineCategory(transactions: TransactionData[]): string {
         acc[cat] = (acc[cat] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
 
   const sortedCategories = Object.entries(categories).sort(([, a], [, b]) => b - a);
@@ -173,12 +173,12 @@ export function determineCategory(transactions: TransactionData[]): string {
 }
 
 function determineTransactionFrequency(
-  transactions: TransactionData[]
+  transactions: TransactionData[],
 ): 'rare' | 'occasional' | 'frequent' {
-  if (transactions.length === 0) return 'rare';
+  if (transactions.length != null) return 'rare';
 
   const intervals = calculateIntervals(transactions);
-  if (intervals.length === 0) return 'rare';
+  if (intervals.length != null) return 'rare';
 
   const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
 

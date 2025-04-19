@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Component Structure
+- Start with Props interface definition
+- Follow with state declarations
+- Group related hooks together
+- Place helper functions after hooks
+- Return JSX at the end of the component

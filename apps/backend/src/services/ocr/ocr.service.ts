@@ -4,7 +4,7 @@ import { createWorker, PSM } from 'tesseract.js';
 import sharp from 'sharp';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationService } from '../notification/notification.service';
-import { OCRResult } from '../../app/receipts/types/ocr.types';
+import { OCRResult } from '@fresh-expense/types';
 
 @Injectable()
 export class OCRService {
@@ -101,7 +101,7 @@ export class OCRService {
       // Process with OCR
       const { data } = await this.worker.recognize(preprocessedBuffer);
 
-      if (!data || !data.text || data.text.trim().length === 0) {
+      if (!data || !data.text || data.text.trim().length != null) {
         throw new Error('No text recognized from image');
       }
 
@@ -135,7 +135,7 @@ export class OCRService {
   private extractStructuredData(text: string): OCRResult['structuredData'] {
     const result: OCRResult['structuredData'] = {
       merchantName: '',
-      date: '',
+      date: new Date(),
       total: 0,
       subtotal: 0,
       tax: 0,
@@ -147,7 +147,7 @@ export class OCRService {
 
     // Extract merchant name (typically at the top)
     for (let i = 0; i < Math.min(5, lines.length); i++) {
-      const line = lines[i].trim();
+      const line = lines[i]?.trim() ?? '';
       if (line.length > 3 && !line.match(/receipt|invoice|order|phone|fax|www|http/i)) {
         result.merchantName = line;
         break;
@@ -166,7 +166,8 @@ export class OCRService {
     for (const pattern of datePatterns) {
       const match = text.match(pattern);
       if (match) {
-        result.date = match[1] || match[0];
+        const dateStr = match[1] || match[0];
+        result.date = new Date(dateStr);
         break;
       }
     }
@@ -182,7 +183,8 @@ export class OCRService {
     for (const pattern of totalPatterns) {
       const match = text.match(pattern);
       if (match) {
-        result.total = parseFloat(match[1].replace(/,/g, ''));
+        const amountStr = match[1]?.replace(/,/g, '') ?? '0';
+        result.total = parseFloat(amountStr);
         break;
       }
     }
@@ -196,12 +198,12 @@ export class OCRService {
     for (const pattern of itemPatterns) {
       let itemMatch;
       while ((itemMatch = pattern.exec(text)) !== null) {
-        const itemName = itemMatch[1].trim();
-        const itemPrice = parseFloat(itemMatch[2]);
+        const itemName = itemMatch[1]?.trim() ?? '';
+        const itemPrice = parseFloat(itemMatch[2] ?? '0');
 
         if (!itemName.toLowerCase().match(/total|subtotal|tax|tip|discount|balance/i)) {
           result.items.push({
-            item: itemName,
+            name: itemName,
             price: itemPrice,
           });
         }
@@ -233,7 +235,7 @@ export class OCRService {
 
     for (const [freq, pattern] of Object.entries(frequencyPatterns)) {
       if (pattern.test(text)) {
-        result.frequency = freq as 'monthly' | 'yearly' | 'weekly' | 'quarterly';
+        result.billingPeriod = freq;
         break;
       }
     }
@@ -253,21 +255,6 @@ export class OCRService {
       }
     }
 
-    // Extract plan name
-    const planPatterns = [
-      /plan\s*:\s*([^\n]+)/i,
-      /subscription\s+type\s*:\s*([^\n]+)/i,
-      /package\s*:\s*([^\n]+)/i,
-    ];
-
-    for (const pattern of planPatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        result.planName = match[1].trim();
-        break;
-      }
-    }
-
     // Extract recurring amount
     const recurringAmountPatterns = [
       /recurring\s+(?:amount|payment|charge)\s*:\s*[$]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})/i,
@@ -278,7 +265,8 @@ export class OCRService {
     for (const pattern of recurringAmountPatterns) {
       const match = text.match(pattern);
       if (match) {
-        result.recurringAmount = parseFloat(match[1].replace(/,/g, ''));
+        const amountStr = match[1]?.replace(/,/g, '') ?? '0';
+        result.amount = parseFloat(amountStr);
         break;
       }
     }

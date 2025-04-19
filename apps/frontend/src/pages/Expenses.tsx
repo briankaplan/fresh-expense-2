@@ -20,11 +20,11 @@ import {
   Collapse,
   ClickAwayListener,
   InputAdornment,
+  Checkbox,
 } from '@mui/material';
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Receipt as ReceiptIcon,
   FilterList as FilterListIcon,
   Search as SearchIcon,
   Add as AddIcon,
@@ -36,10 +36,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useTheme } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
-import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { CsvUploader } from '../components/CsvUploader';
+import { CsvUploader } from '@/shared/components/CsvUploader';
+import { BulkActions } from '@/components/BulkActions';
+import ExpenseService from '@/services/expense.service';
 
 interface Expense {
   id: string;
@@ -97,8 +97,9 @@ export const Expenses: React.FC = () => {
   const [editValue, setEditValue] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amountRange, setAmountRange] = useState({ min: '', max: '' });
+  const [selectedExpenses, setSelectedExpenses] = useState<Expense[]>([]);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const expenseService = ExpenseService.getInstance();
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -326,6 +327,104 @@ export const Expenses: React.FC = () => {
     setAmountRange(prev => ({ ...prev, max: value }));
   };
 
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setSelectedExpenses(filteredExpenses);
+    } else {
+      setSelectedExpenses([]);
+    }
+  };
+
+  const handleSelectExpense = (expense: Expense) => {
+    setSelectedExpenses(prev => {
+      const isSelected = prev.some(e => e.id === expense.id);
+      if (isSelected) {
+        return prev.filter(e => e.id !== expense.id);
+      } else {
+        return [...prev, expense];
+      }
+    });
+  };
+
+  const handleBulkDelete = async (expenseIds: string[]) => {
+    try {
+      await expenseService.bulkDeleteExpenses(expenseIds);
+      setSelectedExpenses([]);
+      // Refresh the expenses list
+      const response = await expenseService.getExpenses({
+        page: page,
+        limit: rowsPerPage,
+        ...{
+          searchTerm,
+          selectedCategory,
+          selectedCompany,
+          dateRange: {
+            start: dateRange.start,
+            end: dateRange.end,
+          },
+          amountRange: {
+            min: amountRange.min,
+            max: amountRange.max,
+          },
+        },
+      });
+      setExpenses(response.items);
+    } catch (error) {
+      console.error('Error deleting expenses:', error);
+      // TODO: Show error toast
+    }
+  };
+
+  const handleBulkEdit = async (expenseIds: string[]) => {
+    try {
+      // TODO: Open bulk edit dialog
+      const updates = {
+        // Get updates from dialog
+      };
+      const updatedExpenses = await expenseService.bulkUpdateExpenses(expenseIds, updates);
+      setSelectedExpenses([]);
+      // Update the expenses list with the new data
+      setExpenses(prev =>
+        prev.map(expense => {
+          const updated = updatedExpenses.find(e => e.id === expense.id);
+          return updated || expense;
+        })
+      );
+    } catch (error) {
+      console.error('Error updating expenses:', error);
+      // TODO: Show error toast
+    }
+  };
+
+  const handleBulkLabel = async (expenseIds: string[], label: string) => {
+    try {
+      const updatedExpenses = await expenseService.bulkAddLabel(expenseIds, label);
+      setSelectedExpenses([]);
+      // Update the expenses list with the new data
+      setExpenses(prev =>
+        prev.map(expense => {
+          const updated = updatedExpenses.find(e => e.id === expense.id);
+          return updated || expense;
+        })
+      );
+    } catch (error) {
+      console.error('Error labeling expenses:', error);
+      // TODO: Show error toast
+    }
+  };
+
+  const handleBulkShare = async (expenseIds: string[]) => {
+    try {
+      const { shareUrl } = await expenseService.bulkShareExpenses(expenseIds);
+      // TODO: Show share dialog with URL
+      console.log('Share URL:', shareUrl);
+      setSelectedExpenses([]);
+    } catch (error) {
+      console.error('Error sharing expenses:', error);
+      // TODO: Show error toast
+    }
+  };
+
   return (
     <Box>
       <Box
@@ -347,6 +446,15 @@ export const Expenses: React.FC = () => {
             width: { xs: '100%', sm: 'auto' },
           }}
         >
+          {selectedExpenses.length > 0 && (
+            <BulkActions
+              selectedExpenses={selectedExpenses}
+              onDelete={handleBulkDelete}
+              onEdit={handleBulkEdit}
+              onLabel={handleBulkLabel}
+              onShare={handleBulkShare}
+            />
+          )}
           <Button
             fullWidth={isMobile}
             variant="outlined"
@@ -484,6 +592,15 @@ export const Expenses: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={selectedExpenses.length === filteredExpenses.length}
+                  indeterminate={
+                    selectedExpenses.length > 0 && selectedExpenses.length < filteredExpenses.length
+                  }
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Merchant</TableCell>
               {!isMobile && <TableCell>Description</TableCell>}
@@ -498,14 +615,17 @@ export const Expenses: React.FC = () => {
             {filteredExpenses
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map(expense => (
-                <motion.tr
+                <TableRow
                   key={expense.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    delay: page * rowsPerPage + filteredExpenses.indexOf(expense) * 0.05,
-                  }}
+                  hover
+                  selected={selectedExpenses.some(e => e.id === expense.id)}
                 >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={selectedExpenses.some(e => e.id === expense.id)}
+                      onChange={() => handleSelectExpense(expense)}
+                    />
+                  </TableCell>
                   <TableCell>
                     <EditableContent expense={expense} field="date" />
                   </TableCell>
@@ -586,7 +706,7 @@ export const Expenses: React.FC = () => {
                       </Tooltip>
                     </Box>
                   </TableCell>
-                </motion.tr>
+                </TableRow>
               ))}
           </TableBody>
         </Table>

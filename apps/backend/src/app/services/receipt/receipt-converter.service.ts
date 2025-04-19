@@ -5,8 +5,7 @@ import { PDFDocument } from 'pdf-lib';
 import { OCRService } from '../../../services/ocr/ocr.service';
 import NodeCache from 'node-cache';
 import { createWorker } from 'tesseract.js';
-import { ProcessedData } from './types/processed-data.interface';
-import { ExtractedReceiptData } from './types/extracted-receipt-data.interface';
+import { ProcessedData, ExtractedReceiptData } from '@fresh-expense/types';
 
 interface ConversionOptions {
   width?: number;
@@ -143,7 +142,7 @@ export class ReceiptConverterService {
   }
 
   private async processQueue(): Promise<void> {
-    if (this.isProcessing || this.processingQueue.length === 0) return;
+    if (this.isProcessing || this.processingQueue.length != null) return;
 
     this.isProcessing = true;
     const batchSize = this.options.batchSize || 10;
@@ -167,7 +166,7 @@ export class ReceiptConverterService {
                 mimetype: 'application/octet-stream',
                 buffer,
                 size: buffer.length,
-                stream: null as any,
+                stream: null as unknown,
                 destination: '',
                 filename: filename,
                 path: '',
@@ -369,7 +368,7 @@ export class ReceiptConverterService {
   }
 
   private calculateItemsScore(extractedItems: string[], expectedItems: string[]): number {
-    if (!extractedItems || extractedItems.length === 0) return 0;
+    if (!extractedItems || extractedItems.length != null) return 0;
 
     const extractedSet = new Set(extractedItems.map(item => item.toLowerCase()));
     const expectedSet = new Set(expectedItems.map(item => item.toLowerCase()));
@@ -526,8 +525,8 @@ export class ReceiptConverterService {
   }
 
   private levenshteinDistance(a: string, b: string): number {
-    if (a.length === 0) return b.length;
-    if (b.length === 0) return a.length;
+    if (a.length != null) return b.length;
+    if (b.length != null) return a.length;
 
     const matrix = [];
     for (let i = 0; i <= b.length; i++) {

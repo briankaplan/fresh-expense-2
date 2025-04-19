@@ -1,78 +1,45 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Box,
-  Button,
-  Card,
-  CardContent,
-  TextField,
+  Container,
   Typography,
+  TextField,
+  Button,
+  Paper,
   InputAdornment,
   IconButton,
-  Divider,
+  Alert,
+  Fade,
 } from '@mui/material';
+import {
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
+import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Link as MuiLink } from '@mui/material';
-import { Email, Lock, Visibility, VisibilityOff, Google } from '@mui/icons-material';
-import { loginSchema } from '../utils/validationSchemas';
-import { useUIStore } from '../store';
-import { apiClient } from '../services/api';
-import { AuthResponse } from '../types/api.types';
-import { toast } from 'react-hot-toast';
 
-interface LoginFormInputs {
-  email: string;
-  password: string;
-}
-
-const Login = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const setIsLoading = useUIStore(state => state.setIsLoading);
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/dashboard';
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormInputs>({
-    resolver: yupResolver(loginSchema),
-    mode: 'onBlur',
-  });
-
-  const onSubmit = async (data: LoginFormInputs) => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.post<AuthResponse>('/auth/login', data);
-
-      // Store tokens
-      localStorage.setItem(import.meta.env.VITE_JWT_STORAGE_KEY, response.data.token);
-      localStorage.setItem(import.meta.env.VITE_REFRESH_TOKEN_KEY, response.data.refreshToken);
-
-      toast.success('Welcome back!');
-      navigate('/dashboard');
-    } catch (error) {
-      // Error handling is managed by the API client
-      console.error('Login failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    if (!import.meta.env.VITE_ENABLE_GOOGLE_AUTH) {
-      toast.error('Google authentication is not enabled');
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
 
     try {
-      setIsLoading(true);
-      window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
-    } catch (error) {
-      toast.error('Failed to initialize Google login');
-    } finally {
-      setIsLoading(false);
+      await login(email, password);
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError('Invalid email or password');
     }
   };
 
@@ -82,42 +49,33 @@ const Login = () => {
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-        background: theme => theme.palette.background.default,
-        backgroundImage: theme => `
-          radial-gradient(at 50% 0%, ${theme.palette.primary.dark}29 0%, transparent 50%),
-          radial-gradient(at 100% 0%, ${theme.palette.secondary.dark}29 0%, transparent 50%)
-        `,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: 400 }}
-      >
-        <Card
-          sx={{
-            width: '100%',
-            background: 'rgba(26, 27, 30, 0.7)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: 3,
-            border: theme => `1px solid ${theme.palette.divider}`,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-          }}
+      <Container maxWidth="sm">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <CardContent sx={{ p: 4 }}>
+          <Paper
+            elevation={24}
+            sx={{
+              p: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              borderRadius: 2,
+              background: 'rgba(255, 255, 255, 0.95)',
+            }}
+          >
             <Typography
-              variant="h4"
               component="h1"
-              gutterBottom
-              align="center"
+              variant="h4"
               sx={{
-                fontWeight: 700,
                 mb: 3,
-                background: theme =>
-                  `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                fontWeight: 'bold',
+                background: 'linear-gradient(45deg, #667eea, #764ba2)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -125,36 +83,51 @@ const Login = () => {
               Welcome Back
             </Typography>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            {error && (
+              <Fade in={!!error}>
+                <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+                  {error}
+                </Alert>
+              </Fade>
+            )}
+
+            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
               <TextField
+                margin="normal"
+                required
                 fullWidth
+                id="email"
                 label="Email Address"
-                type="email"
-                {...register('email')}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                sx={{ mb: 3 }}
+                name="email"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Email color="primary" />
+                      <EmailIcon color="primary" />
                     </InputAdornment>
                   ),
                 }}
+                sx={{ mb: 2 }}
               />
 
               <TextField
+                margin="normal"
+                required
                 fullWidth
+                name="password"
                 label="Password"
                 type={showPassword ? 'text' : 'password'}
-                {...register('password')}
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                sx={{ mb: 3 }}
+                id="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock color="primary" />
+                      <LockIcon color="primary" />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -165,76 +138,55 @@ const Login = () => {
                     </InputAdornment>
                   ),
                 }}
+                sx={{ mb: 2 }}
               />
 
               <Button
-                fullWidth
                 type="submit"
+                fullWidth
                 variant="contained"
-                disabled={isSubmitting}
                 sx={{
-                  py: 1.5,
+                  mt: 3,
                   mb: 2,
-                  background: theme =>
-                    `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                  py: 1.5,
+                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
                   '&:hover': {
-                    background: theme =>
-                      `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
+                    background: 'linear-gradient(45deg, #764ba2, #667eea)',
                   },
                 }}
               >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
+                Sign In
               </Button>
 
-              {import.meta.env.VITE_ENABLE_GOOGLE_AUTH && (
-                <>
-                  <Divider sx={{ my: 2 }}>OR</Divider>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    onClick={handleGoogleLogin}
-                    startIcon={<Google />}
-                    sx={{ mb: 2 }}
-                  >
-                    Continue with Google
-                  </Button>
-                </>
-              )}
-
               <Box sx={{ textAlign: 'center' }}>
-                <MuiLink
-                  component={RouterLink}
+                <Link
                   to="/forgot-password"
-                  sx={{
-                    color: 'primary.main',
+                  style={{
                     textDecoration: 'none',
-                    '&:hover': { textDecoration: 'underline' },
+                    color: '#667eea',
+                    fontSize: '0.875rem',
                   }}
                 >
-                  Forgot Password?
-                </MuiLink>
+                  Forgot password?
+                </Link>
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                  Don't have an account?{' '}
+                  <Link
+                    to="/register"
+                    style={{
+                      textDecoration: 'none',
+                      color: '#667eea',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Sign up
+                  </Link>
+                </Typography>
               </Box>
-
-              <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Don't have an account?{' '}
-                <MuiLink
-                  component={RouterLink}
-                  to="/register"
-                  sx={{
-                    color: 'primary.main',
-                    textDecoration: 'none',
-                    '&:hover': { textDecoration: 'underline' },
-                  }}
-                >
-                  Sign Up
-                </MuiLink>
-              </Typography>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
+            </Box>
+          </Paper>
+        </motion.div>
+      </Container>
     </Box>
   );
-};
-
-export default Login;
+}

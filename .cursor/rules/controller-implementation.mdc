@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Controller Implementation
+- Keep controllers thin and focused
+- Delegate business logic to services
+- Use DTOs for request/response data
+- Implement input validation with class-validator
+- Use proper exception filters
+- Document API endpoints with OpenAPI decorators
+```

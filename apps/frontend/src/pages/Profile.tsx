@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import AnimatedWrapper from '../components/AnimatedWrapper';
+import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();

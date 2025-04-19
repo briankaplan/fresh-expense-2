@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '../config.service';
+import { ConfigService } from '@/core/config.service';
 import { RateLimiterService } from '../rate-limiter.service';
 import { ErrorHandlerService } from '../error-handler.service';
 import { LoggingService } from '../logging.service';

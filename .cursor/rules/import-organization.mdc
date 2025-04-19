@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Import Organization
+- Group imports by source:
+  1. Node.js/third-party modules
+  2. Application-specific modules
+  3. Relative imports
+  4. Type imports
+- Maintain consistent import style
+```

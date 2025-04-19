@@ -22,7 +22,7 @@ export interface ThumbnailOptions {
  */
 export async function convertPdfToImages(
   pdfBuffer: Buffer,
-  options: ImageProcessingOptions = {}
+  options: ImageProcessingOptions = {},
 ): Promise<Buffer[]> {
   try {
     const pages = await pdfImgConvert.convert(pdfBuffer, {
@@ -50,7 +50,7 @@ export async function convertPdfToImages(
  */
 export async function optimizeImage(
   imageBuffer: Buffer,
-  options: ImageProcessingOptions = {}
+  options: ImageProcessingOptions = {},
 ): Promise<Buffer> {
   try {
     const image = sharp(imageBuffer);
@@ -89,7 +89,7 @@ export async function optimizeImage(
  */
 export async function generateThumbnail(
   imageBuffer: Buffer,
-  options: ThumbnailOptions
+  options: ThumbnailOptions,
 ): Promise<Buffer> {
   try {
     return sharp(imageBuffer)

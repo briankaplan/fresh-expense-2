@@ -5,8 +5,7 @@ import { MemoryBankService } from '../memory-bank.service';
 import { OCRService } from '../../../services/ocr/ocr.service';
 import { R2Service } from '../../../services/r2/r2.service';
 import { ReceiptConverterService } from '../receipt/receipt-converter.service';
-import { Receipt, ReceiptDocument } from '../../receipts/schemas/receipt.schema';
-import { Merchant } from '../../schemas/merchant.schema';
+import { ReceiptDocument, Merchant } from '@fresh-expense/types';
 import { MerchantLearningService } from '../merchant/merchant-learning.service';
 import * as puppeteer from 'puppeteer';
 
@@ -85,7 +84,7 @@ export class ReceiptBankService {
     private readonly r2Service: R2Service,
     private readonly receiptConverter: ReceiptConverterService,
     private readonly merchantLearning: MerchantLearningService,
-    @InjectModel(Receipt.name) private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel('Receipt') private readonly receiptModel: Model<ReceiptDocument>,
     @InjectModel(Merchant.name) private readonly merchantModel: Model<Merchant>
   ) {}
 

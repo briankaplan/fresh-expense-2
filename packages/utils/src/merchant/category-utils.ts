@@ -1,56 +1,132 @@
-import { TransactionCategory } from '../types/transaction.types';
+import { ExpenseCategory } from '@fresh-expense/types';
 
-export const TRANSACTION_CATEGORIES = {
-  FOOD_AND_DINING: 'Food & Dining',
-  GROCERIES: 'Groceries',
-  SHOPPING: 'Shopping',
-  ENTERTAINMENT: 'Entertainment',
-  TRAVEL: 'Travel',
-  TRANSPORTATION: 'Transportation',
-  UTILITIES: 'Utilities',
-  HOUSING: 'Housing',
-  HEALTHCARE: 'Healthcare',
-  INSURANCE: 'Insurance',
-  PERSONAL_CARE: 'Personal Care',
-  EDUCATION: 'Education',
-  GIFTS_AND_DONATIONS: 'Gifts & Donations',
-  BUSINESS_SERVICES: 'Business Services',
-  TAXES: 'Taxes',
-  INVESTMENTS: 'Investments',
-  INCOME: 'Income',
-  TRANSFER: 'Transfer',
-  FEES_AND_CHARGES: 'Fees & Charges',
-  OTHER: 'Other',
-} as const;
+interface CategoryMetadata {
+  name: string;
+  icon: string;
+  color: string;
+  description: string;
+}
 
-export const VALID_CATEGORIES = new Set(Object.keys(TRANSACTION_CATEGORIES));
+const CATEGORY_METADATA: Record<ExpenseCategory, CategoryMetadata> = {
+  [ExpenseCategory.FOOD]: {
+    name: 'Food & Dining',
+    icon: '🍽️',
+    color: '#FF6B6B',
+    description: 'Restaurants, cafes, and dining out',
+  },
+  [ExpenseCategory.GROCERIES]: {
+    name: 'Groceries',
+    icon: '🛒',
+    color: '#4ECDC4',
+    description: 'Grocery stores and supermarkets',
+  },
+  [ExpenseCategory.TRANSPORTATION]: {
+    name: 'Transportation',
+    icon: '🚗',
+    color: '#45B7D1',
+    description: 'Public transit, ride-sharing, and fuel',
+  },
+  [ExpenseCategory.HOUSING]: {
+    name: 'Housing',
+    icon: '🏠',
+    color: '#96CEB4',
+    description: 'Rent, mortgage, and home maintenance',
+  },
+  [ExpenseCategory.UTILITIES]: {
+    name: 'Utilities',
+    icon: '💡',
+    color: '#FFAD60',
+    description: 'Electricity, water, gas, and internet',
+  },
+  [ExpenseCategory.ENTERTAINMENT]: {
+    name: 'Entertainment',
+    icon: '🎬',
+    color: '#FF9999',
+    description: 'Movies, games, and streaming services',
+  },
+  [ExpenseCategory.SHOPPING]: {
+    name: 'Shopping',
+    icon: '🛍️',
+    color: '#FFB5E8',
+    description: 'Retail purchases and online shopping',
+  },
+  [ExpenseCategory.HEALTH]: {
+    name: 'Health',
+    icon: '🏥',
+    color: '#7FB3D5',
+    description: 'Medical expenses and healthcare',
+  },
+  [ExpenseCategory.OTHER]: {
+    name: 'Other',
+    icon: '📝',
+    color: '#95A5A6',
+    description: 'Miscellaneous expenses',
+  },
+};
 
 /**
- * Check if a category is valid
+ * Get the display name for a category
  */
-export function isValidCategory(category: string): category is TransactionCategory {
-  return Object.keys(TRANSACTION_CATEGORIES).includes(category);
+export function getCategoryDisplayName(category: ExpenseCategory): string {
+  return CATEGORY_METADATA[category].name;
 }
 
 /**
- * Normalize a category string to a valid transaction category
+ * Get the icon for a category
  */
-export function normalizeCategory(category: string): TransactionCategory {
-  const normalized = category.toUpperCase().replace(/[^A-Z_]/g, '_');
-  return isValidCategory(normalized) ? (normalized as TransactionCategory) : 'OTHER';
+export function getCategoryIcon(category: ExpenseCategory): string {
+  return CATEGORY_METADATA[category].icon;
 }
 
 /**
- * Get the display name for a transaction category
+ * Get the color for a category
  */
-export function getCategoryDisplayName(category: TransactionCategory): string {
-  return TRANSACTION_CATEGORIES[category];
+export function getCategoryColor(category: ExpenseCategory): string {
+  return CATEGORY_METADATA[category].color;
 }
 
 /**
- * Get a category from its display name
+ * Get the description for a category
  */
-export function getCategoryFromDisplayName(displayName: string): TransactionCategory {
-  const entry = Object.entries(TRANSACTION_CATEGORIES).find(([_, value]) => value === displayName);
-  return entry ? (entry[0] as TransactionCategory) : 'OTHER';
+export function getCategoryDescription(category: ExpenseCategory): string {
+  return CATEGORY_METADATA[category].description;
+}
+
+/**
+ * Get all category metadata
+ */
+export function getAllCategories(): Array<{ type: ExpenseCategory } & CategoryMetadata> {
+  return Object.entries(CATEGORY_METADATA).map(([type, metadata]) => ({
+    type: type as ExpenseCategory,
+    ...metadata,
+  }));
+}
+
+/**
+ * Suggest a category based on merchant name and description
+ */
+export function suggestCategory(merchantName: string, description?: string): ExpenseCategory {
+  const text = `${merchantName} ${description || ''}`.toLowerCase();
+
+  // Define keyword mappings
+  const categoryKeywords: Record<ExpenseCategory, string[]> = {
+    [ExpenseCategory.FOOD]: ['restaurant', 'cafe', 'food', 'dining', 'meal', 'takeout', 'delivery'],
+    [ExpenseCategory.GROCERIES]: ['grocery', 'supermarket', 'market', 'food store'],
+    [ExpenseCategory.TRANSPORTATION]: ['uber', 'lyft', 'taxi', 'transit', 'gas', 'parking', 'train', 'bus'],
+    [ExpenseCategory.HOUSING]: ['rent', 'mortgage', 'home', 'apartment', 'housing', 'maintenance'],
+    [ExpenseCategory.UTILITIES]: ['electric', 'water', 'gas', 'internet', 'phone', 'utility'],
+    [ExpenseCategory.ENTERTAINMENT]: ['movie', 'game', 'entertainment', 'streaming', 'spotify', 'netflix'],
+    [ExpenseCategory.SHOPPING]: ['store', 'shop', 'retail', 'amazon', 'walmart', 'target'],
+    [ExpenseCategory.HEALTH]: ['medical', 'doctor', 'pharmacy', 'health', 'dental', 'hospital'],
+    [ExpenseCategory.OTHER]: [],
+  };
+
+  // Find matching category based on keywords
+  for (const [category, keywords] of Object.entries(categoryKeywords)) {
+    if (keywords.some(keyword => text.includes(keyword))) {
+      return category as ExpenseCategory;
+    }
+  }
+
+  return ExpenseCategory.OTHER;
 }

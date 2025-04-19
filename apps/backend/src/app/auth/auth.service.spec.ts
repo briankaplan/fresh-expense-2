@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { User } from '../users/schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { User } from '@fresh-expense/types';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -69,7 +69,7 @@ describe('AuthService', () => {
       };
 
       vi.spyOn(userModel, 'findOne').mockResolvedValue(null);
-      vi.spyOn(userModel, 'create').mockResolvedValue(mockUser as any);
+      vi.spyOn(userModel, 'create').mockResolvedValue(mockUser as unknown);
 
       const result = await service.register(registerDto);
 
@@ -93,7 +93,7 @@ describe('AuthService', () => {
         save: vi.fn().mockResolvedValue(true),
       };
 
-      vi.spyOn(userModel, 'findOne').mockResolvedValue(mockUser as any);
+      vi.spyOn(userModel, 'findOne').mockResolvedValue(mockUser as unknown);
 
       const result = await service.login(loginDto);
 

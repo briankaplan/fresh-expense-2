@@ -1,22 +1,32 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { TransactionCategory, FrequencyType } from '@packages/utils';
+import { BaseDocument } from '@fresh-expense/types';
+import { TransactionCategory, FrequencyType } from '@fresh-expense/types';
 
 export type MerchantDocument = Merchant & Document;
 
 @Schema({ timestamps: true })
-export class Merchant {
+export class Merchant implements BaseDocument {
+  _id!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
+  deletedAt?: Date;
+  isDeleted!: boolean;
+
   @Prop({ required: true })
   name!: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, ref: 'TransactionCategory' })
   category?: TransactionCategory;
+
+  @Prop({ type: [String], default: [] })
+  aliases!: string[];
+
+  @Prop({ type: Object })
+  metadata?: Record<string, any>;
 
   @Prop({ type: [String] })
   tags?: string[];
-
-  @Prop({ type: [String] })
-  aliases?: string[];
 
   @Prop({
     type: {
@@ -98,6 +108,10 @@ export class Merchant {
     lastUpdated: Date;
     confidence: number;
   };
+
+  constructor(partial: Partial<Merchant>) {
+    Object.assign(this, partial);
+  }
 }
 
 export const MerchantSchema = SchemaFactory.createForClass(Merchant);

@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ Fresh Expense Coding Standards
+
+- Follow TypeScript best practices throughout the codebase
+- Use proper error handling with try/catch blocks
+- Implement comprehensive logging
+- Write self-documenting code with clear variable names
+- Comment complex logic and business rules
+- Keep functions focused on a single responsibility
+- Avoid duplicated code and logic
+- All features should have corresponding documentation and tests

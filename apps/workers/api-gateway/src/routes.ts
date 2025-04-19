@@ -1,12 +1,13 @@
 import { Router } from 'itty-router';
-import { Env, AuthContext } from './types';
+
+import { handleExpenses } from './handlers/expenses';
+import { handleFiles } from './handlers/files';
+import { handleHealth } from './handlers/health';
+import { handleWebhooks } from './handlers/webhooks';
 import { handleAuth } from './middleware/auth';
 import { handleCors } from './middleware/cors';
 import { handleError } from './middleware/error';
-import { handleHealth } from './handlers/health';
-import { handleExpenses } from './handlers/expenses';
-import { handleFiles } from './handlers/files';
-import { handleWebhooks } from './handlers/webhooks';
+import { Env, AuthContext } from './types';
 
 export const router = Router();
 

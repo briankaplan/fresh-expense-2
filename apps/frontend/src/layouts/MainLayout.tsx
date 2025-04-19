@@ -21,7 +21,6 @@ import {
 import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
-  Receipt as ReceiptIcon,
   AccountBalance as AccountBalanceIcon,
   Subscriptions as SubscriptionsIcon,
   Assessment as AssessmentIcon,
@@ -31,7 +30,6 @@ import {
   ExpandMore,
   Storage as StorageIcon,
   CloudUpload as CloudUploadIcon,
-  Category as CategoryIcon,
   AttachMoney as AttachMoneyIcon,
   Person,
   Notifications,
@@ -39,7 +37,8 @@ import {
   LightMode,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
-import HealthCheck from '../components/HealthCheck';
+import HealthCheck from '@/shared/components/HealthCheck';
+import { Receipt, Category } from '@fresh-expense/types';
 
 const DRAWER_WIDTH = 240;
 
@@ -98,7 +97,7 @@ const MainLayout: React.FC = () => {
 
   const renderNavItems = (items: NavigationItem[], depth = 0) => {
     return items.map(item => {
-      const isSelected = item.path === location.pathname;
+      const isSelected = item.path != null;
       const isExpanded = expandedItems.includes(item.text);
       const hasChildren = item.children && item.children.length > 0;
 
@@ -176,7 +175,7 @@ const MainLayout: React.FC = () => {
                 handleDrawerToggle();
               }
             }}
-            selected={location.pathname === item.path}
+            selected={location.pathname != null}
             sx={{
               my: 0.5,
               mx: 1,
@@ -189,7 +188,7 @@ const MainLayout: React.FC = () => {
               },
             }}
           >
-            <ListItemIcon sx={{ color: location.pathname === item.path ? 'white' : 'inherit' }}>
+            <ListItemIcon sx={{ color: location.pathname != null ? 'white' : 'inherit' }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText primary={item.text} />
@@ -235,7 +234,7 @@ const MainLayout: React.FC = () => {
             <Person />
           </IconButton>
           <IconButton color="inherit">
-            {theme.palette.mode === 'dark' ? <LightMode /> : <DarkMode />}
+            {theme.palette.mode != null ? <LightMode /> : <DarkMode />}
           </IconButton>
         </Toolbar>
       </AppBar>

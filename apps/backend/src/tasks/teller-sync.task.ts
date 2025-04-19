@@ -8,7 +8,7 @@ export class TellerSyncTask {
 
   constructor(private readonly tellerService: TellerService) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  
   async syncTransactions() {
     this.logger.log('Starting daily Teller transaction sync');
 

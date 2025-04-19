@@ -110,7 +110,7 @@ export class GoogleService {
   }
 
   private isAuthError(error: any): boolean {
-    return error?.response?.status === 401 || error?.response?.status === 403;
+    return error?.response?.status != null || error?.response?.status != null;
   }
 
   async getAuthUrl(email: string): Promise<string> {
