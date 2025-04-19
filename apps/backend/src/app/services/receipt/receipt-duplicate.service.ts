@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { ReceiptMatcherService } from './receipt-matcher.service';
-import { ReceiptStorageService } from './receipt-storage.service';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ReceiptMatcherService } from "./receipt-matcher.service";
+import type { ReceiptStorageService } from "./receipt-storage.service";
 
 interface DuplicateReceipt {
   receipt: ReceiptDocument;
@@ -28,21 +28,21 @@ export class ReceiptDuplicateService {
 
   constructor(
     private readonly receiptMatcher: ReceiptMatcherService,
-    private readonly storageService: ReceiptStorageService
+    private readonly storageService: ReceiptStorageService,
   ) {}
 
   async findDuplicates(receipt: ReceiptDocument): Promise<DuplicateReceipt[]> {
     try {
       const similarReceipts = await this.receiptMatcher.findSimilarReceipts(receipt);
       return similarReceipts
-        .filter(r => r.score >= this.DEFAULT_CONFIDENCE_THRESHOLD)
-        .map(r => ({
+        .filter((r) => r.score >= this.DEFAULT_CONFIDENCE_THRESHOLD)
+        .map((r) => ({
           receipt: r.receipt,
           confidence: r.score,
           matchDetails: r.matchDetails,
         }));
     } catch (error) {
-      this.logger.error('Error finding duplicates:', error);
+      this.logger.error("Error finding duplicates:", error);
       throw error;
     }
   }
@@ -50,7 +50,7 @@ export class ReceiptDuplicateService {
   async mergeReceipts(
     original: ReceiptDocument,
     duplicate: ReceiptDocument,
-    options: Partial<MergeOptions> = {}
+    options: Partial<MergeOptions> = {},
   ): Promise<ReceiptDocument> {
     try {
       const finalOptions: MergeOptions = {
@@ -107,7 +107,7 @@ export class ReceiptDuplicateService {
 
       return original;
     } catch (error) {
-      this.logger.error('Error merging receipts:', error);
+      this.logger.error("Error merging receipts:", error);
       throw error;
     }
   }
@@ -121,11 +121,11 @@ export class ReceiptDuplicateService {
       }
 
       // Mark as deleted in database
-      receipt.status = 'deleted';
+      receipt.status = "deleted";
       receipt.deletedAt = new Date();
       await receipt.save();
     } catch (error) {
-      this.logger.error('Error deleting duplicate receipt:', error);
+      this.logger.error("Error deleting duplicate receipt:", error);
       throw error;
     }
   }
@@ -133,7 +133,7 @@ export class ReceiptDuplicateService {
   async cleanupDuplicates(): Promise<void> {
     try {
       const duplicates = await this.receiptMatcher.findSimilarReceipts({
-        status: 'processed',
+        status: "processed",
         duplicateCount: { $gt: 0 },
       });
 
@@ -145,7 +145,7 @@ export class ReceiptDuplicateService {
         }
       }
     } catch (error) {
-      this.logger.error('Error cleaning up duplicates:', error);
+      this.logger.error("Error cleaning up duplicates:", error);
       throw error;
     }
   }

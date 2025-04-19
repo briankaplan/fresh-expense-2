@@ -1,7 +1,7 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { Box, Typography, Paper } from '@mui/material';
-import ExpenseForm from '@/shared/components/ExpenseForm';
+import ExpenseForm from "@/shared/components/ExpenseForm";
+import { Box, Paper, Typography } from "@mui/material";
+import type React from "react";
+import { useParams } from "react-router-dom";
 
 const EditExpense: React.FC = () => {
   const { id } = useParams<{ id: string }>();

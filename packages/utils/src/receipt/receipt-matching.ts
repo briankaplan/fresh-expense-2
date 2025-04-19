@@ -1,5 +1,5 @@
-import { calculateStringSimilarity, normalizeText } from '../string/string-comparison';
-import { BaseTransactionData } from '@fresh-expense/types';
+import type { BaseTransactionData } from "@fresh-expense/types";
+import { calculateStringSimilarity, normalizeText } from "../string/string-comparison";
 
 export interface ReceiptMatchScore {
   score: number;
@@ -80,10 +80,10 @@ export function calculateReceiptMatchScore(
 ): ReceiptMatchScore {
   const merchantScore = calculateMerchantMatchScore(
     receipt.merchantName,
-    transaction.merchant.name || '',
+    transaction.merchant.name || "",
   );
 
-  const receiptAmount = typeof receipt.amount === 'number' ? receipt.amount : receipt.amount.value;
+  const receiptAmount = typeof receipt.amount === "number" ? receipt.amount : receipt.amount.value;
   const amountScore = calculateAmountMatchScore(receiptAmount, transaction.amount.value);
 
   const dateScore = calculateDateMatchScore(receipt.date, transaction.date);

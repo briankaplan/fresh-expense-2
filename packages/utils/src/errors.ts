@@ -4,7 +4,7 @@
 export class AppError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'AppError';
+    this.name = "AppError";
   }
 }
 
@@ -12,9 +12,12 @@ export class AppError extends Error {
  * Error class for validation errors
  */
 export class ValidationError extends AppError {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string,
+  ) {
     super(message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
   }
 }
 
@@ -25,10 +28,10 @@ export class ApiError extends AppError {
   constructor(
     message: string,
     public statusCode: number,
-    public code?: string
+    public code?: string,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
@@ -36,9 +39,12 @@ export class ApiError extends AppError {
  * Error class for database errors
  */
 export class DatabaseError extends AppError {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string,
+  ) {
     super(message);
-    this.name = 'DatabaseError';
+    this.name = "DatabaseError";
   }
 }
 
@@ -46,8 +52,11 @@ export class DatabaseError extends AppError {
  * Error class for file system errors
  */
 export class FileSystemError extends AppError {
-  constructor(message: string, public path?: string) {
+  constructor(
+    message: string,
+    public path?: string,
+  ) {
     super(message);
-    this.name = 'FileSystemError';
+    this.name = "FileSystemError";
   }
-} 
+}

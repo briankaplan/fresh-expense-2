@@ -1,45 +1,46 @@
-import React, { useState, useMemo } from 'react';
+import { BulkActions } from "@/components/BulkActions";
+import ExpenseService from "@/services/expense.service";
+import { CsvUploader } from "@/shared/components/CsvUploader";
+import {
+  AutoFixHigh as AIIcon,
+  Add as AddIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  FilterList as FilterListIcon,
+  Save as SaveIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import {
   Box,
+  Button,
+  Checkbox,
+  Chip,
+  ClickAwayListener,
+  Collapse,
+  Grid,
+  IconButton,
+  InputAdornment,
+  MenuItem,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
-  Chip,
-  IconButton,
-  Typography,
+  TableRow,
   TextField,
-  MenuItem,
-  Grid,
-  Button,
   Tooltip,
-  Collapse,
-  ClickAwayListener,
-  InputAdornment,
-  Checkbox,
-} from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  FilterList as FilterListIcon,
-  Search as SearchIcon,
-  Add as AddIcon,
-  AutoFixHigh as AIIcon,
-  Save as SaveIcon,
-  Close as CloseIcon,
-} from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useTheme } from '@mui/material/styles';
-import { toast } from 'react-hot-toast';
-import { CsvUploader } from '@/shared/components/CsvUploader';
-import { BulkActions } from '@/components/BulkActions';
-import ExpenseService from '@/services/expense.service';
+  Typography,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import type React from "react";
+import { useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface Expense {
   id: string;
@@ -49,7 +50,7 @@ interface Expense {
   category: string;
   description: string;
   tags: string[];
-  company: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company: "Down Home" | "Music City Rodeo" | "Personal";
   receiptUrl?: string;
   aiSuggestions?: {
     category?: string;
@@ -60,18 +61,18 @@ interface Expense {
 }
 
 const categories = [
-  'Food & Dining',
-  'Transportation',
-  'Entertainment',
-  'Utilities',
-  'Office Supplies',
-  'Marketing',
-  'Software',
-  'Travel',
-  'Other',
+  "Food & Dining",
+  "Transportation",
+  "Entertainment",
+  "Utilities",
+  "Office Supplies",
+  "Marketing",
+  "Software",
+  "Travel",
+  "Other",
 ];
 
-const companies = ['Down Home', 'Music City Rodeo', 'Personal'];
+const companies = ["Down Home", "Music City Rodeo", "Personal"];
 
 interface EditableCell {
   rowId: string;
@@ -82,9 +83,9 @@ export const Expenses: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedCompany, setSelectedCompany] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [dateRange, setDateRange] = useState<{
     start: Date | null;
     end: Date | null;
@@ -94,9 +95,9 @@ export const Expenses: React.FC = () => {
   });
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
-  const [editValue, setEditValue] = useState<string>('');
+  const [editValue, setEditValue] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [amountRange, setAmountRange] = useState({ min: '', max: '' });
+  const [amountRange, setAmountRange] = useState({ min: "", max: "" });
   const [selectedExpenses, setSelectedExpenses] = useState<Expense[]>([]);
   const theme = useTheme();
   const expenseService = ExpenseService.getInstance();
@@ -106,14 +107,14 @@ export const Expenses: React.FC = () => {
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -124,7 +125,7 @@ export const Expenses: React.FC = () => {
 
   const handleCancelEdit = () => {
     setEditingCell(null);
-    setEditValue('');
+    setEditValue("");
   };
 
   const handleSaveEdit = async (expense: Expense) => {
@@ -134,18 +135,18 @@ export const Expenses: React.FC = () => {
       setIsSubmitting(true);
 
       let value: string | number = editValue;
-      if (editingCell.field === 'amount') {
-        value = parseFloat(editValue.replace(/[^0-9.-]+/g, ''));
+      if (editingCell.field === "amount") {
+        value = Number.parseFloat(editValue.replace(/[^0-9.-]+/g, ""));
         if (isNaN(value)) {
-          toast.error('Please enter a valid amount');
+          toast.error("Please enter a valid amount");
           return;
         }
       }
 
       const response = await fetch(`/api/expenses/${expense.id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           [editingCell.field]: value,
@@ -153,11 +154,11 @@ export const Expenses: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update expense');
+        throw new Error("Failed to update expense");
       }
 
       // Update local state
-      const updatedExpenses = expenses.map(e => {
+      const updatedExpenses = expenses.map((e) => {
         if (e.id === expense.id) {
           return { ...e, [editingCell.field]: value };
         }
@@ -165,11 +166,11 @@ export const Expenses: React.FC = () => {
       });
       setExpenses(updatedExpenses);
 
-      toast.success('Expense updated successfully');
+      toast.success("Expense updated successfully");
       handleCancelEdit();
     } catch (error) {
-      toast.error('Failed to update expense');
-      console.error('Error updating expense:', error);
+      toast.error("Failed to update expense");
+      console.error("Error updating expense:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -182,21 +183,21 @@ export const Expenses: React.FC = () => {
       return (
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 1,
-            cursor: 'pointer',
-            '&:hover .edit-icon': {
+            cursor: "pointer",
+            "&:hover .edit-icon": {
               opacity: 1,
             },
           }}
           onClick={() => handleStartEdit(expense, field)}
         >
-          {field === 'amount' ? (
+          {field === "amount" ? (
             formatCurrency(expense[field] as number)
-          ) : field === 'category' ? (
+          ) : field === "category" ? (
             <Chip label={expense[field]} size="small" />
-          ) : field === 'aiSuggestions' ? (
+          ) : field === "aiSuggestions" ? (
             <Box>
               {expense.aiSuggestions?.category && (
                 <Chip
@@ -226,8 +227,8 @@ export const Expenses: React.FC = () => {
             sx={{
               fontSize: 16,
               opacity: 0,
-              transition: 'opacity 0.2s',
-              color: 'text.secondary',
+              transition: "opacity 0.2s",
+              color: "text.secondary",
             }}
           />
         </Box>
@@ -236,23 +237,23 @@ export const Expenses: React.FC = () => {
 
     return (
       <ClickAwayListener onClickAway={handleCancelEdit}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <TextField
             size="small"
             value={editValue}
-            onChange={e => setEditValue(e.target.value)}
+            onChange={(e) => setEditValue(e.target.value)}
             autoFocus
             variant="outlined"
             InputProps={
-              field === 'amount'
+              field === "amount"
                 ? {
                     startAdornment: <InputAdornment position="start">$</InputAdornment>,
                   }
                 : undefined
             }
-            sx={{ minWidth: field === 'amount' ? 120 : 200 }}
-            onKeyPress={e => {
-              if (e.key === 'Enter') {
+            sx={{ minWidth: field === "amount" ? 120 : 200 }}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
                 handleSaveEdit(expense);
               }
             }}
@@ -274,7 +275,7 @@ export const Expenses: React.FC = () => {
   };
 
   const filteredExpenses = useMemo(() => {
-    return expenses.filter(expense => {
+    return expenses.filter((expense) => {
       const matchesSearch =
         expense.merchant.toLowerCase().includes(searchTerm.toLowerCase()) ||
         expense.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -287,8 +288,8 @@ export const Expenses: React.FC = () => {
         (!dateRange.end || new Date(expense.date) <= dateRange.end);
 
       const matchesAmount =
-        (!amountRange.min || expense.amount >= parseFloat(amountRange.min)) &&
-        (!amountRange.max || expense.amount <= parseFloat(amountRange.max));
+        (!amountRange.min || expense.amount >= Number.parseFloat(amountRange.min)) &&
+        (!amountRange.max || expense.amount <= Number.parseFloat(amountRange.max));
 
       return (
         matchesSearch && matchesCategory && matchesCompany && matchesDateRange && matchesAmount
@@ -310,21 +311,21 @@ export const Expenses: React.FC = () => {
   };
 
   const handleStartDateChange = (date: Date | null) => {
-    setDateRange(prev => ({ ...prev, start: date }));
+    setDateRange((prev) => ({ ...prev, start: date }));
   };
 
   const handleEndDateChange = (date: Date | null) => {
-    setDateRange(prev => ({ ...prev, end: date }));
+    setDateRange((prev) => ({ ...prev, end: date }));
   };
 
   const handleMinAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setAmountRange(prev => ({ ...prev, min: value }));
+    setAmountRange((prev) => ({ ...prev, min: value }));
   };
 
   const handleMaxAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setAmountRange(prev => ({ ...prev, max: value }));
+    setAmountRange((prev) => ({ ...prev, max: value }));
   };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,10 +337,10 @@ export const Expenses: React.FC = () => {
   };
 
   const handleSelectExpense = (expense: Expense) => {
-    setSelectedExpenses(prev => {
-      const isSelected = prev.some(e => e.id === expense.id);
+    setSelectedExpenses((prev) => {
+      const isSelected = prev.some((e) => e.id === expense.id);
       if (isSelected) {
-        return prev.filter(e => e.id !== expense.id);
+        return prev.filter((e) => e.id !== expense.id);
       } else {
         return [...prev, expense];
       }
@@ -370,7 +371,7 @@ export const Expenses: React.FC = () => {
       });
       setExpenses(response.items);
     } catch (error) {
-      console.error('Error deleting expenses:', error);
+      console.error("Error deleting expenses:", error);
       // TODO: Show error toast
     }
   };
@@ -384,14 +385,14 @@ export const Expenses: React.FC = () => {
       const updatedExpenses = await expenseService.bulkUpdateExpenses(expenseIds, updates);
       setSelectedExpenses([]);
       // Update the expenses list with the new data
-      setExpenses(prev =>
-        prev.map(expense => {
-          const updated = updatedExpenses.find(e => e.id === expense.id);
+      setExpenses((prev) =>
+        prev.map((expense) => {
+          const updated = updatedExpenses.find((e) => e.id === expense.id);
           return updated || expense;
-        })
+        }),
       );
     } catch (error) {
-      console.error('Error updating expenses:', error);
+      console.error("Error updating expenses:", error);
       // TODO: Show error toast
     }
   };
@@ -401,14 +402,14 @@ export const Expenses: React.FC = () => {
       const updatedExpenses = await expenseService.bulkAddLabel(expenseIds, label);
       setSelectedExpenses([]);
       // Update the expenses list with the new data
-      setExpenses(prev =>
-        prev.map(expense => {
-          const updated = updatedExpenses.find(e => e.id === expense.id);
+      setExpenses((prev) =>
+        prev.map((expense) => {
+          const updated = updatedExpenses.find((e) => e.id === expense.id);
           return updated || expense;
-        })
+        }),
       );
     } catch (error) {
-      console.error('Error labeling expenses:', error);
+      console.error("Error labeling expenses:", error);
       // TODO: Show error toast
     }
   };
@@ -417,10 +418,10 @@ export const Expenses: React.FC = () => {
     try {
       const { shareUrl } = await expenseService.bulkShareExpenses(expenseIds);
       // TODO: Show share dialog with URL
-      console.log('Share URL:', shareUrl);
+      console.log("Share URL:", shareUrl);
       setSelectedExpenses([]);
     } catch (error) {
-      console.error('Error sharing expenses:', error);
+      console.error("Error sharing expenses:", error);
       // TODO: Show error toast
     }
   };
@@ -430,20 +431,20 @@ export const Expenses: React.FC = () => {
       <Box
         sx={{
           mb: 3,
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'stretch', sm: 'center' },
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: "space-between",
+          alignItems: { xs: "stretch", sm: "center" },
           gap: 2,
         }}
       >
         <Typography variant="h5">Expenses</Typography>
         <Box
           sx={{
-            display: 'flex',
+            display: "flex",
             gap: 2,
-            flexDirection: { xs: 'column', sm: 'row' },
-            width: { xs: '100%', sm: 'auto' },
+            flexDirection: { xs: "column", sm: "row" },
+            width: { xs: "100%", sm: "auto" },
           }}
         >
           {selectedExpenses.length > 0 && (
@@ -461,7 +462,7 @@ export const Expenses: React.FC = () => {
             startIcon={<FilterListIcon />}
             onClick={() => setFilterOpen(!filterOpen)}
           >
-            Filters {filterOpen ? '▼' : '▲'}
+            Filters {filterOpen ? "▼" : "▲"}
           </Button>
           <Button
             fullWidth={isMobile}
@@ -487,7 +488,7 @@ export const Expenses: React.FC = () => {
                 value={searchTerm}
                 onChange={handleSearchChange}
                 InputProps={{
-                  startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                  startAdornment: <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />,
                 }}
               />
             </Grid>
@@ -500,7 +501,7 @@ export const Expenses: React.FC = () => {
                 onChange={handleCategoryChange}
               >
                 <MenuItem value="">All Categories</MenuItem>
-                {categories.map(category => (
+                {categories.map((category) => (
                   <MenuItem key={category} value={category}>
                     {category}
                   </MenuItem>
@@ -513,10 +514,10 @@ export const Expenses: React.FC = () => {
                 fullWidth
                 label="Company"
                 value={selectedCompany}
-                onChange={e => setSelectedCompany(e.target.value)}
+                onChange={(e) => setSelectedCompany(e.target.value)}
               >
                 <MenuItem value="">All Companies</MenuItem>
-                {companies.map(company => (
+                {companies.map((company) => (
                   <MenuItem key={company} value={company}>
                     {company}
                   </MenuItem>
@@ -532,7 +533,7 @@ export const Expenses: React.FC = () => {
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      size: isMobile ? 'small' : 'medium',
+                      size: isMobile ? "small" : "medium",
                     },
                   }}
                 />
@@ -545,7 +546,7 @@ export const Expenses: React.FC = () => {
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      size: isMobile ? 'small' : 'medium',
+                      size: isMobile ? "small" : "medium",
                     },
                   }}
                 />
@@ -583,9 +584,9 @@ export const Expenses: React.FC = () => {
       <TableContainer
         component={Paper}
         sx={{
-          overflowX: 'auto',
-          '.MuiTable-root': {
-            minWidth: { xs: 'auto', sm: 750 },
+          overflowX: "auto",
+          ".MuiTable-root": {
+            minWidth: { xs: "auto", sm: 750 },
           },
         }}
       >
@@ -614,15 +615,15 @@ export const Expenses: React.FC = () => {
           <TableBody>
             {filteredExpenses
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map(expense => (
+              .map((expense) => (
                 <TableRow
                   key={expense.id}
                   hover
-                  selected={selectedExpenses.some(e => e.id === expense.id)}
+                  selected={selectedExpenses.some((e) => e.id === expense.id)}
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
-                      checked={selectedExpenses.some(e => e.id === expense.id)}
+                      checked={selectedExpenses.some((e) => e.id === expense.id)}
                       onChange={() => handleSelectExpense(expense)}
                     />
                   </TableCell>
@@ -635,7 +636,7 @@ export const Expenses: React.FC = () => {
                       <Box>
                         <EditableContent expense={expense} field="description" />
                         <Box sx={{ mt: 0.5 }}>
-                          {expense.tags.map(tag => (
+                          {expense.tags.map((tag) => (
                             <Chip
                               key={tag}
                               label={tag}
@@ -657,11 +658,11 @@ export const Expenses: React.FC = () => {
                         label={expense.company}
                         size="small"
                         color={
-                          expense.company === 'Personal'
-                            ? 'primary'
-                            : expense.company === 'Down Home'
-                              ? 'success'
-                              : 'warning'
+                          expense.company === "Personal"
+                            ? "primary"
+                            : expense.company === "Down Home"
+                              ? "success"
+                              : "warning"
                         }
                       />
                     </TableCell>
@@ -686,7 +687,7 @@ export const Expenses: React.FC = () => {
                     </TableCell>
                   )}
                   <TableCell align="center">
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
                       {!isMobile && expense.aiSuggestions && (
                         <Tooltip title="AI Suggestions Available">
                           <IconButton size="small" color="secondary">
@@ -719,8 +720,8 @@ export const Expenses: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           sx={{
-            '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
-              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
             },
           }}
         />

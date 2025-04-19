@@ -1,31 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
-
-
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import type { CreateUserDto } from "./dto/create-user.dto";
+import type { UpdateUserDto } from "./dto/update-user.dto";
+import type { UsersService } from "./users.service";
 
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  
-  findOne(@Param('id') id: string) {
+  findOne(@Param("id") id: string) {
     return this.usersService.findById(id);
   }
 
-  
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  
-  remove(@Param('id') id: string) {
+  remove(@Param("id") id: string) {
     return this.usersService.remove(id);
   }
 }

@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from "react";
 interface LoadingOverlayProps {
-    message?: string;
+  message?: string;
 }
 declare const LoadingOverlay: React.FC<LoadingOverlayProps>;
 export default LoadingOverlay;

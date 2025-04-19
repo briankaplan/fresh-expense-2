@@ -4,9 +4,9 @@ export interface CircuitBreakerOptions {
 }
 
 export class CircuitBreaker {
-  private failures: number = 0;
-  private lastFailureTime: number = 0;
-  private isOpen: boolean = false;
+  private failures = 0;
+  private lastFailureTime = 0;
+  private isOpen = false;
 
   constructor(private readonly options: CircuitBreakerOptions) {}
 
@@ -16,7 +16,7 @@ export class CircuitBreaker {
         this.isOpen = false;
         this.failures = 0;
       } else {
-        throw new Error('Circuit breaker is open');
+        throw new Error("Circuit breaker is open");
       }
     }
 

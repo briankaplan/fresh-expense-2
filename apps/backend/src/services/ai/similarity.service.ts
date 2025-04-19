@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@/core/config.service';
-import { RateLimiterService } from '../rate-limiter.service';
-import { ErrorHandlerService } from '../error-handler.service';
-import { LoggingService } from '../logging.service';
-import { BaseAIService } from './base-ai.service';
+import type { ConfigService } from "@/core/config.service";
+import { Injectable } from "@nestjs/common";
+import type { ErrorHandlerService } from "../error-handler.service";
+import type { LoggingService } from "../logging.service";
+import type { RateLimiterService } from "../rate-limiter.service";
+import { BaseAIService } from "./base-ai.service";
 
 export interface SimilarityResult {
   score: number;
@@ -16,20 +16,20 @@ export class SimilarityService extends BaseAIService {
     configService: ConfigService,
     rateLimiter: RateLimiterService,
     errorHandler: ErrorHandlerService,
-    logger: LoggingService
+    logger: LoggingService,
   ) {
     super(configService, rateLimiter, errorHandler, logger, SimilarityService.name);
-    this.initializeClient('https://api-inference.huggingface.co/models', {
+    this.initializeClient("https://api-inference.huggingface.co/models", {
       Authorization: `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
     });
   }
 
   async findSimilarExpenses(
     description: string,
-    candidates: string[]
+    candidates: string[],
   ): Promise<SimilarityResult[]> {
-    return this.withRateLimit('AI.HUGGINGFACE.INFERENCE', async () => {
-      const response = await this.client.post('/sentence-transformers/all-MiniLM-L6-v2', {
+    return this.withRateLimit("AI.HUGGINGFACE.INFERENCE", async () => {
+      const response = await this.client.post("/sentence-transformers/all-MiniLM-L6-v2", {
         inputs: {
           source_sentence: description,
           sentences: candidates,
@@ -44,8 +44,8 @@ export class SimilarityService extends BaseAIService {
   }
 
   async calculateSimilarity(text1: string, text2: string): Promise<number> {
-    return this.withRateLimit('AI.HUGGINGFACE.INFERENCE', async () => {
-      const response = await this.client.post('/sentence-transformers/all-MiniLM-L6-v2', {
+    return this.withRateLimit("AI.HUGGINGFACE.INFERENCE", async () => {
+      const response = await this.client.post("/sentence-transformers/all-MiniLM-L6-v2", {
         inputs: {
           source_sentence: text1,
           sentences: [text2],

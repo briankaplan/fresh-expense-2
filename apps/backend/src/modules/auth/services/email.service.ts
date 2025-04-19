@@ -1,15 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import type { User } from "@fresh-expense/types";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 import {
   generateEmailVerificationToken,
-  generatePasswordResetToken,
-  generateVerificationLink,
-  generatePasswordResetLink,
-  generateVerificationEmailContent,
   generatePasswordResetEmailContent,
-} from '@packages/utils';
-import { User } from '@fresh-expense/types';
+  generatePasswordResetLink,
+  generatePasswordResetToken,
+  generateVerificationEmailContent,
+  generateVerificationLink,
+} from "@packages/utils";
+import * as nodemailer from "nodemailer";
 
 @Injectable()
 export class EmailService {
@@ -17,21 +17,21 @@ export class EmailService {
 
   constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
-        user: this.configService.get('EMAIL_USER'),
-        pass: this.configService.get('EMAIL_PASSWORD'),
+        user: this.configService.get("EMAIL_USER"),
+        pass: this.configService.get("EMAIL_PASSWORD"),
       },
     });
   }
 
   async sendVerificationEmail(user: User): Promise<void> {
-    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    const jwtSecret = this.configService.get<string>("JWT_SECRET");
     if (!jwtSecret) {
-      throw new InternalServerErrorException('JWT_SECRET is not configured');
+      throw new InternalServerErrorException("JWT_SECRET is not configured");
     }
 
-    const frontendUrl = this.configService.get('FRONTEND_URL');
+    const frontendUrl = this.configService.get("FRONTEND_URL");
 
     // Use utility functions instead of inline code
     const token = generateEmailVerificationToken(user.id, jwtSecret);
@@ -39,20 +39,20 @@ export class EmailService {
     const emailContent = generateVerificationEmailContent(verificationLink);
 
     await this.transporter.sendMail({
-      from: this.configService.get('EMAIL_USER'),
+      from: this.configService.get("EMAIL_USER"),
       to: user.email,
-      subject: 'Verify your email',
+      subject: "Verify your email",
       html: emailContent,
     });
   }
 
   async sendPasswordResetEmail(user: User): Promise<void> {
-    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    const jwtSecret = this.configService.get<string>("JWT_SECRET");
     if (!jwtSecret) {
-      throw new InternalServerErrorException('JWT_SECRET is not configured');
+      throw new InternalServerErrorException("JWT_SECRET is not configured");
     }
 
-    const frontendUrl = this.configService.get('FRONTEND_URL');
+    const frontendUrl = this.configService.get("FRONTEND_URL");
 
     // Use utility functions instead of inline code
     const token = generatePasswordResetToken(user.id, jwtSecret);
@@ -60,9 +60,9 @@ export class EmailService {
     const emailContent = generatePasswordResetEmailContent(resetLink);
 
     await this.transporter.sendMail({
-      from: this.configService.get('EMAIL_USER'),
+      from: this.configService.get("EMAIL_USER"),
       to: user.email,
-      subject: 'Reset your password',
+      subject: "Reset your password",
       html: emailContent,
     });
   }

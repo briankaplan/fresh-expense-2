@@ -1,1 +1,1 @@
-export * from './components/TransactionList/TransactionList';
+export * from "./components/TransactionList/TransactionList";

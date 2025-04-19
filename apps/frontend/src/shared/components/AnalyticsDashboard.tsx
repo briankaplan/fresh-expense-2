@@ -1,32 +1,33 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { useSpendingAnalytics, useDataExport } from '@fresh-expense/hooks';
-import {
-  Card,
-  Row,
-  Col,
-  Select,
-  Button,
-  Table,
-  Statistic,
-  Space,
-  DatePicker,
-  Input,
-  Tooltip,
-} from 'antd';
+import type { ExportOptions } from "@/shared/hooks/useDataExport";
+import type { SpendingData } from "@/shared/hooks/useSpendingAnalytics";
 import {
   DownloadOutlined,
-  LineChartOutlined,
-  PieChartOutlined,
   FilterOutlined,
   InfoCircleOutlined,
+  LineChartOutlined,
+  PieChartOutlined,
   SearchOutlined,
-} from '@ant-design/icons';
-import { Line, Pie } from '@ant-design/plots';
-import type { AggregationConfig } from '@fresh-expense/types';
-import type { TableProps } from 'antd/es/table';
-import type { Moment } from 'moment';
-import type { SpendingData } from '@/shared/hooks/useSpendingAnalytics';
-import type { ExportOptions } from '@/shared/hooks/useDataExport';
+} from "@ant-design/icons";
+import { Line, Pie } from "@ant-design/plots";
+import { useDataExport, useSpendingAnalytics } from "@fresh-expense/hooks";
+import type { AggregationConfig } from "@fresh-expense/types";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Input,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Table,
+  Tooltip,
+} from "antd";
+import type { TableProps } from "antd/es/table";
+import type { Moment } from "moment";
+import type React from "react";
+import { useCallback, useMemo, useState } from "react";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -52,7 +53,7 @@ interface TopCategory {
   category: string;
   amount: number;
   percentage: number;
-  trend: 'increasing' | 'decreasing' | 'stable';
+  trend: "increasing" | "decreasing" | "stable";
 }
 
 interface TableState {
@@ -61,7 +62,7 @@ interface TableState {
     pageSize: number;
   };
   sortField: string;
-  sortOrder: 'ascend' | 'descend' | null;
+  sortOrder: "ascend" | "descend" | null;
 }
 
 interface ChartDataPoint {
@@ -75,15 +76,15 @@ interface CategoryDataPoint {
 }
 
 export const AnalyticsDashboard: React.FC = () => {
-  const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month');
+  const [period, setPeriod] = useState<"day" | "week" | "month" | "year">("month");
   const [dateRange, setDateRange] = useState<[Date, Date]>([
     new Date(new Date().setMonth(new Date().getMonth() - 1)),
     new Date(),
   ]);
   const [filters, setFilters] = useState<FilterState>({
     dateRange: null,
-    category: '',
-    merchant: { name: '' },
+    category: "",
+    merchant: { name: "" },
     minAmount: null,
     maxAmount: null,
   });
@@ -92,8 +93,8 @@ export const AnalyticsDashboard: React.FC = () => {
       current: 1,
       pageSize: 10,
     },
-    sortField: 'amount',
-    sortOrder: 'descend',
+    sortField: "amount",
+    sortOrder: "descend",
   });
 
   const { data, loading: analyticsLoading } = useSpendingAnalytics(period);
@@ -127,36 +128,40 @@ export const AnalyticsDashboard: React.FC = () => {
         return true;
       })
       .sort((a: TopCategory, b: TopCategory) => {
-        if (tableParams.sortField === 'amount') {
-          return tableParams.sortOrder === 'ascend' ? a.amount - b.amount : b.amount - a.amount;
+        if (tableParams.sortField === "amount") {
+          return tableParams.sortOrder === "ascend" ? a.amount - b.amount : b.amount - a.amount;
         }
-        if (tableParams.sortField === 'category') {
-          return tableParams.sortOrder === 'ascend'
+        if (tableParams.sortField === "category") {
+          return tableParams.sortOrder === "ascend"
             ? a.category.localeCompare(b.category)
             : b.category.localeCompare(a.category);
         }
-        if (tableParams.sortField === 'percentage') {
+        if (tableParams.sortField === "percentage") {
           const aPerc = (a.amount / data.totalSpent) * 100;
           const bPerc = (b.amount / data.totalSpent) * 100;
-          return tableParams.sortOrder === 'ascend' ? aPerc - bPerc : bPerc - aPerc;
+          return tableParams.sortOrder === "ascend" ? aPerc - bPerc : bPerc - aPerc;
         }
         return 0;
       });
   }, [data, filters, tableParams]);
 
   // Handle table change
-  const handleTableChange: TableProps<TopCategory>['onChange'] = (pagination, filters, sorter: any) => {
+  const handleTableChange: TableProps<TopCategory>["onChange"] = (
+    pagination,
+    filters,
+    sorter: any,
+  ) => {
     setTableParams({
       pagination: {
         current: pagination.current || 1,
         pageSize: pagination.pageSize || 10,
       },
-      sortField: sorter.field || 'amount',
-      sortOrder: sorter.order || 'descend',
+      sortField: sorter.field || "amount",
+      sortOrder: sorter.order || "descend",
     });
   };
 
-  const handleExportTypeChange = (format: 'csv' | 'pdf' | 'xlsx'): void => {
+  const handleExportTypeChange = (format: "csv" | "pdf" | "xlsx"): void => {
     if (!data) return;
 
     exportData({
@@ -183,37 +188,37 @@ export const AnalyticsDashboard: React.FC = () => {
     })) || [];
 
   const handleDateChange = (dates: [Moment, Moment] | null): void => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       dateRange: dates,
     }));
   };
 
   const handleCategorySearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       category: e.target.value,
     }));
   };
 
   const handleMerchantSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       merchant: { name: e.target.value },
     }));
   };
 
   const handleAmountSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      minAmount: e.target.value ? parseFloat(e.target.value) : null,
+      minAmount: e.target.value ? Number.parseFloat(e.target.value) : null,
     }));
   };
 
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -238,7 +243,7 @@ export const AnalyticsDashboard: React.FC = () => {
 
   return (
     <div className="analytics-dashboard">
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Controls */}
         <Card>
           <Row gutter={[16, 16]}>
@@ -257,7 +262,7 @@ export const AnalyticsDashboard: React.FC = () => {
               <Space>
                 <Button
                   icon={<DownloadOutlined />}
-                  onClick={() => handleExportTypeChange('csv')}
+                  onClick={() => handleExportTypeChange("csv")}
                   loading={exporting}
                 >
                   Export CSV
@@ -265,7 +270,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 <Button
                   type="primary"
                   icon={<DownloadOutlined />}
-                  onClick={() => handleExportTypeChange('pdf')}
+                  onClick={() => handleExportTypeChange("pdf")}
                   loading={exporting}
                 >
                   Export PDF
@@ -311,8 +316,8 @@ export const AnalyticsDashboard: React.FC = () => {
               placeholder="Max Amount"
               type="number"
               style={{ width: 120 }}
-              onChange={e =>
-                setFilters(prev => ({
+              onChange={(e) =>
+                setFilters((prev) => ({
                   ...prev,
                   maxAmount: e.target.value ? Number(e.target.value) : null,
                 }))
@@ -349,14 +354,14 @@ export const AnalyticsDashboard: React.FC = () => {
             <Card>
               <Statistic
                 title="Spending Trend"
-                value={data?.spendingTrend || 'stable'}
+                value={data?.spendingTrend || "stable"}
                 valueStyle={{
                   color:
                     data?.spendingTrend != null
-                      ? '#cf1322'
+                      ? "#cf1322"
                       : data?.spendingTrend != null
-                        ? '#3f8600'
-                        : '#666',
+                        ? "#3f8600"
+                        : "#666",
                 }}
                 loading={analyticsLoading}
               />
@@ -374,11 +379,11 @@ export const AnalyticsDashboard: React.FC = () => {
                 yField="amount"
                 point={{
                   size: 5,
-                  shape: 'diamond',
+                  shape: "diamond",
                 }}
                 label={{
                   style: {
-                    fill: '#aaa',
+                    fill: "#aaa",
                   },
                 }}
               />
@@ -392,12 +397,12 @@ export const AnalyticsDashboard: React.FC = () => {
                 colorField="category"
                 radius={0.8}
                 label={{
-                  type: 'outer',
-                  content: '{name} ({percentage})',
+                  type: "outer",
+                  content: "{name} ({percentage})",
                 }}
                 interactions={[
                   {
-                    type: 'element-active',
+                    type: "element-active",
                   },
                 ]}
               />
@@ -416,7 +421,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 total: filteredCategories.length,
                 showSizeChanger: true,
                 showQuickJumper: true,
-                showTotal: total => `Total ${total} categories`,
+                showTotal: (total) => `Total ${total} categories`,
               }}
               onChange={handleTableChange}
               loading={analyticsLoading}

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type { Receipt } from "@fresh-expense/types";
+import { CloudUpload, Delete, Visibility } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -8,11 +9,11 @@ import {
   DialogTitle,
   IconButton,
   Typography,
-} from '@mui/material';
-import { CloudUpload, Delete, Visibility } from '@mui/icons-material';
-import { ReceiptService } from '../../../../services/receipt.service';
-import { toast } from 'react-toastify';
-import { Receipt } from '@fresh-expense/types';
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { ReceiptService } from "../../../../services/receipt.service";
 
 interface ReceiptManagerProps {
   transactionId: string;
@@ -36,10 +37,10 @@ export const ReceiptManager: React.FC<ReceiptManagerProps> = ({
       const uploadedReceipt = await ReceiptService.uploadReceipt(transactionId, file);
       setReceipt(uploadedReceipt);
       onReceiptChange?.(uploadedReceipt);
-      toast.success('Receipt uploaded successfully');
+      toast.success("Receipt uploaded successfully");
     } catch (error) {
-      toast.error('Failed to upload receipt');
-      console.error('Upload error:', error);
+      toast.error("Failed to upload receipt");
+      console.error("Upload error:", error);
     } finally {
       setLoading(false);
     }
@@ -51,10 +52,10 @@ export const ReceiptManager: React.FC<ReceiptManagerProps> = ({
       await ReceiptService.deleteReceipt(transactionId);
       setReceipt(null);
       onReceiptChange?.(null);
-      toast.success('Receipt deleted successfully');
+      toast.success("Receipt deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete receipt');
-      console.error('Delete error:', error);
+      toast.error("Failed to delete receipt");
+      console.error("Delete error:", error);
     } finally {
       setLoading(false);
     }
@@ -68,8 +69,8 @@ export const ReceiptManager: React.FC<ReceiptManagerProps> = ({
         setReceipt(fetchedReceipt);
         setPreviewOpen(true);
       } catch (error) {
-        toast.error('Failed to fetch receipt');
-        console.error('Fetch error:', error);
+        toast.error("Failed to fetch receipt");
+        console.error("Fetch error:", error);
       } finally {
         setLoading(false);
       }
@@ -82,7 +83,7 @@ export const ReceiptManager: React.FC<ReceiptManagerProps> = ({
     <Box display="flex" alignItems="center" gap={1}>
       <input
         accept="image/*,.pdf"
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         id={`receipt-upload-${transactionId}`}
         type="file"
         onChange={handleFileUpload}
@@ -113,7 +114,7 @@ export const ReceiptManager: React.FC<ReceiptManagerProps> = ({
               component="img"
               src={receipt.url}
               alt="Receipt"
-              sx={{ width: '100%', height: 'auto' }}
+              sx={{ width: "100%", height: "auto" }}
             />
           )}
         </DialogContent>

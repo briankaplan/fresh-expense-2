@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
-import { UserContextService } from './user-context.service';
+import { CacheModule } from "@nestjs/cache-manager";
+import { Module } from "@nestjs/common";
+import { UserContextService } from "./user-context.service";
 
 @Module({
   imports: [

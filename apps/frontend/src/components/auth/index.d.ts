@@ -1,2 +1,2 @@
-export * from './ProtectedRoute';
+export * from "./ProtectedRoute";
 //# sourceMappingURL=index.d.ts.map

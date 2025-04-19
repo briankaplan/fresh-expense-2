@@ -1,2 +1,2 @@
-export * from './components/TransactionList/TransactionList';
+export * from "./components/TransactionList/TransactionList";
 //# sourceMappingURL=index.d.ts.map

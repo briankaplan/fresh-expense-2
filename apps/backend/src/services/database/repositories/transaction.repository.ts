@@ -1,7 +1,7 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { TransactionSchema, TRANSACTION_COLLECTION } from '../schemas/transaction.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import { TRANSACTION_COLLECTION, type TransactionSchema } from "../schemas/transaction.schema";
+import { BaseRepository } from "./base.repository";
 
 export class TransactionRepository extends BaseRepository<TransactionSchema> {
   protected readonly collectionName = TRANSACTION_COLLECTION;
@@ -21,7 +21,7 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
   async findByDateRange(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<TransactionSchema[]> {
     return this.find({
       userId,
@@ -36,18 +36,18 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
     return this.find({ userId, category });
   }
 
-  async findByType(userId: string, type: TransactionSchema['type']): Promise<TransactionSchema[]> {
+  async findByType(userId: string, type: TransactionSchema["type"]): Promise<TransactionSchema[]> {
     return this.find({ userId, type });
   }
 
   async findByStatus(
     userId: string,
-    status: TransactionSchema['status']
+    status: TransactionSchema["status"],
   ): Promise<TransactionSchema[]> {
     return this.find({ userId, status });
   }
 
-  async getTotalByType(userId: string, type: TransactionSchema['type']): Promise<number> {
+  async getTotalByType(userId: string, type: TransactionSchema["type"]): Promise<number> {
     const transactions = await this.find({ userId, type });
     return transactions.reduce((total, transaction) => total + transaction.amount, 0);
   }
@@ -58,13 +58,13 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
 
   async updateTransactionStatus(
     transactionId: string,
-    status: TransactionSchema['status']
+    status: TransactionSchema["status"],
   ): Promise<boolean> {
     return this.update(
       { _id: transactionId },
       {
         $set: { status },
-      }
+      },
     );
   }
 
@@ -73,7 +73,7 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
       { _id: transactionId },
       {
         $addToSet: { tags: tag },
-      }
+      },
     );
   }
 
@@ -82,7 +82,7 @@ export class TransactionRepository extends BaseRepository<TransactionSchema> {
       { _id: transactionId },
       {
         $pull: { tags: tag },
-      }
+      },
     );
   }
 }

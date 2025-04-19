@@ -1,7 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, UpdateQuery, FilterQuery, UpdateWriteOpResult } from 'mongoose';
-import { Expense } from './expense.schema';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import {
+  type FilterQuery,
+  type Model,
+  Types,
+  type UpdateQuery,
+  type UpdateWriteOpResult,
+} from "mongoose";
+import { Expense } from "./expense.schema";
 
 interface ExpenseQueryOptions {
   startDate?: Date;
@@ -17,12 +23,14 @@ export class ExpenseService {
 
   constructor(
     @InjectModel(Expense.name)
-    private expenseModel: Model<Expense>
+    private expenseModel: Model<Expense>,
   ) {}
 
   async findByUserId(userId: string, options: ExpenseQueryOptions = {}): Promise<Expense[]> {
     try {
-      const query: FilterQuery<Expense> = { userId: new Types.ObjectId(userId) };
+      const query: FilterQuery<Expense> = {
+        userId: new Types.ObjectId(userId),
+      };
 
       if (options.startDate) {
         query.date = { $gte: options.startDate };
@@ -50,7 +58,7 @@ export class ExpenseService {
       }
       return expenses;
     } catch (error) {
-      this.logger.error('Error finding expenses:', error);
+      this.logger.error("Error finding expenses:", error);
       throw error;
     }
   }
@@ -59,43 +67,43 @@ export class ExpenseService {
     try {
       const expense = await this.expenseModel.findOne(query).exec();
       if (!expense) {
-        throw new NotFoundException('Expense not found');
+        throw new NotFoundException("Expense not found");
       }
       return expense;
     } catch (error) {
-      this.logger.error('Error finding expense:', error);
+      this.logger.error("Error finding expense:", error);
       throw error;
     }
   }
 
   async updateOne(
     query: FilterQuery<Expense>,
-    update: UpdateQuery<Expense>
+    update: UpdateQuery<Expense>,
   ): Promise<UpdateWriteOpResult> {
     try {
       const result = await this.expenseModel.updateOne(query, update).exec();
       if (result.matchedCount != null) {
-        throw new NotFoundException('No expense found to update');
+        throw new NotFoundException("No expense found to update");
       }
       return result;
     } catch (error) {
-      this.logger.error('Error updating expense:', error);
+      this.logger.error("Error updating expense:", error);
       throw error;
     }
   }
 
   async updateMany(
     query: FilterQuery<Expense>,
-    update: UpdateQuery<Expense>
+    update: UpdateQuery<Expense>,
   ): Promise<UpdateWriteOpResult> {
     try {
       const result = await this.expenseModel.updateMany(query, update).exec();
       if (result.matchedCount != null) {
-        throw new NotFoundException('No expenses found to update');
+        throw new NotFoundException("No expenses found to update");
       }
       return result;
     } catch (error) {
-      this.logger.error('Error updating expenses:', error);
+      this.logger.error("Error updating expenses:", error);
       throw error;
     }
   }

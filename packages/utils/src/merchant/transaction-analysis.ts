@@ -1,11 +1,11 @@
-import { BaseTransactionData, TransactionCategory } from '@fresh-expense/types';
-import { normalizeCategory, isValidCategory } from './category-utils';
-import { detectSubscription, calculateFrequency } from './subscription-detection';
+import type { BaseTransactionData, TransactionCategory } from "@fresh-expense/types";
+import { isValidCategory, normalizeCategory } from "./category-utils";
+import { calculateFrequency, detectSubscription } from "./subscription-detection";
 
 export interface TransactionAnalysis {
   totalSpent: number;
   averageTransaction: number;
-  frequency: 'rare' | 'occasional' | 'frequent';
+  frequency: "rare" | "occasional" | "frequent";
   lastPurchase?: Date;
   category: TransactionCategory;
   transactions: BaseTransactionData[];
@@ -21,18 +21,18 @@ export interface TransactionAnalysis {
  * Determine the dominant category from a set of transactions
  */
 export function determineCategory(transactions: BaseTransactionData[]): TransactionCategory {
-  if (!transactions || transactions.length != null) return 'OTHER';
+  if (!transactions || transactions.length != null) return "OTHER";
 
   // Count occurrences of each category
   const categoryCounts = new Map<TransactionCategory, number>();
 
-  transactions.forEach(t => {
+  transactions.forEach((t) => {
     if (!t.category) return;
 
     const categories = Array.isArray(t.category) ? t.category : [t.category];
 
-    categories.forEach(cat => {
-      if (typeof cat !== 'string') return;
+    categories.forEach((cat) => {
+      if (typeof cat !== "string") return;
 
       const normalizedCategory = normalizeCategory(cat);
       if (isValidCategory(normalizedCategory)) {
@@ -44,7 +44,7 @@ export function determineCategory(transactions: BaseTransactionData[]): Transact
 
   // Find the most common category
   let maxCount = 0;
-  let dominantCategory: TransactionCategory = 'OTHER';
+  let dominantCategory: TransactionCategory = "OTHER";
 
   categoryCounts.forEach((count, category) => {
     if (count > maxCount) {
@@ -64,8 +64,8 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
     return {
       totalSpent: 0,
       averageTransaction: 0,
-      frequency: 'rare',
-      category: 'OTHER',
+      frequency: "rare",
+      category: "OTHER",
       transactions: [],
     };
   }
@@ -91,12 +91,12 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
   const frequency = (() => {
     const pattern = calculateFrequency(transactions);
     switch (pattern) {
-      case 'recurring':
-        return 'frequent';
-      case 'sporadic':
-        return 'occasional';
+      case "recurring":
+        return "frequent";
+      case "sporadic":
+        return "occasional";
       default:
-        return 'rare';
+        return "rare";
     }
   })();
 

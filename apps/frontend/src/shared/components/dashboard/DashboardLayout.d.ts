@@ -1,7 +1,7 @@
-import React from 'react';
-import './DashboardLayout.css';
+import type React from "react";
+import "./DashboardLayout.css";
 interface DashboardLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 declare const DashboardLayout: React.FC<DashboardLayoutProps>;
 export default DashboardLayout;

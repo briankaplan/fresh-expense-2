@@ -1,6 +1,6 @@
-import { createRouter, createRootRoute } from '@tanstack/react-router';
-import { App } from '@/app/app';
-import type { AuthUser } from '@fresh-expense/types/auth';
+import { App } from "@/app/app";
+import type { AuthUser } from "@fresh-expense/types/auth";
+import { createRootRoute, createRouter } from "@tanstack/react-router";
 
 const rootRoute = createRootRoute({
   component: App,
@@ -15,5 +15,4 @@ export const router = createRouter({
 });
 
 // Register router for type safety
-declare module '@tanstack/react-router' {
-}
+declare module "@tanstack/react-router" {}

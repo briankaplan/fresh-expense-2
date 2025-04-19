@@ -1,16 +1,16 @@
-const { MongoClient } = require('mongodb');
-require('dotenv').config();
+const { MongoClient } = require("mongodb");
+require("dotenv").config();
 
 async function createCollectionsIfNotExist(db) {
   const collections = [
-    'users',
-    'companies',
-    'analytics',
-    'transactions',
-    'receipts',
-    'merchants',
-    'expenses',
-    'bankAccounts',
+    "users",
+    "companies",
+    "analytics",
+    "transactions",
+    "receipts",
+    "merchants",
+    "expenses",
+    "bankAccounts",
   ];
 
   for (const collection of collections) {
@@ -33,7 +33,7 @@ async function runMigrations() {
   const dbName = process.env.MONGODB_DB;
 
   if (!url || !dbName) {
-    console.error('Database configuration missing. Please check your .env file');
+    console.error("Database configuration missing. Please check your .env file");
     process.exit(1);
   }
 
@@ -41,20 +41,20 @@ async function runMigrations() {
 
   try {
     await client.connect();
-    console.log('Connected to MongoDB');
+    console.log("Connected to MongoDB");
 
     const db = client.db(dbName);
 
     // Create collections first
-    console.log('\nCreating collections...');
+    console.log("\nCreating collections...");
     await createCollectionsIfNotExist(db);
 
     // Array of migration files in order
     const migrations = [
-      require('../migrations/20240320000000-create-indexes.js'),
-      require('../migrations/20240320000001-add-schema-validations.js'),
-      require('../migrations/20240320000002-add-user-company-analytics.js'),
-      require('../migrations/20240320000003-add-bank-accounts.js'),
+      require("../migrations/20240320000000-create-indexes.js"),
+      require("../migrations/20240320000001-add-schema-validations.js"),
+      require("../migrations/20240320000002-add-user-company-analytics.js"),
+      require("../migrations/20240320000003-add-bank-accounts.js"),
     ];
 
     // Run migrations in sequence
@@ -62,24 +62,24 @@ async function runMigrations() {
       console.log(`\nRunning migration ${index + 1}/${migrations.length}...`);
       try {
         await migration.up(db);
-        console.log('Migration completed successfully');
+        console.log("Migration completed successfully");
       } catch (error) {
-        console.error('Migration failed:', error);
+        console.error("Migration failed:", error);
         // Attempt to run down migration to rollback changes
         try {
-          console.log('Attempting to rollback...');
+          console.log("Attempting to rollback...");
           await migration.down(db);
-          console.log('Rollback successful');
+          console.log("Rollback successful");
         } catch (rollbackError) {
-          console.error('Rollback failed:', rollbackError);
+          console.error("Rollback failed:", rollbackError);
         }
         process.exit(1);
       }
     }
 
-    console.log('\nAll migrations completed successfully!');
+    console.log("\nAll migrations completed successfully!");
   } catch (error) {
-    console.error('Database connection error:', error);
+    console.error("Database connection error:", error);
     process.exit(1);
   } finally {
     await client.close();

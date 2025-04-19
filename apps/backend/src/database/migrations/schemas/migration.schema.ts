@@ -1,6 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from "mongoose";
 
 export class Migration {
   @Prop({ required: true, unique: true })
@@ -9,7 +8,7 @@ export class Migration {
   @Prop({ required: true })
   appliedAt: Date;
 
-  @Prop({ required: true, enum: ['pending', 'completed', 'failed'] })
+  @Prop({ required: true, enum: ["pending", "completed", "failed"] })
   status: string;
 
   @Prop()

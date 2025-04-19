@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Grid, Paper, Typography, CircularProgress, useTheme } from '@mui/material';
+import { MetricType, type Metrics, type MetricsQueryParams } from "@fresh-expense/types";
+import { Box, CircularProgress, Grid, Paper, Typography, useTheme } from "@mui/material";
+import type React from "react";
+import { useEffect, useState } from "react";
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import { useAuth } from '../context/AuthContext';
-import { Metrics, MetricType, MetricsQueryParams } from '@fresh-expense/types';
-import { metricsService } from '../services/metrics.service';
+} from "recharts";
+import { useAuth } from "../context/AuthContext";
+import { metricsService } from "../services/metrics.service";
 
 const MetricsDashboard: React.FC = () => {
   const theme = useTheme();
@@ -40,8 +41,8 @@ const MetricsDashboard: React.FC = () => {
         setMetrics(metricsData);
         setAggregatedData(aggregatedMetrics);
       } catch (err) {
-        setError('Failed to fetch metrics data');
-        console.error('Error fetching metrics:', err);
+        setError("Failed to fetch metrics data");
+        console.error("Error fetching metrics:", err);
       } finally {
         setLoading(false);
       }
@@ -71,8 +72,8 @@ const MetricsDashboard: React.FC = () => {
   const formatChartData = (metrics: Metrics[]) => {
     const dailyData: { [key: string]: { date: string; value: number } } = {};
 
-    metrics.forEach(metric => {
-      const date = new Date(metric.createdAt).toISOString().split('T')[0];
+    metrics.forEach((metric) => {
+      const date = new Date(metric.createdAt).toISOString().split("T")[0];
       if (!dailyData[date]) {
         dailyData[date] = { date, value: 0 };
       }
@@ -97,7 +98,7 @@ const MetricsDashboard: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Total Expenses
             </Typography>
-            <Typography variant="h4">${aggregatedData?.total?.toFixed(2) || '0.00'}</Typography>
+            <Typography variant="h4">${aggregatedData?.total?.toFixed(2) || "0.00"}</Typography>
           </Paper>
         </Grid>
 
@@ -106,7 +107,7 @@ const MetricsDashboard: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Average Daily Expense
             </Typography>
-            <Typography variant="h4">${aggregatedData?.average?.toFixed(2) || '0.00'}</Typography>
+            <Typography variant="h4">${aggregatedData?.average?.toFixed(2) || "0.00"}</Typography>
           </Paper>
         </Grid>
 

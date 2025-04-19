@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema as MongooseSchema } from 'mongoose';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { OCRService } from '../../services/ocr/ocr.service';
-import { R2Service } from '../../services/r2/r2.service';
-import { GooglePhotosService } from '../services/google-photos.service';
-import { ReceiptConverterService } from './receipt/receipt-converter.service';
-import { RateLimiter } from 'limiter';
-import { retry } from 'ts-retry-promise';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import { RateLimiter } from "limiter";
+import { type Model, Schema as MongooseSchema } from "mongoose";
+import { retry } from "ts-retry-promise";
+import type { OCRService } from "../../services/ocr/ocr.service";
+import type { R2Service } from "../../services/r2/r2.service";
+import type { GooglePhotosService } from "../services/google-photos.service";
+import type { ReceiptConverterService } from "./receipt/receipt-converter.service";
 
 interface ProcessReceiptOptions {
-  source: 'CSV' | 'EMAIL' | 'GOOGLE_PHOTOS' | 'MANUAL' | 'UPLOAD';
+  source: "CSV" | "EMAIL" | "GOOGLE_PHOTOS" | "MANUAL" | "UPLOAD";
   expenseData?: {
     merchant: string;
     amount: number;
@@ -39,7 +39,7 @@ interface ReceiptMatch {
 
 interface ProcessingProgress {
   source: string;
-  status: 'initializing' | 'processing' | 'completed' | 'error';
+  status: "initializing" | "processing" | "completed" | "error";
   progress: number;
   total: number;
   error?: string;
@@ -54,15 +54,18 @@ export class UnifiedReceiptProcessorService {
   private readonly progressMap = new Map<string, ProcessingProgress>();
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
     private readonly googlePhotosService: GooglePhotosService,
     private readonly receiptConverter: ReceiptConverterService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
   ) {
     // Allow 50 requests per minute
-    this.rateLimiter = new RateLimiter({ tokensPerInterval: 50, interval: 'minute' });
+    this.rateLimiter = new RateLimiter({
+      tokensPerInterval: 50,
+      interval: "minute",
+    });
   }
 
   private async withRateLimit<T>(fn: () => Promise<T>): Promise<T> {
@@ -83,15 +86,15 @@ export class UnifiedReceiptProcessorService {
       {
         retries: this.MAX_RETRIES,
         delay: this.RETRY_DELAY,
-        backoff: 'LINEAR',
-      }
+        backoff: "LINEAR",
+      },
     );
   }
 
   private updateProgress(source: string, progress: Partial<ProcessingProgress>) {
     const current = this.progressMap.get(source) || {
       source,
-      status: 'matched',
+      status: "matched",
       progress: 0,
       total: 1,
     };
@@ -99,29 +102,29 @@ export class UnifiedReceiptProcessorService {
     const updated = { ...current, ...progress };
     this.progressMap.set(source, updated);
 
-    this.eventEmitter.emit('receipt.processing.progress', updated);
+    this.eventEmitter.emit("receipt.processing.progress", updated);
   }
 
   async processReceipt(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     try {
-      this.updateProgress(options.source, { status: 'matched' });
+      this.updateProgress(options.source, { status: "matched" });
 
       let receipt: ReceiptDocument;
 
       switch (options.source) {
-        case 'GOOGLE_PHOTOS':
+        case "GOOGLE_PHOTOS":
           receipt = await this.processGooglePhotos(options);
           break;
-        case 'EMAIL':
+        case "EMAIL":
           receipt = await this.processEmail(options);
           break;
-        case 'UPLOAD':
+        case "UPLOAD":
           receipt = await this.processUpload(options);
           break;
-        case 'CSV':
+        case "CSV":
           receipt = await this.processCSV(options);
           break;
-        case 'MANUAL':
+        case "MANUAL":
           receipt = await this.processManual(options);
           break;
         default:
@@ -129,16 +132,16 @@ export class UnifiedReceiptProcessorService {
       }
 
       this.updateProgress(options.source, {
-        status: 'matched',
+        status: "matched",
         progress: 1,
         total: 1,
       });
 
       return receipt;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       this.updateProgress(options.source, {
-        status: 'matched',
+        status: "matched",
         error: errorMessage,
       });
       throw error;
@@ -147,7 +150,7 @@ export class UnifiedReceiptProcessorService {
 
   private async processGooglePhotos(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     if (!options.expenseData) {
-      throw new Error('Expense data is required for Google Photos processing');
+      throw new Error("Expense data is required for Google Photos processing");
     }
 
     return await this.withRetry(async () => {
@@ -159,24 +162,24 @@ export class UnifiedReceiptProcessorService {
       });
 
       if (matchedReceipts.length != null) {
-        throw new Error('No matching receipts found in Google Photos');
+        throw new Error("No matching receipts found in Google Photos");
       }
 
       // Return the best match
       return matchedReceipts[0];
-    }, 'Google Photos processing');
+    }, "Google Photos processing");
   }
 
   private async processEmail(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     if (!options.file) {
-      throw new Error('File data is required for email processing');
+      throw new Error("File data is required for email processing");
     }
 
     return await this.withRetry(async () => {
       // Process the email attachment
       const processedData = await this.receiptConverter.processEmailAttachment(
         options.file!.buffer,
-        options.file!.filename
+        options.file!.filename,
       );
 
       // Store in R2
@@ -187,7 +190,7 @@ export class UnifiedReceiptProcessorService {
 
       // Generate and upload thumbnail
       const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
-      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
+      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, "image/jpeg");
 
       // Get signed URLs
       const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
@@ -203,26 +206,26 @@ export class UnifiedReceiptProcessorService {
         userId: options.userId,
         r2Key,
         r2ThumbnailKey,
-        source: 'EMAIL',
+        source: "EMAIL",
         metadata: {
           mimeType: options.file!.mimeType,
           size: options.file!.buffer.length,
         },
         ...processedData,
       });
-    }, 'Email processing');
+    }, "Email processing");
   }
 
   private async processUpload(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     if (!options.file) {
-      throw new Error('File data is required for upload processing');
+      throw new Error("File data is required for upload processing");
     }
 
     return await this.withRetry(async () => {
       // Process the uploaded file
       const processedData = await this.receiptConverter.processUploadedFile(
         options.file!.buffer,
-        options.file!.filename
+        options.file!.filename,
       );
 
       // Store in R2
@@ -233,7 +236,7 @@ export class UnifiedReceiptProcessorService {
 
       // Generate and upload thumbnail
       const thumbnail = await this.r2Service.generateThumbnail(options.file!.buffer);
-      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
+      await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, "image/jpeg");
 
       // Get signed URLs
       const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
@@ -249,26 +252,26 @@ export class UnifiedReceiptProcessorService {
         userId: options.userId,
         r2Key,
         r2ThumbnailKey,
-        source: 'UPLOAD',
+        source: "UPLOAD",
         metadata: {
           mimeType: options.file!.mimeType,
           size: options.file!.buffer.length,
         },
         ...processedData,
       });
-    }, 'Upload processing');
+    }, "Upload processing");
   }
 
   private async processCSV(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     if (!options.file) {
-      throw new Error('File data is required for CSV processing');
+      throw new Error("File data is required for CSV processing");
     }
 
     return await this.withRetry(async () => {
       // Process the CSV file
       const processedData = await this.receiptConverter.processCSVFile(
         options.file!.buffer,
-        options.file!.filename
+        options.file!.filename,
       );
 
       // Create receipt record
@@ -277,19 +280,19 @@ export class UnifiedReceiptProcessorService {
         merchant: options.expenseData?.merchant,
         amount: options.expenseData?.amount,
         userId: options.userId,
-        source: 'CSV',
+        source: "CSV",
         metadata: {
           mimeType: options.file!.mimeType,
           size: options.file!.buffer.length,
         },
         ...processedData,
       });
-    }, 'CSV processing');
+    }, "CSV processing");
   }
 
   private async processManual(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
     if (!options.expenseData) {
-      throw new Error('Expense data is required for manual processing');
+      throw new Error("Expense data is required for manual processing");
     }
 
     return await this.withRetry(async () => {
@@ -299,12 +302,12 @@ export class UnifiedReceiptProcessorService {
         amount: options.expenseData!.amount,
         date: options.expenseData!.date,
         userId: options.userId,
-        source: 'MANUAL',
+        source: "MANUAL",
         metadata: {
           processedAt: new Date(),
         },
       });
-    }, 'Manual processing');
+    }, "Manual processing");
   }
 
   private async calculateMatchScore(
@@ -313,7 +316,7 @@ export class UnifiedReceiptProcessorService {
       merchant: string;
       amount: number;
       date: Date;
-    }
+    },
   ): Promise<ReceiptMatch> {
     const merchantMatch = this.calculateMerchantMatchScore(receipt.merchant, expenseData.merchant);
 
@@ -340,7 +343,7 @@ export class UnifiedReceiptProcessorService {
   private calculateMerchantMatchScore(merchant1: string, merchant2: string): number {
     if (!merchant1 || !merchant2) return 0;
 
-    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const m1 = normalize(merchant1);
     const m2 = normalize(merchant2);
 
@@ -390,7 +393,7 @@ export class UnifiedReceiptProcessorService {
         matrix[i][j] = Math.min(
           matrix[i - 1][j] + 1, // deletion
           matrix[i][j - 1] + 1, // insertion
-          matrix[i - 1][j - 1] + cost // substitution
+          matrix[i - 1][j - 1] + cost, // substitution
         );
       }
     }
@@ -403,7 +406,7 @@ export class UnifiedReceiptProcessorService {
       ...data,
       metadata: {
         ...data.metadata,
-        processingStatus: 'PENDING',
+        processingStatus: "PENDING",
         version: 1,
         importDate: new Date(),
         r2Keys: data.metadata?.r2Keys || {},

@@ -1,4 +1,4 @@
-import { BaseDocument } from './schemas/base.schema';
+import type { BaseDocument } from "./schemas/base.schema";
 
 /**
  * Interface representing a metrics record
@@ -34,14 +34,14 @@ export interface Metrics extends BaseDocument {
  * Type for metric types that can be recorded
  */
 export type MetricType =
-  | 'spending'
-  | 'income'
-  | 'savings'
-  | 'budget'
-  | 'category'
-  | 'merchant'
-  | 'recurring'
-  | 'split';
+  | "spending"
+  | "income"
+  | "savings"
+  | "budget"
+  | "category"
+  | "merchant"
+  | "recurring"
+  | "split";
 
 /**
  * Interface for metrics metadata

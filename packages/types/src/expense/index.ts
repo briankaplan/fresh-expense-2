@@ -1,5 +1,5 @@
-import { Types } from 'mongoose';
-import { ExpenseStatus } from '../lib/types';
+import type { Types } from "mongoose";
+import type { ExpenseStatus } from "../lib/types";
 
 export interface ExpenseBase {
   id: string;
@@ -34,7 +34,7 @@ export interface Expense extends ExpenseBase {
   isDeleted: boolean;
 }
 
-export const EXPENSE_TYPES = ['receipt', 'bill', 'subscription'] as const;
-export type ExpenseType = typeof EXPENSE_TYPES[number];
+export const EXPENSE_TYPES = ["receipt", "bill", "subscription"] as const;
+export type ExpenseType = (typeof EXPENSE_TYPES)[number];
 
-export * from './expense.schema';
+export * from "./expense.schema";

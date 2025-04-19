@@ -1,6 +1,6 @@
-import { ApiError, ExpenseCategory } from '@fresh-expense/types';
-import { formatCurrency } from '@/utils/format';
-import api from './api';
+import { formatCurrency } from "@/utils/format";
+import type { ApiError, ExpenseCategory } from "@fresh-expense/types";
+import api from "./api";
 
 export interface Expense {
   id: string;
@@ -14,7 +14,7 @@ export interface Expense {
   createdAt: string;
   updatedAt: string;
   tags: string[];
-  company: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company: "Down Home" | "Music City Rodeo" | "Personal";
   aiSuggestions?: {
     category?: string;
     description?: string;
@@ -61,7 +61,7 @@ export interface ExpenseFilter {
   maxAmount?: number;
   status?: string;
   sortField?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   page?: number;
   limit?: number;
 }
@@ -75,7 +75,7 @@ export interface ExpenseResponse {
 
 class ExpenseService {
   private static instance: ExpenseService;
-  private baseUrl = '/api/expenses';
+  private baseUrl = "/api/expenses";
 
   private constructor() {}
 
@@ -87,7 +87,9 @@ class ExpenseService {
   }
 
   async getExpenses(filters: ExpenseFilter): Promise<PaginatedExpenses> {
-    const response = await api.get<PaginatedExpenses>(this.baseUrl, { params: filters });
+    const response = await api.get<PaginatedExpenses>(this.baseUrl, {
+      params: filters,
+    });
     return response.data;
   }
 
@@ -96,7 +98,7 @@ class ExpenseService {
     return response.data;
   }
 
-  async createExpense(expense: Omit<Expense, 'id' | 'status'>): Promise<Expense> {
+  async createExpense(expense: Omit<Expense, "id" | "status">): Promise<Expense> {
     const response = await api.post<Expense>(this.baseUrl, expense);
     return response.data;
   }
@@ -147,10 +149,10 @@ class ExpenseService {
     return response.data;
   }
 
-  async exportExpenses(format: 'csv' | 'excel' | 'pdf', filters?: ExpenseFilter): Promise<Blob> {
+  async exportExpenses(format: "csv" | "excel" | "pdf", filters?: ExpenseFilter): Promise<Blob> {
     const response = await api.get(`${this.baseUrl}/export`, {
       params: { ...filters, format },
-      responseType: 'blob',
+      responseType: "blob",
     });
     return response.data;
   }
@@ -169,7 +171,7 @@ class ExpenseService {
       return response.data;
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to fetch expense summary');
+      throw new Error(apiError.message || "Failed to fetch expense summary");
     }
   }
 }

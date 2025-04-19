@@ -7,10 +7,10 @@
  * and standardizing whitespace
  */
 export function normalizeText(text: string): string {
-  if (!text) return '';
+  if (!text) return "";
   return text
     .toLowerCase()
-    .replace(/[^\w\s]/g, '')
+    .replace(/[^\w\s]/g, "")
     .trim();
 }
 
@@ -93,7 +93,7 @@ export function calculateJaccardSimilarity(text1: string, text2: string): number
   const normalize = (str: string) =>
     str
       .toLowerCase()
-      .replace(/[^\w\s]/g, '')
+      .replace(/[^\w\s]/g, "")
       .trim();
 
   const words1 = new Set(normalize(text1).split(/\s+/).filter(Boolean));
@@ -102,7 +102,7 @@ export function calculateJaccardSimilarity(text1: string, text2: string): number
   if (words1.size === 0 && words2.size === 0) return 1;
   if (words1.size === 0 || words2.size === 0) return 0;
 
-  const intersection = new Set([...words1].filter(x => words2.has(x)));
+  const intersection = new Set([...words1].filter((x) => words2.has(x)));
   const union = new Set([...words1, ...words2]);
 
   return intersection.size / union.size;

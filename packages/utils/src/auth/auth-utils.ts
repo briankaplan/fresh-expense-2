@@ -1,11 +1,11 @@
-import { ExecutionContext } from '@nestjs/common';
+import type { ExecutionContext } from "@nestjs/common";
 
 /**
  * Standard handler for checking auth results
  */
 export function handleAuthResult(err: any, user: any): any {
   if (err || !user) {
-    throw err || new Error('Unauthorized');
+    throw err || new Error("Unauthorized");
   }
   return user;
 }
@@ -15,11 +15,11 @@ export function handleAuthResult(err: any, user: any): any {
  */
 export function getRequestFromContext(context: ExecutionContext): any {
   const contextType = context.getType();
-  if (contextType === 'http') {
+  if (contextType === "http") {
     return context.switchToHttp().getRequest();
-  } else if (contextType === 'ws') {
+  } else if (contextType === "ws") {
     return context.switchToWs().getClient();
-  } else if (contextType === 'rpc') {
+  } else if (contextType === "rpc") {
     return context.switchToRpc().getData();
   }
   throw new Error(`Unsupported context type: ${contextType}`);

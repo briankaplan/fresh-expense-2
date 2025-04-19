@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export interface SubscriptionPayment {
   amount: number;
@@ -27,8 +27,8 @@ export class Subscription implements BaseDocument {
   @Prop({ required: true })
   amount!: number;
 
-  @Prop({ required: true, enum: ['monthly', 'annual', 'weekly'] })
-  frequency!: 'monthly' | 'annual' | 'weekly';
+  @Prop({ required: true, enum: ["monthly", "annual", "weekly"] })
+  frequency!: "monthly" | "annual" | "weekly";
 
   @Prop({ required: true })
   startDate!: Date;
@@ -36,8 +36,8 @@ export class Subscription implements BaseDocument {
   @Prop()
   endDate?: Date;
 
-  @Prop({ required: true, enum: ['active', 'cancelled', 'paused'] })
-  status!: 'active' | 'cancelled' | 'paused';
+  @Prop({ required: true, enum: ["active", "cancelled", "paused"] })
+  status!: "active" | "cancelled" | "paused";
 
   @Prop({ type: [Object] })
   payments!: SubscriptionPayment[];
@@ -73,5 +73,5 @@ export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);
 SubscriptionSchema.index({ userId: 1 });
 SubscriptionSchema.index({ merchant: 1 });
 SubscriptionSchema.index({ status: 1 });
-SubscriptionSchema.index({ 'payments.date': -1 });
+SubscriptionSchema.index({ "payments.date": -1 });
 SubscriptionSchema.index({ nextPaymentDate: 1 });

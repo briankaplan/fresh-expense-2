@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from "react";
 interface AnimatedWrapperProps {
-    children: React.ReactNode;
-    delay?: number;
+  children: React.ReactNode;
+  delay?: number;
 }
 declare const AnimatedWrapper: React.FC<AnimatedWrapperProps>;
 export default AnimatedWrapper;

@@ -10,11 +10,11 @@ export interface ServiceConfig {
 }
 
 export enum ServiceType {
-  CORE = 'core',
-  UTILITY = 'utility',
-  INTEGRATION = 'integration',
-  WORKER = 'worker',
-  API = 'api'
+  CORE = "core",
+  UTILITY = "utility",
+  INTEGRATION = "integration",
+  WORKER = "worker",
+  API = "api",
 }
 
 export interface ServiceMetrics {
@@ -24,7 +24,7 @@ export interface ServiceMetrics {
 }
 
 export interface ServiceHealth {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   lastCheck: Date;
   message?: string;
   metrics?: ServiceMetrics;

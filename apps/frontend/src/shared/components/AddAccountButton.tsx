@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import AddIcon from "@mui/icons-material/Add";
 import {
+  Box,
   Button,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  TextField,
+  DialogContent,
+  DialogTitle,
   MenuItem,
-  Box,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+  TextField,
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
 
 const accountTypes = [
-  { value: 'checking', label: 'Checking Account' },
-  { value: 'savings', label: 'Savings Account' },
-  { value: 'credit', label: 'Credit Card' },
+  { value: "checking", label: "Checking Account" },
+  { value: "savings", label: "Savings Account" },
+  { value: "credit", label: "Credit Card" },
 ];
 
 interface AddAccountButtonProps {
@@ -24,10 +25,10 @@ interface AddAccountButtonProps {
 const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    type: '',
-    institution: '',
-    lastFour: '',
+    name: "",
+    type: "",
+    institution: "",
+    lastFour: "",
   });
 
   const handleOpen = () => setOpen(true);
@@ -35,13 +36,13 @@ const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement account creation logic
-    console.log('Creating account:', formData);
+    console.log("Creating account:", formData);
     handleClose();
   };
 
@@ -60,7 +61,7 @@ const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }
         <DialogTitle>Add New Account</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <TextField
                 name="name"
                 label="Account Name"
@@ -78,7 +79,7 @@ const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }
                 fullWidth
                 required
               >
-                {accountTypes.map(option => (
+                {accountTypes.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -99,7 +100,7 @@ const AddAccountButton: React.FC<AddAccountButtonProps> = ({ fullWidth = false }
                 onChange={handleChange}
                 fullWidth
                 required
-                inputProps={{ maxLength: 4, pattern: '[0-9]*' }}
+                inputProps={{ maxLength: 4, pattern: "[0-9]*" }}
               />
             </Box>
           </DialogContent>

@@ -1,25 +1,25 @@
-import { describe, it, expect, vi } from 'vitest';
-import { Collection, ObjectId, Document } from 'mongodb';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException } from "@nestjs/common";
+import { type Collection, type Document, ObjectId } from "mongodb";
+import { describe, expect, it, vi } from "vitest";
 import {
-  findEntityById,
-  updateEntity,
-  deleteEntity,
   buildDateRangeQuery,
   createPaginationParams,
   createSortOptions,
+  deleteEntity,
+  findEntityById,
   getPaginatedResults,
-} from './collection-helpers';
+  updateEntity,
+} from "./collection-helpers";
 
 interface TestDocument extends Document {
   _id: ObjectId;
   name?: string;
 }
 
-describe('Database Collection Helpers', () => {
-  describe('findEntityById', () => {
-    it('should find entity by ID', async () => {
-      const mockEntity = { _id: new ObjectId(), name: 'Test' } as TestDocument;
+describe("Database Collection Helpers", () => {
+  describe("findEntityById", () => {
+    it("should find entity by ID", async () => {
+      const mockEntity = { _id: new ObjectId(), name: "Test" } as TestDocument;
       const mockCollection = {
         findOne: vi.fn().mockResolvedValue(mockEntity),
       } as unknown as Collection<TestDocument>;
@@ -31,7 +31,7 @@ describe('Database Collection Helpers', () => {
       });
     });
 
-    it('should throw NotFoundException when entity not found', async () => {
+    it("should throw NotFoundException when entity not found", async () => {
       const mockCollection = {
         findOne: vi.fn().mockResolvedValue(null),
       } as unknown as Collection<TestDocument>;
@@ -42,26 +42,29 @@ describe('Database Collection Helpers', () => {
     });
   });
 
-  describe('updateEntity', () => {
-    it('should update entity by ID', async () => {
-      const mockEntity = { _id: new ObjectId(), name: 'Updated' } as TestDocument;
+  describe("updateEntity", () => {
+    it("should update entity by ID", async () => {
+      const mockEntity = {
+        _id: new ObjectId(),
+        name: "Updated",
+      } as TestDocument;
       const mockCollection = {
         findOneAndUpdate: vi.fn().mockResolvedValue(mockEntity),
       } as unknown as Collection<TestDocument>;
 
       const result = await updateEntity(mockCollection, mockEntity._id.toString(), {
-        name: 'Updated',
+        name: "Updated",
       });
 
       expect(result).toEqual(mockEntity);
       expect(mockCollection.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: expect.any(ObjectId) },
-        { $set: { name: 'Updated' } },
-        { returnDocument: 'after' },
+        { $set: { name: "Updated" } },
+        { returnDocument: "after" },
       );
     });
 
-    it('should throw NotFoundException when entity not found', async () => {
+    it("should throw NotFoundException when entity not found", async () => {
       const mockCollection = {
         findOneAndUpdate: vi.fn().mockResolvedValue(null),
       } as unknown as Collection<TestDocument>;
@@ -72,8 +75,8 @@ describe('Database Collection Helpers', () => {
     });
   });
 
-  describe('deleteEntity', () => {
-    it('should delete entity by ID', async () => {
+  describe("deleteEntity", () => {
+    it("should delete entity by ID", async () => {
       const mockCollection = {
         deleteOne: vi.fn().mockResolvedValue({ deletedCount: 1 }),
       } as unknown as Collection<TestDocument>;
@@ -85,7 +88,7 @@ describe('Database Collection Helpers', () => {
       });
     });
 
-    it('should return false when entity not found', async () => {
+    it("should return false when entity not found", async () => {
       const mockCollection = {
         deleteOne: vi.fn().mockResolvedValue({ deletedCount: 0 }),
       } as unknown as Collection<TestDocument>;
@@ -95,11 +98,11 @@ describe('Database Collection Helpers', () => {
     });
   });
 
-  describe('buildDateRangeQuery', () => {
-    it('should build date range query with both dates', () => {
-      const startDate = new Date('2024-01-01');
-      const endDate = new Date('2024-12-31');
-      const result = buildDateRangeQuery('date', startDate, endDate);
+  describe("buildDateRangeQuery", () => {
+    it("should build date range query with both dates", () => {
+      const startDate = new Date("2024-01-01");
+      const endDate = new Date("2024-12-31");
+      const result = buildDateRangeQuery("date", startDate, endDate);
 
       expect(result).toEqual({
         date: {
@@ -109,9 +112,9 @@ describe('Database Collection Helpers', () => {
       });
     });
 
-    it('should build date range query with only start date', () => {
-      const startDate = new Date('2024-01-01');
-      const result = buildDateRangeQuery('date', startDate);
+    it("should build date range query with only start date", () => {
+      const startDate = new Date("2024-01-01");
+      const result = buildDateRangeQuery("date", startDate);
 
       expect(result).toEqual({
         date: {
@@ -120,44 +123,44 @@ describe('Database Collection Helpers', () => {
       });
     });
 
-    it('should return empty object when no dates provided', () => {
-      const result = buildDateRangeQuery('date');
+    it("should return empty object when no dates provided", () => {
+      const result = buildDateRangeQuery("date");
       expect(result).toEqual({});
     });
   });
 
-  describe('createPaginationParams', () => {
-    it('should create pagination params with default values', () => {
+  describe("createPaginationParams", () => {
+    it("should create pagination params with default values", () => {
       const result = createPaginationParams();
       expect(result).toEqual({ skip: 0, limit: 10 });
     });
 
-    it('should create pagination params with custom values', () => {
+    it("should create pagination params with custom values", () => {
       const result = createPaginationParams(3, 20);
       expect(result).toEqual({ skip: 40, limit: 20 });
     });
   });
 
-  describe('createSortOptions', () => {
-    it('should create ascending sort options', () => {
-      const result = createSortOptions('name:asc');
+  describe("createSortOptions", () => {
+    it("should create ascending sort options", () => {
+      const result = createSortOptions("name:asc");
       expect(result).toEqual({ name: 1 });
     });
 
-    it('should create descending sort options', () => {
-      const result = createSortOptions('date:desc');
+    it("should create descending sort options", () => {
+      const result = createSortOptions("date:desc");
       expect(result).toEqual({ date: -1 });
     });
 
-    it('should use default sort when no sort string provided', () => {
+    it("should use default sort when no sort string provided", () => {
       const result = createSortOptions();
       expect(result).toEqual({ _id: -1 });
     });
   });
 
-  describe('getPaginatedResults', () => {
-    it('should get paginated results', async () => {
-      const mockItems = [{ _id: new ObjectId(), name: 'Item 1' }] as TestDocument[];
+  describe("getPaginatedResults", () => {
+    it("should get paginated results", async () => {
+      const mockItems = [{ _id: new ObjectId(), name: "Item 1" }] as TestDocument[];
       const mockCollection = {
         find: vi.fn().mockReturnValue({
           sort: vi.fn().mockReturnThis(),

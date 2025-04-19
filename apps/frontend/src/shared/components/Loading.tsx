@@ -1,17 +1,17 @@
-import React from 'react';
-import { LoadingProps } from '@/shared/types';
+import type { LoadingProps } from "@/shared/types";
+import type React from "react";
 
-const Loading: React.FC<LoadingProps> = ({ size = 'medium', color = 'primary' }) => {
+const Loading: React.FC<LoadingProps> = ({ size = "medium", color = "primary" }) => {
   const sizeClasses = {
-    small: 'w-4 h-4',
-    medium: 'w-8 h-8',
-    large: 'w-12 h-12',
+    small: "w-4 h-4",
+    medium: "w-8 h-8",
+    large: "w-12 h-12",
   };
 
   const colorClasses = {
-    primary: 'text-primary-600',
-    white: 'text-white',
-    gray: 'text-gray-600',
+    primary: "text-primary-600",
+    white: "text-white",
+    gray: "text-gray-600",
   };
 
   return (

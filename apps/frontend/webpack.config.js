@@ -1,24 +1,24 @@
-const path = require('path');
+const path = require("path");
 
-const { withReact } = require('@nx/react');
-const { composePlugins, withNx } = require('@nx/webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { withReact } = require("@nx/react");
+const { composePlugins, withNx } = require("@nx/webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 // Nx plugins for webpack.
-module.exports = composePlugins(withNx(), withReact(), config => {
+module.exports = composePlugins(withNx(), withReact(), (config) => {
   // Update the webpack config as needed here.
   config.plugins = [
     ...(config.plugins || []),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'src/index.html'),
-      filename: 'index.html',
+      template: path.resolve(__dirname, "src/index.html"),
+      filename: "index.html",
       inject: true,
     }),
   ];
 
   config.resolve = {
     ...config.resolve,
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+    extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   };
 
   config.devServer = {
@@ -27,10 +27,10 @@ module.exports = composePlugins(withNx(), withReact(), config => {
     hot: true,
     historyApiFallback: true,
     static: {
-      directory: path.join(__dirname, 'src/assets'),
+      directory: path.join(__dirname, "src/assets"),
     },
     proxy: {
-      '/api': 'http://localhost:3000',
+      "/api": "http://localhost:3000",
     },
   };
 

@@ -1,7 +1,7 @@
-import React from 'react';
-import { DataTable, Column } from '@fresh-expense/ui';
-import { formatCurrency } from '@fresh-expense/utils';
-import { Merchant } from '@fresh-expense/types';
+import { Merchant } from "@fresh-expense/types";
+import { type Column, DataTable } from "@fresh-expense/ui";
+import { formatCurrency } from "@fresh-expense/utils";
+import React from "react";
 
 export interface Merchant {
   id: string;
@@ -21,35 +21,35 @@ interface MerchantListProps {
 export function MerchantList({ merchants, loading = false, onMerchantClick }: MerchantListProps) {
   const columns: Column<Merchant>[] = [
     {
-      id: 'name',
-      label: 'Merchant',
+      id: "name",
+      label: "Merchant",
       minWidth: 200,
       sortable: true,
     },
     {
-      id: 'category',
-      label: 'Category',
+      id: "category",
+      label: "Category",
       minWidth: 150,
       sortable: true,
     },
     {
-      id: 'totalSpent',
-      label: 'Total Spent',
+      id: "totalSpent",
+      label: "Total Spent",
       minWidth: 150,
-      align: 'right' as const,
+      align: "right" as const,
       format: (value: number) => formatCurrency(value),
       sortable: true,
     },
     {
-      id: 'transactionCount',
-      label: 'Transactions',
+      id: "transactionCount",
+      label: "Transactions",
       minWidth: 100,
-      align: 'right' as const,
+      align: "right" as const,
       sortable: true,
     },
     {
-      id: 'lastTransactionDate',
-      label: 'Last Transaction',
+      id: "lastTransactionDate",
+      label: "Last Transaction",
       minWidth: 150,
       sortable: true,
     },

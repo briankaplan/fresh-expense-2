@@ -1,4 +1,4 @@
-import { ExpenseCategory } from '@fresh-expense/types';
+import { ExpenseCategory } from "@fresh-expense/types";
 
 /**
  * Formats a number as currency
@@ -6,9 +6,9 @@ import { ExpenseCategory } from '@fresh-expense/types';
  * @param currency The currency code (default: 'USD')
  * @returns Formatted currency string
  */
-export function formatCurrency(amount: number, currency = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+export function formatCurrency(amount: number, currency = "USD"): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
   }).format(amount);
 }
@@ -22,10 +22,10 @@ export function formatDate(dateString: string): string {
   const date = new Date(dateString);
   // Add timezone offset to handle UTC dates correctly
   const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return localDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  return localDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 }
 
@@ -65,7 +65,7 @@ export function groupByCategoryWithDetails(
   expenses: { categoryId: string; amount: number }[],
   categories: { id: string; name: string; icon: string }[],
 ): Record<string, { category: { id: string; name: string; icon: string }; total: number }> {
-  const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+  const categoryMap = new Map(categories.map((cat) => [cat.id, cat]));
 
   return expenses.reduce(
     (groups, expense) => {
@@ -96,8 +96,8 @@ export function isValidISODate(dateString: string): boolean {
     return (
       date instanceof Date &&
       !isNaN(date.getTime()) &&
-      dateString.includes('T') && // Ensure it's a full ISO string
-      dateString.includes('Z')
+      dateString.includes("T") && // Ensure it's a full ISO string
+      dateString.includes("Z")
     ); // Ensure it's UTC
   } catch {
     return false;

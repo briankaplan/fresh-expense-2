@@ -8,9 +8,7 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false
   },
-  "references": [
-    { "path": "../types" }
-  ],
+  "references": [{ "path": "../types" }],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/twilio.processor.ts"]
 }

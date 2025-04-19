@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import type { ExpenseFilter } from "@/services/expense.service";
+import FilterPresetService, { type FilterPreset } from "@/services/filter-preset.service";
+import {
+  Add as AddIcon,
+  MoreVert as MoreVertIcon,
+  StarBorder as StarBorderIcon,
+  Star as StarIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  TextField,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
   List,
   ListItem,
-  ListItemText,
   ListItemSecondaryAction,
-  IconButton,
+  ListItemText,
   Menu,
   MenuItem,
+  TextField,
   Typography,
-  Divider,
-} from '@mui/material';
-import {
-  MoreVert as MoreVertIcon,
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-  Add as AddIcon,
-} from '@mui/icons-material';
-import FilterPresetService, { FilterPreset } from '@/services/filter-preset.service';
-import { ExpenseFilter } from '@/services/expense.service';
+} from "@mui/material";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface FilterPresetManagerProps {
   open: boolean;
@@ -40,7 +41,7 @@ export function FilterPresetManager({
   onApplyPreset,
 }: FilterPresetManagerProps) {
   const [presets, setPresets] = useState<FilterPreset[]>([]);
-  const [newPresetName, setNewPresetName] = useState('');
+  const [newPresetName, setNewPresetName] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPreset, setSelectedPreset] = useState<FilterPreset | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -67,7 +68,7 @@ export function FilterPresetManager({
     };
 
     await filterPresetService.createPreset(newPreset);
-    setNewPresetName('');
+    setNewPresetName("");
     setIsCreating(false);
     loadPresets();
   };
@@ -107,14 +108,14 @@ export function FilterPresetManager({
               Save Current Filters as Preset
             </Button>
           ) : (
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
               <TextField
                 autoFocus
                 fullWidth
                 label="Preset Name"
                 value={newPresetName}
-                onChange={e => setNewPresetName(e.target.value)}
-                onKeyPress={e => e.key === 'Enter' && handleCreatePreset()}
+                onChange={(e) => setNewPresetName(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleCreatePreset()}
               />
               <Button onClick={handleCreatePreset} variant="contained">
                 Save
@@ -127,11 +128,11 @@ export function FilterPresetManager({
         <Divider sx={{ my: 2 }} />
 
         <List>
-          {presets.map(preset => (
+          {presets.map((preset) => (
             <ListItem key={preset.id} button onClick={() => onApplyPreset(preset.filters)}>
               <ListItemText
                 primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {preset.name}
                     {preset.isDefault && <StarIcon color="primary" fontSize="small" />}
                   </Box>
@@ -139,7 +140,7 @@ export function FilterPresetManager({
                 secondary={preset.description}
               />
               <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={e => handleMenuClick(e, preset)}>
+                <IconButton edge="end" onClick={(e) => handleMenuClick(e, preset)}>
                   <MoreVertIcon />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -175,7 +176,7 @@ export function FilterPresetManager({
               }
               handleMenuClose();
             }}
-            sx={{ color: 'error.main' }}
+            sx={{ color: "error.main" }}
           >
             Delete Preset
           </MenuItem>

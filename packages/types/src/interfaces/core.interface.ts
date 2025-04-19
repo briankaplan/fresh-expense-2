@@ -2,7 +2,7 @@
  * Core interfaces that serve as the source of truth for the application
  */
 
-export * from './user.interface';
+export * from "./user.interface";
 
 export interface ApiError {
   message: string;

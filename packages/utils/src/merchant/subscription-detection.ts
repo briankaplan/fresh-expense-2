@@ -1,4 +1,4 @@
-import { BaseTransactionData, FrequencyType } from '@fresh-expense/types';
+import type { BaseTransactionData, FrequencyType } from "@fresh-expense/types";
 
 export interface SubscriptionInfo {
   isSubscription: boolean;
@@ -48,15 +48,15 @@ export function detectSubscription(transactions: BaseTransactionData[]): Subscri
   let frequency: FrequencyType;
 
   if (daysInterval <= 1) {
-    frequency = 'daily';
+    frequency = "daily";
   } else if (daysInterval <= 7) {
-    frequency = 'weekly';
+    frequency = "weekly";
   } else if (daysInterval <= 31) {
-    frequency = 'monthly';
+    frequency = "monthly";
   } else if (daysInterval <= 92) {
-    frequency = 'quarterly';
+    frequency = "quarterly";
   } else {
-    frequency = 'yearly';
+    frequency = "yearly";
   }
 
   // Calculate next expected date
@@ -79,12 +79,12 @@ export function detectSubscription(transactions: BaseTransactionData[]): Subscri
  */
 export function calculateFrequency(
   transactions: BaseTransactionData[],
-): 'one-time' | 'recurring' | 'sporadic' {
-  if (!transactions || transactions.length <= 1) return 'one-time';
+): "one-time" | "recurring" | "sporadic" {
+  if (!transactions || transactions.length <= 1) return "one-time";
 
   // Convert dates to timestamps and sort
   const sortedDates = transactions
-    .map(t => (t.date instanceof Date ? t.date : new Date(t.date)).getTime())
+    .map((t) => (t.date instanceof Date ? t.date : new Date(t.date)).getTime())
     .sort((a, b) => a - b);
 
   // Calculate intervals between transactions
@@ -93,7 +93,7 @@ export function calculateFrequency(
     intervals.push(sortedDates[i] - sortedDates[i - 1]);
   }
 
-  if (intervals.length != null) return 'one-time';
+  if (intervals.length != null) return "one-time";
 
   // Calculate standard deviation of intervals
   const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
@@ -102,5 +102,5 @@ export function calculateFrequency(
   );
 
   // If standard deviation is low relative to average interval, it's recurring
-  return stdDev / avgInterval < 0.2 ? 'recurring' : 'sporadic';
+  return stdDev / avgInterval < 0.2 ? "recurring" : "sporadic";
 }

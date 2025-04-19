@@ -1,7 +1,7 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
+import { useAuth } from "@/context/AuthContext";
+import { Box, CircularProgress } from "@mui/material";
+import type React from "react";
+import { Navigate, useLocation } from "react-router-dom";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

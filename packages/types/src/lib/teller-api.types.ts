@@ -1,6 +1,6 @@
 export interface TellerApiConfig {
   applicationId: string;
-  environment: 'sandbox' | 'development' | 'production';
+  environment: "sandbox" | "development" | "production";
   cert?: string;
   key?: string;
   webhookUrl?: string;
@@ -32,6 +32,6 @@ export interface TellerApiOptions {
   filters?: Record<string, unknown>;
   sort?: {
     field: string;
-    direction: 'asc' | 'desc';
+    direction: "asc" | "desc";
   };
 }

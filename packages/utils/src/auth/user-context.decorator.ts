@@ -1,6 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Request } from 'express';
-import { User } from '@fresh-expense/types';
+import type { User } from "@fresh-expense/types";
+import { type ExecutionContext, createParamDecorator } from "@nestjs/common";
+import type { Request } from "express";
 
 export interface UserContext {
   userId: string;
@@ -15,7 +15,7 @@ export const UserContext = createParamDecorator(
     const user = request.user as User;
 
     if (!user) {
-      throw new Error('User not found in request context');
+      throw new Error("User not found in request context");
     }
 
     return {

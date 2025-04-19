@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Box, Typography } from '@mui/material';
-import { DataTable } from '../shared';
-import { useNotification } from '../shared/Notification';
+import { Box, Typography } from "@mui/material";
+import { useState } from "react";
+import { DataTable } from "../shared";
+import { useNotification } from "../shared/Notification";
 
 interface Transaction extends Record<string, unknown> {
   id: string;
@@ -22,11 +22,11 @@ export function TransactionList({ transactions, onTransactionClick }: Transactio
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
   const columns = [
-    { id: 'date', label: 'Date', minWidth: 120 },
-    { id: 'description', label: 'Description', minWidth: 200 },
-    { id: 'amount', label: 'Amount', minWidth: 120, align: 'right' },
-    { id: 'category', label: 'Category', minWidth: 150 },
-    { id: 'merchant', label: 'Merchant', minWidth: 150 },
+    { id: "date", label: "Date", minWidth: 120 },
+    { id: "description", label: "Description", minWidth: 200 },
+    { id: "amount", label: "Amount", minWidth: 120, align: "right" },
+    { id: "category", label: "Category", minWidth: 150 },
+    { id: "merchant", label: "Merchant", minWidth: 150 },
   ] as const;
 
   const handleRowClick = (row: Record<string, unknown>) => {
@@ -36,7 +36,7 @@ export function TransactionList({ transactions, onTransactionClick }: Transactio
   };
 
   return (
-    <Box sx={{ height: 400, width: '100%' }}>
+    <Box sx={{ height: 400, width: "100%" }}>
       <Typography variant="h6" gutterBottom>
         Transactions
       </Typography>

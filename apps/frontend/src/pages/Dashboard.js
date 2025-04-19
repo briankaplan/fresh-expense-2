@@ -1,37 +1,53 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
+var __createBinding =
+  (this && this.__createBinding) ||
+  (Object.create
+    ? (o, m, k, k2) => {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+          desc = {
+            enumerable: true,
+            get: () => m[k],
+          };
+        }
+        Object.defineProperty(o, k2, desc);
+      }
+    : (o, m, k, k2) => {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+      });
+var __setModuleDefault =
+  (this && this.__setModuleDefault) ||
+  (Object.create
+    ? (o, v) => {
+        Object.defineProperty(o, "default", { enumerable: true, value: v });
+      }
+    : (o, v) => {
+        o["default"] = v;
+      });
+var __importStar =
+  (this && this.__importStar) ||
+  (() => {
+    var ownKeys = (o) => {
+      ownKeys =
+        Object.getOwnPropertyNames ||
+        ((o) => {
+          var ar = [];
+          for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+          return ar;
+        });
+      return ownKeys(o);
     };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
+    return (mod) => {
+      if (mod && mod.__esModule) return mod;
+      var result = {};
+      if (mod != null)
+        for (var k = ownKeys(mod), i = 0; i < k.length; i++)
+          if (k[i] !== "default") __createBinding(result, mod, k[i]);
+      __setModuleDefault(result, mod);
+      return result;
     };
-})();
+  })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Dashboard;
 const react_1 = __importStar(require("react"));
@@ -42,74 +58,99 @@ const AuthContext_1 = require("@/context/AuthContext");
 const format_1 = require("@/utils/format");
 const react_hot_toast_1 = require("react-hot-toast");
 function Dashboard() {
-    const { user } = (0, AuthContext_1.useAuth)();
-    const [stats, setStats] = (0, react_1.useState)({
-        totalExpenses: 0,
-        missingReceipts: 0,
-        uncategorizedTransactions: 0,
-        expensesByCompany: {},
-        expensesByCategory: {},
-    });
-    const [loading, setLoading] = (0, react_1.useState)(true);
-    const [transactions, setTransactions] = (0, react_1.useState)([]);
-    (0, react_1.useEffect)(() => {
-        fetchStats();
-    }, [user?.id]);
-    const fetchStats = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch('/api/expenses/stats');
-            if (!response.ok)
-                throw new Error('Failed to fetch stats');
-            const data = await response.json();
-            setStats(data);
-        }
-        catch (error) {
-            console.error('Error fetching stats:', error);
-            react_hot_toast_1.toast.error('Failed to load dashboard statistics');
-        }
-        finally {
-            setLoading(false);
-        }
-    };
-    if (loading) {
-        return (<DashboardLayout_1.DashboardLayout>
-        <material_1.Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+  const { user } = (0, AuthContext_1.useAuth)();
+  const [stats, setStats] = (0, react_1.useState)({
+    totalExpenses: 0,
+    missingReceipts: 0,
+    uncategorizedTransactions: 0,
+    expensesByCompany: {},
+    expensesByCategory: {},
+  });
+  const [loading, setLoading] = (0, react_1.useState)(true);
+  const [transactions, setTransactions] = (0, react_1.useState)([]);
+  (0, react_1.useEffect)(() => {
+    fetchStats();
+  }, [user?.id]);
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/expenses/stats");
+      if (!response.ok) throw new Error("Failed to fetch stats");
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      react_hot_toast_1.toast.error("Failed to load dashboard statistics");
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (loading) {
+    return (
+      <DashboardLayout_1.DashboardLayout>
+        <material_1.Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="400px"
+        >
           <material_1.CircularProgress />
         </material_1.Box>
-      </DashboardLayout_1.DashboardLayout>);
-    }
-    return (<DashboardLayout_1.DashboardLayout title="Dashboard" subtitle={`Welcome back, ${user?.firstName || 'User'}`}>
+      </DashboardLayout_1.DashboardLayout>
+    );
+  }
+  return (
+    <DashboardLayout_1.DashboardLayout
+      title="Dashboard"
+      subtitle={`Welcome back, ${user?.firstName || "User"}`}
+    >
       <material_1.Grid container spacing={3}>
         <material_1.Grid item xs={12} sm={6} md={3}>
-          <DashboardCard_1.DashboardCard title="Total Expenses" subtitle="This month" icon="AttachMoney">
+          <DashboardCard_1.DashboardCard
+            title="Total Expenses"
+            subtitle="This month"
+            icon="AttachMoney"
+          >
             <material_1.Typography variant="h4" color="primary">
               {(0, format_1.formatCurrency)(stats.totalExpenses)}
             </material_1.Typography>
           </DashboardCard_1.DashboardCard>
         </material_1.Grid>
         <material_1.Grid item xs={12} sm={6} md={3}>
-          <DashboardCard_1.DashboardCard title="Missing Receipts" subtitle="Requires attention" icon="Receipt">
+          <DashboardCard_1.DashboardCard
+            title="Missing Receipts"
+            subtitle="Requires attention"
+            icon="Receipt"
+          >
             <material_1.Typography variant="h4" color="error">
               {stats.missingReceipts}
             </material_1.Typography>
           </DashboardCard_1.DashboardCard>
         </material_1.Grid>
         <material_1.Grid item xs={12} sm={6} md={3}>
-          <DashboardCard_1.DashboardCard title="Uncategorized" subtitle="Needs review" icon="Category">
+          <DashboardCard_1.DashboardCard
+            title="Uncategorized"
+            subtitle="Needs review"
+            icon="Category"
+          >
             <material_1.Typography variant="h4" color="warning">
               {stats.uncategorizedTransactions}
             </material_1.Typography>
           </DashboardCard_1.DashboardCard>
         </material_1.Grid>
         <material_1.Grid item xs={12} sm={6} md={3}>
-          <DashboardCard_1.DashboardCard title="Companies" subtitle="Active accounts" icon="Business">
+          <DashboardCard_1.DashboardCard
+            title="Companies"
+            subtitle="Active accounts"
+            icon="Business"
+          >
             <material_1.Typography variant="h4" color="success">
               {Object.keys(stats.expensesByCompany).length}
             </material_1.Typography>
           </DashboardCard_1.DashboardCard>
         </material_1.Grid>
       </material_1.Grid>
-    </DashboardLayout_1.DashboardLayout>);
+    </DashboardLayout_1.DashboardLayout>
+  );
 }
 //# sourceMappingURL=Dashboard.js.map

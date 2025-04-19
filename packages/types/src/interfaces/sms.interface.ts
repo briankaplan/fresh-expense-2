@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import type { Document } from "mongoose";
 
 export interface SmsMetadata {
   from?: string;
@@ -21,4 +21,4 @@ export interface SmsDocument extends Document {
   metadata?: SmsMetadata;
   processing?: SmsProcessing;
   tags?: string[];
-} 
+}

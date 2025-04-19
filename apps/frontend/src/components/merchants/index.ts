@@ -1,1 +1,1 @@
-export * from './MerchantList';
+export * from "./MerchantList";

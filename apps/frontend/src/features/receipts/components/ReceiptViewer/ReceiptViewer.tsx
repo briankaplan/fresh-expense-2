@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Box, Paper, Typography, IconButton, CircularProgress, Chip, Tooltip } from '@mui/material';
 import {
-  ZoomIn as ZoomInIcon,
-  ZoomOut as ZoomOutIcon,
+  Download as DownloadIcon,
+  Error as ErrorIcon,
+  Link as LinkIcon,
   RotateLeft as RotateLeftIcon,
   RotateRight as RotateRightIcon,
-  Download as DownloadIcon,
-  Link as LinkIcon,
-  Error as ErrorIcon,
-} from '@mui/icons-material';
-import { toast } from 'react-hot-toast';
+  ZoomIn as ZoomInIcon,
+  ZoomOut as ZoomOutIcon,
+} from "@mui/icons-material";
+import { Box, Chip, CircularProgress, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface ReceiptViewerProps {
   receipt: Receipt;
@@ -19,7 +19,7 @@ interface ReceiptViewerProps {
 interface Receipt {
   id: string;
   filename: string;
-  status: 'processing' | 'completed' | 'failed';
+  status: "processing" | "completed" | "failed";
   transactionId?: string;
   url?: string;
   uploadedAt: string;
@@ -35,10 +35,10 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
   const [rotation, setRotation] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleZoomIn = () => setScale(prev => Math.min(prev + 0.1, 3));
-  const handleZoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.5));
-  const handleRotateLeft = () => setRotation(prev => (prev - 90) % 360);
-  const handleRotateRight = () => setRotation(prev => (prev + 90) % 360);
+  const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.1, 3));
+  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.5));
+  const handleRotateLeft = () => setRotation((prev) => (prev - 90) % 360);
+  const handleRotateRight = () => setRotation((prev) => (prev + 90) % 360);
 
   const handleDownload = async () => {
     if (!receipt.url) return;
@@ -47,7 +47,7 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
       const response = await fetch(receipt.url);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = receipt.filename;
       document.body.appendChild(a);
@@ -55,8 +55,8 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Error downloading receipt:', error);
-      toast.error('Failed to download receipt');
+      console.error("Error downloading receipt:", error);
+      toast.error("Failed to download receipt");
     }
   };
 
@@ -66,10 +66,10 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
     try {
       setIsLoading(true);
       await onLinkTransaction(receipt.id, transactionId);
-      toast.success('Receipt linked to transaction');
+      toast.success("Receipt linked to transaction");
     } catch (error) {
-      console.error('Error linking receipt:', error);
-      toast.error('Failed to link receipt to transaction');
+      console.error("Error linking receipt:", error);
+      toast.error("Failed to link receipt to transaction");
     } finally {
       setIsLoading(false);
     }
@@ -77,17 +77,13 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
 
   return (
     <Paper sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h6">{receipt.filename}</Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
           <Chip
             label={receipt.status}
             color={
-              receipt.status != null
-                ? 'success'
-                : receipt.status != null
-                  ? 'warning'
-                  : 'error'
+              receipt.status != null ? "success" : receipt.status != null ? "warning" : "error"
             }
             size="small"
           />
@@ -100,9 +96,9 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
       {receipt.status != null ? (
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 2,
             p: 4,
           }}
@@ -115,9 +111,9 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
       ) : receipt.status != null ? (
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 2,
             p: 4,
           }}
@@ -129,10 +125,10 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
         <>
           <Box
             sx={{
-              position: 'relative',
-              overflow: 'hidden',
-              border: '1px solid',
-              borderColor: 'divider',
+              position: "relative",
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: "divider",
               borderRadius: 1,
               mb: 2,
             }}
@@ -142,17 +138,17 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
               src={receipt.url}
               alt={receipt.filename}
               sx={{
-                width: '100%',
-                height: 'auto',
+                width: "100%",
+                height: "auto",
                 transform: `scale(${scale}) rotate(${rotation}deg)`,
-                transformOrigin: 'center center',
-                transition: 'transform 0.2s',
+                transformOrigin: "center center",
+                transition: "transform 0.2s",
               }}
             />
           </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
               <Tooltip title="Zoom In">
                 <IconButton onClick={handleZoomIn} size="small">
                   <ZoomInIcon />
@@ -186,7 +182,7 @@ export function ReceiptViewer({ receipt, onLinkTransaction }: ReceiptViewerProps
               <Typography variant="subtitle2" gutterBottom>
                 Extracted Information
               </Typography>
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Box sx={{ display: "flex", gap: 2 }}>
                 {receipt.metadata.date && (
                   <Typography variant="body2">
                     Date: {new Date(receipt.metadata.date).toLocaleDateString()}

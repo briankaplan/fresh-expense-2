@@ -1,15 +1,15 @@
+import { PartialType } from "@nestjs/mapped-types";
+import { Type } from "class-transformer";
 import {
-  IsNumber,
-  IsDate,
-  IsString,
-  IsOptional,
   IsArray,
-  IsMongoId,
+  IsDate,
   IsEnum,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateExpenseDto, ExpenseStatus, PaymentMethod } from './create-expense.dto';
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { CreateExpenseDto, ExpenseStatus, PaymentMethod } from "./create-expense.dto";
 
 export class UpdateExpenseDto extends PartialType(CreateExpenseDto) {
   @IsOptional()

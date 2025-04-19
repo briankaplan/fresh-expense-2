@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import * as XLSX from 'xlsx';
-import { ReportTemplate, ReportSchedule, Report } from './report.schema';
-import { R2Service } from '../r2/r2.service';
-import { ReceiptService } from '../receipt/receipt.service';
-import { ExpenseService } from '../expense/expense.service';
-import { PDFService } from '../pdf/pdf.service';
-import { EmailService } from '../email/email.service';
-import { Readable } from 'stream';
+import type { Readable } from "stream";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { type Model, Types } from "mongoose";
+import * as XLSX from "xlsx";
+import type { EmailService } from "../email/email.service";
+import type { ExpenseService } from "../expense/expense.service";
+import type { PDFService } from "../pdf/pdf.service";
+import type { R2Service } from "../r2/r2.service";
+import type { ReceiptService } from "../receipt/receipt.service";
+import { Report, ReportSchedule, ReportTemplate } from "./report.schema";
 
 interface GenerateReportOptions {
   templateId: string;
@@ -36,7 +36,7 @@ export class ReportService {
     private readonly receiptService: ReceiptService,
     private readonly expenseService: ExpenseService,
     private readonly pdfService: PDFService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
   ) {}
 
   async createTemplate(userId: string, template: Partial<ReportTemplate>) {
@@ -51,7 +51,7 @@ export class ReportService {
       await newTemplate.save();
       return newTemplate;
     } catch (error) {
-      this.logger.error('Error creating report template:', error);
+      this.logger.error("Error creating report template:", error);
       throw error;
     }
   }
@@ -69,16 +69,16 @@ export class ReportService {
             updatedAt: new Date(),
           },
         },
-        { new: true }
+        { new: true },
       );
 
       if (!template) {
-        throw new Error('Template not found');
+        throw new Error("Template not found");
       }
 
       return template;
     } catch (error) {
-      this.logger.error('Error updating report template:', error);
+      this.logger.error("Error updating report template:", error);
       throw error;
     }
   }
@@ -91,21 +91,21 @@ export class ReportService {
       });
 
       if (!template) {
-        throw new Error('Template not found');
+        throw new Error("Template not found");
       }
 
       const newSchedule = new this.reportScheduleModel({
         ...schedule,
         templateId: template._id,
         userId: new Types.ObjectId(userId),
-        status: 'matched',
+        status: "matched",
         createdAt: new Date(),
       });
 
       await newSchedule.save();
       return newSchedule;
     } catch (error) {
-      this.logger.error('Error scheduling report:', error);
+      this.logger.error("Error scheduling report:", error);
       throw error;
     }
   }
@@ -118,14 +118,14 @@ export class ReportService {
       });
 
       if (!template) {
-        throw new Error('Template not found');
+        throw new Error("Template not found");
       }
 
       // Create a report record
       const report = new this.reportModel({
         templateId: template._id,
         userId: new Types.ObjectId(options.userId),
-        status: 'matched',
+        status: "matched",
         createdAt: new Date(),
       });
 
@@ -143,48 +143,48 @@ export class ReportService {
         };
 
         switch (template.type) {
-          case 'receipt':
+          case "receipt":
             data = await this.receiptService.findByUserId(options.userId, queryOptions);
             break;
-          case 'expense':
+          case "expense":
             data = await this.expenseService.findByUserId(options.userId, queryOptions);
             break;
           default:
-            throw new Error('Unsupported report type');
+            throw new Error("Unsupported report type");
         }
 
         // Generate report based on format
         let reportBuffer: Buffer;
         switch (template.format) {
-          case 'pdf':
+          case "pdf":
             const pdfStream = await this.pdfService.generateReport(data, {
               ...template.customization,
-              title: template.name || 'Report',
+              title: template.name || "Report",
               groupBy: Array.isArray(template.customization?.groupBy)
                 ? template.customization.groupBy[0]
                 : template.customization?.groupBy,
             });
             reportBuffer = await this.streamToBuffer(pdfStream as unknown as Readable);
             break;
-          case 'csv':
+          case "csv":
             reportBuffer = await this.generateCSV(data, template.customization);
             break;
-          case 'excel':
+          case "excel":
             reportBuffer = await this.generateExcel(data, template.customization);
             break;
           default:
-            throw new Error('Unsupported report format');
+            throw new Error("Unsupported report format");
         }
 
         // Upload to R2
         const { key, url } = await this.r2Service.uploadFile(
           reportBuffer,
           `reports/${report._id}.${template.format}`,
-          `application/${template.format}`
+          `application/${template.format}`,
         );
 
         // Update report record
-        report.status = 'completed';
+        report.status = "completed";
         report.completedAt = new Date();
         report.r2Key = key;
         report.downloadUrl = url;
@@ -202,23 +202,22 @@ export class ReportService {
         return report;
       } catch (error: any) {
         // Update report status on error
-        report.status = 'failed';
-        report.error = error?.message || 'Unknown error occurred';
+        report.status = "failed";
+        report.error = error?.message || "Unknown error occurred";
         await report.save();
         throw error;
       }
     } catch (error) {
-      this.logger.error('Error generating report:', error);
+      this.logger.error("Error generating report:", error);
       throw error;
     }
   }
 
-  
   async processScheduledReports() {
     try {
       const now = new Date();
       const scheduledReports = await this.reportScheduleModel.find({
-        status: 'matched',
+        status: "matched",
         nextRun: { $lte: now },
         active: true,
       });
@@ -239,18 +238,18 @@ export class ReportService {
         }
       }
     } catch (error) {
-      this.logger.error('Error processing scheduled reports:', error);
+      this.logger.error("Error processing scheduled reports:", error);
     }
   }
 
   private calculateNextRun(schedule: ReportSchedule): Date {
     const now = new Date();
     switch (schedule.frequency) {
-      case 'daily':
+      case "daily":
         return new Date(now.setDate(now.getDate() + 1));
-      case 'weekly':
+      case "weekly":
         return new Date(now.setDate(now.getDate() + 7));
-      case 'monthly':
+      case "monthly":
         return new Date(now.setMonth(now.getMonth() + 1));
       default:
         return schedule.nextRun;
@@ -260,27 +259,27 @@ export class ReportService {
   private async generateCSV(data: any[], customization?: any): Promise<Buffer> {
     try {
       const headers = customization?.headers || Object.keys(data[0] || {});
-      let csvContent = headers.join(',') + '\n';
+      let csvContent = headers.join(",") + "\n";
 
       // Add data rows
-      data.forEach(row => {
-        const rowData = headers.map(header => {
+      data.forEach((row) => {
+        const rowData = headers.map((header) => {
           const value = row[header];
           // Handle special characters and commas in the value
           if (
-            typeof value === 'string' &&
-            (value.includes(',') || value.includes('"') || value.includes('\n'))
+            typeof value === "string" &&
+            (value.includes(",") || value.includes('"') || value.includes("\n"))
           ) {
             return `"${value.replace(/"/g, '""')}"`;
           }
-          return value || '';
+          return value || "";
         });
-        csvContent += rowData.join(',') + '\n';
+        csvContent += rowData.join(",") + "\n";
       });
 
       return Buffer.from(csvContent);
     } catch (error) {
-      this.logger.error('Error generating CSV:', error);
+      this.logger.error("Error generating CSV:", error);
       throw error;
     }
   }
@@ -291,16 +290,19 @@ export class ReportService {
       const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
 
       // Apply customization if provided
-      worksheet['name'] = customization.sheetName;
+      worksheet["name"] = customization.sheetName;
 
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, customization?.sheetName || 'Report');
+      XLSX.utils.book_append_sheet(workbook, worksheet, customization?.sheetName || "Report");
 
       // Write to buffer
-      const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      const excelBuffer = XLSX.write(workbook, {
+        type: "buffer",
+        bookType: "xlsx",
+      });
       return Buffer.from(excelBuffer);
     } catch (error) {
-      this.logger.error('Error generating Excel:', error);
+      this.logger.error("Error generating Excel:", error);
       throw error;
     }
   }
@@ -308,15 +310,15 @@ export class ReportService {
   private async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
-      stream.on('data', chunk => chunks.push(Buffer.from(chunk)));
-      stream.on('error', error => reject(error));
-      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      stream.on("error", (error) => reject(error));
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
     });
   }
 
   async markExpensesAsReported(userId: string, expenseIds: string[]) {
     try {
-      const objectIds = expenseIds.map(id => new Types.ObjectId(id));
+      const objectIds = expenseIds.map((id) => new Types.ObjectId(id));
 
       // Update expenses to mark them as reported
       await this.expenseService.updateMany(
@@ -326,15 +328,15 @@ export class ReportService {
         },
         {
           $set: {
-            status: 'matched',
+            status: "matched",
             reportedAt: new Date(),
           },
-        }
+        },
       );
 
       return true;
     } catch (error) {
-      this.logger.error('Error marking expenses as reported:', error);
+      this.logger.error("Error marking expenses as reported:", error);
       throw error;
     }
   }
@@ -343,10 +345,10 @@ export class ReportService {
     try {
       return await this.expenseService.findByUserId(userId, {
         ...filters,
-        status: 'matched',
+        status: "matched",
       });
     } catch (error) {
-      this.logger.error('Error fetching reported expenses:', error);
+      this.logger.error("Error fetching reported expenses:", error);
       throw error;
     }
   }
@@ -356,19 +358,19 @@ export class ReportService {
       const expense = await this.expenseService.findOne({
         _id: new Types.ObjectId(expenseId),
         userId: new Types.ObjectId(userId),
-        status: 'matched',
+        status: "matched",
       });
 
       if (!expense) {
-        throw new Error('Reported expense not found');
+        throw new Error("Reported expense not found");
       }
 
       return await this.expenseService.updateOne(
         { _id: expense._id },
-        { $set: { ...updates, updatedAt: new Date() } }
+        { $set: { ...updates, updatedAt: new Date() } },
       );
     } catch (error) {
-      this.logger.error('Error updating reported expense:', error);
+      this.logger.error("Error updating reported expense:", error);
       throw error;
     }
   }

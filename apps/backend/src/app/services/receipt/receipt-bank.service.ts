@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Receipt, ReceiptDocument, BaseTransactionData } from '@fresh-expense/types';
-import { R2Service } from '../../../services/r2/r2.service';
-import { OCRService } from '../../../services/ocr/ocr.service';
+import { type BaseTransactionData, Receipt, type ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
+import type { OCRService } from "../../../services/ocr/ocr.service";
+import type { R2Service } from "../../../services/r2/r2.service";
 
 interface MatchResult {
   receipt: ReceiptDocument;
@@ -22,9 +22,9 @@ export class ReceiptBankService {
   private readonly logger = new Logger(ReceiptBankService.name);
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
     private readonly r2Service: R2Service,
-    private readonly ocrService: OCRService
+    private readonly ocrService: OCRService,
   ) {}
 
   async storeReceipt(receipt: ReceiptDocument): Promise<void> {
@@ -32,7 +32,7 @@ export class ReceiptBankService {
   }
 
   async getUnmatchedReceipts(): Promise<ReceiptDocument[]> {
-    return this.receiptModel.find({ status: 'unmatched' }).exec();
+    return this.receiptModel.find({ status: "unmatched" }).exec();
   }
 
   async findReceiptById(id: string, userId: string): Promise<ReceiptDocument> {
@@ -44,7 +44,7 @@ export class ReceiptBankService {
       .exec();
 
     if (!receipt) {
-      throw new Error('Receipt not found');
+      throw new Error("Receipt not found");
     }
 
     return receipt;
@@ -76,7 +76,7 @@ export class ReceiptBankService {
     const transactions = await this.findTransactionsInDateRange(
       receipt.userId.toString(),
       startDate,
-      endDate
+      endDate,
     );
 
     const matches: MatchResult[] = [];
@@ -107,10 +107,10 @@ export class ReceiptBankService {
 
   async linkReceiptToTransaction(
     receipt: ReceiptDocument,
-    transaction: BaseTransactionData
+    transaction: BaseTransactionData,
   ): Promise<void> {
     await this.receiptModel.findByIdAndUpdate(receipt._id, {
-      status: 'matched',
+      status: "matched",
       transactionId: new Types.ObjectId(transaction.id),
     });
   }
@@ -118,11 +118,11 @@ export class ReceiptBankService {
   async linkReceiptToTransactionById(
     receiptId: string,
     transactionId: string,
-    userId: string
+    userId: string,
   ): Promise<void> {
     const receipt = await this.findReceiptById(receiptId, userId);
     await this.receiptModel.findByIdAndUpdate(receipt._id, {
-      status: 'matched',
+      status: "matched",
       transactionId: new Types.ObjectId(transactionId),
     });
   }
@@ -146,7 +146,7 @@ export class ReceiptBankService {
       })
       .exec();
 
-    const matches = allReceipts.map(otherReceipt => {
+    const matches = allReceipts.map((otherReceipt) => {
       const transactionData: BaseTransactionData = {
         id: otherReceipt._id.toString(),
         accountId: otherReceipt.userId.toString(),
@@ -154,8 +154,8 @@ export class ReceiptBankService {
         date: otherReceipt.date,
         description: otherReceipt.merchant,
         merchantName: otherReceipt.merchant,
-        type: 'receipt',
-        status: 'unmatched',
+        type: "receipt",
+        status: "unmatched",
       };
 
       const confidence = this.calculateMatchConfidence(receipt, transactionData);
@@ -167,12 +167,12 @@ export class ReceiptBankService {
       };
     });
 
-    return matches.filter(match => match.score >= 0.7).sort((a, b) => b.score - a.score);
+    return matches.filter((match) => match.score >= 0.7).sort((a, b) => b.score - a.score);
   }
 
   private calculateMatchConfidence(
     receipt: ReceiptDocument,
-    transaction: BaseTransactionData
+    transaction: BaseTransactionData,
   ): {
     merchantScore: number;
     amountScore: number;
@@ -181,7 +181,7 @@ export class ReceiptBankService {
   } {
     // Simple matching algorithm - can be enhanced with more sophisticated logic
     const merchantScore =
-      receipt.merchant.toLowerCase() === (transaction.merchantName || '').toLowerCase() ? 1 : 0;
+      receipt.merchant.toLowerCase() === (transaction.merchantName || "").toLowerCase() ? 1 : 0;
     const amountScore = Math.abs(receipt.amount - transaction.amount) < 0.01 ? 1 : 0;
     const dateScore =
       Math.abs(receipt.date.getTime() - transaction.date.getTime()) < 24 * 60 * 60 * 1000 ? 1 : 0;
@@ -199,7 +199,7 @@ export class ReceiptBankService {
   private async findTransactionsInDateRange(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<BaseTransactionData[]> {
     // TODO: Implement this method based on your transaction model
     return [];

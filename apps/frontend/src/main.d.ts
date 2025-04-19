@@ -1,2 +1,2 @@
-import './styles/index.scss';
+import "./styles/index.scss";
 //# sourceMappingURL=main.d.ts.map

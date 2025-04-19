@@ -1,11 +1,11 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { MerchantLearningService } from './merchant-learning.service';
-import { ExpenseCategory } from '@fresh-expense/types';
-import { Cache } from 'cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ExpenseCategory } from "@fresh-expense/types";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import type { Cache } from "cache-manager";
+import type { MerchantLearningService } from "./merchant-learning.service";
 
 // Define types locally since they're not available in the types package
-type MerchantSource = 'manual' | 'ocr' | 'transaction' | 'api';
+type MerchantSource = "manual" | "ocr" | "transaction" | "api";
 
 interface MerchantLearningData {
   merchantName: string;
@@ -30,7 +30,10 @@ interface MerchantLearningResult {
 }
 
 interface ITransactionRepository {
-  getMerchantStats(merchantName: string, userId: string): Promise<{
+  getMerchantStats(
+    merchantName: string,
+    userId: string,
+  ): Promise<{
     transactionCount: number;
     totalAmount: number;
     averageAmount: number;
@@ -74,7 +77,7 @@ export class MerchantCategorizationService {
   async categorizeMerchant(
     merchantName: string,
     userId: string,
-    sources: MerchantSource[] = ['manual', 'ocr', 'transaction', 'api'],
+    sources: MerchantSource[] = ["manual", "ocr", "transaction", "api"],
   ): Promise<MerchantLearningResult> {
     try {
       // Check cache first
@@ -86,7 +89,7 @@ export class MerchantCategorizationService {
       }
 
       // Collect data from different sources
-      const learningDataPromises = sources.map(source =>
+      const learningDataPromises = sources.map((source) =>
         this.getDataFromSource(merchantName, userId, source),
       );
 
@@ -110,7 +113,7 @@ export class MerchantCategorizationService {
 
       return result;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Error categorizing merchant ${merchantName}: ${errorMessage}`);
       return this.getDefaultResult(merchantName, userId);
     }
@@ -130,18 +133,18 @@ export class MerchantCategorizationService {
   ): Promise<MerchantLearningData | null> {
     try {
       switch (source) {
-        case 'ocr':
+        case "ocr":
           return await this.getDataFromOCR(merchantName, userId);
-        case 'transaction':
+        case "transaction":
           return await this.getDataFromTransactions(merchantName, userId);
-        case 'api':
+        case "api":
           return await this.getDataFromAPI(merchantName, userId);
-        case 'manual':
+        case "manual":
         default:
           return this.getDefaultData(merchantName, userId);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       this.logger.warn(`Failed to get data from ${source} for ${merchantName}: ${errorMessage}`);
       return null;
     }
@@ -157,13 +160,13 @@ export class MerchantCategorizationService {
     const receiptData = await this.receiptProcessor.processReceipt({
       merchantName,
       userId,
-      source: 'ocr',
+      source: "ocr",
     });
 
     return {
       merchantName,
       userId,
-      source: 'ocr',
+      source: "ocr",
       confidence: receiptData.confidence || 0.7,
       category: receiptData.category,
       metadata: {
@@ -194,13 +197,14 @@ export class MerchantCategorizationService {
 
       // Get most common category
       const mostCommonCategory =
-        (Object.entries(stats.categories).sort(([, a], [, b]) => b - a)[0]?.[0] as ExpenseCategory) ||
-        ExpenseCategory.OTHER;
+        (Object.entries(stats.categories).sort(
+          ([, a], [, b]) => b - a,
+        )[0]?.[0] as ExpenseCategory) || ExpenseCategory.OTHER;
 
       return {
         merchantName,
         userId,
-        source: 'transaction',
+        source: "transaction",
         confidence: finalConfidence,
         category: mostCommonCategory,
         metadata: {
@@ -211,7 +215,7 @@ export class MerchantCategorizationService {
         },
       };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Error getting transaction data for ${merchantName}: ${errorMessage}`);
       return this.getDefaultData(merchantName, userId);
     }
@@ -246,7 +250,7 @@ export class MerchantCategorizationService {
     return {
       merchantName,
       userId,
-      source: 'manual',
+      source: "manual",
       confidence: 0.5,
       category: ExpenseCategory.OTHER,
       metadata: {
@@ -263,7 +267,7 @@ export class MerchantCategorizationService {
       merchantName,
       category: ExpenseCategory.OTHER,
       confidence: 0.5,
-      source: 'manual',
+      source: "manual",
     };
   }
 }

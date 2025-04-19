@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, type NestMiddleware } from "@nestjs/common";
+import type { NextFunction, Request, Response } from "express";
+import { type AnyZodObject, ZodError } from "zod";
 
 interface ValidateSchema {
   body?: AnyZodObject;
@@ -25,7 +25,7 @@ export const validateRequest = (schema: ValidateSchema) => {
       if (error instanceof ZodError) {
         return res.status(400).json({ error: error.errors[0].message });
       }
-      return res.status(400).json({ error: 'Validation failed' });
+      return res.status(400).json({ error: "Validation failed" });
     }
   };
 };
@@ -34,24 +34,24 @@ export const validateRequest = (schema: ValidateSchema) => {
 export class ValidateRequestMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     // Validate Content-Type header to mitigate security vulnerability
-    const contentType = req.headers['content-type'];
+    const contentType = req.headers["content-type"];
     if (contentType) {
       // Only allow specific content types
       const allowedContentTypes = [
-        'application/json',
-        'application/x-www-form-urlencoded',
-        'multipart/form-data',
-        'text/plain',
+        "application/json",
+        "application/x-www-form-urlencoded",
+        "multipart/form-data",
+        "text/plain",
       ];
 
       // Extract base content type without parameters
-      const baseContentType = contentType.split(';')[0].toLowerCase();
+      const baseContentType = contentType.split(";")[0].toLowerCase();
 
       if (!allowedContentTypes.includes(baseContentType)) {
         return res.status(415).json({
           statusCode: 415,
-          message: 'Unsupported Media Type',
-          error: 'The Content-Type header contains an unsupported value',
+          message: "Unsupported Media Type",
+          error: "The Content-Type header contains an unsupported value",
         });
       }
     }
@@ -61,7 +61,7 @@ export class ValidateRequestMiddleware implements NestMiddleware {
     if (!existingValidation.isValid) {
       return res.status(400).json({
         statusCode: 400,
-        message: 'Bad Request',
+        message: "Bad Request",
         error: existingValidation.error,
       });
     }

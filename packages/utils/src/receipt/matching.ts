@@ -1,4 +1,4 @@
-import { MatchScoreDetails, ReceiptMatchingOptions, BaseTransactionData } from './types';
+import type { BaseTransactionData, MatchScoreDetails, ReceiptMatchingOptions } from "./types";
 
 export function findBestReceiptMatch(
   target: BaseTransactionData,
@@ -9,7 +9,11 @@ export function findBestReceiptMatch(
     maxAmountDifference: 0.1,
     merchantMatchThreshold: 0.8,
   },
-): { match: BaseTransactionData | null; score: number; details: MatchScoreDetails } {
+): {
+  match: BaseTransactionData | null;
+  score: number;
+  details: MatchScoreDetails;
+} {
   let bestMatch: BaseTransactionData | null = null;
   let bestScore = 0;
   let bestDetails: MatchScoreDetails = {
@@ -78,9 +82,9 @@ export function calculateMerchantMatchScore(merchant1: string, merchant2: string
 export function calculateAmountMatchScore(
   amount1: number,
   amount2: number,
-  maxDifference: number = 0.1,
+  maxDifference = 0.1,
 ): number {
-  if (typeof amount1 !== 'number' || typeof amount2 !== 'number') return 0;
+  if (typeof amount1 !== "number" || typeof amount2 !== "number") return 0;
 
   const diff = Math.abs(amount1 - amount2);
   const relativeError = amount1 !== 0 ? diff / amount1 : diff;
@@ -88,11 +92,7 @@ export function calculateAmountMatchScore(
   return Math.max(0, 1 - relativeError / maxDifference);
 }
 
-export function calculateDateMatchScore(
-  date1: Date,
-  date2: Date,
-  maxDaysDifference: number = 3,
-): number {
+export function calculateDateMatchScore(date1: Date, date2: Date, maxDaysDifference = 3): number {
   if (!date1 || !date2) return 0;
 
   const diffInDays = Math.abs(date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);

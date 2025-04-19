@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from '@fresh-expense/types';
+import type { BaseDocument } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
 
 export type TransactionDocument = Transaction & Document;
 
@@ -59,7 +59,7 @@ export class Transaction implements BaseDocument {
 
   @Prop()
   recurringPattern?: {
-    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    frequency: "daily" | "weekly" | "monthly" | "yearly";
     interval: number;
     startDate: Date;
     endDate?: Date;
@@ -73,7 +73,7 @@ export class Transaction implements BaseDocument {
     userId: string;
     amount: number;
     percentage: number;
-    status: 'pending' | 'approved' | 'rejected';
+    status: "pending" | "approved" | "rejected";
   }[];
 
   constructor(partial: Partial<Transaction>) {

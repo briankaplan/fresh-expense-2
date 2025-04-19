@@ -1,7 +1,7 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { UserContext } from './user-context.decorator';
-import { Cache } from 'cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import type { Cache } from "cache-manager";
+import type { UserContext } from "./user-context.decorator";
 
 @Injectable()
 export class UserContextService {
@@ -27,9 +27,9 @@ export class UserContextService {
       // TODO: Fetch user data from database or auth service
       const userContext: UserContext = {
         userId,
-        email: 'user@example.com', // Placeholder
-        role: 'user',
-        companyId: 'company123', // Placeholder
+        email: "user@example.com", // Placeholder
+        role: "user",
+        companyId: "company123", // Placeholder
       };
 
       // Cache the context
@@ -37,7 +37,7 @@ export class UserContextService {
 
       return userContext;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Error getting user context for ${userId}: ${errorMessage}`);
       throw error;
     }

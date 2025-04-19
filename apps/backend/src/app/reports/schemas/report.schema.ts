@@ -1,26 +1,25 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document, Schema as MongooseSchema } from "mongoose";
 
 export enum ReportType {
-  EXPENSE = 'expense',
-  CATEGORY = 'category',
-  MERCHANT = 'merchant',
-  SUBSCRIPTION = 'subscription',
-  TAX = 'tax',
+  EXPENSE = "expense",
+  CATEGORY = "category",
+  MERCHANT = "merchant",
+  SUBSCRIPTION = "subscription",
+  TAX = "tax",
 }
 
 export enum ReportFormat {
-  PDF = 'pdf',
-  CSV = 'csv',
-  XLSX = 'xlsx',
+  PDF = "pdf",
+  CSV = "csv",
+  XLSX = "xlsx",
 }
 
-
 export class Report {
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: "User" })
   userId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Company' })
+  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: "Company" })
   companyId: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true, enum: ReportType })
@@ -52,13 +51,13 @@ export class Report {
 
   @Prop()
   schedule: {
-    frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+    frequency: "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
     dayOfWeek?: number;
     dayOfMonth?: number;
     timeOfDay?: string;
   };
 
-  @Prop({ default: 'pending' })
+  @Prop({ default: "pending" })
   status: string;
 
   @Prop()

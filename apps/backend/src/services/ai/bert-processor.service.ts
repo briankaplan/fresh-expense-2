@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationService } from '../notification/notification.service';
-import axios from 'axios';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import axios from "axios";
+import type { NotificationService } from "../notification/notification.service";
 
 interface CategorizationResult {
   category: string;
@@ -17,27 +17,27 @@ export class BertProcessorService {
   private initialized = false;
   private serverUrl: string;
   private readonly categories = [
-    'retail',
-    'restaurant',
-    'grocery',
-    'gas',
-    'pharmacy',
-    'medical',
-    'utility',
-    'hotel',
-    'transportation',
-    'digital',
-    'subscription',
-    'app_store',
-    'play_store',
+    "retail",
+    "restaurant",
+    "grocery",
+    "gas",
+    "pharmacy",
+    "medical",
+    "utility",
+    "hotel",
+    "transportation",
+    "digital",
+    "subscription",
+    "app_store",
+    "play_store",
   ];
 
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {
-    this.serverUrl = this.configService.get<string>('BERT_SERVER_URL') || 'http://localhost:5555';
+    this.serverUrl = this.configService.get<string>("BERT_SERVER_URL") || "http://localhost:5555";
   }
 
   async initialize(): Promise<boolean> {
@@ -49,17 +49,17 @@ export class BertProcessorService {
       // Check if BERT server is running
       const response = await axios.get(`${this.serverUrl}/status`);
       if (response.status !== 200) {
-        throw new Error('BERT server is not responding');
+        throw new Error("BERT server is not responding");
       }
 
       this.initialized = true;
-      this.logger.log('BERT processor initialized successfully');
+      this.logger.log("BERT processor initialized successfully");
       return true;
     } catch (error) {
-      this.logger.error('Failed to initialize BERT processor:', error);
+      this.logger.error("Failed to initialize BERT processor:", error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'BERT Processor Initialization'
+        "BERT Processor Initialization",
       );
       return false;
     }
@@ -69,7 +69,7 @@ export class BertProcessorService {
     if (!this.initialized) {
       const success = await this.initialize();
       if (!success) {
-        throw new Error('Failed to initialize BERT processor');
+        throw new Error("Failed to initialize BERT processor");
       }
     }
 
@@ -82,7 +82,7 @@ export class BertProcessorService {
       });
 
       if (response.status !== 200) {
-        throw new Error('Failed to categorize text');
+        throw new Error("Failed to categorize text");
       }
 
       return {
@@ -92,10 +92,10 @@ export class BertProcessorService {
         metadata: response.data.metadata,
       };
     } catch (error) {
-      this.logger.error('Error categorizing text:', error);
+      this.logger.error("Error categorizing text:", error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'Text Categorization'
+        "Text Categorization",
       );
       throw error;
     }
@@ -104,10 +104,10 @@ export class BertProcessorService {
   async close(): Promise<boolean> {
     try {
       this.initialized = false;
-      this.logger.log('BERT processor closed successfully');
+      this.logger.log("BERT processor closed successfully");
       return true;
     } catch (error) {
-      this.logger.error('Error closing BERT processor:', error);
+      this.logger.error("Error closing BERT processor:", error);
       return false;
     }
   }

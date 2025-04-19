@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { R2Service } from '../../../services/r2/r2.service';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { R2Service } from "../../../services/r2/r2.service";
 
 @Injectable()
 export class ReceiptStorageService {
@@ -8,12 +8,12 @@ export class ReceiptStorageService {
 
   constructor(
     private readonly r2Service: R2Service,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async storeReceipt(
     file: Buffer,
-    userId: string
+    userId: string,
   ): Promise<{
     url: string;
     thumbnailUrl: string;
@@ -30,12 +30,12 @@ export class ReceiptStorageService {
       const uploadResult = await this.r2Service.uploadFile(file, {
         userId,
         filename,
-        mimeType: 'image/jpeg',
+        mimeType: "image/jpeg",
         generateThumbnail: true,
       });
 
       if (!uploadResult.thumbnailUrl) {
-        throw new Error('Failed to generate thumbnail');
+        throw new Error("Failed to generate thumbnail");
       }
 
       // Process with HuggingFace
@@ -47,7 +47,7 @@ export class ReceiptStorageService {
         processedData,
       };
     } catch (error) {
-      this.logger.error('Error storing receipt:', error);
+      this.logger.error("Error storing receipt:", error);
       throw error;
     }
   }
@@ -60,12 +60,12 @@ export class ReceiptStorageService {
     try {
       await this.r2Service.deleteFile(key);
       // Also delete thumbnail if it exists
-      const thumbnailKey = key.replace(/\.[^.]+$/, '_thumb$&');
+      const thumbnailKey = key.replace(/\.[^.]+$/, "_thumb$&");
       await this.r2Service.deleteFile(thumbnailKey).catch(() => {
         // Ignore error if thumbnail doesn't exist
       });
     } catch (error) {
-      this.logger.error('Error deleting receipt:', error);
+      this.logger.error("Error deleting receipt:", error);
       throw error;
     }
   }

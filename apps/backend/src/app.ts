@@ -1,10 +1,10 @@
-import cors from 'cors';
-import express from 'express';
+import cors from "cors";
+import express from "express";
 
-import { connectToDb } from './db';
-import { setupDb } from './db/setup';
-import expensesRouter from './routes/expenses';
-import transactionsRouter from './routes/transactions';
+import { connectToDb } from "./db";
+import { setupDb } from "./db/setup";
+import expensesRouter from "./routes/expenses";
+import transactionsRouter from "./routes/transactions";
 
 const app = express();
 
@@ -15,7 +15,7 @@ app.use(express.json());
 Promise.all([connectToDb(), setupDb()]).catch(console.error);
 
 // Register routes
-app.use('/api/transactions', transactionsRouter);
-app.use('/api/expenses', expensesRouter);
+app.use("/api/transactions", transactionsRouter);
+app.use("/api/expenses", expensesRouter);
 
 export default app;

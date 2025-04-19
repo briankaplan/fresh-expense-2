@@ -11,7 +11,7 @@ export interface DatabaseConfig {
 }
 
 export interface EnvironmentConfig {
-  name: 'development' | 'test' | 'production';
+  name: "development" | "test" | "production";
   port: number;
   host: string;
   database: DatabaseConfig;
@@ -56,13 +56,13 @@ export interface EnvironmentConfig {
 export interface Secret {
   name: string;
   value: string;
-  environment: 'development' | 'test' | 'production';
+  environment: "development" | "test" | "production";
   description: string;
   isSensitive: boolean;
 }
 
 export interface DeploymentConfig {
-  environment: 'development' | 'test' | 'production';
+  environment: "development" | "test" | "production";
   docker: {
     composeFile: string;
     services: string[];

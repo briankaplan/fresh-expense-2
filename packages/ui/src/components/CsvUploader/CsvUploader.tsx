@@ -1,14 +1,14 @@
-import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { Box, Typography, Paper, CircularProgress, Alert, Button, styled } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
+import { Alert, Box, Button, CircularProgress, Paper, Typography, styled } from "@mui/material";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 const DropzoneContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
-  textAlign: 'center',
-  cursor: 'pointer',
+  textAlign: "center",
+  cursor: "pointer",
   border: `2px dashed ${theme.palette.divider}`,
-  '&:hover': {
+  "&:hover": {
     borderColor: theme.palette.primary.main,
   },
 }));
@@ -22,7 +22,7 @@ export interface CsvUploaderProps {
 
 export function CsvUploader({
   onUpload,
-  accept = ['.csv'],
+  accept = [".csv"],
   maxSize = 5 * 1024 * 1024, // 5MB
   multiple = false,
 }: CsvUploaderProps) {
@@ -39,12 +39,12 @@ export function CsvUploader({
         setError(null);
         await onUpload(file);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to upload file');
+        setError(err instanceof Error ? err.message : "Failed to upload file");
       } finally {
         setIsUploading(false);
       }
     },
-    [onUpload]
+    [onUpload],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -59,7 +59,7 @@ export function CsvUploader({
       <DropzoneContainer
         {...getRootProps()}
         sx={{
-          backgroundColor: theme => (isDragActive ? theme.palette.action.hover : 'inherit'),
+          backgroundColor: (theme) => (isDragActive ? theme.palette.action.hover : "inherit"),
         }}
       >
         <input {...getInputProps()} />
@@ -70,9 +70,9 @@ export function CsvUploader({
           </Box>
         ) : (
           <Box>
-            <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+            <CloudUploadIcon sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
             <Typography variant="h6" gutterBottom>
-              {isDragActive ? 'Drop the file here' : 'Drag and drop a CSV file here'}
+              {isDragActive ? "Drop the file here" : "Drag and drop a CSV file here"}
             </Typography>
             <Typography color="textSecondary" gutterBottom>
               or
@@ -81,7 +81,7 @@ export function CsvUploader({
               Browse Files
             </Button>
             <Typography variant="caption" display="block" mt={1} color="textSecondary">
-              Accepted file types: {accept.join(', ')}
+              Accepted file types: {accept.join(", ")}
               <br />
               Maximum file size: {Math.round(maxSize / 1024 / 1024)}MB
             </Typography>

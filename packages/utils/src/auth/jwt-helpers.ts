@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import * as jwt from "jsonwebtoken";
 
 export interface TokenPayload {
   userId: string;
@@ -20,7 +20,7 @@ export function generateToken(
   options: TokenOptions,
 ): string {
   if (!secret) {
-    throw new Error('JWT secret is required');
+    throw new Error("JWT secret is required");
   }
 
   return jwt.sign(payload, secret, options);
@@ -31,11 +31,11 @@ export function generateToken(
  */
 export function verifyToken<T = any>(token: string, secret: string): T {
   if (!token) {
-    throw new Error('Token is required');
+    throw new Error("Token is required");
   }
 
   if (!secret) {
-    throw new Error('JWT secret is required');
+    throw new Error("JWT secret is required");
   }
 
   return jwt.verify(token, secret) as T;
@@ -45,12 +45,12 @@ export function verifyToken<T = any>(token: string, secret: string): T {
  * Generate a token for email verification
  */
 export function generateEmailVerificationToken(userId: string, secret: string): string {
-  return generateToken({ userId }, secret, { expiresIn: '24h' });
+  return generateToken({ userId }, secret, { expiresIn: "24h" });
 }
 
 /**
  * Generate a token for password reset
  */
 export function generatePasswordResetToken(userId: string, secret: string): string {
-  return generateToken({ userId }, secret, { expiresIn: '1h' });
+  return generateToken({ userId }, secret, { expiresIn: "1h" });
 }

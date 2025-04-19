@@ -1,13 +1,13 @@
-import React from 'react';
 import {
+  Box,
   List,
   ListItem,
-  ListItemText,
   ListItemSecondaryAction,
-  Typography,
+  ListItemText,
   Paper,
-  Box,
-} from '@mui/material';
+  Typography,
+} from "@mui/material";
+import type React from "react";
 
 interface Transaction {
   id: string;
@@ -23,29 +23,29 @@ interface TransactionListProps {
 
 export const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   return (
     <Paper elevation={2}>
       <List>
-        {transactions.map(transaction => (
+        {transactions.map((transaction) => (
           <ListItem key={transaction.id} divider>
             <ListItemText
               primary={transaction.description}
               secondary={
-                <Box component="span" sx={{ display: 'flex', gap: 1 }}>
+                <Box component="span" sx={{ display: "flex", gap: 1 }}>
                   <Typography component="span" variant="body2" color="text.secondary">
                     {formatDate(transaction.date)}
                   </Typography>
@@ -58,7 +58,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions }
               }
             />
             <ListItemSecondaryAction>
-              <Typography variant="body2" color={transaction.amount < 0 ? 'error' : 'success.main'}>
+              <Typography variant="body2" color={transaction.amount < 0 ? "error" : "success.main"}>
                 {formatCurrency(transaction.amount)}
               </Typography>
             </ListItemSecondaryAction>

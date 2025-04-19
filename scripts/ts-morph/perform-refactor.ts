@@ -1,38 +1,38 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
-import { createProject, addSourceFiles } from './utils';
+import { addSourceFiles, createProject } from "./utils";
 
 async function performRefactoring() {
   const project = createProject();
-  addSourceFiles(project, ['apps/**/*.ts', 'apps/**/*.tsx', 'packages/**/*.ts']);
+  addSourceFiles(project, ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts"]);
 
-  const reportDir = path.join(process.cwd(), 'reports');
-  const planPath = path.join(reportDir, 'refactor-plan.txt');
+  const reportDir = path.join(process.cwd(), "reports");
+  const planPath = path.join(reportDir, "refactor-plan.txt");
 
   if (!fs.existsSync(planPath)) {
-    console.error('No refactoring plan found. Please run ts-morph:analyze first.');
+    console.error("No refactoring plan found. Please run ts-morph:analyze first.");
     return;
   }
 
-  const planContent = fs.readFileSync(planPath, 'utf-8');
+  const planContent = fs.readFileSync(planPath, "utf-8");
   const refactorPlan = new Map(
     planContent
-      .split('\n')
-      .filter(line => line.trim())
-      .map(line => {
-        const [type, file] = line.split(' -> ');
+      .split("\n")
+      .filter((line) => line.trim())
+      .map((line) => {
+        const [type, file] = line.split(" -> ");
         return [type.trim(), file.trim()];
       }),
   );
 
-  console.log('Starting refactoring...');
+  console.log("Starting refactoring...");
 
   refactorPlan.forEach((targetFile, typeName) => {
     const files = project.getSourceFiles();
-    const typeDeclarations = files.flatMap(file => {
-      const interfaces = file.getInterfaces().filter(i => i.getName() === typeName);
-      const typeAliases = file.getTypeAliases().filter(t => t.getName() === typeName);
+    const typeDeclarations = files.flatMap((file) => {
+      const interfaces = file.getInterfaces().filter((i) => i.getName() === typeName);
+      const typeAliases = file.getTypeAliases().filter((t) => t.getName() === typeName);
       return [...interfaces, ...typeAliases];
     });
 
@@ -58,7 +58,7 @@ async function performRefactoring() {
     }
 
     // Remove the type from all other files
-    typeDeclarations.slice(1).forEach(declaration => {
+    typeDeclarations.slice(1).forEach((declaration) => {
       const file = declaration.getSourceFile();
       if (file.getFilePath() !== targetFile) {
         declaration.remove();
@@ -66,15 +66,17 @@ async function performRefactoring() {
     });
 
     // Update imports in files that used the type
-    files.forEach(file => {
-      if (file.getFilePath() === targetFile) {return;}
+    files.forEach((file) => {
+      if (file.getFilePath() === targetFile) {
+        return;
+      }
 
       const imports = file.getImportDeclarations();
       const hasType = file.getText().includes(typeName);
 
       if (hasType) {
         // Check if we already import from the target file
-        const existingImport = imports.find(imp => imp.getModuleSpecifierValue() === targetFile);
+        const existingImport = imports.find((imp) => imp.getModuleSpecifierValue() === targetFile);
 
         if (!existingImport) {
           // Add import from the target file
@@ -90,7 +92,7 @@ async function performRefactoring() {
   // Save all changes
   project.saveSync();
 
-  console.log('Refactoring completed. Please review the changes and run tests.');
+  console.log("Refactoring completed. Please review the changes and run tests.");
 }
 
 performRefactoring().catch(console.error);

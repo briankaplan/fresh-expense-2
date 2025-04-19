@@ -1,6 +1,6 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Mongoose } from 'mongoose';
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import { Mongoose } from "mongoose";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
@@ -11,9 +11,9 @@ export class DatabaseService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const uri = this.configService.get<string>('database.uri');
+    const uri = this.configService.get<string>("database.uri");
     if (!uri) {
-      throw new Error('Database URI is not configured');
+      throw new Error("Database URI is not configured");
     }
     await this.mongoose.connect(uri);
   }

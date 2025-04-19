@@ -1,76 +1,76 @@
-import React from 'react';
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import SavingsIcon from "@mui/icons-material/Savings";
 import {
   Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
   Button,
-  LinearProgress,
+  Card,
+  CardActions,
+  CardContent,
   Chip,
-} from '@mui/material';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
-import SavingsIcon from '@mui/icons-material/Savings';
+  Grid,
+  LinearProgress,
+  Typography,
+} from "@mui/material";
+import type React from "react";
 
 interface Account {
   id: string;
   name: string;
-  type: 'checking' | 'savings' | 'credit';
+  type: "checking" | "savings" | "credit";
   balance: number;
   institution: string;
   lastFour: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
 }
 
 const AccountsList: React.FC = () => {
   // Mock data - replace with actual API call
   const accounts: Account[] = [
     {
-      id: '1',
-      name: 'Primary Checking',
-      type: 'checking',
+      id: "1",
+      name: "Primary Checking",
+      type: "checking",
       balance: 5432.1,
-      institution: 'Chase Bank',
-      lastFour: '4321',
-      status: 'matched',
+      institution: "Chase Bank",
+      lastFour: "4321",
+      status: "matched",
     },
     {
-      id: '2',
-      name: 'High Yield Savings',
-      type: 'savings',
+      id: "2",
+      name: "High Yield Savings",
+      type: "savings",
       balance: 15000.0,
-      institution: 'Ally Bank',
-      lastFour: '8765',
-      status: 'matched',
+      institution: "Ally Bank",
+      lastFour: "8765",
+      status: "matched",
     },
     {
-      id: '3',
-      name: 'Travel Rewards Card',
-      type: 'credit',
+      id: "3",
+      name: "Travel Rewards Card",
+      type: "credit",
       balance: -1543.22,
-      institution: 'Capital One',
-      lastFour: '9999',
-      status: 'matched',
+      institution: "Capital One",
+      lastFour: "9999",
+      status: "matched",
     },
   ];
 
-  const getAccountIcon = (type: Account['type']) => {
+  const getAccountIcon = (type: Account["type"]) => {
     switch (type) {
-      case 'checking':
+      case "checking":
         return <AccountBalanceIcon sx={{ fontSize: 40 }} />;
-      case 'savings':
+      case "savings":
         return <SavingsIcon sx={{ fontSize: 40 }} />;
-      case 'credit':
+      case "credit":
         return <CreditCardIcon sx={{ fontSize: 40 }} />;
     }
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -100,7 +100,7 @@ const AccountsList: React.FC = () => {
 
       {/* Account Cards */}
       <Grid container spacing={3}>
-        {accounts.map(account => (
+        {accounts.map((account) => (
           <Grid item xs={12} md={6} lg={4} key={account.id}>
             <Card>
               <CardContent>
@@ -128,7 +128,7 @@ const AccountsList: React.FC = () => {
                   />
                   <Chip
                     label={account.status}
-                    color={account.status != null ? 'success' : 'default'}
+                    color={account.status != null ? "success" : "default"}
                     size="small"
                   />
                 </Box>
@@ -138,7 +138,7 @@ const AccountsList: React.FC = () => {
                   <LinearProgress
                     variant="determinate"
                     value={100}
-                    color={account.status != null ? 'success' : 'error'}
+                    color={account.status != null ? "success" : "error"}
                   />
                   <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
                     Last synced: Just now

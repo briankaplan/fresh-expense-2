@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
-import { Expense, ExpenseFilters, PaginatedExpenses } from '../services/expense.service';
-import expenseService from '../services/expense.service';
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import { type Expense, type ExpenseFilters, PaginatedExpenses } from "../services/expense.service";
+import expenseService from "../services/expense.service";
 
 interface ExpenseState {
   expenses: Expense[];
@@ -26,7 +26,7 @@ interface ExpenseState {
     fetchExpenses: () => Promise<void>;
     fetchExpense: (id: string) => Promise<void>;
     createExpense: (
-      data: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+      data: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt">,
     ) => Promise<void>;
     updateExpense: (id: string, data: Partial<Expense>) => Promise<void>;
     deleteExpense: (id: string) => Promise<void>;
@@ -57,7 +57,7 @@ const useExpenseStore = create<ExpenseState>()(
             get().actions.fetchExpenses();
           },
           setPagination: (page: number, limit: number) => {
-            set(state => ({
+            set((state) => ({
               pagination: {
                 ...state.pagination,
                 page,
@@ -81,7 +81,9 @@ const useExpenseStore = create<ExpenseState>()(
                 },
               });
             } catch (error) {
-              set({ error: error instanceof Error ? error.message : 'Failed to fetch expenses' });
+              set({
+                error: error instanceof Error ? error.message : "Failed to fetch expenses",
+              });
             } finally {
               set({ loading: false });
             }
@@ -92,19 +94,23 @@ const useExpenseStore = create<ExpenseState>()(
               const expense = await expenseService.getExpense(id);
               set({ currentExpense: expense });
             } catch (error) {
-              set({ error: error instanceof Error ? error.message : 'Failed to fetch expense' });
+              set({
+                error: error instanceof Error ? error.message : "Failed to fetch expense",
+              });
             } finally {
               set({ loading: false });
             }
           },
-          createExpense: async data => {
+          createExpense: async (data) => {
             set({ loading: true, error: null });
             try {
               await expenseService.createExpense(data);
               await get().actions.fetchExpenses();
               await get().actions.fetchSummary();
             } catch (error) {
-              set({ error: error instanceof Error ? error.message : 'Failed to create expense' });
+              set({
+                error: error instanceof Error ? error.message : "Failed to create expense",
+              });
             } finally {
               set({ loading: false });
             }
@@ -116,19 +122,23 @@ const useExpenseStore = create<ExpenseState>()(
               await get().actions.fetchExpenses();
               await get().actions.fetchSummary();
             } catch (error) {
-              set({ error: error instanceof Error ? error.message : 'Failed to update expense' });
+              set({
+                error: error instanceof Error ? error.message : "Failed to update expense",
+              });
             } finally {
               set({ loading: false });
             }
           },
-          deleteExpense: async id => {
+          deleteExpense: async (id) => {
             set({ loading: true, error: null });
             try {
               await expenseService.deleteExpense(id);
               await get().actions.fetchExpenses();
               await get().actions.fetchSummary();
             } catch (error) {
-              set({ error: error instanceof Error ? error.message : 'Failed to delete expense' });
+              set({
+                error: error instanceof Error ? error.message : "Failed to delete expense",
+              });
             } finally {
               set({ loading: false });
             }
@@ -139,7 +149,9 @@ const useExpenseStore = create<ExpenseState>()(
               const summary = await expenseService.getExpenseSummary(get().filters);
               set({ summary });
             } catch (error) {
-              set({ error: error instanceof Error ? error.message : 'Failed to fetch summary' });
+              set({
+                error: error instanceof Error ? error.message : "Failed to fetch summary",
+              });
             } finally {
               set({ loading: false });
             }
@@ -148,14 +160,14 @@ const useExpenseStore = create<ExpenseState>()(
         },
       }),
       {
-        name: 'expense-storage',
-        partialize: state => ({
+        name: "expense-storage",
+        partialize: (state) => ({
           filters: state.filters,
           pagination: state.pagination,
         }),
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 export default useExpenseStore;

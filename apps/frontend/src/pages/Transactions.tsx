@@ -1,41 +1,42 @@
-import React, { useState } from 'react';
+import AnimatedWrapper from "@/shared/components/AnimatedWrapper";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import SaveIcon from "@mui/icons-material/Save";
 import {
   Box,
-  Paper,
-  Typography,
-  TextField,
-  Grid,
-  MenuItem,
   Button,
+  Card,
+  CardContent,
+  Chip,
+  ClickAwayListener,
+  Collapse,
+  Grid,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
-  useTheme,
+  TableRow,
+  TextField,
+  Typography,
   useMediaQuery,
-  Card,
-  CardContent,
-  Chip,
-  Collapse,
-  IconButton,
-  ClickAwayListener,
-  InputAdornment,
-} from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
-import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
-import { toast } from 'react-hot-toast';
+  useTheme,
+} from "@mui/material";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AnimatePresence, motion } from "framer-motion";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface Transaction {
   id: string;
@@ -43,7 +44,7 @@ interface Transaction {
   description: string;
   amount: number;
   category: string;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   status: string;
 }
 
@@ -56,56 +57,56 @@ const Transactions: React.FC = () => {
   // State for filters
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [category, setCategory] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [category, setCategory] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterOpen, setFilterOpen] = useState(false);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
-  const [editValue, setEditValue] = useState<string>('');
+  const [editValue, setEditValue] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Mock data - replace with actual API call
   const mockTransactions = [
     {
-      id: '1',
-      description: 'Grocery shopping',
-      amount: 85.50,
-      date: new Date('2024-04-08'),
-      category: 'Groceries',
-      merchant: 'Whole Foods',
-      status: 'completed',
+      id: "1",
+      description: "Grocery shopping",
+      amount: 85.5,
+      date: new Date("2024-04-08"),
+      category: "Groceries",
+      merchant: "Whole Foods",
+      status: "completed",
     },
     {
-      id: '2',
-      description: 'Monthly rent',
-      amount: 1200.00,
-      date: new Date('2024-04-01'),
-      category: 'Housing',
-      merchant: 'Apartment Complex',
-      status: 'completed',
+      id: "2",
+      description: "Monthly rent",
+      amount: 1200.0,
+      date: new Date("2024-04-01"),
+      category: "Housing",
+      merchant: "Apartment Complex",
+      status: "completed",
     },
   ];
 
-  const categories = ['Food', 'Income', 'Transportation', 'Entertainment', 'Bills'];
+  const categories = ["Food", "Income", "Transportation", "Entertainment", "Bills"];
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -113,7 +114,7 @@ const Transactions: React.FC = () => {
     setter(date);
   };
 
-  const filteredTransactions = mockTransactions.filter(transaction => {
+  const filteredTransactions = mockTransactions.filter((transaction) => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !category || transaction.category === category;
     const matchesDateRange =
@@ -134,7 +135,7 @@ const Transactions: React.FC = () => {
 
   const handleCancelEdit = () => {
     setEditingCell(null);
-    setEditValue('');
+    setEditValue("");
   };
 
   const handleSaveEdit = async (transaction: Transaction) => {
@@ -144,19 +145,19 @@ const Transactions: React.FC = () => {
       setIsSubmitting(true);
 
       let value: string | number = editValue;
-      if (editingCell.field === 'amount') {
-        value = parseFloat(editValue.replace(/[^0-9.-]+/g, ''));
+      if (editingCell.field === "amount") {
+        value = Number.parseFloat(editValue.replace(/[^0-9.-]+/g, ""));
         if (isNaN(value)) {
-          toast.error('Please enter a valid amount');
+          toast.error("Please enter a valid amount");
           return;
         }
       }
 
       // API call to update the transaction
       const response = await fetch(`/api/transactions/${transaction.id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           [editingCell.field]: value,
@@ -164,11 +165,11 @@ const Transactions: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update transaction');
+        throw new Error("Failed to update transaction");
       }
 
       // Update local state
-      const updatedTransactions = mockTransactions.map(t => {
+      const updatedTransactions = mockTransactions.map((t) => {
         if (t.id === transaction.id) {
           return { ...t, [editingCell.field]: value };
         }
@@ -177,11 +178,11 @@ const Transactions: React.FC = () => {
       // Update your transactions state here
       // setTransactions(updatedTransactions);
 
-      toast.success('Transaction updated successfully');
+      toast.success("Transaction updated successfully");
       handleCancelEdit();
     } catch (error) {
-      toast.error('Failed to update transaction');
-      console.error('Error updating transaction:', error);
+      toast.error("Failed to update transaction");
+      console.error("Error updating transaction:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -200,19 +201,19 @@ const Transactions: React.FC = () => {
       return (
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 1,
-            cursor: 'pointer',
-            '&:hover .edit-icon': {
+            cursor: "pointer",
+            "&:hover .edit-icon": {
               opacity: 1,
             },
           }}
           onClick={() => handleStartEdit(transaction, field)}
         >
-          {field === 'amount' ? (
+          {field === "amount" ? (
             formatCurrency(transaction[field] as number)
-          ) : field === 'category' ? (
+          ) : field === "category" ? (
             <Chip label={transaction[field]} size="small" />
           ) : (
             transaction[field]
@@ -222,8 +223,8 @@ const Transactions: React.FC = () => {
             sx={{
               fontSize: 16,
               opacity: 0,
-              transition: 'opacity 0.2s',
-              color: 'text.secondary',
+              transition: "opacity 0.2s",
+              color: "text.secondary",
             }}
           />
         </Box>
@@ -232,23 +233,23 @@ const Transactions: React.FC = () => {
 
     return (
       <ClickAwayListener onClickAway={handleCancelEdit}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <TextField
             size="small"
             value={editValue}
-            onChange={e => setEditValue(e.target.value)}
+            onChange={(e) => setEditValue(e.target.value)}
             autoFocus
             variant="outlined"
             InputProps={
-              field === 'amount'
+              field === "amount"
                 ? {
                     startAdornment: <InputAdornment position="start">$</InputAdornment>,
                   }
                 : undefined
             }
-            sx={{ minWidth: field === 'amount' ? 120 : 200 }}
-            onKeyPress={e => {
-              if (e.key === 'Enter') {
+            sx={{ minWidth: field === "amount" ? 120 : 200 }}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
                 handleSaveEdit(transaction);
               }
             }}
@@ -284,19 +285,26 @@ const Transactions: React.FC = () => {
       <Card
         sx={{
           mb: 2,
-          cursor: 'pointer',
-          '&:hover': {
-            bgcolor: 'action.hover',
+          cursor: "pointer",
+          "&:hover": {
+            bgcolor: "action.hover",
           },
         }}
       >
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
             <EditableContent transaction={transaction} field="description" />
             <EditableContent transaction={transaction} field="amount" />
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             <Typography variant="body2" color="text.secondary">
               {new Date(transaction.date).toLocaleDateString()}
             </Typography>
@@ -304,7 +312,7 @@ const Transactions: React.FC = () => {
             <Chip
               label={transaction.status}
               size="small"
-              color={transaction.status === 'completed' ? 'success' : 'warning'}
+              color={transaction.status === "completed" ? "success" : "warning"}
             />
           </Box>
         </CardContent>
@@ -323,10 +331,10 @@ const Transactions: React.FC = () => {
           <Box
             sx={{
               mb: 3,
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              justifyContent: 'space-between',
-              alignItems: { xs: 'stretch', sm: 'center' },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "space-between",
+              alignItems: { xs: "stretch", sm: "center" },
               gap: 2,
             }}
           >
@@ -339,7 +347,7 @@ const Transactions: React.FC = () => {
               startIcon={<FilterListIcon />}
               onClick={() => setFilterOpen(!filterOpen)}
             >
-              Filters {filterOpen ? '▼' : '▲'}
+              Filters {filterOpen ? "▼" : "▲"}
             </Button>
           </Box>
         </motion.div>
@@ -348,19 +356,19 @@ const Transactions: React.FC = () => {
           {filterOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Paper sx={{ p: 2, mb: 3, overflow: 'hidden' }}>
+              <Paper sx={{ p: 2, mb: 3, overflow: "hidden" }}>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={4}>
                     <TextField
                       fullWidth
                       label="Search transactions"
                       value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                      size={isMobile ? 'small' : 'medium'}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      size={isMobile ? "small" : "medium"}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6} md={2}>
@@ -369,11 +377,11 @@ const Transactions: React.FC = () => {
                       select
                       label="Category"
                       value={category}
-                      onChange={e => setCategory(e.target.value)}
-                      size={isMobile ? 'small' : 'medium'}
+                      onChange={(e) => setCategory(e.target.value)}
+                      size={isMobile ? "small" : "medium"}
                     >
                       <MenuItem value="">All</MenuItem>
-                      {categories.map(cat => (
+                      {categories.map((cat) => (
                         <MenuItem key={cat} value={cat}>
                           {cat}
                         </MenuItem>
@@ -385,11 +393,11 @@ const Transactions: React.FC = () => {
                       <DatePicker
                         label="Start Date"
                         value={startDate}
-                        onChange={date => handleDateChange(date, setStartDate)}
+                        onChange={(date) => handleDateChange(date, setStartDate)}
                         slotProps={{
                           textField: {
                             fullWidth: true,
-                            size: isMobile ? 'small' : 'medium',
+                            size: isMobile ? "small" : "medium",
                           },
                         }}
                       />
@@ -398,11 +406,11 @@ const Transactions: React.FC = () => {
                       <DatePicker
                         label="End Date"
                         value={endDate}
-                        onChange={date => handleDateChange(date, setEndDate)}
+                        onChange={(date) => handleDateChange(date, setEndDate)}
                         slotProps={{
                           textField: {
                             fullWidth: true,
-                            size: isMobile ? 'small' : 'medium',
+                            size: isMobile ? "small" : "medium",
                           },
                         }}
                       />
@@ -413,12 +421,12 @@ const Transactions: React.FC = () => {
                       fullWidth
                       variant="outlined"
                       onClick={() => {
-                        setSearchTerm('');
-                        setCategory('');
+                        setSearchTerm("");
+                        setCategory("");
                         setStartDate(null);
                         setEndDate(null);
                       }}
-                      size={isMobile ? 'small' : 'medium'}
+                      size={isMobile ? "small" : "medium"}
                     >
                       Clear Filters
                     </Button>
@@ -454,8 +462,8 @@ const Transactions: React.FC = () => {
             <TableContainer
               component={Paper}
               sx={{
-                overflowX: 'auto',
-                '.MuiTable-root': {
+                overflowX: "auto",
+                ".MuiTable-root": {
                   minWidth: 750,
                 },
               }}
@@ -480,7 +488,7 @@ const Transactions: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         style={{
-                          display: 'table-row',
+                          display: "table-row",
                         }}
                       >
                         <TableCell>
@@ -516,8 +524,8 @@ const Transactions: React.FC = () => {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{
-              '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
-                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows": {
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
               },
             }}
           />

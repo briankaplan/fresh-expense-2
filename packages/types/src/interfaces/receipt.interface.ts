@@ -23,7 +23,7 @@ export interface Receipt {
   amount: number;
   date: Date;
   category?: string;
-  status: 'pending' | 'processed' | 'matched' | 'review';
+  status: "pending" | "processed" | "matched" | "review";
   matchConfidence?: number;
   metadata?: ReceiptMetadata;
   r2Key: string;

@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@/core/config.service';
-import { RateLimiterService } from '../rate-limiter.service';
-import { ErrorHandlerService, ErrorType } from '../error-handler.service';
-import { LoggingService } from '../logging.service';
-import axios, { AxiosInstance } from 'axios';
+import type { ConfigService } from "@/core/config.service";
+import { Injectable } from "@nestjs/common";
+import axios, { type AxiosInstance } from "axios";
+import { type ErrorHandlerService, ErrorType } from "../error-handler.service";
+import type { LoggingService } from "../logging.service";
+import type { RateLimiterService } from "../rate-limiter.service";
 
 @Injectable()
 export abstract class BaseAIService {
@@ -15,7 +15,7 @@ export abstract class BaseAIService {
     protected readonly rateLimiter: RateLimiterService,
     protected readonly errorHandler: ErrorHandlerService,
     protected readonly logger: LoggingService,
-    serviceName: string
+    serviceName: string,
   ) {
     this.serviceName = serviceName;
   }
@@ -24,7 +24,7 @@ export abstract class BaseAIService {
     this.client = axios.create({
       baseURL: baseUrl,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...headers,
       },
       timeout: 30000,
@@ -38,8 +38,8 @@ export abstract class BaseAIService {
       const appError = this.errorHandler.createError(
         ErrorType.EXTERNAL_SERVICE,
         `Rate limit exceeded for ${operation}`,
-        'RATE_LIMIT_EXCEEDED',
-        { operation }
+        "RATE_LIMIT_EXCEEDED",
+        { operation },
       );
       throw this.errorHandler.handleError(appError, this.serviceName);
     }
@@ -48,7 +48,7 @@ export abstract class BaseAIService {
   protected async executeWithRetry<T>(
     operation: string,
     fn: () => Promise<T>,
-    maxRetries = 3
+    maxRetries = 3,
   ): Promise<T> {
     let lastError: Error | undefined;
 
@@ -65,8 +65,8 @@ export abstract class BaseAIService {
         const appError = this.errorHandler.createError(
           ErrorType.EXTERNAL_SERVICE,
           `Operation ${operation} failed on attempt ${attempt}`,
-          'OPERATION_FAILED',
-          { operation, attempt }
+          "OPERATION_FAILED",
+          { operation, attempt },
         );
         lastError = this.errorHandler.handleError(appError, this.serviceName);
 
@@ -75,7 +75,7 @@ export abstract class BaseAIService {
             service: this.serviceName,
             operation,
           });
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
         }
       }
     }

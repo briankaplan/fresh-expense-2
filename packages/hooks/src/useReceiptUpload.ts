@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from "react";
 
 interface UseReceiptUploadResult {
   uploading: boolean;
@@ -15,7 +15,7 @@ export const useReceiptUpload = (): UseReceiptUploadResult => {
     setUploadError(null);
     try {
       // Implement file upload logic here using file
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock upload
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock upload
     } catch (error) {
       setUploadError(error as Error);
       throw error;

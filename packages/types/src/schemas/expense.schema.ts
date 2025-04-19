@@ -1,17 +1,17 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from './base.schema';
-import { ExpenseCategory, ExpenseStatus } from '../lib/types';
-import { EXPENSE_CATEGORIES } from '../constants/category.constants';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import { EXPENSE_CATEGORIES } from "../constants/category.constants";
+import { ExpenseCategory, ExpenseStatus } from "../lib/types";
+import { BaseDocument } from "./base.schema";
 
 export type ExpenseDocument = Expense & Document;
 
 @Schema({ timestamps: true })
 export class Expense extends BaseDocument {
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
   userId!: Types.ObjectId | string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Company', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
   companyId!: Types.ObjectId | string;
 
   @Prop({ required: true })
@@ -21,7 +21,7 @@ export class Expense extends BaseDocument {
     required: true,
     type: {
       amount: { type: Number, required: true },
-      currency: { type: String, required: true, default: 'USD' },
+      currency: { type: String, required: true, default: "USD" },
     },
   })
   amount!: {
@@ -52,7 +52,7 @@ export class Expense extends BaseDocument {
   @Prop({ type: Date })
   reportedAt?: Date;
 
-  @Prop({ type: Types.ObjectId, ref: 'Receipt' })
+  @Prop({ type: Types.ObjectId, ref: "Receipt" })
   receiptId?: Types.ObjectId;
 
   @Prop({ type: String })
@@ -75,5 +75,5 @@ ExpenseSchema.index({ companyId: 1, date: -1 });
 ExpenseSchema.index({ status: 1 });
 ExpenseSchema.index({ category: 1 });
 ExpenseSchema.index({ tags: 1 });
-ExpenseSchema.index({ 'amount.amount': 1 });
-ExpenseSchema.index({ 'amount.currency': 1 });
+ExpenseSchema.index({ "amount.amount": 1 });
+ExpenseSchema.index({ "amount.currency": 1 });

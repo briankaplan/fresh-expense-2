@@ -1,4 +1,4 @@
-declare module '@huggingface/inference' {
+declare module "@huggingface/inference" {
   export class HfInference {
     constructor(token: string);
 

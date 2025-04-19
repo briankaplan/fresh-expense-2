@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Expense } from '../expense/schemas/expense.schema';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Receipt } from '@fresh-expense/types';
+import type { Receipt } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import { Expense } from "../expense/schemas/expense.schema";
 
 interface TransactionQuery {
   page?: number;
   limit?: number;
   sortField?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   search?: string;
   category?: string;
   startDate?: string;
@@ -17,14 +17,14 @@ interface TransactionQuery {
   minAmount?: number;
   maxAmount?: number;
   matched?: boolean;
-  source?: 'mongodb' | 'teller' | 'auto';
+  source?: "mongodb" | "teller" | "auto";
 }
 
 interface SyncOptions {
   force?: boolean;
   days?: number;
   matchReceipts?: boolean;
-  source?: 'teller' | 'all';
+  source?: "teller" | "all";
 }
 
 interface ExternalTransaction {
@@ -54,8 +54,8 @@ export class TransactionService {
 
   constructor(
     @InjectModel(Expense.name) private expenseModel: Model<Expense>,
-    @InjectModel('Receipt') private receiptModel: Model<Receipt>,
-    private eventEmitter: EventEmitter2
+    @InjectModel("Receipt") private receiptModel: Model<Receipt>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async getTransactions(query: TransactionQuery) {
@@ -63,8 +63,8 @@ export class TransactionService {
       const {
         page = 1,
         limit = 50,
-        sortField = 'date',
-        sortOrder = 'desc',
+        sortField = "date",
+        sortOrder = "desc",
         search,
         category,
         startDate,
@@ -72,7 +72,7 @@ export class TransactionService {
         minAmount,
         maxAmount,
         matched,
-        source = 'auto',
+        source = "auto",
       } = query;
 
       // Build filter
@@ -81,9 +81,9 @@ export class TransactionService {
       // Add search filter if provided
       if (search) {
         filter.$or = [
-          { description: { $regex: search, $options: 'i' } },
-          { merchant: { $regex: search, $options: 'i' } },
-          { category: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: "i" } },
+          { merchant: { $regex: search, $options: "i" } },
+          { category: { $regex: search, $options: "i" } },
         ];
       }
 
@@ -113,7 +113,7 @@ export class TransactionService {
 
       // Build sort
       const sort: any = {};
-      sort[sortField] = sortOrder === 'asc' ? 1 : -1;
+      sort[sortField] = sortOrder === "asc" ? 1 : -1;
 
       // Get total count for pagination
       const total = await this.expenseModel.countDocuments(filter);
@@ -127,25 +127,25 @@ export class TransactionService {
         .exec();
 
       // Format transactions
-      const formattedTransactions = transactions.map(tx => ({
+      const formattedTransactions = transactions.map((tx) => ({
         ...tx.toObject(),
         id: tx._id.toString(),
-        date: tx.date instanceof Date ? tx.date.toISOString().split('T')[0] : tx.date,
-        amount: typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount,
+        date: tx.date instanceof Date ? tx.date.toISOString().split("T")[0] : tx.date,
+        amount: typeof tx.amount === "string" ? Number.parseFloat(tx.amount) : tx.amount,
         merchant:
-          tx.merchant && tx.merchant !== 'Unknown'
+          tx.merchant && tx.merchant !== "Unknown"
             ? tx.merchant
             : tx.details?.counterparty?.name ||
-              (tx.description && tx.description.includes(' - ')
-                ? tx.description.split(' - ')[0]
+              (tx.description && tx.description.includes(" - ")
+                ? tx.description.split(" - ")[0]
                 : null) ||
-              'Unknown',
-        description: tx.description || '',
-        category: tx.category || 'Uncategorized',
+              "Unknown",
+        description: tx.description || "",
+        category: tx.category || "Uncategorized",
         matched: !!tx.matched,
         tags: Array.isArray(tx.tags) ? tx.tags : [],
-        source: 'mongodb',
-        source_db: 'primary',
+        source: "mongodb",
+        source_db: "primary",
       }));
 
       return {
@@ -158,7 +158,7 @@ export class TransactionService {
         },
       };
     } catch (error) {
-      this.logger.error('Error getting transactions:', error);
+      this.logger.error("Error getting transactions:", error);
       throw error;
     }
   }
@@ -168,7 +168,7 @@ export class TransactionService {
       const transaction = await this.expenseModel.findById(id).exec();
 
       if (!transaction) {
-        throw new Error('Transaction not found');
+        throw new Error("Transaction not found");
       }
 
       // Get receipt if exists
@@ -186,7 +186,7 @@ export class TransactionService {
         receipt,
       };
     } catch (error) {
-      this.logger.error('Error getting transaction details:', error);
+      this.logger.error("Error getting transaction details:", error);
       throw error;
     }
   }
@@ -195,12 +195,12 @@ export class TransactionService {
     try {
       const transaction = await this.expenseModel.findById(transactionId).exec();
       if (!transaction) {
-        throw new Error('Transaction not found');
+        throw new Error("Transaction not found");
       }
 
       const receipt = await this.receiptModel.findById(receiptId).exec();
       if (!receipt) {
-        throw new Error('Receipt not found');
+        throw new Error("Receipt not found");
       }
 
       // Update transaction
@@ -227,13 +227,13 @@ export class TransactionService {
 
       return {
         success: true,
-        message: 'Transaction matched with receipt successfully',
+        message: "Transaction matched with receipt successfully",
         matchedAt: new Date(),
         transactionId,
         receiptId,
       };
     } catch (error) {
-      this.logger.error('Error matching transaction with receipt:', error);
+      this.logger.error("Error matching transaction with receipt:", error);
       throw error;
     }
   }
@@ -242,11 +242,11 @@ export class TransactionService {
     try {
       const transaction = await this.expenseModel.findById(transactionId).exec();
       if (!transaction) {
-        throw new Error('Transaction not found');
+        throw new Error("Transaction not found");
       }
 
       if (!transaction.receiptId) {
-        throw new Error('Transaction does not have a matched receipt');
+        throw new Error("Transaction does not have a matched receipt");
       }
 
       const receiptId = transaction.receiptId;
@@ -254,7 +254,7 @@ export class TransactionService {
       // Update transaction
       await this.expenseModel
         .findByIdAndUpdate(transactionId, {
-          $unset: { receiptId: '' },
+          $unset: { receiptId: "" },
           $set: {
             matched: false,
             unmatchedAt: new Date(),
@@ -265,7 +265,7 @@ export class TransactionService {
       // Update receipt
       await this.receiptModel
         .findByIdAndUpdate(receiptId, {
-          $unset: { transactionId: '' },
+          $unset: { transactionId: "" },
           $set: {
             matched: false,
             unmatchedAt: new Date(),
@@ -275,20 +275,20 @@ export class TransactionService {
 
       return {
         success: true,
-        message: 'Transaction unmatched from receipt successfully',
+        message: "Transaction unmatched from receipt successfully",
       };
     } catch (error) {
-      this.logger.error('Error unmatching transaction from receipt:', error);
+      this.logger.error("Error unmatching transaction from receipt:", error);
       throw error;
     }
   }
 
   async syncTransactions(options: SyncOptions = {}) {
-    const { force = false, days = 30, matchReceipts = true, source = 'all' } = options;
+    const { force = false, days = 30, matchReceipts = true, source = "all" } = options;
 
     try {
-      this.logger.log('Starting transaction sync...');
-      this.eventEmitter.emit('sync.started', { timestamp: new Date() });
+      this.logger.log("Starting transaction sync...");
+      this.eventEmitter.emit("sync.started", { timestamp: new Date() });
 
       let syncedCount = 0;
       let matchedCount = 0;
@@ -325,7 +325,7 @@ export class TransactionService {
                 $set: {
                   ...tx,
                   lastSynced: new Date(),
-                  source: 'external',
+                  source: "external",
                 },
               });
 
@@ -344,7 +344,7 @@ export class TransactionService {
         }
 
         // Emit progress event
-        this.eventEmitter.emit('sync.progress', {
+        this.eventEmitter.emit("sync.progress", {
           processed: i + batch.length,
           total: externalTransactions.length,
           synced: syncedCount,
@@ -352,8 +352,8 @@ export class TransactionService {
         });
       }
 
-      this.logger.log('Transaction sync completed');
-      this.eventEmitter.emit('sync.completed', {
+      this.logger.log("Transaction sync completed");
+      this.eventEmitter.emit("sync.completed", {
         timestamp: new Date(),
         syncedCount,
         matchedCount,
@@ -365,15 +365,15 @@ export class TransactionService {
         matchedCount,
       };
     } catch (error) {
-      this.logger.error('Error syncing transactions:', error);
-      this.eventEmitter.emit('sync.failed', { error });
+      this.logger.error("Error syncing transactions:", error);
+      this.eventEmitter.emit("sync.failed", { error });
       throw error;
     }
   }
 
   private async getExternalTransactions(
     days: number,
-    source: string
+    source: string,
   ): Promise<ExternalTransaction[]> {
     // This would integrate with external services like Teller
     // For now, returning mock data
@@ -391,7 +391,7 @@ export class TransactionService {
       .exec();
 
     // Process in parallel for better performance
-    const matchPromises = transactions.map(async tx => {
+    const matchPromises = transactions.map(async (tx) => {
       const bestMatch = await this.findBestReceiptMatch(tx, unmatchedReceipts);
 
       if (bestMatch && bestMatch.score >= this.MATCH_THRESHOLD) {
@@ -406,7 +406,7 @@ export class TransactionService {
 
   private async findBestReceiptMatch(
     transaction: ExternalTransaction,
-    receipts: Receipt[]
+    receipts: Receipt[],
   ): Promise<MatchResult | null> {
     let bestMatch: MatchResult | null = null;
     let bestScore = 0;
@@ -440,7 +440,7 @@ export class TransactionService {
 
     // Date match (within 1 day)
     const dateDiff = Math.abs(
-      new Date(transaction.date).getTime() - new Date(receipt.date).getTime()
+      new Date(transaction.date).getTime() - new Date(receipt.date).getTime(),
     );
     if (dateDiff <= 24 * 60 * 60 * 1000) {
       // 1 day in milliseconds
@@ -459,7 +459,7 @@ export class TransactionService {
     if (!merchant1 || !merchant2) return false;
 
     // Normalize merchant names
-    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const norm1 = normalize(merchant1);
     const norm2 = normalize(merchant2);
 

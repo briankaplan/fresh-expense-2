@@ -1,22 +1,22 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export type AIModelDocument = AIModel & Document;
 
 export enum ModelType {
-  MERCHANT_MATCHING = 'MERCHANT_MATCHING',
-  CATEGORY_PREDICTION = 'CATEGORY_PREDICTION',
-  FRAUD_DETECTION = 'FRAUD_DETECTION',
-  SPENDING_PATTERN = 'SPENDING_PATTERN',
-  RECEIPT_PARSING = 'RECEIPT_PARSING',
+  MERCHANT_MATCHING = "MERCHANT_MATCHING",
+  CATEGORY_PREDICTION = "CATEGORY_PREDICTION",
+  FRAUD_DETECTION = "FRAUD_DETECTION",
+  SPENDING_PATTERN = "SPENDING_PATTERN",
+  RECEIPT_PARSING = "RECEIPT_PARSING",
 }
 
 export enum ModelStatus {
-  TRAINING = 'TRAINING',
-  ACTIVE = 'ACTIVE',
-  DEPRECATED = 'DEPRECATED',
-  ERROR = 'ERROR',
+  TRAINING = "TRAINING",
+  ACTIVE = "ACTIVE",
+  DEPRECATED = "DEPRECATED",
+  ERROR = "ERROR",
 }
 
 export interface ModelMetrics {
@@ -38,7 +38,7 @@ export interface TrainingData {
 
 @Schema({
   timestamps: true,
-  collection: 'ai_models',
+  collection: "ai_models",
 })
 export class AIModel implements BaseDocument {
   _id!: string;
@@ -127,5 +127,5 @@ export const AIModelSchema = SchemaFactory.createForClass(AIModel);
 // Indexes
 AIModelSchema.index({ type: 1, status: 1 });
 AIModelSchema.index({ version: 1 });
-AIModelSchema.index({ 'metrics.accuracy': 1 });
-AIModelSchema.index({ 'metadata.lastTraining': 1 });
+AIModelSchema.index({ "metrics.accuracy": 1 });
+AIModelSchema.index({ "metadata.lastTraining": 1 });

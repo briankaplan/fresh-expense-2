@@ -1,6 +1,6 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { MongoClient, Db, Collection, Document } from 'mongodb';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, type OnModuleDestroy } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import { type Collection, type Db, type Document, MongoClient } from "mongodb";
 
 @Injectable()
 export class MongoDBService implements OnModuleDestroy {
@@ -21,13 +21,13 @@ export class MongoDBService implements OnModuleDestroy {
 
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        const uri = this.configService.get<string>('MONGODB_URI');
+        const uri = this.configService.get<string>("MONGODB_URI");
         if (!uri) {
-          throw new Error('MongoDB URI not configured');
+          throw new Error("MongoDB URI not configured");
         }
 
         console.log(`Attempting to connect to MongoDB (attempt ${attempt}/${this.maxRetries})...`);
-        console.log('Using URI:', uri.replace(/\/\/[^@]+@/, '//<credentials>@')); // Hide credentials in logs
+        console.log("Using URI:", uri.replace(/\/\/[^@]+@/, "//<credentials>@")); // Hide credentials in logs
 
         this.client = new MongoClient(uri, {
           connectTimeoutMS: this.connectTimeout,
@@ -42,7 +42,7 @@ export class MongoDBService implements OnModuleDestroy {
         await this.client.connect();
         this.db = this.client.db();
         await this.db.command({ ping: 1 }); // Verify we can actually perform operations
-        console.log('✅ MongoDB connected successfully');
+        console.log("✅ MongoDB connected successfully");
         return;
       } catch (error) {
         lastError = error as Error;
@@ -50,7 +50,7 @@ export class MongoDBService implements OnModuleDestroy {
 
         if (attempt < this.maxRetries) {
           console.log(`Retrying in ${this.retryDelay / 1000} seconds...`);
-          await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+          await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
         }
       }
     }
@@ -59,7 +59,7 @@ export class MongoDBService implements OnModuleDestroy {
     this.client = null;
     this.db = null;
     throw new Error(
-      `Failed to connect to MongoDB after ${this.maxRetries} attempts. Last error: ${lastError?.message}`
+      `Failed to connect to MongoDB after ${this.maxRetries} attempts. Last error: ${lastError?.message}`,
     );
   }
 
@@ -83,7 +83,7 @@ export class MongoDBService implements OnModuleDestroy {
       await this.db.command({ ping: 1 });
       return true;
     } catch (error) {
-      console.error('❌ MongoDB ping failed:', error);
+      console.error("❌ MongoDB ping failed:", error);
       return false;
     }
   }
@@ -94,9 +94,9 @@ export class MongoDBService implements OnModuleDestroy {
         await this.client.close();
         this.client = null;
         this.db = null;
-        console.log('✅ MongoDB connection closed');
+        console.log("✅ MongoDB connection closed");
       } catch (error) {
-        console.error('❌ Error closing MongoDB connection:', error);
+        console.error("❌ Error closing MongoDB connection:", error);
       }
     }
   }

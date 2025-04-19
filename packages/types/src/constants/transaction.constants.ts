@@ -1,52 +1,52 @@
 export enum TransactionStatus {
-  PENDING = 'pending',
-  POSTED = 'posted',
-  CANCELLED = 'cancelled',
-  FAILED = 'failed',
-  CLEARED = 'cleared',
-  DECLINED = 'declined',
+  PENDING = "pending",
+  POSTED = "posted",
+  CANCELLED = "cancelled",
+  FAILED = "failed",
+  CLEARED = "cleared",
+  DECLINED = "declined",
 }
 
 export enum TransactionType {
-  DEBIT = 'debit',
-  CREDIT = 'credit',
-  TRANSFER = 'transfer',
-  PAYMENT = 'payment',
-  REFUND = 'refund',
-  FEE = 'fee',
-  INTEREST = 'interest',
-  ADJUSTMENT = 'adjustment',
-  OTHER = 'other',
+  DEBIT = "debit",
+  CREDIT = "credit",
+  TRANSFER = "transfer",
+  PAYMENT = "payment",
+  REFUND = "refund",
+  FEE = "fee",
+  INTEREST = "interest",
+  ADJUSTMENT = "adjustment",
+  OTHER = "other",
 }
 
-export const TRANSACTION_SOURCES = ['teller', 'manual', 'import'] as const;
+export const TRANSACTION_SOURCES = ["teller", "manual", "import"] as const;
 export type TransactionSource = (typeof TRANSACTION_SOURCES)[number];
 
 export const TRANSACTION_CATEGORIES = [
-  'income',
-  'salary',
-  'investment',
-  'transfer',
-  'food',
-  'groceries',
-  'dining',
-  'transportation',
-  'housing',
-  'utilities',
-  'insurance',
-  'healthcare',
-  'education',
-  'shopping',
-  'entertainment',
-  'travel',
-  'personal',
-  'family',
-  'gifts',
-  'charity',
-  'business',
-  'taxes',
-  'fees',
-  'other',
+  "income",
+  "salary",
+  "investment",
+  "transfer",
+  "food",
+  "groceries",
+  "dining",
+  "transportation",
+  "housing",
+  "utilities",
+  "insurance",
+  "healthcare",
+  "education",
+  "shopping",
+  "entertainment",
+  "travel",
+  "personal",
+  "family",
+  "gifts",
+  "charity",
+  "business",
+  "taxes",
+  "fees",
+  "other",
 ] as const;
 
 export type TransactionCategory = (typeof TRANSACTION_CATEGORIES)[number];
@@ -54,13 +54,13 @@ export type TransactionCategory = (typeof TRANSACTION_CATEGORIES)[number];
 export const TRANSACTION_SEARCH_DEFAULTS = {
   PAGE_SIZE: 20,
   MAX_PAGE_SIZE: 100,
-  DEFAULT_SORT: '-date',
+  DEFAULT_SORT: "-date",
   ALLOWED_SORT_FIELDS: [
-    'date',
-    'amount.value',
-    'description',
-    'merchant.name',
-    'category',
+    "date",
+    "amount.value",
+    "description",
+    "merchant.name",
+    "category",
   ] as const,
 } as const;
 
@@ -89,22 +89,22 @@ export const TRANSACTION_SYNC = {
 } as const;
 
 export const TRANSACTION_EXPORT = {
-  FORMATS: ['csv', 'json', 'pdf'] as const,
+  FORMATS: ["csv", "json", "pdf"] as const,
   CSV_FIELDS: [
-    'date',
-    'description',
-    'amount.value',
-    'amount.currency',
-    'category',
-    'merchant.name',
-    'status',
-    'type',
+    "date",
+    "description",
+    "amount.value",
+    "amount.currency",
+    "category",
+    "merchant.name",
+    "status",
+    "type",
   ] as const,
 } as const;
 
 export const TRANSACTION_AGGREGATION = {
-  TIME_PERIODS: ['day', 'week', 'month', 'year'] as const,
-  METRICS: ['count', 'sum', 'average'] as const,
+  TIME_PERIODS: ["day", "week", "month", "year"] as const,
+  METRICS: ["count", "sum", "average"] as const,
 } as const;
 
 export const TRANSACTION_AI = {

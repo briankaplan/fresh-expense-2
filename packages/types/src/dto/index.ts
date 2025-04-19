@@ -3,7 +3,7 @@ export interface PaginationDto {
   page: number;
   limit: number;
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
 }
 
 export interface DateRangeDto {
@@ -18,7 +18,7 @@ export interface SearchDto {
 
 export interface FilterDto {
   field: string;
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'regex';
+  operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "regex";
   value: any;
 }
 

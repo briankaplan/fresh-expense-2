@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationService } from './notification/notification.service';
-import { BaseService } from './base.service';
+import { Injectable } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { BaseService } from "./base.service";
+import type { NotificationService } from "./notification/notification.service";
 
 export interface ServiceState {
   isConnected: boolean;
@@ -23,11 +23,13 @@ export class ServiceManagerService extends BaseService {
   }
 
   private updateServiceState(serviceName: string, state: Partial<ServiceState>): void {
-    const currentState = this.serviceStates.get(serviceName) || { isConnected: false };
+    const currentState = this.serviceStates.get(serviceName) || {
+      isConnected: false,
+    };
     const newState = { ...currentState, ...state };
     this.serviceStates.set(serviceName, newState);
 
-    this.eventEmitter.emit('service.state.changed', {
+    this.eventEmitter.emit("service.state.changed", {
       serviceName,
       state: newState,
       timestamp: new Date(),
@@ -45,11 +47,11 @@ export class ServiceManagerService extends BaseService {
   async executeWithNotification<T>(operation: string, fn: () => Promise<T>): Promise<T> {
     try {
       const result = await fn();
-      await this.notify('success', `Operation ${operation} completed successfully`);
+      await this.notify("success", `Operation ${operation} completed successfully`);
       return result;
     } catch (error) {
       const typedError = error instanceof Error ? error : new Error(String(error));
-      await this.notify('error', `Operation ${operation} failed: ${typedError.message}`);
+      await this.notify("error", `Operation ${operation} failed: ${typedError.message}`);
       throw typedError;
     }
   }

@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { R2Service } from '@fresh-expense/utils';
-import { ConfigService } from '@nestjs/config';
-import { ReceiptDocument } from '@fresh-expense/types';
+import { ReceiptDocument } from "@fresh-expense/types";
+import type { R2Service } from "@fresh-expense/utils";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 
 interface UploadResult {
   originalKey: string;
@@ -18,17 +18,17 @@ export class ReceiptUploadService {
 
   constructor(
     private readonly r2Service: R2Service,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
-    this.receiptsBucket = this.configService.getOrThrow<string>('R2_RECEIPTS_BUCKET');
-    this.thumbnailsBucket = this.configService.getOrThrow<string>('R2_THUMBNAILS_BUCKET');
+    this.receiptsBucket = this.configService.getOrThrow<string>("R2_RECEIPTS_BUCKET");
+    this.thumbnailsBucket = this.configService.getOrThrow<string>("R2_THUMBNAILS_BUCKET");
   }
 
   async uploadReceipt(
     userId: string,
     file: Buffer,
     filename: string,
-    metadata: { merchant: string; amount: number; date: Date }
+    metadata: { merchant: string; amount: number; date: Date },
   ): Promise<UploadResult> {
     try {
       // Generate standardized filename
@@ -52,19 +52,19 @@ export class ReceiptUploadService {
         thumbnailUrl,
       };
     } catch (error) {
-      this.logger.error('Error uploading receipt:', error);
+      this.logger.error("Error uploading receipt:", error);
       throw error;
     }
   }
 
   private generateStandardizedName(
     metadata: { merchant: string; amount: number; date: Date },
-    originalName: string
+    originalName: string,
   ): string {
-    const date = metadata.date.toISOString().split('T')[0];
-    const merchant = metadata.merchant.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const date = metadata.date.toISOString().split("T")[0];
+    const merchant = metadata.merchant.toLowerCase().replace(/[^a-z0-9]/g, "-");
     const amount = metadata.amount.toFixed(2);
-    const extension = originalName.split('.').pop();
+    const extension = originalName.split(".").pop();
 
     return `${date}-${merchant}-${amount}.${extension}`;
   }

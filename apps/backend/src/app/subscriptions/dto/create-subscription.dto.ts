@@ -1,16 +1,16 @@
+import { Type } from "class-transformer";
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsDate,
-  IsNumber,
   IsBoolean,
+  IsDate,
+  IsEnum,
   IsMongoId,
+  IsNotEmpty,
+  IsNumber,
   IsObject,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { SubscriptionStatus, BillingCycle } from '../schemas/subscription.schema';
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { BillingCycle, SubscriptionStatus } from "../schemas/subscription.schema";
 
 export class CreateSubscriptionDto {
   @IsNotEmpty()

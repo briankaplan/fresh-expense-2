@@ -1,14 +1,14 @@
-import React from 'react';
+import { useTheme } from "@mui/material";
+import type React from "react";
 import {
-  BarChart as RechartsBarChart,
   Bar,
+  CartesianGrid,
+  BarChart as RechartsBarChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import { useTheme } from '@mui/material';
+} from "recharts";
 
 interface DataPoint {
   name: string;
@@ -50,7 +50,7 @@ export const BarChart: React.FC<BarChartProps> = ({
             border: `1px solid ${theme.palette.divider}`,
             borderRadius: theme.shape.borderRadius,
           }}
-          cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+          cursor={{ fill: "rgba(255, 255, 255, 0.1)" }}
         />
         <Bar
           dataKey="value"

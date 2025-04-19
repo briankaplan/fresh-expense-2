@@ -1,20 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 
-import { AppService } from './app.service';
-
+import type { AppService } from "./app.service";
 
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  
   getData() {
     return this.appService.getData();
   }
 
-  
   healthCheck() {
     return {
-      status: 'matched',
+      status: "matched",
       timestamp: new Date().toISOString(),
     };
   }

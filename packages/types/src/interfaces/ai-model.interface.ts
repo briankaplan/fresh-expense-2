@@ -1,9 +1,9 @@
 export interface AIModel {
   id: string;
   name: string;
-  type: 'categorization' | 'merchant' | 'receipt' | 'analytics';
+  type: "categorization" | "merchant" | "receipt" | "analytics";
   version: string;
-  status: 'active' | 'inactive' | 'training';
+  status: "active" | "inactive" | "training";
   metrics: {
     accuracy?: number;
     precision?: number;
@@ -12,4 +12,4 @@ export interface AIModel {
   };
   createdAt: Date;
   updatedAt: Date;
-} 
+}

@@ -1,39 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import type { Receipt } from "@fresh-expense/types";
+import { DataTable } from "@fresh-expense/ui";
+import {
+  CloudDownload,
+  Delete,
+  Download,
+  FilterList,
+  Link,
+  MoreVert,
+  Search,
+  Unlink,
+  Visibility,
+} from "@mui/icons-material";
 import {
   Box,
-  Grid,
-  Paper,
-  Typography,
-  TextField,
   Button,
   Chip,
+  CircularProgress,
+  FormControl,
+  Grid,
   IconButton,
+  InputLabel,
   Menu,
   MenuItem,
-  FormControl,
-  InputLabel,
+  Paper,
   Select,
-  SelectChangeEvent,
-  CircularProgress,
+  type SelectChangeEvent,
+  TextField,
   Tooltip,
-} from '@mui/material';
-import {
-  FilterList,
-  Search,
-  Download,
-  Delete,
-  Link,
-  Unlink,
-  MoreVert,
-  CloudDownload,
-  Visibility,
-} from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers';
-import { format } from 'date-fns';
-import { DataTable } from '@fresh-expense/ui';
-import { ReceiptService } from '../../../../services/receipt.service';
-import { toast } from 'react-toastify';
-import { Receipt } from '@fresh-expense/types';
+  Typography,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
+import { format } from "date-fns";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { ReceiptService } from "../../../../services/receipt.service";
 
 interface ReceiptLibraryProps {
   company?: string;
@@ -42,9 +43,12 @@ interface ReceiptLibraryProps {
 export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>({
     start: null,
     end: null,
   });
@@ -59,16 +63,16 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
     try {
       setLoading(true);
       const queryParams = new URLSearchParams();
-      if (company) queryParams.append('company', company);
-      if (statusFilter !== 'all') queryParams.append('status', statusFilter);
-      if (dateRange.start) queryParams.append('startDate', dateRange.start.toISOString());
-      if (dateRange.end) queryParams.append('endDate', dateRange.end.toISOString());
+      if (company) queryParams.append("company", company);
+      if (statusFilter !== "all") queryParams.append("status", statusFilter);
+      if (dateRange.start) queryParams.append("startDate", dateRange.start.toISOString());
+      if (dateRange.end) queryParams.append("endDate", dateRange.end.toISOString());
 
       const response = await ReceiptService.getReceipts(queryParams.toString());
       setReceipts(response);
     } catch (error) {
-      toast.error('Failed to fetch receipts');
-      console.error('Error fetching receipts:', error);
+      toast.error("Failed to fetch receipts");
+      console.error("Error fetching receipts:", error);
     } finally {
       setLoading(false);
     }
@@ -82,19 +86,19 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
     setStatusFilter(event.target.value);
   };
 
-  const handleDateRangeChange = (field: 'start' | 'end', date: Date | null) => {
-    setDateRange(prev => ({ ...prev, [field]: date }));
+  const handleDateRangeChange = (field: "start" | "end", date: Date | null) => {
+    setDateRange((prev) => ({ ...prev, [field]: date }));
   };
 
   const handleBulkDownload = async () => {
     try {
       setLoading(true);
-      const selectedReceiptsData = receipts.filter(r => selectedReceipts.includes(r.id));
+      const selectedReceiptsData = receipts.filter((r) => selectedReceipts.includes(r.id));
       await ReceiptService.downloadReceipts(selectedReceiptsData);
-      toast.success('Receipts downloaded successfully');
+      toast.success("Receipts downloaded successfully");
     } catch (error) {
-      toast.error('Failed to download receipts');
-      console.error('Error downloading receipts:', error);
+      toast.error("Failed to download receipts");
+      console.error("Error downloading receipts:", error);
     } finally {
       setLoading(false);
     }
@@ -103,12 +107,12 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
   const handleBulkDelete = async () => {
     try {
       setLoading(true);
-      await Promise.all(selectedReceipts.map(id => ReceiptService.deleteReceipt(id)));
+      await Promise.all(selectedReceipts.map((id) => ReceiptService.deleteReceipt(id)));
       await fetchReceipts();
-      toast.success('Receipts deleted successfully');
+      toast.success("Receipts deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete receipts');
-      console.error('Error deleting receipts:', error);
+      toast.error("Failed to delete receipts");
+      console.error("Error deleting receipts:", error);
     } finally {
       setLoading(false);
     }
@@ -116,46 +120,44 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
 
   const columns = [
     {
-      field: 'filename',
-      headerName: 'Filename',
+      field: "filename",
+      headerName: "Filename",
       flex: 1,
       renderCell: (params: any) => (
         <Box display="flex" alignItems="center" gap={1}>
           <Typography>{params.value}</Typography>
-          {params.row.status != null && (
-            <Chip label="Unmatched" color="warning" size="small" />
-          )}
+          {params.row.status != null && <Chip label="Unmatched" color="warning" size="small" />}
         </Box>
       ),
     },
     {
-      field: 'status',
-      headerName: 'Status',
+      field: "status",
+      headerName: "Status",
       width: 150,
       renderCell: (params: any) => (
         <Chip
           label={params.value}
           color={
             params.value != null
-              ? 'success'
+              ? "success"
               : params.value != null
-                ? 'warning'
+                ? "warning"
                 : params.value != null
-                  ? 'info'
-                  : 'error'
+                  ? "info"
+                  : "error"
           }
         />
       ),
     },
     {
-      field: 'createdAt',
-      headerName: 'Upload Date',
+      field: "createdAt",
+      headerName: "Upload Date",
       width: 150,
-      renderCell: (params: any) => format(new Date(params.value), 'MMM d, yyyy'),
+      renderCell: (params: any) => format(new Date(params.value), "MMM d, yyyy"),
     },
     {
-      field: 'actions',
-      headerName: 'Actions',
+      field: "actions",
+      headerName: "Actions",
       width: 200,
       renderCell: (params: any) => (
         <Box>
@@ -170,7 +172,7 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="More Actions">
-            <IconButton onClick={e => handleMenuOpen(e, params.row)} size="small">
+            <IconButton onClick={(e) => handleMenuOpen(e, params.row)} size="small">
               <MoreVert />
             </IconButton>
           </Tooltip>
@@ -207,14 +209,14 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
               <DatePicker
                 label="Start Date"
                 value={dateRange.start}
-                onChange={date => handleDateRangeChange('start', date)}
-                slotProps={{ textField: { size: 'small' } }}
+                onChange={(date) => handleDateRangeChange("start", date)}
+                slotProps={{ textField: { size: "small" } }}
               />
               <DatePicker
                 label="End Date"
                 value={dateRange.end}
-                onChange={date => handleDateRangeChange('end', date)}
-                slotProps={{ textField: { size: 'small' } }}
+                onChange={(date) => handleDateRangeChange("end", date)}
+                slotProps={{ textField: { size: "small" } }}
               />
             </Box>
             <Box display="flex" justifyContent="space-between" mb={2}>
@@ -250,7 +252,7 @@ export const ReceiptLibrary: React.FC<ReceiptLibraryProps> = ({ company }) => {
               columns={columns}
               loading={loading}
               checkboxSelection
-              onSelectionModelChange={newSelection => {
+              onSelectionModelChange={(newSelection) => {
                 setSelectedReceipts(newSelection as string[]);
               }}
               selectionModel={selectedReceipts}

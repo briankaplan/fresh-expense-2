@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@/core/config.service';
-import { RateLimiterService } from '../rate-limiter.service';
-import { ErrorHandlerService } from '../error-handler.service';
-import { LoggingService } from '../logging.service';
-import { BaseAIService } from './base-ai.service';
+import type { ConfigService } from "@/core/config.service";
+import { Injectable } from "@nestjs/common";
+import type { ErrorHandlerService } from "../error-handler.service";
+import type { LoggingService } from "../logging.service";
+import type { RateLimiterService } from "../rate-limiter.service";
+import { BaseAIService } from "./base-ai.service";
 
 export interface ExtractedReceiptInfo {
   merchant: string;
@@ -26,23 +26,23 @@ export class ExtractionService extends BaseAIService {
     configService: ConfigService,
     rateLimiter: RateLimiterService,
     errorHandler: ErrorHandlerService,
-    logger: LoggingService
+    logger: LoggingService,
   ) {
     super(configService, rateLimiter, errorHandler, logger, ExtractionService.name);
-    this.initializeClient('https://api-inference.huggingface.co/models', {
+    this.initializeClient("https://api-inference.huggingface.co/models", {
       Authorization: `Bearer ${configService.getAIConfig().huggingface.apiKey}`,
     });
   }
 
   async extractReceiptInfo(text: string): Promise<ExtractedReceiptInfo> {
-    return this.withRateLimit('AI.HUGGINGFACE.INFERENCE', async () => {
-      const response = await this.client.post('/microsoft/layoutlm-base-uncased', {
+    return this.withRateLimit("AI.HUGGINGFACE.INFERENCE", async () => {
+      const response = await this.client.post("/microsoft/layoutlm-base-uncased", {
         inputs: text,
       });
 
       // Process and structure the response
       const result: ExtractedReceiptInfo = {
-        merchant: { name: '' },
+        merchant: { name: "" },
         date: new Date(""),
         total: 0,
         items: [],
@@ -50,7 +50,7 @@ export class ExtractionService extends BaseAIService {
       };
 
       // Extract merchant name (usually at the top)
-      const lines = text.split('\n');
+      const lines = text.split("\n");
       if (lines.length > 0) {
         result.merchant = lines[0].trim();
       }
@@ -64,17 +64,17 @@ export class ExtractionService extends BaseAIService {
       // Extract total amount (look for patterns like "Total: $XX.XX")
       const totalMatch = text.match(/total:?\s*\$?(\d+\.?\d*)/i);
       if (totalMatch) {
-        result.total = parseFloat(totalMatch[1]);
+        result.total = Number.parseFloat(totalMatch[1]);
       }
 
       // Extract items (look for patterns like "Item $XX.XX" or similar)
       const itemPattern = /(.+?)\s+\$?(\d+\.?\d*)/g;
       let itemMatch;
       while ((itemMatch = itemPattern.exec(text)) !== null) {
-        if (!itemMatch[1].toLowerCase().includes('total')) {
+        if (!itemMatch[1].toLowerCase().includes("total")) {
           result.items.push({
             description: itemMatch[1].trim(),
-            amount: parseFloat(itemMatch[2]),
+            amount: Number.parseFloat(itemMatch[2]),
           });
         }
       }

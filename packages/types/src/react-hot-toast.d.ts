@@ -1,17 +1,17 @@
-declare module 'react-hot-toast' {
-  import { ReactNode } from 'react';
+declare module "react-hot-toast" {
+  import type { ReactNode } from "react";
 
   export interface ToastOptions {
     id?: string;
     icon?: ReactNode;
     duration?: number;
     position?:
-      | 'top-left'
-      | 'top-center'
-      | 'top-right'
-      | 'bottom-left'
-      | 'bottom-center'
-      | 'bottom-right';
+      | "top-left"
+      | "top-center"
+      | "top-right"
+      | "bottom-left"
+      | "bottom-center"
+      | "bottom-right";
     style?: React.CSSProperties;
     className?: string;
     iconTheme?: {
@@ -20,29 +20,29 @@ declare module 'react-hot-toast' {
     };
     ariaProps?: {
       role: string;
-      'aria-live': 'polite' | 'assertive' | 'off';
+      "aria-live": "polite" | "assertive" | "off";
     };
   }
 
   export interface Toast {
     id: string;
     message: ReactNode;
-    type: 'success' | 'error' | 'loading' | 'blank' | 'custom';
+    type: "success" | "error" | "loading" | "blank" | "custom";
     duration?: number;
     pauseDuration: number;
-    position: ToastOptions['position'];
+    position: ToastOptions["position"];
     createdAt: number;
     visible: boolean;
     height?: number;
     icon?: ReactNode;
     style?: React.CSSProperties;
     className?: string;
-    iconTheme?: ToastOptions['iconTheme'];
-    ariaProps?: ToastOptions['ariaProps'];
+    iconTheme?: ToastOptions["iconTheme"];
+    ariaProps?: ToastOptions["ariaProps"];
   }
 
   export interface ToasterProps {
-    position?: ToastOptions['position'];
+    position?: ToastOptions["position"];
     toastOptions?: ToastOptions;
     reverseOrder?: boolean;
     gutter?: number;
@@ -66,7 +66,7 @@ declare module 'react-hot-toast' {
         success: ReactNode | ((data: T) => ReactNode);
         error: ReactNode | ((error: Error) => ReactNode);
       },
-      opts?: ToastOptions
+      opts?: ToastOptions,
     ) => Promise<T>;
   };
 }

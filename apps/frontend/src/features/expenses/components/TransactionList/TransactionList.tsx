@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
+import { Receipt, type Transaction } from "@fresh-expense/types";
+import { formatCurrency } from "@fresh-expense/utils/src/currency.utils";
+import { AutoFixHigh, Edit } from "@mui/icons-material";
 import {
+  Box,
+  CircularProgress,
+  IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
   TextField,
-  CircularProgress,
-  Box,
   Typography,
-} from '@mui/material';
-import { Edit, AutoFixHigh } from '@mui/icons-material';
-import { formatCurrency } from '@fresh-expense/utils/src/currency.utils';
-import { Receipt, Transaction } from '@fresh-expense/types';
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -32,13 +33,16 @@ export function TransactionList({
   onReceiptClick,
   onAICategorize,
 }: TransactionListProps) {
-  const [editing, setEditing] = useState<{ id: string; field: keyof Transaction } | null>(null);
-  const [editValue, setEditValue] = useState<string>('');
+  const [editing, setEditing] = useState<{
+    id: string;
+    field: keyof Transaction;
+  } | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
   const handleEditStart = (transaction: Transaction, field: keyof Transaction) => {
     setEditing({ id: transaction.id, field });
-    setEditValue(transaction[field]?.toString() || '');
+    setEditValue(transaction[field]?.toString() || "");
   };
 
   const handleEditSave = async () => {
@@ -46,10 +50,10 @@ export function TransactionList({
 
     try {
       setIsSaving(true);
-      await onEdit(transactions.find(t => t.id != null)!, editing.field, editValue);
+      await onEdit(transactions.find((t) => t.id != null)!, editing.field, editValue);
       setEditing(null);
     } catch (error) {
-      console.error('Error saving edit:', error);
+      console.error("Error saving edit:", error);
     } finally {
       setIsSaving(false);
     }
@@ -96,14 +100,14 @@ export function TransactionList({
           </TableRow>
         </TableHead>
         <TableBody>
-          {transactions.map(transaction => (
+          {transactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>
                 {editing && editing.id != null && editing.field != null ? (
                   <TextField
                     type="date"
                     value={editValue}
-                    onChange={e => setEditValue(e.target.value)}
+                    onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={handleKeyPress}
                     onBlur={handleEditSave}
                     disabled={isSaving}
@@ -117,7 +121,7 @@ export function TransactionList({
                 {editing && editing.id != null && editing.field != null ? (
                   <TextField
                     value={editValue}
-                    onChange={e => setEditValue(e.target.value)}
+                    onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={handleKeyPress}
                     onBlur={handleEditSave}
                     disabled={isSaving}
@@ -132,7 +136,7 @@ export function TransactionList({
                   <TextField
                     type="number"
                     value={editValue}
-                    onChange={e => setEditValue(e.target.value)}
+                    onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={handleKeyPress}
                     onBlur={handleEditSave}
                     disabled={isSaving}
@@ -146,7 +150,7 @@ export function TransactionList({
                 {editing && editing.id != null && editing.field != null ? (
                   <TextField
                     value={editValue}
-                    onChange={e => setEditValue(e.target.value)}
+                    onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={handleKeyPress}
                     onBlur={handleEditSave}
                     disabled={isSaving}
@@ -159,7 +163,7 @@ export function TransactionList({
               <TableCell>
                 <IconButton
                   size="small"
-                  onClick={() => handleEditStart(transaction, 'description')}
+                  onClick={() => handleEditStart(transaction, "description")}
                   disabled={isSaving}
                 >
                   <Edit />

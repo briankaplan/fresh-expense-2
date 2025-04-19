@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google, Auth } from 'googleapis';
-import { TokenManagerService } from './token-manager.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { RateLimiter } from 'limiter';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { type Auth, google } from "googleapis";
+import { RateLimiter } from "limiter";
+import type { TokenManagerService } from "./token-manager.service";
 
 export interface GoogleAccount {
   email: string;
@@ -20,27 +20,27 @@ export class GoogleService {
   protected readonly logger = new Logger(GoogleService.name);
   protected readonly accounts: Map<string, GoogleAccount> = new Map();
   protected readonly scopes: string[] = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/photoslibrary.readonly',
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/photoslibrary.readonly",
   ];
   protected readonly rateLimiter: RateLimiter;
 
   constructor(
     protected readonly configService: ConfigService,
     protected readonly tokenManager: TokenManagerService,
-    protected readonly eventEmitter: EventEmitter2
+    protected readonly eventEmitter: EventEmitter2,
   ) {
     this.rateLimiter = new RateLimiter({
       tokensPerInterval: 10,
-      interval: 'second',
+      interval: "second",
     });
     this.initializeAccounts();
   }
 
   protected initializeAccounts() {
-    const accounts = this.configService.get('GOOGLE_ACCOUNTS');
+    const accounts = this.configService.get("GOOGLE_ACCOUNTS");
     if (!accounts) {
-      this.logger.warn('No Google accounts configured');
+      this.logger.warn("No Google accounts configured");
       return;
     }
 
@@ -48,7 +48,7 @@ export class GoogleService {
       const oauth2Client = new google.auth.OAuth2(
         account.clientId,
         account.clientSecret,
-        this.configService.get('GOOGLE_REDIRECT_URI')
+        this.configService.get("GOOGLE_REDIRECT_URI"),
       );
 
       this.accounts.set(account.email, {
@@ -90,7 +90,7 @@ export class GoogleService {
 
   protected async withAuth<T>(
     email: string,
-    operation: (oauth2Client: Auth.OAuth2Client) => Promise<T>
+    operation: (oauth2Client: Auth.OAuth2Client) => Promise<T>,
   ): Promise<T> {
     const account = await this.getAccount(email);
     try {
@@ -116,7 +116,7 @@ export class GoogleService {
   async getAuthUrl(email: string): Promise<string> {
     const account = await this.getAccount(email);
     return account.oauth2Client.generateAuthUrl({
-      access_type: 'offline',
+      access_type: "offline",
       scope: account.scopes,
     });
   }
@@ -142,14 +142,14 @@ export class GoogleService {
 
     const accessToken = await this.getAccessToken(email);
     if (!accessToken) {
-      throw new Error('Failed to get access token for Gmail');
+      throw new Error("Failed to get access token for Gmail");
     }
 
-    const gmail = google.gmail({ version: 'v1', auth: account.oauth2Client });
+    const gmail = google.gmail({ version: "v1", auth: account.oauth2Client });
 
-    return this.rateLimiter.withRateLimit('GMAIL.SEARCH', async () => {
+    return this.rateLimiter.withRateLimit("GMAIL.SEARCH", async () => {
       const response = await gmail.users.messages.list({
-        userId: 'me',
+        userId: "me",
         q: query,
       });
       return response.data.messages || [];
@@ -157,6 +157,6 @@ export class GoogleService {
   }
 
   async searchPhotos(startDate: Date, endDate: Date): Promise<any> {
-    throw new Error('Method not implemented. Use GooglePhotosService instead.');
+    throw new Error("Method not implemented. Use GooglePhotosService instead.");
   }
 }

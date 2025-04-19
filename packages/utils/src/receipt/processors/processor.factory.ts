@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { BaseReceiptProcessor } from './base.processor';
-import { SendGridProcessor } from './sendgrid.processor';
-import { SMSProvider } from '@fresh-expense/types';
+import { SMSProvider } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
+import type { BaseReceiptProcessor } from "./base.processor";
+import { SendGridProcessor } from "./sendgrid.processor";
 
 @Injectable()
 export class ProcessorFactory {

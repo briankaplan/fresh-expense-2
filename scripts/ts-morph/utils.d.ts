@@ -1,4 +1,4 @@
-import { Project, SourceFile } from 'ts-morph';
+import type { Project, SourceFile } from "ts-morph";
 export declare function createProject(tsConfigPath?: string): Project;
 export declare function addSourceFiles(project: Project, patterns: string[]): void;
 export declare function findDuplicateTypes(files: SourceFile[]): Map<string, SourceFile[]>;

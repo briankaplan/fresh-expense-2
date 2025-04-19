@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { Subscription, SubscriptionDocument } from '@fresh-expense/types';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Subscription, type SubscriptionDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
 
 interface SubscriptionDetectionResult {
   isSubscription: boolean;
-  frequency?: 'monthly' | 'annual' | 'weekly';
+  frequency?: "monthly" | "annual" | "weekly";
   startDate?: Date;
   amount?: number;
   cancellationDate?: Date;
@@ -16,24 +16,24 @@ interface SubscriptionDetectionResult {
 export class SubscriptionService {
   private readonly logger = new Logger(SubscriptionService.name);
   private readonly subscriptionKeywords = [
-    'subscription',
-    'monthly',
-    'annual',
-    'yearly',
-    'recurring',
-    'auto-renew',
-    'membership',
+    "subscription",
+    "monthly",
+    "annual",
+    "yearly",
+    "recurring",
+    "auto-renew",
+    "membership",
   ];
   private readonly cancellationKeywords = [
-    'cancel',
-    'unsubscribe',
-    'terminate',
-    'end subscription',
+    "cancel",
+    "unsubscribe",
+    "terminate",
+    "end subscription",
   ];
 
   constructor(
     @InjectModel(Subscription.name)
-    private readonly subscriptionModel: Model<SubscriptionDocument>
+    private readonly subscriptionModel: Model<SubscriptionDocument>,
   ) {}
 
   async checkForSubscriptions(receipt: ReceiptDocument): Promise<void> {
@@ -46,16 +46,16 @@ export class SubscriptionService {
         await this.cancelSubscription(receipt.merchant, detectionResult.cancellationDate);
       }
     } catch (error) {
-      this.logger.error('Error checking for subscriptions:', error);
+      this.logger.error("Error checking for subscriptions:", error);
       throw error;
     }
   }
 
   private async detectSubscription(receipt: ReceiptDocument): Promise<SubscriptionDetectionResult> {
-    const text = receipt.metadata?.ocrText?.toLowerCase() || '';
+    const text = receipt.metadata?.ocrText?.toLowerCase() || "";
 
     // Check for cancellation first
-    if (this.cancellationKeywords.some(keyword => text.includes(keyword))) {
+    if (this.cancellationKeywords.some((keyword) => text.includes(keyword))) {
       return {
         isSubscription: false,
         cancellationDate: receipt.date,
@@ -63,8 +63,8 @@ export class SubscriptionService {
     }
 
     // Check for subscription indicators
-    const hasSubscriptionKeywords = this.subscriptionKeywords.some(keyword =>
-      text.includes(keyword)
+    const hasSubscriptionKeywords = this.subscriptionKeywords.some((keyword) =>
+      text.includes(keyword),
     );
 
     if (!hasSubscriptionKeywords) {
@@ -86,7 +86,7 @@ export class SubscriptionService {
 
   private async createOrUpdateSubscription(
     receipt: ReceiptDocument,
-    detectionResult: SubscriptionDetectionResult
+    detectionResult: SubscriptionDetectionResult,
   ): Promise<void> {
     const existingSubscription = await this.subscriptionModel.findOne({
       merchant: receipt.merchant,
@@ -102,15 +102,15 @@ export class SubscriptionService {
 
   private async createSubscription(
     receipt: ReceiptDocument,
-    detectionResult: SubscriptionDetectionResult
+    detectionResult: SubscriptionDetectionResult,
   ): Promise<void> {
     const subscription = new this.subscriptionModel({
       userId: receipt.userId,
       merchant: receipt.merchant,
       amount: detectionResult.amount || receipt.amount,
-      frequency: detectionResult.frequency || 'monthly',
+      frequency: detectionResult.frequency || "monthly",
       startDate: detectionResult.startDate,
-      status: 'active',
+      status: "active",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -120,7 +120,7 @@ export class SubscriptionService {
 
   private async updateSubscription(
     subscription: SubscriptionDocument,
-    detectionResult: SubscriptionDetectionResult
+    detectionResult: SubscriptionDetectionResult,
   ): Promise<void> {
     await subscription.updateOne({
       $set: {
@@ -136,21 +136,21 @@ export class SubscriptionService {
       { merchant },
       {
         $set: {
-          status: 'cancelled',
+          status: "cancelled",
           cancellationDate,
           updatedAt: new Date(),
         },
-      }
+      },
     );
   }
 
-  private detectFrequency(text: string): SubscriptionDetectionResult['frequency'] {
-    if (text.includes('annual') || text.includes('yearly')) {
-      return 'annual';
-    } else if (text.includes('weekly')) {
-      return 'weekly';
+  private detectFrequency(text: string): SubscriptionDetectionResult["frequency"] {
+    if (text.includes("annual") || text.includes("yearly")) {
+      return "annual";
+    } else if (text.includes("weekly")) {
+      return "weekly";
     }
-    return 'monthly'; // Default to monthly
+    return "monthly"; // Default to monthly
   }
 
   private extractAmount(text: string): number | undefined {

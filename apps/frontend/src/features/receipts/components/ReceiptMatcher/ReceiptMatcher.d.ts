@@ -1,7 +1,6 @@
-import React from 'react';
+import type React from "react";
 interface ReceiptMatcherProps {
-    company?: string;
+  company?: string;
 }
 export declare function ReceiptMatcher({ company }: ReceiptMatcherProps): React.JSX.Element;
-export {};
 //# sourceMappingURL=ReceiptMatcher.d.ts.map

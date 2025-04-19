@@ -1,5 +1,5 @@
-import { IsString, IsOptional, IsObject, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
+import { IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 
 export class MerchantLocationDto {
   @IsString()

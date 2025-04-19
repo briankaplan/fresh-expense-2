@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { NotificationService } from './notification/notification.service';
+import { Injectable, Logger } from "@nestjs/common";
+import type { NotificationService } from "./notification/notification.service";
 
 export enum ErrorType {
-  VALIDATION = 'VALIDATION',
-  AUTHENTICATION = 'AUTHENTICATION',
-  AUTHORIZATION = 'AUTHORIZATION',
-  NOT_FOUND = 'NOT_FOUND',
-  CONFLICT = 'CONFLICT',
-  RATE_LIMIT = 'RATE_LIMIT',
-  EXTERNAL_SERVICE = 'EXTERNAL_SERVICE',
-  INTERNAL = 'INTERNAL',
+  VALIDATION = "VALIDATION",
+  AUTHENTICATION = "AUTHENTICATION",
+  AUTHORIZATION = "AUTHORIZATION",
+  NOT_FOUND = "NOT_FOUND",
+  CONFLICT = "CONFLICT",
+  RATE_LIMIT = "RATE_LIMIT",
+  EXTERNAL_SERVICE = "EXTERNAL_SERVICE",
+  INTERNAL = "INTERNAL",
 }
 
 export interface AppError extends Error {
@@ -28,7 +28,7 @@ export class ErrorHandlerService {
     type: ErrorType,
     message: string,
     code: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): AppError {
     const error = new Error(message) as AppError;
     error.type = type;
@@ -50,12 +50,12 @@ export class ErrorHandlerService {
     }
 
     if (error instanceof Error) {
-      return this.createError(ErrorType.INTERNAL, error.message, 'UNKNOWN_ERROR', {
+      return this.createError(ErrorType.INTERNAL, error.message, "UNKNOWN_ERROR", {
         originalError: error,
       });
     }
 
-    return this.createError(ErrorType.INTERNAL, 'An unknown error occurred', 'UNKNOWN_ERROR', {
+    return this.createError(ErrorType.INTERNAL, "An unknown error occurred", "UNKNOWN_ERROR", {
       originalError: error,
     });
   }
@@ -63,15 +63,15 @@ export class ErrorHandlerService {
   private isAppError(error: unknown): error is AppError {
     return (
       error instanceof Error &&
-      'type' in error &&
-      'code' in error &&
+      "type" in error &&
+      "code" in error &&
       Object.values(ErrorType).includes((error as AppError).type)
     );
   }
 
   private logError(error: AppError, context?: string) {
-    const contextPrefix = context ? `[${context}] ` : '';
-    const metadata = error.metadata ? `\nMetadata: ${JSON.stringify(error.metadata)}` : '';
+    const contextPrefix = context ? `[${context}] ` : "";
+    const metadata = error.metadata ? `\nMetadata: ${JSON.stringify(error.metadata)}` : "";
 
     switch (error.type) {
       case ErrorType.VALIDATION:
@@ -88,7 +88,7 @@ export class ErrorHandlerService {
   }
 
   private notifyError(error: AppError, context?: string) {
-    const title = context ? `${context} Error` : 'Error';
+    const title = context ? `${context} Error` : "Error";
     const message = `${error.type}: ${error.message}`;
 
     switch (error.type) {
@@ -96,7 +96,7 @@ export class ErrorHandlerService {
       case ErrorType.AUTHENTICATION:
       case ErrorType.AUTHORIZATION:
         this.notificationService.notify({
-          type: 'warning',
+          type: "warning",
           title,
           message,
           metadata: error.metadata,
@@ -105,7 +105,7 @@ export class ErrorHandlerService {
       case ErrorType.RATE_LIMIT:
       case ErrorType.EXTERNAL_SERVICE:
         this.notificationService.notify({
-          type: 'error',
+          type: "error",
           title,
           message,
           metadata: error.metadata,
@@ -113,7 +113,7 @@ export class ErrorHandlerService {
         break;
       case ErrorType.INTERNAL:
         this.notificationService.notify({
-          type: 'error',
+          type: "error",
           title,
           message,
           metadata: { ...error.metadata, code: error.code },

@@ -1,7 +1,7 @@
-import React from 'react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { Box, Typography, useTheme } from '@mui/material';
-import { TrendingUp, TrendingDown } from '@mui/icons-material';
+import { TrendingDown, TrendingUp } from "@mui/icons-material";
+import { Box, Typography, useTheme } from "@mui/material";
+import type React from "react";
+import { Line, LineChart, ResponsiveContainer } from "recharts";
 
 interface SparklineProps {
   data: { value: number }[];
@@ -23,7 +23,7 @@ export const SparklineChart: React.FC<SparklineProps> = ({
   previousValue,
   label,
   height = 60,
-  width = '100%',
+  width = "100%",
 }) => {
   const theme = useTheme();
   const percentageChange = ((currentValue - previousValue) / previousValue) * 100;
@@ -34,13 +34,13 @@ export const SparklineChart: React.FC<SparklineProps> = ({
       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
         {label}
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6">${currentValue.toLocaleString()}</Typography>
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            color: isPositive ? 'success.main' : 'error.main',
+            display: "flex",
+            alignItems: "center",
+            color: isPositive ? "success.main" : "error.main",
           }}
         >
           {isPositive ? <TrendingUp fontSize="small" /> : <TrendingDown fontSize="small" />}

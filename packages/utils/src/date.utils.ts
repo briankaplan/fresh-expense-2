@@ -1,4 +1,4 @@
-import { parse, isValid, addDays, subDays, differenceInDays, format } from 'date-fns';
+import { addDays, differenceInDays, format, isValid, parse, subDays } from "date-fns";
 
 /**
  * Format a date string
@@ -6,8 +6,8 @@ import { parse, isValid, addDays, subDays, differenceInDays, format } from 'date
  * @param formatString The format string (default: 'MMM d, yyyy')
  * @returns The formatted date string
  */
-export function formatDate(date: string | Date, formatString: string = 'MMM d, yyyy'): string {
-  const parsedDate = typeof date === 'string' ? new Date(date) : date;
+export function formatDate(date: string | Date, formatString = "MMM d, yyyy"): string {
+  const parsedDate = typeof date === "string" ? new Date(date) : date;
   return format(parsedDate, formatString);
 }
 
@@ -17,10 +17,10 @@ export function formatDate(date: string | Date, formatString: string = 'MMM d, y
  * @param formatString The format string (default: 'yyyy-MM-dd')
  * @returns The parsed Date object or null if invalid
  */
-export function parseDate(dateString: string, formatString: string = 'yyyy-MM-dd'): Date {
+export function parseDate(dateString: string, formatString = "yyyy-MM-dd"): Date {
   const parsedDate = parse(dateString, formatString, new Date());
   if (!isValid(parsedDate)) {
-    throw new Error('Invalid date string');
+    throw new Error("Invalid date string");
   }
   return parsedDate;
 }
@@ -31,7 +31,7 @@ export function parseDate(dateString: string, formatString: string = 'yyyy-MM-dd
  * @param formatString The format string (default: 'yyyy-MM-dd')
  * @returns True if the date string is valid, false otherwise
  */
-export function isValidDate(dateString: string, formatString: string = 'yyyy-MM-dd'): boolean {
+export function isValidDate(dateString: string, formatString = "yyyy-MM-dd"): boolean {
   try {
     parseDate(dateString, formatString);
     return true;
@@ -48,7 +48,7 @@ export function isValidDate(dateString: string, formatString: string = 'yyyy-MM-
  */
 export function addDaysToDate(date: Date | string | number, days: number): Date {
   const parsedDate =
-    typeof date === 'string' ? parse(date, 'yyyy-MM-dd', new Date()) : new Date(date);
+    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
   return addDays(parsedDate, days);
 }
 
@@ -60,7 +60,7 @@ export function addDaysToDate(date: Date | string | number, days: number): Date 
  */
 export function subtractDaysFromDate(date: Date | string | number, days: number): Date {
   const parsedDate =
-    typeof date === 'string' ? parse(date, 'yyyy-MM-dd', new Date()) : new Date(date);
+    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
   return subDays(parsedDate, days);
 }
 
@@ -75,11 +75,11 @@ export function daysBetweenDates(
   endDate: Date | string | number,
 ): number {
   const parsedStartDate =
-    typeof startDate === 'string'
-      ? parse(startDate, 'yyyy-MM-dd', new Date())
+    typeof startDate === "string"
+      ? parse(startDate, "yyyy-MM-dd", new Date())
       : new Date(startDate);
   const parsedEndDate =
-    typeof endDate === 'string' ? parse(endDate, 'yyyy-MM-dd', new Date()) : new Date(endDate);
+    typeof endDate === "string" ? parse(endDate, "yyyy-MM-dd", new Date()) : new Date(endDate);
   return differenceInDays(parsedEndDate, parsedStartDate);
 }
 
@@ -96,13 +96,13 @@ export function isDateInRange(
   endDate: Date | string | number,
 ): boolean {
   const parsedDate =
-    typeof date === 'string' ? parse(date, 'yyyy-MM-dd', new Date()) : new Date(date);
+    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
   const parsedStartDate =
-    typeof startDate === 'string'
-      ? parse(startDate, 'yyyy-MM-dd', new Date())
+    typeof startDate === "string"
+      ? parse(startDate, "yyyy-MM-dd", new Date())
       : new Date(startDate);
   const parsedEndDate =
-    typeof endDate === 'string' ? parse(endDate, 'yyyy-MM-dd', new Date()) : new Date(endDate);
+    typeof endDate === "string" ? parse(endDate, "yyyy-MM-dd", new Date()) : new Date(endDate);
 
   return parsedDate >= parsedStartDate && parsedDate <= parsedEndDate;
 }
@@ -112,7 +112,7 @@ export function isDateInRange(
  * @returns The current date in ISO format
  */
 export function getCurrentISODate(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split("T")[0];
 }
 
 /**
@@ -122,7 +122,7 @@ export function getCurrentISODate(): string {
  */
 export function getStartOfMonth(date: Date | string | number): Date {
   const parsedDate =
-    typeof date === 'string' ? parse(date, 'yyyy-MM-dd', new Date()) : new Date(date);
+    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
   return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
 }
 
@@ -133,7 +133,7 @@ export function getStartOfMonth(date: Date | string | number): Date {
  */
 export function getEndOfMonth(date: Date | string | number): Date {
   const parsedDate =
-    typeof date === 'string' ? parse(date, 'yyyy-MM-dd', new Date()) : new Date(date);
+    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
   return new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
 }
 

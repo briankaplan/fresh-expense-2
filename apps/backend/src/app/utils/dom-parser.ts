@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { JSDOM, DOMWindow, ResourceLoader } from 'jsdom';
+import { Injectable, Logger } from "@nestjs/common";
+import { DOMWindow, JSDOM, ResourceLoader } from "jsdom";
 
 export enum ParseType {
-  HTML = 'text/html',
-  XML = 'text/xml',
-  SVG = 'image/svg+xml',
+  HTML = "text/html",
+  XML = "text/xml",
+  SVG = "image/svg+xml",
 }
 
 export interface ParserOptions {
@@ -47,12 +47,12 @@ export class DOMParserService {
   parseFromString(
     content: string,
     type: ParseType = ParseType.HTML,
-    options: ParserOptions = {}
+    options: ParserOptions = {},
   ): EnhancedDocument {
     try {
       // Input validation
       if (!content) {
-        throw new Error('Content cannot be empty');
+        throw new Error("Content cannot be empty");
       }
 
       if (!Object.values(ParseType).includes(type)) {
@@ -61,9 +61,9 @@ export class DOMParserService {
 
       // Configure JSDOM options
       const jsdomOptions: ConstructorParameters<typeof JSDOM>[1] = {
-        url: options.baseUrl || 'http://localhost',
-        runScripts: options.runScripts ? 'dangerously' : 'outside-only',
-        resources: options.includeResources ? 'usable' : undefined,
+        url: options.baseUrl || "http://localhost",
+        runScripts: options.runScripts ? "dangerously" : "outside-only",
+        resources: options.includeResources ? "usable" : undefined,
         contentType: type,
       };
 
@@ -102,7 +102,7 @@ export class DOMParserService {
       const doc = this.parseFromString(html, ParseType.HTML);
       return Array.from(doc.querySelectorAll(selector));
     } catch (error) {
-      this.logger.error('Failed to parse and select elements:', error);
+      this.logger.error("Failed to parse and select elements:", error);
       throw this.normalizeError(error);
     }
   }
@@ -117,17 +117,17 @@ export class DOMParserService {
       const doc = this.parseFromString(html, ParseType.HTML);
 
       // Remove script and style elements
-      doc.querySelectorAll('script, style').forEach(el => el.remove());
+      doc.querySelectorAll("script, style").forEach((el) => el.remove());
 
       // Replace some elements with newlines
-      doc.querySelectorAll('br, p, div, h1, h2, h3, h4, h5, h6').forEach(el => {
-        el.after(doc.createTextNode('\n'));
+      doc.querySelectorAll("br, p, div, h1, h2, h3, h4, h5, h6").forEach((el) => {
+        el.after(doc.createTextNode("\n"));
       });
 
       // Get text and clean up whitespace
-      return doc.body.textContent?.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n').trim() || '';
+      return doc.body.textContent?.replace(/\s+/g, " ").replace(/\n\s+/g, "\n").trim() || "";
     } catch (error) {
-      this.logger.error('Failed to extract text:', error);
+      this.logger.error("Failed to extract text:", error);
       throw this.normalizeError(error);
     }
   }
@@ -137,18 +137,18 @@ export class DOMParserService {
    */
   private validateHTML(html: string): void {
     // Check for unclosed tags
-    const unclosedTags = html.match(/<([a-z0-9]+)(?![^>]*\/>)[^>]*>/gi)?.filter(tag => {
+    const unclosedTags = html.match(/<([a-z0-9]+)(?![^>]*\/>)[^>]*>/gi)?.filter((tag) => {
       const tagName = tag.match(/<([a-z0-9]+)/i)?.[1];
       return tagName && !html.includes(`</${tagName}`);
     });
 
     if (unclosedTags?.length) {
-      throw new Error(`Unclosed HTML tags found: ${unclosedTags.join(', ')}`);
+      throw new Error(`Unclosed HTML tags found: ${unclosedTags.join(", ")}`);
     }
 
     // Check for malformed tags
     if (/<[^>]*[<>][^>]*>/.test(html)) {
-      throw new Error('Malformed HTML tags detected');
+      throw new Error("Malformed HTML tags detected");
     }
   }
 
@@ -157,9 +157,9 @@ export class DOMParserService {
    */
   private enhanceDocument(document: Document): void {
     // Add custom query helper
-    (document as EnhancedDocument).queryText = function (text: string): Element | null {
+    (document as EnhancedDocument).queryText = (text: string): Element | null => {
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-        acceptNode: node =>
+        acceptNode: (node) =>
           node.textContent?.includes(text) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
       });
 
@@ -175,6 +175,6 @@ export class DOMParserService {
     if (error instanceof Error) {
       return error;
     }
-    return new Error(typeof error === 'string' ? error : 'An error occurred while parsing');
+    return new Error(typeof error === "string" ? error : "An error occurred while parsing");
   }
 }

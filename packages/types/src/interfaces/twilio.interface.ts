@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import type { Document } from "mongoose";
 
 export interface TwilioMetadata {
   from?: string;
@@ -21,4 +21,4 @@ export interface TwilioDocument extends Document {
   metadata?: TwilioMetadata;
   processing?: TwilioProcessing;
   tags?: string[];
-} 
+}

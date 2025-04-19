@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
 
 export type SmsDocument = Sms & Document;
 
@@ -39,7 +39,7 @@ export const SmsSchema = SchemaFactory.createForClass(Sms);
 // Add indexes
 SmsSchema.index({ userId: 1, status: 1 });
 SmsSchema.index({ createdAt: -1 });
-SmsSchema.index({ 'metadata.date': 1 });
-SmsSchema.index({ 'metadata.from': 1 });
-SmsSchema.index({ 'metadata.to': 1 });
-SmsSchema.index({ tags: 1 }); 
+SmsSchema.index({ "metadata.date": 1 });
+SmsSchema.index({ "metadata.from": 1 });
+SmsSchema.index({ "metadata.to": 1 });
+SmsSchema.index({ tags: 1 });

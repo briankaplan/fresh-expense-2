@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { MongoDBService } from '@/core/database/mongodb.service';
+import type { MongoDBService } from "@/core/database/mongodb.service";
 import {
-  TransactionSchema,
   TRANSACTION_COLLECTION,
-} from '@/core/database/schemas/transaction.schema';
+  type TransactionSchema,
+} from "@/core/database/schemas/transaction.schema";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class TransactionsService {
   constructor(private readonly mongoDBService: MongoDBService) {}
 
   async createTransaction(
-    transaction: Omit<TransactionSchema, keyof BaseSchema>
+    transaction: Omit<TransactionSchema, keyof BaseSchema>,
   ): Promise<TransactionSchema> {
     const collection =
       await this.mongoDBService.getCollection<TransactionSchema>(TRANSACTION_COLLECTION);
@@ -46,7 +46,7 @@ export class TransactionsService {
       await this.mongoDBService.getCollection<TransactionSchema>(TRANSACTION_COLLECTION);
     const result = await collection.updateOne(
       { _id: id },
-      { $set: { ...update, updatedAt: new Date() } }
+      { $set: { ...update, updatedAt: new Date() } },
     );
     return result.modifiedCount > 0;
   }

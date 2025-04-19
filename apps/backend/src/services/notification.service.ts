@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { NotificationRepository } from '../repositories/notification.repository';
-import { Notification, NotificationDocument } from '../models/notification.model';
-import { Types } from 'mongoose';
+import { Injectable } from "@nestjs/common";
+import { Types } from "mongoose";
+import { Notification, type NotificationDocument } from "../models/notification.model";
+import type { NotificationRepository } from "../repositories/notification.repository";
 
 @Injectable()
 export class NotificationService {
@@ -11,7 +11,7 @@ export class NotificationService {
     userId: string,
     type: string,
     message: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): Promise<NotificationDocument> {
     return this.notificationRepository.create({
       userId: new Types.ObjectId(userId),

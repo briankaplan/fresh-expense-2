@@ -7,8 +7,8 @@ interface Env {
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Only allow POST requests
-    if (request.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
+    if (request.method !== "POST") {
+      return new Response("Method not allowed", { status: 405 });
     }
 
     try {
@@ -16,16 +16,16 @@ export default {
       const rawBody = await request.clone().text();
 
       // Verify Teller signature
-      const signature = request.headers.get('x-teller-signature');
+      const signature = request.headers.get("x-teller-signature");
       if (!signature) {
-        return new Response('Missing signature', { status: 401 });
+        return new Response("Missing signature", { status: 401 });
       }
 
       // Verify the signature using the Teller signing key
       const isValid = await verifyTellerSignature(rawBody, signature, env.TELLER_SIGNING_KEY);
 
       if (!isValid) {
-        return new Response('Invalid signature', { status: 401 });
+        return new Response("Invalid signature", { status: 401 });
       }
 
       // Parse the webhook payload
@@ -33,10 +33,10 @@ export default {
 
       // Forward the webhook to your backend
       const response = await fetch(env.WEBHOOK_URL, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Teller-Signature': signature,
+          "Content-Type": "application/json",
+          "X-Teller-Signature": signature,
         },
         body: rawBody,
       });
@@ -45,10 +45,10 @@ export default {
         throw new Error(`Backend responded with status: ${response.status}`);
       }
 
-      return new Response('Webhook processed successfully', { status: 200 });
+      return new Response("Webhook processed successfully", { status: 200 });
     } catch (error) {
-      console.error('Error processing webhook:', error);
-      return new Response('Internal server error', { status: 500 });
+      console.error("Error processing webhook:", error);
+      return new Response("Internal server error", { status: 500 });
     }
   },
 };
@@ -56,24 +56,24 @@ export default {
 async function verifyTellerSignature(
   payload: string,
   signature: string,
-  signingKey: string
+  signingKey: string,
 ): Promise<boolean> {
   // Import the crypto module
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     encoder.encode(signingKey),
-    { name: 'HMAC', hash: 'SHA-256' },
+    { name: "HMAC", hash: "SHA-256" },
     false,
-    ['verify']
+    ["verify"],
   );
 
   // Verify the signature
   const isValid = await crypto.subtle.verify(
-    'HMAC',
+    "HMAC",
     key,
     hexToArrayBuffer(signature),
-    encoder.encode(payload)
+    encoder.encode(payload),
   );
 
   return isValid;
@@ -82,7 +82,7 @@ async function verifyTellerSignature(
 function hexToArrayBuffer(hex: string): ArrayBuffer {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    bytes[i / 2] = Number.parseInt(hex.substr(i, 2), 16);
   }
   return bytes.buffer;
 }

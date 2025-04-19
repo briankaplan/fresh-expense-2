@@ -1,2 +1,2 @@
-import { BaseSchema } from './base.schema';
-export const REPORT_COLLECTION = 'reports';
+import { BaseSchema } from "./base.schema";
+export const REPORT_COLLECTION = "reports";

@@ -1,20 +1,20 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export type NotificationDocument = Notification & Document;
 
 export enum NotificationType {
-  TRANSACTION = 'TRANSACTION',
-  BUDGET = 'BUDGET',
-  SYSTEM = 'SYSTEM',
-  ALERT = 'ALERT'
+  TRANSACTION = "TRANSACTION",
+  BUDGET = "BUDGET",
+  SYSTEM = "SYSTEM",
+  ALERT = "ALERT",
 }
 
 export enum NotificationStatus {
-  UNREAD = 'UNREAD',
-  READ = 'READ',
-  ARCHIVED = 'ARCHIVED'
+  UNREAD = "UNREAD",
+  READ = "READ",
+  ARCHIVED = "ARCHIVED",
 }
 
 @Schema({ timestamps: true })
@@ -37,7 +37,11 @@ export class Notification implements BaseDocument {
   @Prop({ required: true })
   message!: string;
 
-  @Prop({ type: String, enum: NotificationStatus, default: NotificationStatus.UNREAD })
+  @Prop({
+    type: String,
+    enum: NotificationStatus,
+    default: NotificationStatus.UNREAD,
+  })
   status!: NotificationStatus;
 
   @Prop({ type: Object, required: false })
@@ -70,4 +74,4 @@ export const NotificationSchema = SchemaFactory.createForClass(Notification);
 NotificationSchema.index({ userId: 1, status: 1 });
 NotificationSchema.index({ userId: 1, type: 1 });
 NotificationSchema.index({ userId: 1, createdAt: -1 });
-NotificationSchema.index({ userId: 1, isRead: 1 }); 
+NotificationSchema.index({ userId: 1, isRead: 1 });

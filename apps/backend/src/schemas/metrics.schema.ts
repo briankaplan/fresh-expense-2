@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from '@fresh-expense/types';
+import type { BaseDocument } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
 
 export type MetricsDocument = Metrics & Document;
 

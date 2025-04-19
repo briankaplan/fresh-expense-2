@@ -1,38 +1,38 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export type IntegrationDocument = Integration & Document;
 
 export enum IntegrationType {
-  BANK = 'BANK',
-  CREDIT_CARD = 'CREDIT_CARD',
-  INVESTMENT = 'INVESTMENT',
-  PAYMENT = 'PAYMENT',
-  EXPENSE = 'EXPENSE',
-  ACCOUNTING = 'ACCOUNTING',
-  STORAGE = 'STORAGE',
-  ANALYTICS = 'ANALYTICS',
+  BANK = "BANK",
+  CREDIT_CARD = "CREDIT_CARD",
+  INVESTMENT = "INVESTMENT",
+  PAYMENT = "PAYMENT",
+  EXPENSE = "EXPENSE",
+  ACCOUNTING = "ACCOUNTING",
+  STORAGE = "STORAGE",
+  ANALYTICS = "ANALYTICS",
 }
 
 export enum IntegrationStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  ERROR = 'ERROR',
-  SYNCING = 'SYNCING',
-  PENDING = 'PENDING',
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  ERROR = "ERROR",
+  SYNCING = "SYNCING",
+  PENDING = "PENDING",
 }
 
 export enum SyncFrequency {
-  MANUAL = 'MANUAL',
-  HOURLY = 'HOURLY',
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY',
+  MANUAL = "MANUAL",
+  HOURLY = "HOURLY",
+  DAILY = "DAILY",
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
 }
 
 export interface IntegrationCredentials {
-  type: 'oauth' | 'api_key' | 'password' | 'token';
+  type: "oauth" | "api_key" | "password" | "token";
   encrypted: boolean;
   data: Record<string, any>;
   lastUpdated: Date;
@@ -64,7 +64,7 @@ export interface IntegrationWebhook {
   events: string[];
   secret?: string;
   lastTriggered?: Date;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
 }
 
 @Schema({ timestamps: true })
@@ -87,7 +87,11 @@ export class Integration implements BaseDocument {
   @Prop({ required: true })
   provider!: string;
 
-  @Prop({ type: String, enum: IntegrationStatus, default: IntegrationStatus.PENDING })
+  @Prop({
+    type: String,
+    enum: IntegrationStatus,
+    default: IntegrationStatus.PENDING,
+  })
   status!: IntegrationStatus;
 
   @Prop({ type: Object, required: false })
@@ -154,6 +158,6 @@ IntegrationSchema.index({ userId: 1, type: 1 });
 IntegrationSchema.index({ userId: 1, provider: 1 });
 IntegrationSchema.index({ userId: 1, status: 1 });
 IntegrationSchema.index({ userId: 1, lastSyncAt: -1 });
-IntegrationSchema.index({ 'sync.nextSync': 1 });
-IntegrationSchema.index({ 'metadata.lastUpdated': 1 });
+IntegrationSchema.index({ "sync.nextSync": 1 });
+IntegrationSchema.index({ "metadata.lastUpdated": 1 });
 IntegrationSchema.index({ tags: 1 });

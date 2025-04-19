@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import type { Transaction } from '@fresh-expense/types';
-import { TransactionSchema } from '../../schemas/transaction.schema';
+import type { Transaction } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import { TransactionSchema } from "../../schemas/transaction.schema";
 
 @Injectable()
 export class TransactionService {
   constructor(
-    @InjectModel('Transaction')
-    private readonly transactionModel: Model<Transaction>
+    @InjectModel("Transaction")
+    private readonly transactionModel: Model<Transaction>,
   ) {}
 
   async createMany(transactions: Partial<Transaction>[]): Promise<Transaction[]> {
@@ -33,7 +33,7 @@ export class TransactionService {
 
   async findByMerchantId(merchantId: string): Promise<Transaction[]> {
     const transactions = await this.transactionModel.find({ merchant: merchantId }).lean().exec();
-    return transactions.map(transaction => ({
+    return transactions.map((transaction) => ({
       ...transaction,
       _id: transaction._id.toString(),
     })) as Transaction[];

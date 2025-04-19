@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export type OcrDocument = OCR & Document;
 
@@ -21,7 +21,7 @@ export class OCR implements BaseDocument {
   thumbnailUrl?: string;
 
   @Prop({ required: true })
-  status!: 'pending' | 'processing' | 'completed' | 'failed';
+  status!: "pending" | "processing" | "completed" | "failed";
 
   @Prop({ required: false })
   text?: string;

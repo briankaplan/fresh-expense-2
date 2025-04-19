@@ -1,7 +1,7 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { SubscriptionSchema, SUBSCRIPTION_COLLECTION } from '../schemas/subscription.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import { SUBSCRIPTION_COLLECTION, type SubscriptionSchema } from "../schemas/subscription.schema";
+import { BaseRepository } from "./base.repository";
 
 export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
   protected readonly collectionName = SUBSCRIPTION_COLLECTION;
@@ -20,25 +20,25 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
 
   async findByStatus(
     userId: string,
-    status: SubscriptionSchema['status']
+    status: SubscriptionSchema["status"],
   ): Promise<SubscriptionSchema[]> {
     return this.find({ userId, status });
   }
 
   async getActiveSubscriptions(userId: string): Promise<SubscriptionSchema[]> {
-    return this.find({ userId, status: 'matched' });
+    return this.find({ userId, status: "matched" });
   }
 
   async getUpcomingBillingSubscriptions(
     userId: string,
-    daysAhead: number
+    daysAhead: number,
   ): Promise<SubscriptionSchema[]> {
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + daysAhead);
 
     return this.find({
       userId,
-      status: 'matched',
+      status: "matched",
       nextBillingDate: {
         $lte: targetDate,
       },
@@ -47,13 +47,13 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
 
   async updateSubscriptionStatus(
     subscriptionId: string,
-    status: SubscriptionSchema['status']
+    status: SubscriptionSchema["status"],
   ): Promise<boolean> {
     return this.update(
       { _id: subscriptionId },
       {
         $set: { status },
-      }
+      },
     );
   }
 
@@ -62,15 +62,15 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
       { _id: subscriptionId },
       {
         $set: { nextBillingDate },
-      }
+      },
     );
   }
 
   async getTotalMonthlySpend(userId: string): Promise<number> {
     const subscriptions = await this.find({
       userId,
-      status: 'matched',
-      frequency: 'monthly',
+      status: "matched",
+      frequency: "monthly",
     });
     return subscriptions.reduce((total, sub) => total + sub.amount, 0);
   }
@@ -80,7 +80,7 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
       { _id: subscriptionId },
       {
         $addToSet: { tags: tag },
-      }
+      },
     );
   }
 
@@ -89,7 +89,7 @@ export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
       { _id: subscriptionId },
       {
         $pull: { tags: tag },
-      }
+      },
     );
   }
 }

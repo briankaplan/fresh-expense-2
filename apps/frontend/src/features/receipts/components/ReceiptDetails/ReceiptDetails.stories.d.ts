@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ReceiptDetails } from './ReceiptDetails';
+import type { Meta, StoryObj } from "@storybook/react";
+import type { ReceiptDetails } from "./ReceiptDetails";
 declare const meta: Meta<typeof ReceiptDetails>;
 export default meta;
 type Story = StoryObj<typeof ReceiptDetails>;

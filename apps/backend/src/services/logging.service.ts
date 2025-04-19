@@ -1,5 +1,5 @@
-import { Injectable, Logger, LoggerService } from '@nestjs/common';
-import { ConfigService } from './config.service';
+import { Injectable, Logger, type LoggerService } from "@nestjs/common";
+import type { ConfigService } from "./config.service";
 
 interface LogContext {
   service?: string;
@@ -11,8 +11,8 @@ interface LogContext {
 }
 
 interface LoggingConfig {
-  level: 'debug' | 'info' | 'warn' | 'error';
-  format: 'json' | 'text';
+  level: "debug" | "info" | "warn" | "error";
+  format: "json" | "text";
 }
 
 @Injectable()
@@ -39,8 +39,8 @@ export class LoggingService implements LoggerService {
       ? Object.entries(context)
           .filter(([_, value]) => value !== undefined)
           .map(([key, value]) => `${key}=${value}`)
-          .join(' ')
-      : '';
+          .join(" ")
+      : "";
 
     return `[${new Date().toISOString()}] ${message} ${contextStr}`.trim();
   }
@@ -56,12 +56,12 @@ export class LoggingService implements LoggerService {
       this.formatMessage(message, {
         ...context,
         trace,
-      })
+      }),
     );
   }
 
   warn(message: string, context?: LogContext) {
-    if (this.config.level !== 'error') {
+    if (this.config.level !== "error") {
       this.logger.warn(this.formatMessage(message, context));
     }
   }
@@ -78,11 +78,11 @@ export class LoggingService implements LoggerService {
     }
   }
 
-  setLogLevel(level: 'debug' | 'info' | 'warn' | 'error') {
+  setLogLevel(level: "debug" | "info" | "warn" | "error") {
     this.config.level = level;
   }
 
-  setLogFormat(format: 'json' | 'text') {
+  setLogFormat(format: "json" | "text") {
     this.config.format = format;
   }
 }

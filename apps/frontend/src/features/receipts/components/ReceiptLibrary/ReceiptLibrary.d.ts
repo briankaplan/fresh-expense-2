@@ -1,7 +1,6 @@
-import React from 'react';
+import type React from "react";
 interface ReceiptLibraryProps {
-    company?: string;
+  company?: string;
 }
 export declare const ReceiptLibrary: React.FC<ReceiptLibraryProps>;
-export {};
 //# sourceMappingURL=ReceiptLibrary.d.ts.map

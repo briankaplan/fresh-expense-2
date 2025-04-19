@@ -1,19 +1,16 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { UsersService } from '../users/users.service';
-
+import { Body, Controller, HttpCode, HttpStatus, Post, Request, UseGuards } from "@nestjs/common";
+import type { UsersService } from "../users/users.service";
+import type { AuthService } from "./auth.service";
+import type { LoginDto } from "./dto/login.dto";
+import type { RegisterDto } from "./dto/register.dto";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
   ) {}
 
-  
-  
   async login(@Body() loginDto: LoginDto) {
     const { accessToken, refreshToken } = await this.authService.login(loginDto);
     const user = await this.usersService.findByEmail(loginDto.email);
@@ -31,7 +28,6 @@ export class AuthController {
     };
   }
 
-  
   async register(@Body() registerDto: RegisterDto) {
     const { user, accessToken, refreshToken } = await this.authService.register(registerDto);
 
@@ -48,16 +44,11 @@ export class AuthController {
     };
   }
 
-  
-  
   async refreshToken(@Request() req) {
     const { refreshToken } = req.body;
     return this.authService.refreshToken(refreshToken);
   }
 
-  
-  
-  
   async logout(@Request() req) {
     const { userId } = req.user;
     await this.authService.logout(userId);

@@ -1,25 +1,25 @@
 import {
+  Box,
+  CircularProgress,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
+  TableRow,
   TableSortLabel,
-  Paper,
   TextField,
-  Box,
   Typography,
-  CircularProgress,
-} from '@mui/material';
-import { useState, useMemo } from 'react';
+} from "@mui/material";
+import { useMemo, useState } from "react";
 
 interface Column<T> {
   id: keyof T;
   label: string;
   minWidth?: number;
-  align?: 'left' | 'right' | 'center';
+  align?: "left" | "right" | "center";
   format?: (value: any) => string;
 }
 
@@ -28,7 +28,7 @@ interface DataTableProps<T extends Record<string, unknown>> {
   data: T[];
   loading?: boolean;
   defaultSortBy?: keyof T;
-  defaultSortOrder?: 'asc' | 'desc';
+  defaultSortOrder?: "asc" | "desc";
   rowsPerPageOptions?: number[];
   onRowClick?: (row: T) => void;
   searchable?: boolean;
@@ -40,21 +40,21 @@ export function DataTable<T extends Record<string, unknown>>({
   data,
   loading = false,
   defaultSortBy,
-  defaultSortOrder = 'asc',
+  defaultSortOrder = "asc",
   rowsPerPageOptions = [10, 25, 50],
   onRowClick,
   searchable = false,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = "Search...",
 }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [orderBy, setOrderBy] = useState<keyof T | undefined>(defaultSortBy);
-  const [order, setOrder] = useState<'asc' | 'desc'>(defaultSortOrder);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [order, setOrder] = useState<"asc" | "desc">(defaultSortOrder);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleRequestSort = (property: keyof T) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -63,7 +63,7 @@ export function DataTable<T extends Record<string, unknown>>({
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -71,11 +71,11 @@ export function DataTable<T extends Record<string, unknown>>({
     if (!searchable || !searchTerm) return data;
 
     const searchTermLower = searchTerm.toLowerCase();
-    return data.filter(row =>
-      columns.some(column => {
+    return data.filter((row) =>
+      columns.some((column) => {
         const value = row[column.id];
         return String(value).toLowerCase().includes(searchTermLower);
-      })
+      }),
     );
   }, [data, searchTerm, searchable, columns]);
 
@@ -91,7 +91,7 @@ export function DataTable<T extends Record<string, unknown>>({
       if (bValue === null || bValue === undefined) return -1;
 
       const comparison = aValue < bValue ? -1 : 1;
-      return order === 'asc' ? comparison : -comparison;
+      return order === "asc" ? comparison : -comparison;
     });
   }, [filteredData, orderBy, order]);
 
@@ -100,7 +100,7 @@ export function DataTable<T extends Record<string, unknown>>({
   }, [sortedData, page, rowsPerPage]);
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper sx={{ width: "100%", overflow: "hidden" }}>
       {searchable && (
         <Box sx={{ p: 2 }}>
           <TextField
@@ -108,7 +108,7 @@ export function DataTable<T extends Record<string, unknown>>({
             variant="outlined"
             placeholder={searchPlaceholder}
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </Box>
       )}
@@ -117,7 +117,7 @@ export function DataTable<T extends Record<string, unknown>>({
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {columns.map(column => (
+              {columns.map((column) => (
                 <TableCell
                   key={String(column.id)}
                   align={column.align}
@@ -126,7 +126,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 >
                   <TableSortLabel
                     active={orderBy === column.id}
-                    direction={orderBy === column.id ? order : 'asc'}
+                    direction={orderBy === column.id ? order : "asc"}
                     onClick={() => handleRequestSort(column.id)}
                   >
                     {column.label}
@@ -156,9 +156,9 @@ export function DataTable<T extends Record<string, unknown>>({
                   hover
                   key={index}
                   onClick={() => onRowClick?.(row)}
-                  sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                  sx={{ cursor: onRowClick ? "pointer" : "default" }}
                 >
-                  {columns.map(column => {
+                  {columns.map((column) => {
                     const value = row[column.id];
                     return (
                       <TableCell key={String(column.id)} align={column.align}>

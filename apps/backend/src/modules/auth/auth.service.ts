@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import * as argon2 from 'argon2';
-import { UserDocument } from '@fresh-expense/types';
+import type { UserDocument } from "@fresh-expense/types";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import type { JwtService } from "@nestjs/jwt";
+import { InjectModel } from "@nestjs/mongoose";
+import * as argon2 from "argon2";
+import type { Model } from "mongoose";
 
 interface RegisterDto {
   email: string;
@@ -27,14 +27,14 @@ interface JwtPayload {
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async register(dto: RegisterDto): Promise<{ user: User; token: string }> {
     // Check if user exists
     const existingUser = await this.userModel.findOne({ email: dto.email });
     if (existingUser) {
-      throw new BadRequestException('Email already registered');
+      throw new BadRequestException("Email already registered");
     }
 
     // Hash password
@@ -60,13 +60,13 @@ export class AuthService {
     // Find user
     const user = await this.userModel.findOne({ email: dto.email });
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     // Verify password
     const isPasswordValid = await argon2.verify(user.password, dto.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     // Update last login
@@ -85,7 +85,7 @@ export class AuthService {
   async validateUser(payload: JwtPayload): Promise<User> {
     const user = await this.userModel.findById(payload.sub);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
     return user;
   }

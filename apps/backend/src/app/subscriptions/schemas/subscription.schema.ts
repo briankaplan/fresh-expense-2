@@ -1,29 +1,32 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document, Schema as MongooseSchema } from "mongoose";
 
 export enum SubscriptionStatus {
-  ACTIVE = 'active',
-  CANCELLED = 'cancelled',
-  PAUSED = 'paused',
-  EXPIRED = 'expired',
+  ACTIVE = "active",
+  CANCELLED = "cancelled",
+  PAUSED = "paused",
+  EXPIRED = "expired",
 }
 
 export enum BillingCycle {
-  MONTHLY = 'monthly',
-  QUARTERLY = 'quarterly',
-  YEARLY = 'yearly',
-  CUSTOM = 'custom',
+  MONTHLY = "monthly",
+  QUARTERLY = "quarterly",
+  YEARLY = "yearly",
+  CUSTOM = "custom",
 }
 
-
 export class Subscription {
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: "User" })
   userId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Company' })
+  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: "Company" })
   companyId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Merchant' })
+  @Prop({
+    required: true,
+    type: MongooseSchema.Types.ObjectId,
+    ref: "Merchant",
+  })
   merchantId: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true })
@@ -35,7 +38,7 @@ export class Subscription {
   @Prop({ required: true })
   amount: number;
 
-  @Prop({ required: true, default: 'USD' })
+  @Prop({ required: true, default: "USD" })
   currency: string;
 
   @Prop({ required: true, enum: BillingCycle })
@@ -50,7 +53,11 @@ export class Subscription {
   @Prop()
   endDate?: Date;
 
-  @Prop({ required: true, enum: SubscriptionStatus, default: SubscriptionStatus.ACTIVE })
+  @Prop({
+    required: true,
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.ACTIVE,
+  })
   status: SubscriptionStatus;
 
   @Prop()

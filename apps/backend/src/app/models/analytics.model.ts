@@ -1,11 +1,10 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Model } from 'mongoose';
-
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document, Model } from "mongoose";
 
 export class Analytics {
   @Prop({
     type: String,
-    ref: 'User',
+    ref: "User",
     required: true,
     index: true,
   })
@@ -13,7 +12,7 @@ export class Analytics {
 
   @Prop({
     type: String,
-    ref: 'Company',
+    ref: "Company",
     required: true,
     index: true,
   })
@@ -35,7 +34,7 @@ export class Analytics {
 
   @Prop({
     type: String,
-    enum: ['daily', 'weekly', 'monthly', 'yearly'],
+    enum: ["daily", "weekly", "monthly", "yearly"],
     required: true,
   })
   period!: string;
@@ -176,17 +175,17 @@ export class Analytics {
     type: {
       createdBy: {
         type: String,
-        ref: 'User',
+        ref: "User",
         required: true,
       },
       updatedBy: {
         type: String,
-        ref: 'User',
+        ref: "User",
       },
       lastSyncedAt: Date,
       version: {
         type: String,
-        default: '1.0',
+        default: "1.0",
       },
     },
     required: true,
@@ -205,24 +204,24 @@ export const AnalyticsSchema = SchemaFactory.createForClass(Analytics);
 AnalyticsSchema.index({ userId: 1, companyId: 1, startDate: 1, endDate: 1 }, { unique: true });
 
 // Pre-save middleware
-AnalyticsSchema.pre('save', function (next: (err?: Error) => void) {
-  this['metadata'].updatedBy = this['metadata'].createdBy;
+AnalyticsSchema.pre("save", function (next: (err?: Error) => void) {
+  this["metadata"].updatedBy = this["metadata"].createdBy;
   next();
 });
 
 // Static methods
-AnalyticsSchema.statics['findByUser'] = function (userId: string) {
+AnalyticsSchema.statics["findByUser"] = function (userId: string) {
   return this.find({ userId });
 };
 
-AnalyticsSchema.statics['findByCompany'] = function (companyId: string) {
+AnalyticsSchema.statics["findByCompany"] = function (companyId: string) {
   return this.find({ companyId });
 };
 
-AnalyticsSchema.statics['findByPeriod'] = function (
+AnalyticsSchema.statics["findByPeriod"] = function (
   userId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ) {
   return this.find({
     userId,
@@ -232,25 +231,25 @@ AnalyticsSchema.statics['findByPeriod'] = function (
 };
 
 // Instance methods
-AnalyticsSchema.methods['updateInsights'] = async function (
+AnalyticsSchema.methods["updateInsights"] = async function (
   insights: Array<{
     type: string;
     message: string;
     severity: string;
     date: Date;
-  }>
+  }>,
 ) {
-  this['insights'] = insights;
-  return this['save']();
+  this["insights"] = insights;
+  return this["save"]();
 };
 
-AnalyticsSchema.methods['updateBudgetStatus'] = async function (budgetStatus: {
+AnalyticsSchema.methods["updateBudgetStatus"] = async function (budgetStatus: {
   overBudget: boolean;
   budgetLimit: number;
   currentSpending: number;
   remainingBudget: number;
   percentageUsed: number;
 }) {
-  this['budgetStatus'] = budgetStatus;
-  return this['save']();
+  this["budgetStatus"] = budgetStatus;
+  return this["save"]();
 };

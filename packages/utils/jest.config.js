@@ -1,20 +1,18 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/*.test.ts'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/src"],
+  testMatch: ["**/*.test.ts"],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    "^.+\\.ts$": "ts-jest",
   },
   moduleNameMapper: {
-    '^@fresh-expense/utils$': '<rootDir>/src',
+    "^@fresh-expense/utils$": "<rootDir>/src",
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(lru-cache|semver)/)',
-  ],
+  transformIgnorePatterns: ["node_modules/(?!(lru-cache|semver)/)"],
   collectCoverage: true,
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov'],
+  coverageDirectory: "coverage",
+  coverageReporters: ["text", "lcov"],
   coverageThreshold: {
     global: {
       branches: 80,

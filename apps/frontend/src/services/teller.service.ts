@@ -1,5 +1,5 @@
-import api from './api';
-import { TellerAccount, TellerTransaction, ApiError } from '@fresh-expense/types';
+import type { ApiError, TellerAccount, TellerTransaction } from "@fresh-expense/types";
+import api from "./api";
 
 export interface TellerWebhookEvent {
   type: string;
@@ -12,11 +12,11 @@ export interface TellerWebhookEvent {
 const tellerService = {
   async getAccounts(): Promise<TellerAccount[]> {
     try {
-      const response = await api.get<TellerAccount[]>('/teller/accounts');
+      const response = await api.get<TellerAccount[]>("/teller/accounts");
       return response.data;
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to fetch Teller accounts');
+      throw new Error(apiError.message || "Failed to fetch Teller accounts");
     }
   },
 
@@ -26,7 +26,7 @@ const tellerService = {
       return response.data;
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to fetch Teller account');
+      throw new Error(apiError.message || "Failed to fetch Teller account");
     }
   },
 
@@ -35,27 +35,27 @@ const tellerService = {
       await api.post(`/teller/accounts/${accountId}/sync`);
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to sync Teller transactions');
+      throw new Error(apiError.message || "Failed to sync Teller transactions");
     }
   },
 
   async getTransactions(
     accountId: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<TellerTransaction[]> {
     try {
       const params = new URLSearchParams();
-      if (startDate) params.append('start_date', startDate);
-      if (endDate) params.append('end_date', endDate);
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
 
       const response = await api.get<TellerTransaction[]>(
-        `/teller/accounts/${accountId}/transactions?${params.toString()}`
+        `/teller/accounts/${accountId}/transactions?${params.toString()}`,
       );
       return response.data;
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to fetch Teller transactions');
+      throw new Error(apiError.message || "Failed to fetch Teller transactions");
     }
   },
 
@@ -64,13 +64,13 @@ const tellerService = {
       // Verify webhook signature
       const signature = event.data.timestamp;
       if (signature !== import.meta.env.VITE_TELLER_WEBHOOK_SECRET) {
-        throw new Error('Invalid webhook signature');
+        throw new Error("Invalid webhook signature");
       }
 
-      await api.post('/teller/webhook', event);
+      await api.post("/teller/webhook", event);
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to process Teller webhook');
+      throw new Error(apiError.message || "Failed to process Teller webhook");
     }
   },
 
@@ -79,7 +79,7 @@ const tellerService = {
       await api.delete(`/teller/accounts/${accountId}`);
     } catch (error) {
       const apiError = error as ApiError;
-      throw new Error(apiError.message || 'Failed to disconnect Teller account');
+      throw new Error(apiError.message || "Failed to disconnect Teller account");
     }
   },
 };

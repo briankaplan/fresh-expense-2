@@ -1,11 +1,11 @@
-import { MongoClient, Db } from 'mongodb';
+import { type Db, MongoClient } from "mongodb";
 
 let db: Db | null = null;
 
 export async function connectToDb() {
   if (!db) {
     const client = await MongoClient.connect(
-      process.env['MONGODB_URI'] || 'mongodb://localhost:27017/expense-tracker'
+      process.env["MONGODB_URI"] || "mongodb://localhost:27017/expense-tracker",
     );
     db = client.db();
   }

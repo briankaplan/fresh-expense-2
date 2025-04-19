@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { R2Service } from '@fresh-expense/utils';
+import type { R2Service } from "@fresh-expense/utils";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class ReceiptStorageService {
   private readonly logger = new Logger(ReceiptStorageService.name);
-  private readonly bucket = 'receipts';
+  private readonly bucket = "receipts";
 
   constructor(private readonly r2Service: R2Service) {}
 
@@ -14,7 +14,7 @@ export class ReceiptStorageService {
       await this.r2Service.uploadFile(this.bucket, key, file);
       return key;
     } catch (error) {
-      this.logger.error('Error uploading receipt file:', error);
+      this.logger.error("Error uploading receipt file:", error);
       throw error;
     }
   }
@@ -23,7 +23,7 @@ export class ReceiptStorageService {
     try {
       await this.r2Service.deleteFile(this.bucket, key);
     } catch (error) {
-      this.logger.error('Error deleting receipt file:', error);
+      this.logger.error("Error deleting receipt file:", error);
       throw error;
     }
   }
@@ -32,7 +32,7 @@ export class ReceiptStorageService {
     try {
       return await this.r2Service.getFileUrl(this.bucket, key);
     } catch (error) {
-      this.logger.error('Error getting receipt file URL:', error);
+      this.logger.error("Error getting receipt file URL:", error);
       throw error;
     }
   }

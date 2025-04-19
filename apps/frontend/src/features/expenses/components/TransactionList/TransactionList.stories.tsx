@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { TransactionList } from './TransactionList';
+import type { Meta, StoryObj } from "@storybook/react";
+import { TransactionList } from "./TransactionList";
 
 const meta: Meta<typeof TransactionList> = {
-  title: 'Features/Expenses/TransactionList',
+  title: "Features/Expenses/TransactionList",
   component: TransactionList,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -15,28 +15,28 @@ type Story = StoryObj<typeof TransactionList>;
 
 const sampleTransactions = [
   {
-    id: '1',
+    id: "1",
     date: new Date("2024-03-15"),
-    description: 'Grocery shopping',
+    description: "Grocery shopping",
     amount: { value: 150.75, currency: "USD" },
-    category: 'Groceries',
-    merchant: { name: 'Whole Foods' },
+    category: "Groceries",
+    merchant: { name: "Whole Foods" },
   },
   {
-    id: '2',
+    id: "2",
     date: new Date("2024-03-14"),
-    description: 'Dinner with friends',
+    description: "Dinner with friends",
     amount: { value: 85.5, currency: "USD" },
-    category: 'Dining',
-    merchant: { name: 'Italian Restaurant' },
+    category: "Dining",
+    merchant: { name: "Italian Restaurant" },
   },
   {
-    id: '3',
+    id: "3",
     date: new Date("2024-03-13"),
-    description: 'Gas station',
+    description: "Gas station",
     amount: { value: 45.0, currency: "USD" },
-    category: 'Transportation',
-    merchant: { name: 'Shell' },
+    category: "Transportation",
+    merchant: { name: "Shell" },
   },
 ];
 
@@ -62,8 +62,8 @@ export const Empty: Story = {
 export const WithClickHandler: Story = {
   args: {
     transactions: sampleTransactions,
-    onTransactionClick: transaction => {
-      console.log('Clicked transaction:', transaction);
+    onTransactionClick: (transaction) => {
+      console.log("Clicked transaction:", transaction);
     },
   },
 };

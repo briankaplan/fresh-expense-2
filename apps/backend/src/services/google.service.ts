@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { google, gmail_v1 } from 'googleapis';
-import { ConfigService } from '@nestjs/config';
-import { TokenManagerService } from './token-manager.service';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import { type gmail_v1, google } from "googleapis";
+import type { TokenManagerService } from "./token-manager.service";
 
 interface GooglePhotoMediaItem {
   id: string;
@@ -26,9 +26,9 @@ export class GoogleService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly tokenManager: TokenManagerService
+    private readonly tokenManager: TokenManagerService,
   ) {
-    this.gmail = google.gmail({ version: 'v1' });
+    this.gmail = google.gmail({ version: "v1" });
   }
 
   /**
@@ -43,7 +43,7 @@ export class GoogleService {
       const auth = this.tokenManager.getOAuth2Client();
       const response = await this.gmail.users.messages.list({
         auth,
-        userId: 'me',
+        userId: "me",
         q: query,
       });
 
@@ -51,8 +51,11 @@ export class GoogleService {
       this.logger.debug(`Found ${messages.length} receipt messages`);
       return messages;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to search Gmail receipts: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to search Gmail receipts: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to search Gmail receipts: ${errorMessage}`);
     }
   }
@@ -66,14 +69,16 @@ export class GoogleService {
    */
   async searchPhotos(startDate: Date, endDate: Date): Promise<GooglePhotoMediaItem[]> {
     try {
-      this.logger.debug(`Searching Google Photos from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+      this.logger.debug(
+        `Searching Google Photos from ${startDate.toISOString()} to ${endDate.toISOString()}`,
+      );
       const auth = this.tokenManager.getOAuth2Client();
-      
-      const response = await fetch('https://photoslibrary.googleapis.com/v1/mediaItems:search', {
-        method: 'POST',
+
+      const response = await fetch("https://photoslibrary.googleapis.com/v1/mediaItems:search", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${auth.credentials.access_token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.credentials.access_token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           filters: {
@@ -99,7 +104,7 @@ export class GoogleService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Google Photos API error: ${errorData.error?.message || 'Unknown error'}`);
+        throw new Error(`Google Photos API error: ${errorData.error?.message || "Unknown error"}`);
       }
 
       const data = await response.json();
@@ -107,8 +112,11 @@ export class GoogleService {
       this.logger.debug(`Found ${mediaItems.length} photos`);
       return mediaItems;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to search Google Photos: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to search Google Photos: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to search Google Photos: ${errorMessage}`);
     }
   }

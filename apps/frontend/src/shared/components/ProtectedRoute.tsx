@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/shared/hooks/useAuth';
-import { useUIStore } from '../store';
-import LoadingOverlay from './LoadingOverlay';
+import { useAuth } from "@/shared/hooks/useAuth";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useUIStore } from "../store";
+import LoadingOverlay from "./LoadingOverlay";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { checkAuth } = useAuth();
   const location = useLocation();
-  const setIsLoading = useUIStore(state => state.setIsLoading);
+  const setIsLoading = useUIStore((state) => state.setIsLoading);
 
   useEffect(() => {
     const verifyAuth = async () => {

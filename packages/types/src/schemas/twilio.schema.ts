@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import { BaseDocument } from "./base.schema";
 
 export type TwilioDocument = Twilio & Document;
 
@@ -45,7 +45,7 @@ export const TwilioSchema = SchemaFactory.createForClass(Twilio);
 // Add indexes
 TwilioSchema.index({ userId: 1, status: 1 });
 TwilioSchema.index({ createdAt: -1 });
-TwilioSchema.index({ 'metadata.date': 1 });
-TwilioSchema.index({ 'metadata.from': 1 });
-TwilioSchema.index({ 'metadata.to': 1 });
-TwilioSchema.index({ tags: 1 }); 
+TwilioSchema.index({ "metadata.date": 1 });
+TwilioSchema.index({ "metadata.from": 1 });
+TwilioSchema.index({ "metadata.to": 1 });
+TwilioSchema.index({ tags: 1 });

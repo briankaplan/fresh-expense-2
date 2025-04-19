@@ -1,8 +1,8 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
-import { ExpenseCategory } from '../lib/types';
-import { TransactionAmount, TransactionMerchant } from '../interfaces/transaction.interface';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { TransactionAmount, TransactionMerchant } from "../interfaces/transaction.interface";
+import type { ExpenseCategory } from "../lib/types";
+import type { BaseDocument } from "./base.schema";
 
 export type TransactionDocument = Transaction & Document;
 
@@ -23,8 +23,8 @@ export class Transaction implements BaseDocument {
     required: true,
     type: {
       value: { type: Number, required: true },
-      currency: { type: String, required: true, default: 'USD' }
-    }
+      currency: { type: String, required: true, default: "USD" },
+    },
   })
   amount!: TransactionAmount;
 
@@ -40,16 +40,20 @@ export class Transaction implements BaseDocument {
       name: { type: String, required: true },
       category: { type: String, required: false },
       website: { type: String, required: false },
-      logo: { type: String, required: false }
-    }
+      logo: { type: String, required: false },
+    },
   })
   merchant!: TransactionMerchant;
 
   @Prop({ type: [String], default: [] })
   tags!: string[];
 
-  @Prop({ type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' })
-  status!: 'pending' | 'completed' | 'failed';
+  @Prop({
+    type: String,
+    enum: ["pending", "completed", "failed"],
+    default: "pending",
+  })
+  status!: "pending" | "completed" | "failed";
 
   @Prop({ type: Object, required: false })
   receipt?: {

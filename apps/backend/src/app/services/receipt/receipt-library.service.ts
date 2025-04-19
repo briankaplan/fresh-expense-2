@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { ReceiptMatcherService } from './receipt-matcher.service';
-import { MerchantService } from './merchant.service';
-import { SubscriptionService } from './subscription.service';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { MerchantService } from "./merchant.service";
+import type { ReceiptMatcherService } from "./receipt-matcher.service";
+import type { SubscriptionService } from "./subscription.service";
 
 interface LibraryReceipt {
   receipt: ReceiptDocument;
-  status: 'matched' | 'unmatched' | 'pending';
+  status: "matched" | "unmatched" | "pending";
   transactionId?: string;
   matchConfidence?: number;
 }
@@ -18,7 +18,7 @@ export class ReceiptLibraryService {
   constructor(
     private readonly receiptMatcher: ReceiptMatcherService,
     private readonly merchantService: MerchantService,
-    private readonly subscriptionService: SubscriptionService
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   async addReceiptToLibrary(receipt: ReceiptDocument): Promise<LibraryReceipt> {
@@ -36,19 +36,19 @@ export class ReceiptLibraryService {
       // 4. Create library entry
       const libraryReceipt: LibraryReceipt = {
         receipt,
-        status: bestMatch?.confidence >= 0.8 ? 'matched' : 'unmatched',
+        status: bestMatch?.confidence >= 0.8 ? "matched" : "unmatched",
         transactionId: bestMatch?.transactionId,
         matchConfidence: bestMatch?.confidence,
       };
 
       // 5. If matched, update transaction with receipt URL
-      if (libraryReceipt.status === 'matched' && libraryReceipt.transactionId) {
+      if (libraryReceipt.status === "matched" && libraryReceipt.transactionId) {
         await this.updateTransactionWithReceipt(libraryReceipt.transactionId, receipt.r2Key);
       }
 
       return libraryReceipt;
     } catch (error) {
-      this.logger.error('Error adding receipt to library:', error);
+      this.logger.error("Error adding receipt to library:", error);
       throw error;
     }
   }
@@ -58,7 +58,7 @@ export class ReceiptLibraryService {
       // TODO: Implement query for unmatched receipts
       return [];
     } catch (error) {
-      this.logger.error('Error finding unmatched receipts:', error);
+      this.logger.error("Error finding unmatched receipts:", error);
       throw error;
     }
   }
@@ -73,19 +73,19 @@ export class ReceiptLibraryService {
         if (matches[0]?.confidence >= 0.8) {
           await this.updateTransactionWithReceipt(
             matches[0].transactionId,
-            libraryReceipt.receipt.r2Key
+            libraryReceipt.receipt.r2Key,
           );
         }
       }
     } catch (error) {
-      this.logger.error('Error matching pending receipts:', error);
+      this.logger.error("Error matching pending receipts:", error);
       throw error;
     }
   }
 
   private async updateTransactionWithReceipt(
     transactionId: string,
-    receiptKey: string
+    receiptKey: string,
   ): Promise<void> {
     // TODO: Implement transaction update
     // This should:

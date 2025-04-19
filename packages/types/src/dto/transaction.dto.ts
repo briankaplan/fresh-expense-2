@@ -1,15 +1,15 @@
+import type { Transaction, TransactionAmount, TransactionMerchant } from "@fresh-expense/types";
+import { Type } from "class-transformer";
 import {
-  IsString,
-  IsNumber,
-  IsDate,
-  IsEnum,
-  IsOptional,
-  ValidateNested,
   IsArray,
   IsBoolean,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { Transaction, TransactionAmount, TransactionMerchant } from '@fresh-expense/types';
+  IsDate,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 
 export class TransactionAmountDto implements TransactionAmount {
   @IsNumber()
@@ -112,14 +112,14 @@ export class CreateTransactionDto {
   @IsString()
   description!: string;
 
-  @IsEnum(['debit', 'credit'])
-  type!: 'debit' | 'credit';
+  @IsEnum(["debit", "credit"])
+  type!: "debit" | "credit";
 
-  @IsEnum(['pending', 'posted', 'cancelled'])
-  status!: 'pending' | 'posted' | 'cancelled';
+  @IsEnum(["pending", "posted", "cancelled"])
+  status!: "pending" | "posted" | "cancelled";
 
-  @IsEnum(['Down Home', 'Music City Rodeo', 'Personal'])
-  company!: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
+  company!: "Down Home" | "Music City Rodeo" | "Personal";
 
   @IsArray()
   @IsString({ each: true })
@@ -166,17 +166,17 @@ export class UpdateTransactionDto {
   @IsOptional()
   description?: string;
 
-  @IsEnum(['debit', 'credit'])
+  @IsEnum(["debit", "credit"])
   @IsOptional()
-  type?: 'debit' | 'credit';
+  type?: "debit" | "credit";
 
-  @IsEnum(['pending', 'posted', 'cancelled'])
+  @IsEnum(["pending", "posted", "cancelled"])
   @IsOptional()
-  status?: 'pending' | 'posted' | 'cancelled';
+  status?: "pending" | "posted" | "cancelled";
 
-  @IsEnum(['Down Home', 'Music City Rodeo', 'Personal'])
+  @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
   @IsOptional()
-  company?: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company?: "Down Home" | "Music City Rodeo" | "Personal";
 
   @IsArray()
   @IsString({ each: true })
@@ -204,23 +204,23 @@ export class TransactionQueryDto {
   maxAmount?: number;
   categories?: string[];
   merchants?: string[];
-  types?: ('expense' | 'income' | 'transfer')[];
-  statuses?: ('pending' | 'completed' | 'cancelled')[];
-  sources?: ('teller' | 'manual' | 'import')[];
+  types?: ("expense" | "income" | "transfer")[];
+  statuses?: ("pending" | "completed" | "cancelled")[];
+  sources?: ("teller" | "manual" | "import")[];
   tags?: string[];
   search?: string;
   page?: number;
   limit?: number;
   sortBy?: keyof Transaction;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export class AICategorizationResultDto {
   @IsString()
   category!: string;
 
-  @IsEnum(['Down Home', 'Music City Rodeo', 'Personal'])
-  company!: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
+  company!: "Down Home" | "Music City Rodeo" | "Personal";
 
   @IsArray()
   @IsString({ each: true })
@@ -302,8 +302,8 @@ export class TransactionUpdateDto {
   category?: string;
 
   @IsOptional()
-  @IsEnum(['Down Home', 'Music City Rodeo', 'Personal'])
-  company?: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
+  company?: "Down Home" | "Music City Rodeo" | "Personal";
 
   @IsOptional()
   @IsArray()

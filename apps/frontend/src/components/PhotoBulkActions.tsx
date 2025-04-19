@@ -1,28 +1,29 @@
-import React, { useState } from 'react';
+import type { Photo } from "@/services/photo.service";
 import {
-  Box,
-  Button,
-  Menu,
-  MenuItem,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Alert,
-  Chip,
-  Autocomplete,
-} from '@mui/material';
-import {
-  MoreVert as MoreVertIcon,
   Delete as DeleteIcon,
+  Download as DownloadIcon,
   Edit as EditIcon,
   Label as LabelIcon,
+  MoreVert as MoreVertIcon,
   Share as ShareIcon,
-  Download as DownloadIcon,
-} from '@mui/icons-material';
-import { Photo } from '@/services/photo.service';
+} from "@mui/icons-material";
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Menu,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
 
 interface PhotoBulkActionsProps {
   selectedPhotos: Photo[];
@@ -46,7 +47,7 @@ export function PhotoBulkActions({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -58,71 +59,71 @@ export function PhotoBulkActions({
 
   const handleDelete = () => {
     try {
-      onDelete(selectedPhotos.map(photo => photo.id));
+      onDelete(selectedPhotos.map((photo) => photo.id));
       handleMenuClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete photos';
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete photos";
       setError(errorMessage);
-      console.error('Error deleting photos:', err);
+      console.error("Error deleting photos:", err);
     }
   };
 
   const handleEdit = () => {
     try {
-      onEdit(selectedPhotos.map(photo => photo.id));
+      onEdit(selectedPhotos.map((photo) => photo.id));
       handleMenuClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to edit photos';
+      const errorMessage = err instanceof Error ? err.message : "Failed to edit photos";
       setError(errorMessage);
-      console.error('Error editing photos:', err);
+      console.error("Error editing photos:", err);
     }
   };
 
   const handleTag = () => {
     try {
       if (tags.length === 0) {
-        setError('Please add at least one tag');
+        setError("Please add at least one tag");
         return;
       }
       onTag(
-        selectedPhotos.map(photo => photo.id),
-        tags
+        selectedPhotos.map((photo) => photo.id),
+        tags,
       );
       setTags([]);
       setIsTagDialogOpen(false);
       handleMenuClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add tags';
+      const errorMessage = err instanceof Error ? err.message : "Failed to add tags";
       setError(errorMessage);
-      console.error('Error adding tags:', err);
+      console.error("Error adding tags:", err);
     }
   };
 
   const handleShare = () => {
     try {
-      onShare(selectedPhotos.map(photo => photo.id));
+      onShare(selectedPhotos.map((photo) => photo.id));
       handleMenuClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to share photos';
+      const errorMessage = err instanceof Error ? err.message : "Failed to share photos";
       setError(errorMessage);
-      console.error('Error sharing photos:', err);
+      console.error("Error sharing photos:", err);
     }
   };
 
   const handleDownload = () => {
     try {
-      onDownload(selectedPhotos.map(photo => photo.id));
+      onDownload(selectedPhotos.map((photo) => photo.id));
       handleMenuClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to download photos';
+      const errorMessage = err instanceof Error ? err.message : "Failed to download photos";
       setError(errorMessage);
-      console.error('Error downloading photos:', err);
+      console.error("Error downloading photos:", err);
     }
   };
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Typography variant="body2" color="text.secondary">
           {selectedPhotos.length} selected
         </Typography>
@@ -153,7 +154,7 @@ export function PhotoBulkActions({
           <ShareIcon fontSize="small" sx={{ mr: 1 }} />
           Share Selected
         </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
           Delete Selected
         </MenuItem>
@@ -179,14 +180,14 @@ export function PhotoBulkActions({
             value={tags}
             onChange={(_, newValue) => {
               setTags(newValue);
-              setError('');
+              setError("");
             }}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
                 <Chip key={option} label={option} {...getTagProps({ index })} />
               ))
             }
-            renderInput={params => (
+            renderInput={(params) => (
               <TextField {...params} autoFocus fullWidth label="Tags" placeholder="Add tags..." />
             )}
           />

@@ -9,12 +9,7 @@
     "deploy": "wrangler deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "cloudflare",
-    "worker",
-    "teller",
-    "webhook"
-  ],
+  "keywords": ["cloudflare", "worker", "teller", "webhook"],
   "author": "",
   "license": "ISC",
   "devDependencies": {

@@ -1,19 +1,19 @@
-import { Company, Analytics, Transaction, User } from '@fresh-expense/types';
-import { API_ENDPOINTS } from '@fresh-expense/constants';
+import { API_ENDPOINTS } from "@fresh-expense/constants";
+import type { Analytics, Company, Transaction, User } from "@fresh-expense/types";
 
 class ApiError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public data?: any
+    public data?: any,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: any;
   headers?: Record<string, string>;
 }
@@ -22,7 +22,7 @@ class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor(baseUrl: string = '') {
+  constructor(baseUrl = "") {
     this.baseUrl = baseUrl;
   }
 
@@ -32,25 +32,25 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     };
 
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      headers["Authorization"] = `Bearer ${this.token}`;
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: options.method || 'GET',
+      method: options.method || "GET",
       headers,
       body: options.body ? JSON.stringify(options.body) : undefined,
-      credentials: 'include',
+      credentials: "include",
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new ApiError(data.message || 'An error occurred', response.status, data);
+      throw new ApiError(data.message || "An error occurred", response.status, data);
     }
 
     return data;
@@ -59,21 +59,21 @@ class ApiClient {
   // Auth endpoints
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
     return this.request(API_ENDPOINTS.AUTH.LOGIN, {
-      method: 'POST',
+      method: "POST",
       body: { email, password },
     });
   }
 
   async register(userData: Partial<User>): Promise<{ message: string }> {
     return this.request(API_ENDPOINTS.AUTH.REGISTER, {
-      method: 'POST',
+      method: "POST",
       body: userData,
     });
   }
 
   async logout(): Promise<void> {
     return this.request(API_ENDPOINTS.AUTH.LOGOUT, {
-      method: 'POST',
+      method: "POST",
     });
   }
 
@@ -97,33 +97,33 @@ class ApiClient {
 
   async createTransaction(transaction: Partial<Transaction>): Promise<Transaction> {
     return this.request(API_ENDPOINTS.TRANSACTIONS.BASE, {
-      method: 'POST',
+      method: "POST",
       body: transaction,
     });
   }
 
   async updateTransaction(id: string, updates: Partial<Transaction>): Promise<Transaction> {
     return this.request(`${API_ENDPOINTS.TRANSACTIONS.BASE}/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: updates,
     });
   }
 
   // Company endpoints
   async getCompanies(): Promise<Company[]> {
-    return this.request('/api/companies');
+    return this.request("/api/companies");
   }
 
   async createCompany(company: Partial<Company>): Promise<Company> {
-    return this.request('/api/companies', {
-      method: 'POST',
+    return this.request("/api/companies", {
+      method: "POST",
       body: company,
     });
   }
 
   async updateCompany(id: string, updates: Partial<Company>): Promise<Company> {
     return this.request(`/api/companies/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: updates,
     });
   }
@@ -132,7 +132,7 @@ class ApiClient {
   async getAnalytics(params: {
     startDate: Date;
     endDate: Date;
-    period: Analytics['period'];
+    period: Analytics["period"];
   }): Promise<Analytics> {
     const queryParams = new URLSearchParams({
       startDate: params.startDate.toISOString(),
@@ -146,10 +146,10 @@ class ApiClient {
   // Receipt endpoints
   async uploadReceipt(file: File): Promise<{ url: string }> {
     const formData = new FormData();
-    formData.append('receipt', file);
+    formData.append("receipt", file);
 
     return this.request(API_ENDPOINTS.RECEIPTS.UPLOAD, {
-      method: 'POST',
+      method: "POST",
       body: formData,
       headers: {
         // Don't set Content-Type here, let the browser set it with the boundary
@@ -164,13 +164,13 @@ class ApiClient {
     items: Array<{ description: string; amount: number }>;
   }> {
     return this.request(API_ENDPOINTS.RECEIPTS.OCR, {
-      method: 'POST',
+      method: "POST",
       body: { receiptUrl },
     });
   }
 
   async getReceiptsByTransaction(
-    transactionId: string
+    transactionId: string,
   ): Promise<Array<{ url: string; processedData?: any }>> {
     return this.request(`${API_ENDPOINTS.RECEIPTS.BASE}/transaction/${transactionId}`);
   }
@@ -179,7 +179,7 @@ class ApiClient {
   async getSpendingByCategory(params: {
     startDate: Date;
     endDate: Date;
-    groupBy: 'day' | 'week' | 'month' | 'year';
+    groupBy: "day" | "week" | "month" | "year";
   }): Promise<
     Array<{
       category: string;
@@ -201,14 +201,14 @@ class ApiClient {
   async getTrends(params: { months: number; categories?: string[] }): Promise<
     Array<{
       category: string;
-      trend: 'increasing' | 'decreasing' | 'stable';
+      trend: "increasing" | "decreasing" | "stable";
       percentageChange: number;
       averageSpend: number;
     }>
   > {
     const queryParams = new URLSearchParams({
       months: params.months.toString(),
-      ...(params.categories && { categories: params.categories.join(',') }),
+      ...(params.categories && { categories: params.categories.join(",") }),
     });
 
     return this.request(`${API_ENDPOINTS.ANALYTICS.TRENDS}?${queryParams}`);
@@ -217,7 +217,7 @@ class ApiClient {
   // Teller integration endpoints
   async syncBankTransactions(): Promise<{ message: string }> {
     return this.request(API_ENDPOINTS.TRANSACTIONS.SYNC, {
-      method: 'POST',
+      method: "POST",
     });
   }
 }

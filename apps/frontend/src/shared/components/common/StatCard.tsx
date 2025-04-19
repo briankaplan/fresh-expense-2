@@ -1,7 +1,7 @@
-import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
-import { Icons } from '../icons';
-import { motion } from 'framer-motion';
+import { Box, Typography, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
+import type React from "react";
+import { Icons } from "../icons";
 
 interface StatCardProps {
   title: string;
@@ -24,7 +24,7 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, c
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{
-        type: 'spring',
+        type: "spring",
         stiffness: 300,
         damping: 30,
       }}
@@ -35,26 +35,26 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, c
           borderRadius: theme.shape.borderRadius,
           bgcolor: theme.palette.background.paper,
           boxShadow: theme.shadows[1],
-          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-2px)',
+          transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+          "&:hover": {
+            transform: "translateY(-2px)",
             boxShadow: theme.shadows[4],
           },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           {IconComponent && (
             <Box
               component={motion.div}
               whileHover={{ scale: 1.1 }}
               sx={{
                 mr: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 width: 40,
                 height: 40,
-                borderRadius: '50%',
+                borderRadius: "50%",
                 bgcolor: color || defaultColor,
                 color: theme.palette.common.white,
               }}
@@ -67,7 +67,7 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, c
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
+        <Box sx={{ display: "flex", alignItems: "baseline" }}>
           <Typography
             variant="h4"
             component={motion.h4}
@@ -86,8 +86,8 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, c
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 ml: 1,
                 color: trend.isPositive ? theme.palette.success.main : theme.palette.error.main,
               }}

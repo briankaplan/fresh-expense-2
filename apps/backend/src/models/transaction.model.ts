@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { type Document, Schema, type Types, model } from "mongoose";
 
 export interface ITransaction extends Document {
   userId: Types.ObjectId;
@@ -19,7 +19,7 @@ const transactionSchema = new Schema<ITransaction>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     date: {
@@ -57,7 +57,7 @@ const transactionSchema = new Schema<ITransaction>(
         return ret;
       },
     },
-  }
+  },
 );
 
 // Add indexes for common queries
@@ -66,6 +66,6 @@ transactionSchema.index({ userId: 1, amount: { value: 1, currency: "USD" } });
 transactionSchema.index({ userId: 1, merchant: 1 });
 transactionSchema.index({ userId: 1, category: 1 });
 transactionSchema.index({ userId: 1, paymentMethod: 1 });
-transactionSchema.index({ userId: 1, location: '2dsphere' });
+transactionSchema.index({ userId: 1, location: "2dsphere" });
 
-export const Transaction = model<ITransaction>('Transaction', transactionSchema);
+export const Transaction = model<ITransaction>("Transaction", transactionSchema);

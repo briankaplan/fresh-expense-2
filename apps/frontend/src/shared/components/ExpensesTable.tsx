@@ -1,26 +1,27 @@
-import React, { useState } from 'react';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Collapse,
+  IconButton,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
-  IconButton,
-  Chip,
-  Box,
-  Collapse,
-  useTheme,
-  useMediaQuery,
-  Card,
-  CardContent,
+  TableRow,
   Typography,
-  Stack,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useNavigate } from 'react-router-dom';
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Expense {
   id: string;
@@ -28,7 +29,7 @@ interface Expense {
   description: string;
   amount: number;
   category: string;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: "pending" | "completed" | "cancelled";
 }
 
 const ExpensesTable: React.FC = () => {
@@ -37,65 +38,65 @@ const ExpensesTable: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Mock data - replace with actual API call
   const expenses: Expense[] = [
     {
-      id: '1',
-      date: '2024-03-20',
-      description: 'Grocery Shopping',
+      id: "1",
+      date: "2024-03-20",
+      description: "Grocery Shopping",
       amount: 156.78,
-      category: 'Groceries',
-      status: 'completed',
+      category: "Groceries",
+      status: "completed",
     },
     {
-      id: '2',
-      date: '2024-03-19',
-      description: 'Monthly Rent',
+      id: "2",
+      date: "2024-03-19",
+      description: "Monthly Rent",
       amount: 2000.0,
-      category: 'Housing',
-      status: 'completed',
+      category: "Housing",
+      status: "completed",
     },
     {
-      id: '3',
-      date: '2024-03-18',
-      description: 'Gas Station',
+      id: "3",
+      date: "2024-03-18",
+      description: "Gas Station",
       amount: 45.67,
-      category: 'Transportation',
-      status: 'pending',
+      category: "Transportation",
+      status: "pending",
     },
   ];
 
   const handlePageChange = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
+    newPage: number,
   ) => {
     setPage(newPage);
   };
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
-  const getStatusColor = (status: Expense['status']) => {
+  const getStatusColor = (status: Expense["status"]) => {
     switch (status) {
-      case 'completed':
-        return 'success';
-      case 'pending':
-        return 'warning';
-      case 'cancelled':
-        return 'error';
+      case "completed":
+        return "success";
+      case "pending":
+        return "warning";
+      case "cancelled":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -105,7 +106,7 @@ const ExpensesTable: React.FC = () => {
 
   const handleDelete = (id: string) => {
     // TODO: Implement delete functionality
-    console.log('Deleting expense:', id);
+    console.log("Deleting expense:", id);
   };
 
   const toggleRow = (id: string) => {
@@ -116,15 +117,15 @@ const ExpensesTable: React.FC = () => {
     <Card
       sx={{
         mb: 2,
-        cursor: 'pointer',
-        '&:hover': {
-          bgcolor: 'action.hover',
+        cursor: "pointer",
+        "&:hover": {
+          bgcolor: "action.hover",
         },
       }}
       onClick={() => toggleRow(expense.id)}
     >
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
           <Typography variant="subtitle1" component="div">
             {expense.description}
           </Typography>
@@ -142,10 +143,10 @@ const ExpensesTable: React.FC = () => {
         </Stack>
 
         <Collapse in={expandedRow === expense.id}>
-          <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+          <Box sx={{ mt: 2, display: "flex", gap: 1, justifyContent: "flex-end" }}>
             <IconButton
               size="small"
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 handleEdit(expense.id);
               }}
@@ -154,7 +155,7 @@ const ExpensesTable: React.FC = () => {
             </IconButton>
             <IconButton
               size="small"
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(expense.id);
               }}
@@ -171,7 +172,7 @@ const ExpensesTable: React.FC = () => {
     return (
       <Box>
         <Box sx={{ p: 2 }}>
-          {expenses.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(expense => (
+          {expenses.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((expense) => (
             <MobileExpenseCard key={expense.id} expense={expense} />
           ))}
         </Box>
@@ -183,8 +184,8 @@ const ExpensesTable: React.FC = () => {
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleRowsPerPageChange}
           sx={{
-            '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
-              fontSize: '0.875rem',
+            ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows": {
+              fontSize: "0.875rem",
             },
           }}
         />
@@ -207,12 +208,12 @@ const ExpensesTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {expenses.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(expense => (
+            {expenses.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((expense) => (
               <TableRow
                 key={expense.id}
                 sx={{
-                  '&:hover': {
-                    bgcolor: 'action.hover',
+                  "&:hover": {
+                    bgcolor: "action.hover",
                   },
                 }}
               >

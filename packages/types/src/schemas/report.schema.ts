@@ -1,33 +1,33 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export type ReportDocument = Report & Document;
 
 export enum ReportType {
-  EXPENSE = 'expense',
-  INCOME = 'income',
-  CASH_FLOW = 'cash_flow',
-  BUDGET = 'budget',
-  SUBSCRIPTION = 'subscription',
-  TAX = 'tax',
-  CUSTOM = 'custom',
+  EXPENSE = "expense",
+  INCOME = "income",
+  CASH_FLOW = "cash_flow",
+  BUDGET = "budget",
+  SUBSCRIPTION = "subscription",
+  TAX = "tax",
+  CUSTOM = "custom",
 }
 
 export enum ReportFrequency {
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-  QUARTERLY = 'quarterly',
-  YEARLY = 'yearly',
-  CUSTOM = 'custom',
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+  QUARTERLY = "quarterly",
+  YEARLY = "yearly",
+  CUSTOM = "custom",
 }
 
 export enum ReportStatus {
-  DRAFT = 'draft',
-  ACTIVE = 'active',
-  ARCHIVED = 'archived',
-  SCHEDULED = 'scheduled',
+  DRAFT = "draft",
+  ACTIVE = "active",
+  ARCHIVED = "archived",
+  SCHEDULED = "scheduled",
 }
 
 @Schema({ timestamps: true })
@@ -41,7 +41,7 @@ export class Report implements BaseDocument {
   @Prop({ required: true, index: true })
   userId!: string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Company', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
   companyId!: Types.ObjectId | string;
 
   @Prop({ required: true })
@@ -137,5 +137,8 @@ export const ReportSchema = SchemaFactory.createForClass(Report);
 ReportSchema.index({ userId: 1, type: 1 });
 ReportSchema.index({ companyId: 1, type: 1 });
 ReportSchema.index({ status: 1, nextGeneration: 1 });
-ReportSchema.index({ 'filters.dateRange.start': 1, 'filters.dateRange.end': 1 });
-ReportSchema.index({ 'data.summary.totalAmount': 1 });
+ReportSchema.index({
+  "filters.dateRange.start": 1,
+  "filters.dateRange.end": 1,
+});
+ReportSchema.index({ "data.summary.totalAmount": 1 });

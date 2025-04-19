@@ -1,46 +1,41 @@
-import * as ts from 'typescript';
-import * as fs from 'fs';
-import { glob } from 'glob';
+import * as fs from "fs";
+import { glob } from "glob";
+import * as ts from "typescript";
 
-const SCHEMA_FILES = 'packages/types/src/**/*.schema.ts';
+const SCHEMA_FILES = "packages/types/src/**/*.schema.ts";
 const BASE_DOCUMENT_FIELDS = [
-  '_id!: string;',
-  'createdAt!: Date;',
-  'updatedAt!: Date;',
-  'deletedAt?: Date;',
-  'isDeleted!: boolean;'
+  "_id!: string;",
+  "createdAt!: Date;",
+  "updatedAt!: Date;",
+  "deletedAt?: Date;",
+  "isDeleted!: boolean;",
 ];
 
 function updateSchemaFile(filePath: string) {
-  const sourceText = fs.readFileSync(filePath, 'utf-8');
-  ts.createSourceFile(
-    filePath,
-    sourceText,
-    ts.ScriptTarget.Latest,
-    true
-  );
+  const sourceText = fs.readFileSync(filePath, "utf-8");
+  ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true);
 
   let updatedText = sourceText;
   let changesMade = false;
 
   // Update imports
-  if (!sourceText.includes('import { BaseDocument }')) {
+  if (!sourceText.includes("import { BaseDocument }")) {
     updatedText = updatedText.replace(
       /import { BaseSchema } from ['"].*['"];/,
-      'import { BaseDocument } from \'./base.schema\';'
+      "import { BaseDocument } from './base.schema';",
     );
     changesMade = true;
   }
 
   // Update class declaration and capture class name
-  let className = '';
-  if (sourceText.includes('extends BaseSchema')) {
+  let className = "";
+  if (sourceText.includes("extends BaseSchema")) {
     const classMatch = sourceText.match(/export class (\w+) extends BaseSchema/);
     if (classMatch?.[1]) {
       className = classMatch[1];
       updatedText = updatedText.replace(
         /export class (\w+) extends BaseSchema/,
-        'export class $1 implements BaseDocument'
+        "export class $1 implements BaseDocument",
       );
       changesMade = true;
     }
@@ -52,25 +47,27 @@ function updateSchemaFile(filePath: string) {
   }
 
   // Add base document fields if not present
-  if (className && !updatedText.includes('_id!: string;')) {
+  if (className && !updatedText.includes("_id!: string;")) {
     const classStart = updatedText.indexOf(`export class ${className} implements BaseDocument {`);
-    const insertPosition = classStart + `export class ${className} implements BaseDocument {`.length;
-    
+    const insertPosition =
+      classStart + `export class ${className} implements BaseDocument {`.length;
+
     updatedText = [
       updatedText.slice(0, insertPosition),
-      '\n  ' + BASE_DOCUMENT_FIELDS.join('\n  '),
-      updatedText.slice(insertPosition)
-    ].join('');
+      "\n  " + BASE_DOCUMENT_FIELDS.join("\n  "),
+      updatedText.slice(insertPosition),
+    ].join("");
     changesMade = true;
   }
 
   // Update constructor with correct class name
   if (className) {
-    const constructorRegex = /constructor\(partial: Partial<[^>]+>\) {\s*(?:super\(partial\);\s*)?Object\.assign\(this, partial\);\s*}/;
+    const constructorRegex =
+      /constructor\(partial: Partial<[^>]+>\) {\s*(?:super\(partial\);\s*)?Object\.assign\(this, partial\);\s*}/;
     if (constructorRegex.test(updatedText)) {
       updatedText = updatedText.replace(
         constructorRegex,
-        `constructor(partial: Partial<${className}>) {\n    Object.assign(this, partial);\n  }`
+        `constructor(partial: Partial<${className}>) {\n    Object.assign(this, partial);\n  }`,
       );
       changesMade = true;
     }
@@ -81,8 +78,8 @@ function updateSchemaFile(filePath: string) {
   let match;
   while ((match = propRegex.exec(updatedText)) !== null) {
     const [fullMatch, , optional] = match;
-    if (!optional && !fullMatch.includes('!:')) {
-      updatedText = updatedText.replace(fullMatch, fullMatch.replace(':', '!:'));
+    if (!optional && !fullMatch.includes("!:")) {
+      updatedText = updatedText.replace(fullMatch, fullMatch.replace(":", "!:"));
       changesMade = true;
     }
   }
@@ -105,8 +102,8 @@ async function main() {
       }
     });
   } catch (error) {
-    console.error('Error finding schema files:', error);
+    console.error("Error finding schema files:", error);
   }
 }
 
-main(); 
+main();

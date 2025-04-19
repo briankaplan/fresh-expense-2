@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
-import { MerchantLearningService } from './merchant-learning.service';
-import { MerchantCategorizationService } from './merchant-categorization.service';
-import { ITransactionRepository } from '@fresh-expense/types';
+import { ITransactionRepository } from "@fresh-expense/types";
+import { CacheModule } from "@nestjs/cache-manager";
+import { Module } from "@nestjs/common";
+import { MerchantCategorizationService } from "./merchant-categorization.service";
+import { MerchantLearningService } from "./merchant-learning.service";
 
 @Module({
   imports: [

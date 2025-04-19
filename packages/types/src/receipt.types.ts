@@ -1,7 +1,7 @@
-import { Types } from 'mongoose';
-import { Receipt } from './index';
+import type { Types } from "mongoose";
+import type { Receipt } from "./index";
 
-export interface ReceiptDocument extends Omit<Receipt, 'id' | '_id'> {
+export interface ReceiptDocument extends Omit<Receipt, "id" | "_id"> {
   _id: Types.ObjectId;
   id: string;
 }

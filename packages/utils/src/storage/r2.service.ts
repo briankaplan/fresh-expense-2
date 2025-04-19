@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
 import {
-  S3Client,
-  PutObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class R2Service {
@@ -14,7 +14,7 @@ export class R2Service {
 
   constructor() {
     this.client = new S3Client({
-      region: 'auto',
+      region: "auto",
       endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
       credentials: {
         accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
@@ -32,7 +32,7 @@ export class R2Service {
       });
       await this.client.send(command);
     } catch (error) {
-      this.logger.error('Error uploading file to R2:', error);
+      this.logger.error("Error uploading file to R2:", error);
       throw error;
     }
   }
@@ -45,7 +45,7 @@ export class R2Service {
       });
       await this.client.send(command);
     } catch (error) {
-      this.logger.error('Error deleting file from R2:', error);
+      this.logger.error("Error deleting file from R2:", error);
       throw error;
     }
   }
@@ -58,7 +58,7 @@ export class R2Service {
       });
       return await getSignedUrl(this.client, command, { expiresIn: 3600 });
     } catch (error) {
-      this.logger.error('Error getting file URL from R2:', error);
+      this.logger.error("Error getting file URL from R2:", error);
       throw error;
     }
   }

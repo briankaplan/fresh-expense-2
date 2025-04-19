@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import { BaseService } from '../base.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationService } from '../notification/notification.service';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import * as nodemailer from "nodemailer";
+import { BaseService } from "../base.service";
+import type { NotificationService } from "../notification/notification.service";
 
 interface EmailOptions {
   to: string | string[];
@@ -25,25 +25,25 @@ export class EmailService extends BaseService {
   constructor(
     private readonly configService: ConfigService,
     notificationService: NotificationService,
-    eventEmitter: EventEmitter2
+    eventEmitter: EventEmitter2,
   ) {
     super(notificationService, eventEmitter, EmailService.name);
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('SMTP_HOST'),
-      port: this.configService.get<number>('SMTP_PORT'),
-      secure: this.configService.get<boolean>('SMTP_SECURE'),
+      host: this.configService.get<string>("SMTP_HOST"),
+      port: this.configService.get<number>("SMTP_PORT"),
+      secure: this.configService.get<boolean>("SMTP_SECURE"),
       auth: {
-        user: this.configService.get<string>('SMTP_USER'),
-        pass: this.configService.get<string>('SMTP_PASS'),
+        user: this.configService.get<string>("SMTP_USER"),
+        pass: this.configService.get<string>("SMTP_PASS"),
       },
     });
   }
 
   async sendEmail(options: EmailOptions): Promise<void> {
-    return this.executeWithRetry('sendEmail', async () => {
+    return this.executeWithRetry("sendEmail", async () => {
       try {
         await this.transporter.sendMail({
-          from: this.configService.get<string>('SMTP_FROM'),
+          from: this.configService.get<string>("SMTP_FROM"),
           ...options,
         });
       } catch (error) {
@@ -55,11 +55,11 @@ export class EmailService extends BaseService {
   }
 
   async sendReportEmail(options: EmailOptions): Promise<void> {
-    return this.executeWithRetry('sendReportEmail', async () => {
+    return this.executeWithRetry("sendReportEmail", async () => {
       try {
         const reportUrl = options.reportUrl;
         if (!reportUrl) {
-          throw new Error('Report URL is required for report emails');
+          throw new Error("Report URL is required for report emails");
         }
 
         const html = `
@@ -69,7 +69,7 @@ export class EmailService extends BaseService {
         `;
 
         await this.transporter.sendMail({
-          from: this.configService.get<string>('SMTP_FROM'),
+          from: this.configService.get<string>("SMTP_FROM"),
           ...options,
           html,
         });

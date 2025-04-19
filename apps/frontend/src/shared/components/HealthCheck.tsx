@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Chip, IconButton, Tooltip } from '@mui/material';
-import { Refresh as RefreshIcon } from '@mui/icons-material';
-import healthService from '../services/health.service';
+import { Refresh as RefreshIcon } from "@mui/icons-material";
+import { Box, Chip, IconButton, Tooltip, Typography } from "@mui/material";
+import type React from "react";
+import { useEffect, useState } from "react";
+import healthService from "../services/health.service";
 
 interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   services: {
     database: boolean;
     api: boolean;
@@ -24,7 +25,7 @@ const HealthCheck: React.FC = () => {
       const status = await healthService.checkHealth();
       setHealth(status);
     } catch (error) {
-      console.error('Health check failed:', error);
+      console.error("Health check failed:", error);
     } finally {
       setLoading(false);
     }
@@ -39,16 +40,16 @@ const HealthCheck: React.FC = () => {
     };
   }, []);
 
-  const getStatusColor = (status: 'healthy' | 'degraded' | 'unhealthy') => {
+  const getStatusColor = (status: "healthy" | "degraded" | "unhealthy") => {
     switch (status) {
-      case 'healthy':
-        return 'success';
-      case 'degraded':
-        return 'warning';
-      case 'unhealthy':
-        return 'error';
+      case "healthy":
+        return "success";
+      case "degraded":
+        return "warning";
+      case "unhealthy":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -57,7 +58,7 @@ const HealthCheck: React.FC = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 1 }}>
       <Tooltip title="System Status">
         <Chip
           label={health.status.toUpperCase()}
@@ -70,13 +71,13 @@ const HealthCheck: React.FC = () => {
         v{health.version}
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: "flex", gap: 1 }}>
         {Object.entries(health.services).map(([service, status]) => (
-          <Tooltip key={service} title={`${service}: ${status ? 'Online' : 'Offline'}`}>
+          <Tooltip key={service} title={`${service}: ${status ? "Online" : "Offline"}`}>
             <Chip
               label={service}
               size="small"
-              color={status ? 'success' : 'error'}
+              color={status ? "success" : "error"}
               variant="outlined"
             />
           </Tooltip>
@@ -84,7 +85,7 @@ const HealthCheck: React.FC = () => {
       </Box>
 
       <Tooltip title="Refresh Status">
-        <IconButton size="small" onClick={checkHealth} disabled={loading} sx={{ ml: 'auto' }}>
+        <IconButton size="small" onClick={checkHealth} disabled={loading} sx={{ ml: "auto" }}>
           <RefreshIcon />
         </IconButton>
       </Tooltip>

@@ -1,7 +1,7 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { MerchantSchema, MERCHANT_COLLECTION } from '../schemas/merchant.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import { MERCHANT_COLLECTION, type MerchantSchema } from "../schemas/merchant.schema";
+import { BaseRepository } from "./base.repository";
 
 export class MerchantRepository extends BaseRepository<MerchantSchema> {
   protected readonly collectionName = MERCHANT_COLLECTION;
@@ -40,16 +40,16 @@ export class MerchantRepository extends BaseRepository<MerchantSchema> {
           transactionCount: newTransactionCount,
           averageTransactionAmount: newAverageAmount,
         },
-      }
+      },
     );
   }
 
   async searchMerchants(query: string): Promise<MerchantSchema[]> {
     return this.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } },
-        { category: { $regex: query, $options: 'i' } },
+        { name: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+        { category: { $regex: query, $options: "i" } },
       ],
     });
   }

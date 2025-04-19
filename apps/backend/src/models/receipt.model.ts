@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { type Document, Schema, type Types, model } from "mongoose";
 
 export interface IReceipt extends Document {
   filename: string;
@@ -11,7 +11,7 @@ export interface IReceipt extends Document {
   userId: Types.ObjectId;
   r2Key: string;
   r2ThumbnailKey: string;
-  matchStatus: 'unmatched' | 'pending' | 'matched' | 'manual' | 'review';
+  matchStatus: "unmatched" | "pending" | "matched" | "manual" | "review";
   matchConfidence?: number;
   lastMatchAttempt?: Date;
   matchHistory?: Array<{
@@ -74,20 +74,20 @@ const receiptSchema = new Schema<IReceipt>(
     uploadDate: { type: Date, default: Date.now },
     merchant: { type: String, required: true },
     amount: { type: Number, required: true },
-    transactionId: { type: Schema.Types.ObjectId, ref: 'Transaction' },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    transactionId: { type: Schema.Types.ObjectId, ref: "Transaction" },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     r2Key: { type: String, required: true },
     r2ThumbnailKey: { type: String, required: true },
     matchStatus: {
       type: String,
-      enum: ['unmatched', 'pending', 'matched', 'manual', 'review'],
-      default: 'unmatched',
+      enum: ["unmatched", "pending", "matched", "manual", "review"],
+      default: "unmatched",
     },
     matchConfidence: { type: Number, min: 0, max: 1 },
     lastMatchAttempt: { type: Date },
     matchHistory: [
       {
-        transactionId: { type: Schema.Types.ObjectId, ref: 'Transaction' },
+        transactionId: { type: Schema.Types.ObjectId, ref: "Transaction" },
         confidence: { type: Number, min: 0, max: 1 },
         attemptedAt: { type: Date, default: Date.now },
         factors: {
@@ -149,28 +149,28 @@ const receiptSchema = new Schema<IReceipt>(
         return ret;
       },
     },
-  }
+  },
 );
 
 // Add text index for search functionality
 receiptSchema.index({
-  merchant: { name: 'text' },
-  filename: 'text',
-  'ocr.text': 'text',
-  'metadata.category': 'text',
-  'metadata.paymentMethod': 'text',
+  merchant: { name: "text" },
+  filename: "text",
+  "ocr.text": "text",
+  "metadata.category": "text",
+  "metadata.paymentMethod": "text",
 });
 
 // Add indexes for matching
 receiptSchema.index({ userId: 1, matchStatus: 1 });
 receiptSchema.index({ userId: 1, uploadDate: 1 });
 receiptSchema.index({ userId: 1, amount: { value: 1, currency: "USD" } });
-receiptSchema.index({ userId: 1, 'metadata.location': '2dsphere' });
-receiptSchema.index({ userId: 1, 'metadata.category': 1 });
-receiptSchema.index({ userId: 1, 'metadata.paymentMethod': 1 });
+receiptSchema.index({ userId: 1, "metadata.location": "2dsphere" });
+receiptSchema.index({ userId: 1, "metadata.category": 1 });
+receiptSchema.index({ userId: 1, "metadata.paymentMethod": 1 });
 
 // Add compound indexes for common queries
 receiptSchema.index({ userId: 1, matchStatus: 1, uploadDate: -1 });
 receiptSchema.index({ userId: 1, matchConfidence: -1, uploadDate: -1 });
 
-export const Receipt = model<IReceipt>('Receipt', receiptSchema);
+export const Receipt = model<IReceipt>("Receipt", receiptSchema);

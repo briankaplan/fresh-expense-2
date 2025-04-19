@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { R2Service } from '../storage/r2.service';
-import { Receipt } from '@fresh-expense/types';
+import type { Receipt } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
+import type { R2Service } from "../storage/r2.service";
 
 @Injectable()
 export class ReceiptService {
@@ -8,14 +8,14 @@ export class ReceiptService {
 
   async uploadReceipt(file: Buffer, filename: string, transactionId: string): Promise<Receipt> {
     const key = `receipts/${transactionId}/${filename}`;
-    const url = await this.r2Service.uploadFile(key, file, 'application/pdf');
+    const url = await this.r2Service.uploadFile(key, file, "application/pdf");
 
     return {
       id: transactionId,
       url,
       filename,
       uploadDate: new Date(),
-      status: 'pending',
+      status: "pending",
       transactionId,
     };
   }
@@ -36,7 +36,7 @@ export class ReceiptService {
       url: this.r2Service.generatePresignedUrl(key),
       filename: `${transactionId}.pdf`,
       uploadDate: new Date(),
-      status: 'processed',
+      status: "processed",
       transactionId,
     };
   }
@@ -56,7 +56,7 @@ export class ReceiptService {
 
     return {
       ...receipt,
-      status: 'processed',
+      status: "processed",
     };
   }
 }

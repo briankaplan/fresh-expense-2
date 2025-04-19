@@ -1,14 +1,14 @@
+import { Type } from "class-transformer";
 import {
-  IsString,
-  IsNumber,
-  IsDate,
-  IsOptional,
-  IsEnum,
   IsArray,
   IsBoolean,
+  IsDate,
+  IsEnum,
+  IsNumber,
   IsObject,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+  IsOptional,
+  IsString,
+} from "class-validator";
 
 export class ReceiptDto {
   @IsString()
@@ -49,7 +49,7 @@ export class ReceiptDto {
   @IsOptional()
   thumbnailUrl?: string;
 
-  @IsEnum(['pending', 'processed', 'failed'])
+  @IsEnum(["pending", "processed", "failed"])
   @IsOptional()
   processingStatus?: string;
 

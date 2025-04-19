@@ -1,11 +1,10 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Model } from 'mongoose';
-
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document, Model } from "mongoose";
 
 export class Company {
   @Prop({
     type: String,
-    ref: 'User',
+    ref: "User",
     required: true,
     index: true,
   })
@@ -37,7 +36,7 @@ export class Company {
     postalCode: String,
     coordinates: {
       type: [Number],
-      index: '2dsphere',
+      index: "2dsphere",
     },
   })
   location?: {
@@ -63,15 +62,15 @@ export class Company {
   @Prop({
     currency: {
       type: String,
-      default: 'USD',
+      default: "USD",
     },
     timezone: {
       type: String,
-      default: 'UTC',
+      default: "UTC",
     },
     dateFormat: {
       type: String,
-      default: 'MM/DD/YYYY',
+      default: "MM/DD/YYYY",
     },
     fiscalYearStart: {
       type: Date,
@@ -89,16 +88,16 @@ export class Company {
     fiscalYearStart: Date;
     fiscalYearEnd: Date;
   } = {
-    currency: 'USD',
-    timezone: 'UTC',
-    dateFormat: 'MM/DD/YYYY',
+    currency: "USD",
+    timezone: "UTC",
+    dateFormat: "MM/DD/YYYY",
     fiscalYearStart: new Date(new Date().getFullYear(), 0, 1),
     fiscalYearEnd: new Date(new Date().getFullYear(), 11, 31),
   };
 
   @Prop({
-    enum: ['active', 'inactive', 'archived'],
-    default: 'active',
+    enum: ["active", "inactive", "archived"],
+    default: "active",
     index: true,
   })
   status!: string;
@@ -141,17 +140,17 @@ export class Company {
   @Prop({
     createdBy: {
       type: String,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     updatedBy: {
       type: String,
-      ref: 'User',
+      ref: "User",
     },
     lastSyncedAt: Date,
     version: {
       type: String,
-      default: '1.0',
+      default: "1.0",
     },
   })
   metadata: {
@@ -160,8 +159,8 @@ export class Company {
     lastSyncedAt?: Date;
     version: string;
   } = {
-    createdBy: '',
-    version: '1.0',
+    createdBy: "",
+    version: "1.0",
   };
 }
 
@@ -172,31 +171,31 @@ CompanySchema.index({ userId: 1, name: 1 }, { unique: true });
 CompanySchema.index({ userId: 1, industry: 1 });
 
 // Pre-save middleware
-CompanySchema.pre('save', function (next: (err?: Error) => void) {
-  this['metadata'].updatedBy = this['metadata'].createdBy;
+CompanySchema.pre("save", function (next: (err?: Error) => void) {
+  this["metadata"].updatedBy = this["metadata"].createdBy;
   next();
 });
 
 // Static methods
-CompanySchema.statics['findByUser'] = function (userId: string) {
+CompanySchema.statics["findByUser"] = function (userId: string) {
   return this.find({ userId });
 };
 
-CompanySchema.statics['findByIndustry'] = function (userId: string, industry: string) {
+CompanySchema.statics["findByIndustry"] = function (userId: string, industry: string) {
   return this.find({ userId, industry });
 };
 
-CompanySchema.statics['findNearLocation'] = function (
+CompanySchema.statics["findNearLocation"] = function (
   userId: string,
   coordinates: [number, number],
-  maxDistance: number
+  maxDistance: number,
 ) {
   return this.find({
     userId,
-    'location.coordinates': {
+    "location.coordinates": {
       $near: {
         $geometry: {
-          type: 'Point',
+          type: "Point",
           coordinates,
         },
         $maxDistance: maxDistance,
@@ -206,41 +205,41 @@ CompanySchema.statics['findNearLocation'] = function (
 };
 
 // Instance methods
-CompanySchema.methods['updateStatus'] = async function (status: string) {
-  this['status'] = status;
-  return this['save']();
+CompanySchema.methods["updateStatus"] = async function (status: string) {
+  this["status"] = status;
+  return this["save"]();
 };
 
-CompanySchema.methods['updateSettings'] = async function (settings: {
+CompanySchema.methods["updateSettings"] = async function (settings: {
   currency?: string;
   timezone?: string;
   dateFormat?: string;
   fiscalYearStart?: Date;
   fiscalYearEnd?: Date;
 }) {
-  this['settings'] = {
-    ...this['settings'],
+  this["settings"] = {
+    ...this["settings"],
     ...settings,
   };
-  return this['save']();
+  return this["save"]();
 };
 
-CompanySchema.methods['updateIntegrations'] = async function (
-  integrationType: 'teller' | 'email' | 'storage',
+CompanySchema.methods["updateIntegrations"] = async function (
+  integrationType: "teller" | "email" | "storage",
   data: {
     enabled?: boolean;
     lastSync?: Date;
     syncStatus?: string;
-  }
+  },
 ) {
-  this['integrations'][integrationType] = {
-    ...this['integrations'][integrationType],
+  this["integrations"][integrationType] = {
+    ...this["integrations"][integrationType],
     ...data,
   };
-  return this['save']();
+  return this["save"]();
 };
 
-CompanySchema.methods['updateLocation'] = async function (location: {
+CompanySchema.methods["updateLocation"] = async function (location: {
   address?: string;
   city?: string;
   state?: string;
@@ -248,21 +247,21 @@ CompanySchema.methods['updateLocation'] = async function (location: {
   postalCode?: string;
   coordinates?: [number, number];
 }) {
-  this['location'] = {
-    ...this['location'],
+  this["location"] = {
+    ...this["location"],
     ...location,
   };
-  return this['save']();
+  return this["save"]();
 };
 
-CompanySchema.methods['updateContact'] = async function (contact: {
+CompanySchema.methods["updateContact"] = async function (contact: {
   phone?: string;
   email?: string;
   website?: string;
 }) {
-  this['contact'] = {
-    ...this['contact'],
+  this["contact"] = {
+    ...this["contact"],
     ...contact,
   };
-  return this['save']();
+  return this["save"]();
 };

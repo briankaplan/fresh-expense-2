@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import type React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
   id: string;
@@ -26,18 +27,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for existing session
     const checkSession = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
           // TODO: Implement token validation and user fetching
           // For now, we'll just set a mock user
           setUser({
-            id: '1',
-            email: 'user@example.com',
-            name: 'Test User',
+            id: "1",
+            email: "user@example.com",
+            name: "Test User",
           });
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to check session');
+        setError(err instanceof Error ? err.message : "Failed to check session");
       } finally {
         setLoading(false);
       }
@@ -52,14 +53,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       // TODO: Implement actual login logic
       const mockUser = {
-        id: '1',
+        id: "1",
         email,
-        name: 'Test User',
+        name: "Test User",
       };
       setUser(mockUser);
-      localStorage.setItem('token', 'mock-token');
+      localStorage.setItem("token", "mock-token");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to login');
+      setError(err instanceof Error ? err.message : "Failed to login");
       throw err;
     } finally {
       setLoading(false);
@@ -70,10 +71,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       setError(null);
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
       setUser(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to logout');
+      setError(err instanceof Error ? err.message : "Failed to logout");
       throw err;
     } finally {
       setLoading(false);
@@ -86,14 +87,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       // TODO: Implement actual registration logic
       const mockUser = {
-        id: '1',
+        id: "1",
         email,
         name,
       };
       setUser(mockUser);
-      localStorage.setItem('token', 'mock-token');
+      localStorage.setItem("token", "mock-token");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to register');
+      setError(err instanceof Error ? err.message : "Failed to register");
       throw err;
     } finally {
       setLoading(false);
@@ -115,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

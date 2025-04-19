@@ -1,19 +1,19 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google, gmail_v1, Auth } from 'googleapis';
-import { TokenManagerService } from '../../app/services/token-manager.service';
-import { RateLimiter } from 'limiter';
-import { retry } from 'ts-retry-promise';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { GoogleService } from '../../app/services/google.service';
-import { compareTwoStrings } from 'string-similarity-js';
-import { CacheService } from '../cache/cache.service';
+import { Injectable, Logger, type OnModuleInit } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { Auth, type gmail_v1, google } from "googleapis";
+import { RateLimiter } from "limiter";
+import { compareTwoStrings } from "string-similarity-js";
+import { retry } from "ts-retry-promise";
+import { GoogleService } from "../../app/services/google.service";
+import type { TokenManagerService } from "../../app/services/token-manager.service";
+import type { CacheService } from "../cache/cache.service";
 
 interface SearchProgress {
   account: string;
   total: number;
   processed: number;
-  status: 'searching' | 'processing' | 'completed' | 'error';
+  status: "searching" | "processing" | "completed" | "error";
   error?: string;
 }
 
@@ -76,26 +76,26 @@ export class GmailService extends GoogleService implements OnModuleInit {
   private readonly RETRY_DELAY = 2000;
   private readonly CACHE_TTL = 3600; // 1 hour
   private readonly RECEIPT_KEYWORDS = [
-    'receipt',
-    'invoice',
-    'order confirmation',
-    'purchase',
-    'transaction',
-    'payment',
-    'bill',
-    'statement',
-    'confirmation',
-    'order #',
-    'order number',
-    'order details',
-    'purchase details',
-    'payment confirmation',
-    'order summary',
-    'order receipt',
-    'purchase receipt',
-    'payment receipt',
-    'order confirmation',
-    'purchase confirmation',
+    "receipt",
+    "invoice",
+    "order confirmation",
+    "purchase",
+    "transaction",
+    "payment",
+    "bill",
+    "statement",
+    "confirmation",
+    "order #",
+    "order number",
+    "order details",
+    "purchase details",
+    "payment confirmation",
+    "order summary",
+    "order receipt",
+    "purchase receipt",
+    "payment receipt",
+    "order confirmation",
+    "purchase confirmation",
   ];
   private readonly MERCHANT_PATTERNS = {
     amount: /\$(\d+(?:\.\d{2})?)/g,
@@ -109,7 +109,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
     protected readonly configService: ConfigService,
     protected readonly tokenManager: TokenManagerService,
     protected readonly eventEmitter: EventEmitter2,
-    private readonly cacheService: CacheService
+    private readonly cacheService: CacheService,
   ) {
     super(configService, tokenManager, eventEmitter);
   }
@@ -120,26 +120,26 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
   protected async initialize() {
     if (this.accounts.size != null) {
-      this.logger.warn('No Google accounts configured for Gmail service');
+      this.logger.warn("No Google accounts configured for Gmail service");
       return;
     }
-    this.logger.log('Gmail service initialized');
+    this.logger.log("Gmail service initialized");
   }
 
   protected async searchEmails(
     query: string,
-    maxResults: number
+    maxResults: number,
   ): Promise<gmail_v1.Schema$Message[]> {
-    const account = this.accounts.get('kaplan.brian@gmail.com');
+    const account = this.accounts.get("kaplan.brian@gmail.com");
     if (!account || !account.oauth2Client) {
-      throw new Error('No account configuration found');
+      throw new Error("No account configuration found");
     }
 
-    const gmail = google.gmail({ version: 'v1', auth: account.oauth2Client });
+    const gmail = google.gmail({ version: "v1", auth: account.oauth2Client });
 
-    return this.rateLimiter.withRateLimit('GMAIL.SEARCH', async () => {
+    return this.rateLimiter.withRateLimit("GMAIL.SEARCH", async () => {
       const response = await gmail.users.messages.list({
-        userId: 'me',
+        userId: "me",
         q: query,
         maxResults,
       });
@@ -149,29 +149,29 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
   protected parseMessageDetails(
     message: gmail_v1.Schema$Message,
-    accountEmail: string
+    accountEmail: string,
   ): EmailMessage | null {
     if (!message.payload) return null;
 
     const headers = message.payload.headers || [];
-    const subject = headers.find(h => h.name?.toLowerCase() === 'subject')?.value || '';
-    const from = headers.find(h => h.name?.toLowerCase() === 'from')?.value || '';
-    const date = new Date(headers.find(h => h.name?.toLowerCase() === 'date')?.value || '');
+    const subject = headers.find((h) => h.name?.toLowerCase() === "subject")?.value || "";
+    const from = headers.find((h) => h.name?.toLowerCase() === "from")?.value || "";
+    const date = new Date(headers.find((h) => h.name?.toLowerCase() === "date")?.value || "");
 
-    let body = '';
+    let body = "";
     if (message.payload.parts) {
       for (const part of message.payload.parts) {
         if (part.mimeType != null && part.body?.data) {
-          body = Buffer.from(part.body.data, 'base64').toString('utf-8');
+          body = Buffer.from(part.body.data, "base64").toString("utf-8");
           break;
         }
       }
     } else if (message.payload.body?.data) {
-      body = Buffer.from(message.payload.body.data, 'base64').toString('utf-8');
+      body = Buffer.from(message.payload.body.data, "base64").toString("utf-8");
     }
 
     return {
-      id: message.id || '',
+      id: message.id || "",
       subject,
       from,
       date,
@@ -187,7 +187,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
       const results: ReceiptSearchResult[] = [];
       for (const message of messages) {
-        const emailMessage = this.parseMessageDetails(message, criteria.from?.[0] || '');
+        const emailMessage = this.parseMessageDetails(message, criteria.from?.[0] || "");
         if (!emailMessage) continue;
 
         const matchFactors = await this.calculateMatchFactors(emailMessage, criteria);
@@ -205,22 +205,22 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
       return results.sort((a, b) => b.confidence - a.confidence);
     } catch (error) {
-      this.logger.error('Error searching receipts:', error);
+      this.logger.error("Error searching receipts:", error);
       throw error;
     }
   }
 
   private async calculateMatchFactors(
     message: EmailMessage,
-    criteria: SearchCriteria
-  ): Promise<ReceiptSearchResult['matchFactors']> {
+    criteria: SearchCriteria,
+  ): Promise<ReceiptSearchResult["matchFactors"]> {
     const [subjectScore, bodyScore, merchantScore] = await Promise.all([
       this.calculateSubjectScore(message.subject),
       this.calculateBodyScore(message.body),
       this.calculateMerchantScore(message, criteria.merchant),
     ]);
 
-    const factors: ReceiptSearchResult['matchFactors'] = {
+    const factors: ReceiptSearchResult["matchFactors"] = {
       subject: subjectScore,
       body: bodyScore,
       amount: this.calculateAmountScore(message, criteria.amount),
@@ -239,7 +239,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
     return factors;
   }
 
-  private calculateConfidence(factors: ReceiptSearchResult['matchFactors']): number {
+  private calculateConfidence(factors: ReceiptSearchResult["matchFactors"]): number {
     const weights = {
       subject: 0.2,
       body: 0.3,
@@ -255,7 +255,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
     for (const [factor, weight] of Object.entries(weights)) {
       const factorValue = factors[factor as keyof typeof factors];
-      if (typeof factorValue === 'number') {
+      if (typeof factorValue === "number") {
         totalScore += factorValue * weight;
         totalWeight += weight;
       }
@@ -318,7 +318,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
     const amountMatch = message.body.match(this.MERCHANT_PATTERNS.amount);
     if (!amountMatch) return 0;
 
-    const extractedAmount = parseFloat(amountMatch[1]);
+    const extractedAmount = Number.parseFloat(amountMatch[1]);
     if (isNaN(extractedAmount)) return 0;
 
     const difference = Math.abs(extractedAmount - targetAmount);
@@ -327,7 +327,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
   private calculateDateScore(
     message: EmailMessage,
-    dateRange?: SearchCriteria['dateRange']
+    dateRange?: SearchCriteria["dateRange"],
   ): number {
     if (!dateRange) return 0.5;
 
@@ -344,7 +344,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
   private async calculateMerchantScore(
     message: EmailMessage,
-    targetMerchant?: string
+    targetMerchant?: string,
   ): Promise<number> {
     if (!targetMerchant) return 0.5;
 
@@ -379,7 +379,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
     const extractedPaymentMethod = paymentMethodMatch[1].trim();
     return compareTwoStrings(
       extractedPaymentMethod.toLowerCase(),
-      targetPaymentMethod.toLowerCase()
+      targetPaymentMethod.toLowerCase(),
     );
   }
 
@@ -398,22 +398,22 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
     // From addresses
     if (criteria.from?.length) {
-      queryParts.push(`from:(${criteria.from.join(' OR ')})`);
+      queryParts.push(`from:(${criteria.from.join(" OR ")})`);
     }
 
     // Subject keywords
     if (criteria.subject?.length) {
-      queryParts.push(`subject:(${criteria.subject.join(' OR ')})`);
+      queryParts.push(`subject:(${criteria.subject.join(" OR ")})`);
     }
 
     // Body keywords
     if (criteria.body?.length) {
-      queryParts.push(`(${criteria.body.join(' OR ')})`);
+      queryParts.push(`(${criteria.body.join(" OR ")})`);
     }
 
     // Add receipt keywords
-    queryParts.push(`(${this.RECEIPT_KEYWORDS.join(' OR ')})`);
+    queryParts.push(`(${this.RECEIPT_KEYWORDS.join(" OR ")})`);
 
-    return queryParts.join(' ');
+    return queryParts.join(" ");
   }
 }

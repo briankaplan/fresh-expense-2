@@ -1,29 +1,29 @@
-import React, { Suspense } from 'react';
-import { createBrowserRouter, Navigate, RouteObject } from 'react-router-dom';
-import { ROUTES } from './constants';
-import Loading from '@/shared/components/Loading';
-import ErrorBoundary from '@/shared/components/ErrorBoundary';
-import AppProviders from '@/shared/components/AppProviders';
+import AppProviders from "@/shared/components/AppProviders";
+import ErrorBoundary from "@/shared/components/ErrorBoundary";
+import Loading from "@/shared/components/Loading";
+import React, { Suspense } from "react";
+import { Navigate, type RouteObject, createBrowserRouter } from "react-router-dom";
+import { ROUTES } from "./constants";
 
 // Lazy load components
-const Login = React.lazy(() => import('../pages/Login'));
-const Register = React.lazy(() => import('../pages/Register'));
-const Dashboard = React.lazy(() => import('../pages/Dashboard'));
-const AddExpense = React.lazy(() => import('../pages/AddExpense'));
-const EditExpense = React.lazy(() => import('../pages/EditExpense'));
-const ExpensesList = React.lazy(() => import('../pages/ExpensesList'));
-const Accounts = React.lazy(() => import('../pages/Accounts'));
-const Profile = React.lazy(() => import('../pages/Profile'));
-const Settings = React.lazy(() => import('../pages/Settings'));
-const ForgotPassword = React.lazy(() => import('../pages/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('../pages/ResetPassword'));
-const VerifyEmail = React.lazy(() => import('../pages/VerifyEmail'));
-const Transactions = React.lazy(() => import('../pages/Transactions'));
-const Subscriptions = React.lazy(() => import('../pages/Subscriptions'));
+const Login = React.lazy(() => import("../pages/Login"));
+const Register = React.lazy(() => import("../pages/Register"));
+const Dashboard = React.lazy(() => import("../pages/Dashboard"));
+const AddExpense = React.lazy(() => import("../pages/AddExpense"));
+const EditExpense = React.lazy(() => import("../pages/EditExpense"));
+const ExpensesList = React.lazy(() => import("../pages/ExpensesList"));
+const Accounts = React.lazy(() => import("../pages/Accounts"));
+const Profile = React.lazy(() => import("../pages/Profile"));
+const Settings = React.lazy(() => import("../pages/Settings"));
+const ForgotPassword = React.lazy(() => import("../pages/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("../pages/ResetPassword"));
+const VerifyEmail = React.lazy(() => import("../pages/VerifyEmail"));
+const Transactions = React.lazy(() => import("../pages/Transactions"));
+const Subscriptions = React.lazy(() => import("../pages/Subscriptions"));
 
 // Layout components
-const MainLayout = React.lazy(() => import('../layouts/MainLayout'));
-const AuthLayout = React.lazy(() => import('../layouts/AuthLayout'));
+const MainLayout = React.lazy(() => import("../layouts/MainLayout"));
+const AuthLayout = React.lazy(() => import("../layouts/AuthLayout"));
 
 const withSuspense = (Component: React.LazyExoticComponent<any>) => (
   <Suspense fallback={<Loading />}>

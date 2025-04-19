@@ -10,7 +10,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'user' | 'accountant';
+  role: "admin" | "user" | "accountant";
   companies: string[]; // IDs of companies user has access to
   password: string; // Hashed password
   refreshToken?: string;
@@ -23,7 +23,7 @@ export interface User {
 
 export interface UserSettings {
   defaultCompany?: string;
-  theme?: 'light' | 'dark' | 'system';
+  theme?: "light" | "dark" | "system";
   notifications?: {
     email: boolean;
     push: boolean;
@@ -57,7 +57,7 @@ export interface Transaction {
   tellerTransactionId?: string; // Reference to external transaction
 }
 
-export type TransactionStatus = 'pending' | 'approved' | 'rejected';
+export type TransactionStatus = "pending" | "approved" | "rejected";
 
 export interface Location {
   lat: number;
@@ -105,11 +105,11 @@ export interface ReceiptItem {
 export const isUser = (obj: any): obj is User => {
   return (
     obj &&
-    typeof obj.id === 'string' &&
-    typeof obj.email === 'string' &&
-    typeof obj.firstName === 'string' &&
-    typeof obj.lastName === 'string' &&
-    ['admin', 'user', 'accountant'].includes(obj.role) &&
+    typeof obj.id === "string" &&
+    typeof obj.email === "string" &&
+    typeof obj.firstName === "string" &&
+    typeof obj.lastName === "string" &&
+    ["admin", "user", "accountant"].includes(obj.role) &&
     Array.isArray(obj.companies)
   );
 };
@@ -117,12 +117,12 @@ export const isUser = (obj: any): obj is User => {
 export const isTransaction = (obj: any): obj is Transaction => {
   return (
     obj &&
-    typeof obj.id === 'string' &&
+    typeof obj.id === "string" &&
     obj.date instanceof Date &&
-    typeof obj.merchant === 'string' &&
-    typeof obj.amount === 'number' &&
-    typeof obj.description === 'string' &&
-    typeof obj.category === 'string' &&
+    typeof obj.merchant === "string" &&
+    typeof obj.amount === "number" &&
+    typeof obj.description === "string" &&
+    typeof obj.category === "string" &&
     Array.isArray(obj.tags)
   );
 };
@@ -130,11 +130,11 @@ export const isTransaction = (obj: any): obj is Transaction => {
 export const isReceipt = (obj: any): obj is Receipt => {
   return (
     obj &&
-    typeof obj.id === 'string' &&
-    typeof obj.filename === 'string' &&
-    typeof obj.storageKey === 'string' &&
-    typeof obj.mimeType === 'string' &&
-    typeof obj.size === 'number' &&
+    typeof obj.id === "string" &&
+    typeof obj.filename === "string" &&
+    typeof obj.storageKey === "string" &&
+    typeof obj.mimeType === "string" &&
+    typeof obj.size === "number" &&
     obj.uploadDate instanceof Date
   );
 };

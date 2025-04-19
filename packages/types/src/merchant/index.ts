@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import type { Types } from "mongoose";
 
 export interface MerchantBase {
   id: string;
@@ -27,16 +27,16 @@ export interface Merchant extends MerchantBase {
 }
 
 export const MERCHANT_CATEGORIES = [
-  'retail',
-  'food',
-  'travel',
-  'utilities',
-  'entertainment',
-  'services',
-  'other'
+  "retail",
+  "food",
+  "travel",
+  "utilities",
+  "entertainment",
+  "services",
+  "other",
 ] as const;
 
-export type MerchantCategory = typeof MERCHANT_CATEGORIES[number];
+export type MerchantCategory = (typeof MERCHANT_CATEGORIES)[number];
 
 export interface MerchantMatch {
   merchantId: Types.ObjectId;

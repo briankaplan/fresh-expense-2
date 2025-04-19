@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService as NestConfigService } from '@nestjs/config';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService as NestConfigService } from "@nestjs/config";
 
 interface AppConfig {
   // Database
@@ -47,15 +47,15 @@ interface AppConfig {
     [key: string]: {
       maxRequests: number;
       timeWindow: number;
-      backoffStrategy?: 'linear' | 'exponential';
+      backoffStrategy?: "linear" | "exponential";
       maxRetries?: number;
     };
   };
 
   // Logging
   logging: {
-    level: 'debug' | 'info' | 'warn' | 'error';
-    format: 'json' | 'text';
+    level: "debug" | "info" | "warn" | "error";
+    format: "json" | "text";
   };
 }
 
@@ -72,48 +72,48 @@ export class ConfigService {
     try {
       this.config = {
         database: {
-          url: this.getRequiredString('DATABASE_URL'),
-          name: this.getRequiredString('DATABASE_NAME'),
-          user: this.getRequiredString('DATABASE_USER'),
-          password: this.getRequiredString('DATABASE_PASSWORD'),
+          url: this.getRequiredString("DATABASE_URL"),
+          name: this.getRequiredString("DATABASE_NAME"),
+          user: this.getRequiredString("DATABASE_USER"),
+          password: this.getRequiredString("DATABASE_PASSWORD"),
         },
         ai: {
           huggingface: {
-            apiKey: this.getRequiredString('HUGGINGFACE_API_KEY'),
+            apiKey: this.getRequiredString("HUGGINGFACE_API_KEY"),
             model: this.getOptionalString(
-              'HUGGINGFACE_MODEL',
-              'sentence-transformers/all-MiniLM-L6-v2'
+              "HUGGINGFACE_MODEL",
+              "sentence-transformers/all-MiniLM-L6-v2",
             ),
           },
           bert: {
-            serverUrl: this.getRequiredString('BERT_SERVER_URL'),
+            serverUrl: this.getRequiredString("BERT_SERVER_URL"),
           },
         },
         storage: {
           r2: {
-            accessKeyId: this.getRequiredString('R2_ACCESS_KEY_ID'),
-            secretAccessKey: this.getRequiredString('R2_SECRET_ACCESS_KEY'),
-            bucketName: this.getRequiredString('R2_BUCKET_NAME'),
-            region: this.getRequiredString('R2_REGION'),
+            accessKeyId: this.getRequiredString("R2_ACCESS_KEY_ID"),
+            secretAccessKey: this.getRequiredString("R2_SECRET_ACCESS_KEY"),
+            bucketName: this.getRequiredString("R2_BUCKET_NAME"),
+            region: this.getRequiredString("R2_REGION"),
           },
         },
         auth: {
-          jwtSecret: this.getRequiredString('JWT_SECRET'),
-          jwtExpiresIn: this.getOptionalString('JWT_EXPIRES_IN', '7d'),
+          jwtSecret: this.getRequiredString("JWT_SECRET"),
+          jwtExpiresIn: this.getOptionalString("JWT_EXPIRES_IN", "7d"),
           google: {
-            clientId: this.getRequiredString('GOOGLE_CLIENT_ID'),
-            clientSecret: this.getRequiredString('GOOGLE_CLIENT_SECRET'),
-            redirectUri: this.getRequiredString('GOOGLE_REDIRECT_URI'),
+            clientId: this.getRequiredString("GOOGLE_CLIENT_ID"),
+            clientSecret: this.getRequiredString("GOOGLE_CLIENT_SECRET"),
+            redirectUri: this.getRequiredString("GOOGLE_REDIRECT_URI"),
           },
         },
-        rateLimits: this.getOptionalObject('RATE_LIMITS', {}),
+        rateLimits: this.getOptionalObject("RATE_LIMITS", {}),
         logging: {
-          level: this.getOptionalString('LOG_LEVEL', 'info') as AppConfig['logging']['level'],
-          format: this.getOptionalString('LOG_FORMAT', 'text') as AppConfig['logging']['format'],
+          level: this.getOptionalString("LOG_LEVEL", "info") as AppConfig["logging"]["level"],
+          format: this.getOptionalString("LOG_FORMAT", "text") as AppConfig["logging"]["format"],
         },
       };
     } catch (error) {
-      this.logger.error('Failed to load configuration:', error);
+      this.logger.error("Failed to load configuration:", error);
       throw error;
     }
   }
@@ -143,27 +143,27 @@ export class ConfigService {
     return this.config;
   }
 
-  getDatabaseConfig(): AppConfig['database'] {
+  getDatabaseConfig(): AppConfig["database"] {
     return this.config.database;
   }
 
-  getAIConfig(): AppConfig['ai'] {
+  getAIConfig(): AppConfig["ai"] {
     return this.config.ai;
   }
 
-  getStorageConfig(): AppConfig['storage'] {
+  getStorageConfig(): AppConfig["storage"] {
     return this.config.storage;
   }
 
-  getAuthConfig(): AppConfig['auth'] {
+  getAuthConfig(): AppConfig["auth"] {
     return this.config.auth;
   }
 
-  getRateLimits(): AppConfig['rateLimits'] {
+  getRateLimits(): AppConfig["rateLimits"] {
     return this.config.rateLimits;
   }
 
-  getLoggingConfig(): AppConfig['logging'] {
+  getLoggingConfig(): AppConfig["logging"] {
     return this.config.logging;
   }
 }

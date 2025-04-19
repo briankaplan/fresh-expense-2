@@ -1,8 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MerchantLearningService } from './merchant-learning.service';
-import { MerchantLearningData, MerchantLearningResult, MerchantSource } from '@fresh-expense/types';
+import {
+  MerchantLearningData,
+  MerchantLearningResult,
+  type MerchantSource,
+} from "@fresh-expense/types";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { MerchantLearningService } from "./merchant-learning.service";
 
-describe('MerchantLearningService', () => {
+describe("MerchantLearningService", () => {
   let service: MerchantLearningService;
 
   beforeEach(async () => {
@@ -13,100 +17,106 @@ describe('MerchantLearningService', () => {
     service = module.get<MerchantLearningService>(MerchantLearningService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('learnFromData', () => {
-    it('should throw error when merchant name is missing', async () => {
+  describe("learnFromData", () => {
+    it("should throw error when merchant name is missing", async () => {
       const data = {
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
       };
 
       await expect(service.learnFromData(data as any)).rejects.toThrow(
-        'Merchant name and user ID are required',
+        "Merchant name and user ID are required",
       );
     });
 
-    it('should throw error when user ID is missing', async () => {
+    it("should throw error when user ID is missing", async () => {
       const data = {
-        merchantName: 'Test Merchant',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
       };
 
       await expect(service.learnFromData(data as any)).rejects.toThrow(
-        'Merchant name and user ID are required',
+        "Merchant name and user ID are required",
       );
     });
 
-    it('should process valid merchant data', async () => {
+    it("should process valid merchant data", async () => {
       const data = {
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
-        category: 'shopping',
+        category: "shopping",
         metadata: {
           transactionCount: 5,
-          tags: ['online', 'electronics'],
+          tags: ["online", "electronics"],
         },
       };
 
       const result = await service.learnFromData(data);
-      expect(result.merchantName).toBe('Test Merchant');
-      expect(result.userId).toBe('user123');
-      expect(result.category).toBe('shopping');
+      expect(result.merchantName).toBe("Test Merchant");
+      expect(result.userId).toBe("user123");
+      expect(result.category).toBe("shopping");
       expect(result.confidence).toBeGreaterThan(0.8);
-      expect(result.tags).toEqual(['online', 'electronics']);
+      expect(result.tags).toEqual(["online", "electronics"]);
       expect(result.metadata.transactionCount).toBe(5);
     });
 
-    it('should handle missing optional fields', async () => {
+    it("should handle missing optional fields", async () => {
       const data = {
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
       };
 
       const result = await service.learnFromData(data);
-      expect(result.category).toBe('uncategorized');
+      expect(result.category).toBe("uncategorized");
       expect(result.tags).toEqual([]);
       expect(result.metadata.transactionCount).toBe(0);
     });
 
-    it('should handle different confidence levels based on source', async () => {
+    it("should handle different confidence levels based on source", async () => {
       const data = {
-        merchantName: 'Test Merchant',
-        userId: 'user123',
+        merchantName: "Test Merchant",
+        userId: "user123",
         confidence: 0.8,
-        category: 'shopping',
+        category: "shopping",
       };
 
       const manualResult = await service.learnFromData({
         ...data,
-        source: 'manual' as MerchantSource,
+        source: "manual" as MerchantSource,
       });
-      const ocrResult = await service.learnFromData({ ...data, source: 'ocr' as MerchantSource });
+      const ocrResult = await service.learnFromData({
+        ...data,
+        source: "ocr" as MerchantSource,
+      });
       const transactionResult = await service.learnFromData({
         ...data,
-        source: 'transaction' as MerchantSource,
+        source: "transaction" as MerchantSource,
       });
-      const apiResult = await service.learnFromData({ ...data, source: 'api' as MerchantSource });
+      const apiResult = await service.learnFromData({
+        ...data,
+        source: "api" as MerchantSource,
+      });
 
       expect(manualResult.confidence).toBeGreaterThan(ocrResult.confidence);
       expect(ocrResult.confidence).toBeGreaterThan(transactionResult.confidence);
       expect(transactionResult.confidence).toBeGreaterThan(apiResult.confidence);
     });
 
-    it('should cap confidence at 1.0', async () => {
+    it("should cap confidence at 1.0", async () => {
       const data = {
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 1.2,
         metadata: { transactionCount: 10 },
       };
@@ -115,11 +125,11 @@ describe('MerchantLearningService', () => {
       expect(result.confidence).toBeLessThanOrEqual(1.0);
     });
 
-    it('should handle negative confidence values', async () => {
+    it("should handle negative confidence values", async () => {
       const data = {
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: -0.5,
       };
 
@@ -128,8 +138,8 @@ describe('MerchantLearningService', () => {
     });
   });
 
-  describe('updateConfig', () => {
-    it('should update configuration', () => {
+  describe("updateConfig", () => {
+    it("should update configuration", () => {
       const newConfig = {
         minConfidence: 0.8,
         minTransactions: 5,
@@ -143,9 +153,9 @@ describe('MerchantLearningService', () => {
 
       service.updateConfig(newConfig);
       const result = service.learnFromData({
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
         metadata: { transactionCount: 4 },
       });
@@ -153,23 +163,23 @@ describe('MerchantLearningService', () => {
       expect(result).toBeDefined();
     });
 
-    it('should handle partial config updates', async () => {
+    it("should handle partial config updates", async () => {
       const partialConfig = {
         minConfidence: 0.9,
       };
 
       service.updateConfig(partialConfig);
       const result = await service.learnFromData({
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
       });
 
       expect(result.confidence).toBeGreaterThan(0.8);
     });
 
-    it('should handle invalid config values', async () => {
+    it("should handle invalid config values", async () => {
       const invalidConfig = {
         minConfidence: -0.5,
         minTransactions: -1,
@@ -183,9 +193,9 @@ describe('MerchantLearningService', () => {
 
       service.updateConfig(invalidConfig);
       const result = await service.learnFromData({
-        merchantName: 'Test Merchant',
-        userId: 'user123',
-        source: 'manual' as MerchantSource,
+        merchantName: "Test Merchant",
+        userId: "user123",
+        source: "manual" as MerchantSource,
         confidence: 0.8,
       });
 

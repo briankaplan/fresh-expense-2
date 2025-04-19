@@ -1,66 +1,67 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import type { MetricType, Metrics, MetricsQueryParams } from "@fresh-expense/types";
 import {
+  BarChart as BarChartIcon,
+  Download as DownloadIcon,
+  FilterList as FilterListIcon,
+  PieChart as PieChartIcon,
+  Timeline as TimelineIcon,
+} from "@mui/icons-material";
+import {
+  Alert,
   Box,
   Card,
   CardContent,
-  Typography,
-  Grid,
-  TextField,
-  MenuItem,
+  Chip,
   CircularProgress,
-  Alert,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
+  TableRow,
   TableSortLabel,
-  IconButton,
-  Tooltip,
   Tabs,
-  Tab,
-  FormControl,
-  InputLabel,
-  Select,
-  Chip,
-  Stack,
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useMetrics } from '../contexts/MetricsContext';
-import { MetricsQueryParams, MetricType, Metrics } from '@fresh-expense/types';
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { saveAs } from "file-saver";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
+  Bar,
+  BarChart,
   CartesianGrid,
+  Cell,
   Tooltip as ChartTooltip,
   Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
+  Line,
+  LineChart,
   Pie,
-  Cell,
-} from 'recharts';
-import {
-  Download as DownloadIcon,
-  FilterList as FilterListIcon,
-  BarChart as BarChartIcon,
-  PieChart as PieChartIcon,
-  Timeline as TimelineIcon,
-} from '@mui/icons-material';
-import { saveAs } from 'file-saver';
-import { utils as xlsxUtils } from 'xlsx';
-import { useAuth } from '../contexts/AuthContext';
+  PieChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { utils as xlsxUtils } from "xlsx";
+import { useAuth } from "../contexts/AuthContext";
+import { useMetrics } from "../contexts/MetricsContext";
 
 interface EnhancedMetricsQueryParams extends MetricsQueryParams {
   page: number;
   pageSize: number;
   sortBy?: keyof Metrics;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   minValue?: number;
   maxValue?: number;
 }
@@ -71,7 +72,7 @@ interface ChartData {
   value: number;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
 const MetricsPage = () => {
   const { user } = useAuth();
@@ -79,25 +80,25 @@ const MetricsPage = () => {
     useMetrics();
 
   const [queryParams, setQueryParams] = useState<EnhancedMetricsQueryParams>({
-    userId: user?.id || '',
+    userId: user?.id || "",
     startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)),
     endDate: new Date(),
     type: undefined,
     page: 0,
     pageSize: 10,
-    sortBy: 'date',
-    sortOrder: 'desc',
+    sortBy: "date",
+    sortOrder: "desc",
   });
 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [chartType, setChartType] = useState<'line' | 'bar' | 'pie'>('line');
+  const [chartType, setChartType] = useState<"line" | "bar" | "pie">("line");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [exportFormat, setExportFormat] = useState<'excel' | 'csv' | 'json'>('excel');
+  const [exportFormat, setExportFormat] = useState<"excel" | "csv" | "json">("excel");
 
   useEffect(() => {
     if (user?.id) {
-      setQueryParams(prev => ({ ...prev, userId: user.id }));
+      setQueryParams((prev) => ({ ...prev, userId: user.id }));
       fetchMetrics(queryParams);
       fetchAggregatedMetrics(queryParams);
     }
@@ -106,7 +107,7 @@ const MetricsPage = () => {
   // Get unique categories and tags
   const categories = useMemo(() => {
     const uniqueCategories = new Set<string>();
-    metrics.forEach(metric => {
+    metrics.forEach((metric) => {
       if (metric.category) uniqueCategories.add(metric.category);
     });
     return Array.from(uniqueCategories);
@@ -114,22 +115,22 @@ const MetricsPage = () => {
 
   const tags = useMemo(() => {
     const uniqueTags = new Set<string>();
-    metrics.forEach(metric => {
-      metric.tags?.forEach(tag => uniqueTags.add(tag));
+    metrics.forEach((metric) => {
+      metric.tags?.forEach((tag) => uniqueTags.add(tag));
     });
     return Array.from(uniqueTags);
   }, [metrics]);
 
   // Enhanced chart data
   const chartData = useMemo<ChartData[]>(() => {
-    if (chartType === 'pie') {
+    if (chartType === "pie") {
       const categoryData = metrics.reduce(
         (acc, metric) => {
-          const category = metric.category || 'Uncategorized';
+          const category = metric.category || "Uncategorized";
           acc[category] = (acc[category] || 0) + metric.value;
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       );
 
       return Object.entries(categoryData).map(([name, value]) => ({
@@ -139,8 +140,8 @@ const MetricsPage = () => {
     }
 
     const dailyTotals: Record<string, number> = {};
-    metrics.forEach(metric => {
-      const date = new Date(metric.date).toISOString().split('T')[0];
+    metrics.forEach((metric) => {
+      const date = new Date(metric.date).toISOString().split("T")[0];
       if (date) {
         dailyTotals[date] = (dailyTotals[date] || 0) + metric.value;
       }
@@ -151,71 +152,76 @@ const MetricsPage = () => {
       .sort((a: ChartData, b: ChartData) => a.date!.localeCompare(b.date!));
   }, [metrics, chartType]);
 
-  const handleDateChange = (field: 'startDate' | 'endDate', date: Date | null) => {
+  const handleDateChange = (field: "startDate" | "endDate", date: Date | null) => {
     if (date) {
-      setQueryParams(prev => ({ ...prev, [field]: date }));
+      setQueryParams((prev) => ({ ...prev, [field]: date }));
     }
   };
 
   const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQueryParams(prev => ({
+    setQueryParams((prev) => ({
       ...prev,
       type: event.target.value as MetricType | undefined,
     }));
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
-    setQueryParams(prev => ({ ...prev, page: newPage }));
+    setQueryParams((prev) => ({ ...prev, page: newPage }));
   };
 
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQueryParams(prev => ({
+    setQueryParams((prev) => ({
       ...prev,
-      pageSize: parseInt(event.target.value, 10),
+      pageSize: Number.parseInt(event.target.value, 10),
       page: 0,
     }));
   };
 
   const handleSort = (property: keyof Metrics) => {
-    setQueryParams(prev => ({
+    setQueryParams((prev) => ({
       ...prev,
       sortBy: property,
-      sortOrder: prev.sortBy === property && prev.sortOrder === 'asc' ? 'desc' : 'asc',
+      sortOrder: prev.sortBy === property && prev.sortOrder === "asc" ? "desc" : "asc",
     }));
   };
 
-  const handleExport = (format: 'excel' | 'csv' | 'json') => {
-    const headers = ['Date', 'Type', 'Category', 'Value', 'Description'];
+  const handleExport = (format: "excel" | "csv" | "json") => {
+    const headers = ["Date", "Type", "Category", "Value", "Description"];
     const data = metrics.map((metric: Metrics) => [
       new Date(metric.date).toLocaleDateString(),
       metric.type,
-      metric.category || '',
+      metric.category || "",
       metric.value,
-      metric.description || '',
+      metric.description || "",
     ]);
 
     switch (format) {
-      case 'excel':
+      case "excel":
         const worksheet = xlsxUtils.aoa_to_sheet([headers, ...data]);
         const workbook = xlsxUtils.book_new();
-        xlsxUtils.book_append_sheet(workbook, worksheet, 'Metrics');
-        const excelBuffer = xlsxUtils.write(workbook, { type: 'array', bookType: 'xlsx' });
+        xlsxUtils.book_append_sheet(workbook, worksheet, "Metrics");
+        const excelBuffer = xlsxUtils.write(workbook, {
+          type: "array",
+          bookType: "xlsx",
+        });
         saveAs(
           new Blob([excelBuffer], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           }),
-          'metrics.xlsx'
+          "metrics.xlsx",
         );
         break;
-      case 'csv':
-        const csvContent = [headers, ...data].map(row => row.join(',')).join('\n');
-        const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        saveAs(csvBlob, 'metrics.csv');
+      case "csv":
+        const csvContent = [headers, ...data].map((row) => row.join(",")).join("\n");
+        const csvBlob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        saveAs(csvBlob, "metrics.csv");
         break;
-      case 'json':
+      case "json":
         const jsonContent = JSON.stringify(metrics, null, 2);
-        const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
-        saveAs(jsonBlob, 'metrics.json');
+        const jsonBlob = new Blob([jsonContent], { type: "application/json" });
+        saveAs(jsonBlob, "metrics.json");
         break;
     }
   };
@@ -278,7 +284,7 @@ const MetricsPage = () => {
                     <InputLabel>Export Format</InputLabel>
                     <Select
                       value={exportFormat}
-                      onChange={e => setExportFormat(e.target.value as 'excel' | 'csv' | 'json')}
+                      onChange={(e) => setExportFormat(e.target.value as "excel" | "csv" | "json")}
                       label="Export Format"
                     >
                       <MenuItem value="excel">Excel</MenuItem>
@@ -306,11 +312,11 @@ const MetricsPage = () => {
                   <DatePicker
                     label="Start Date"
                     value={queryParams.startDate}
-                    onChange={date => handleDateChange('startDate', date)}
+                    onChange={(date) => handleDateChange("startDate", date)}
                     slotProps={{
                       textField: {
                         fullWidth: true,
-                        variant: 'outlined',
+                        variant: "outlined",
                       },
                     }}
                   />
@@ -319,11 +325,11 @@ const MetricsPage = () => {
                   <DatePicker
                     label="End Date"
                     value={queryParams.endDate}
-                    onChange={date => handleDateChange('endDate', date)}
+                    onChange={(date) => handleDateChange("endDate", date)}
                     slotProps={{
                       textField: {
                         fullWidth: true,
-                        variant: 'outlined',
+                        variant: "outlined",
                       },
                     }}
                   />
@@ -332,7 +338,7 @@ const MetricsPage = () => {
                   <TextField
                     select
                     label="Metric Type"
-                    value={queryParams.type || ''}
+                    value={queryParams.type || ""}
                     onChange={handleTypeChange}
                     fullWidth
                   >
@@ -348,9 +354,9 @@ const MetricsPage = () => {
                       <TextField
                         type="number"
                         label="Min Value"
-                        value={queryParams.minValue || ''}
-                        onChange={e =>
-                          setQueryParams(prev => ({
+                        value={queryParams.minValue || ""}
+                        onChange={(e) =>
+                          setQueryParams((prev) => ({
                             ...prev,
                             minValue: e.target.value ? Number(e.target.value) : undefined,
                           }))
@@ -362,9 +368,9 @@ const MetricsPage = () => {
                       <TextField
                         type="number"
                         label="Max Value"
-                        value={queryParams.maxValue || ''}
-                        onChange={e =>
-                          setQueryParams(prev => ({
+                        value={queryParams.maxValue || ""}
+                        onChange={(e) =>
+                          setQueryParams((prev) => ({
                             ...prev,
                             maxValue: e.target.value ? Number(e.target.value) : undefined,
                           }))
@@ -377,18 +383,18 @@ const MetricsPage = () => {
                         Categories
                       </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap">
-                        {categories.map(category => (
+                        {categories.map((category) => (
                           <Chip
                             key={category}
                             label={category}
                             onClick={() =>
-                              setSelectedCategories(prev =>
+                              setSelectedCategories((prev) =>
                                 prev.includes(category)
-                                  ? prev.filter(c => c !== category)
-                                  : [...prev, category]
+                                  ? prev.filter((c) => c !== category)
+                                  : [...prev, category],
                               )
                             }
-                            color={selectedCategories.includes(category) ? 'primary' : 'default'}
+                            color={selectedCategories.includes(category) ? "primary" : "default"}
                           />
                         ))}
                       </Stack>
@@ -398,16 +404,16 @@ const MetricsPage = () => {
                         Tags
                       </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap">
-                        {tags.map(tag => (
+                        {tags.map((tag) => (
                           <Chip
                             key={tag}
                             label={tag}
                             onClick={() =>
-                              setSelectedTags(prev =>
-                                prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+                              setSelectedTags((prev) =>
+                                prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
                               )
                             }
-                            color={selectedTags.includes(tag) ? 'primary' : 'default'}
+                            color={selectedTags.includes(tag) ? "primary" : "default"}
                           />
                         ))}
                       </Stack>
@@ -433,17 +439,22 @@ const MetricsPage = () => {
               <Box height={400}>
                 <ResponsiveContainer width="100%" height="100%">
                   <>
-                    {chartType === 'line' && (
+                    {chartType === "line" && (
                       <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis />
                         <ChartTooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#8884d8"
+                          activeDot={{ r: 8 }}
+                        />
                       </LineChart>
                     )}
-                    {chartType === 'bar' && (
+                    {chartType === "bar" && (
                       <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
@@ -453,7 +464,7 @@ const MetricsPage = () => {
                         <Bar dataKey="value" fill="#8884d8" />
                       </BarChart>
                     )}
-                    {chartType === 'pie' && (
+                    {chartType === "pie" && (
                       <PieChart>
                         <Pie
                           data={chartData}
@@ -497,27 +508,27 @@ const MetricsPage = () => {
                     <TableRow>
                       <TableCell>
                         <TableSortLabel
-                          active={queryParams.sortBy === 'type'}
+                          active={queryParams.sortBy === "type"}
                           direction={queryParams.sortOrder}
-                          onClick={() => handleSort('type')}
+                          onClick={() => handleSort("type")}
                         >
                           Type
                         </TableSortLabel>
                       </TableCell>
                       <TableCell>
                         <TableSortLabel
-                          active={queryParams.sortBy === 'value'}
+                          active={queryParams.sortBy === "value"}
                           direction={queryParams.sortOrder}
-                          onClick={() => handleSort('value')}
+                          onClick={() => handleSort("value")}
                         >
                           Value
                         </TableSortLabel>
                       </TableCell>
                       <TableCell>
                         <TableSortLabel
-                          active={queryParams.sortBy === 'date'}
+                          active={queryParams.sortBy === "date"}
                           direction={queryParams.sortOrder}
-                          onClick={() => handleSort('date')}
+                          onClick={() => handleSort("date")}
                         >
                           Date
                         </TableSortLabel>

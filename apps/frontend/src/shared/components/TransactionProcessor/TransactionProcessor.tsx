@@ -1,27 +1,28 @@
-import React, { useState, useCallback } from 'react';
+import { Receipt, TellerAccount, TellerTransaction, type Transaction } from "@fresh-expense/types";
+import { CheckCircle as CheckCircleIcon, Warning as WarningIcon } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Typography,
-  CircularProgress,
-  Alert,
-  Stack,
   Chip,
-} from '@mui/material';
-import { CheckCircle as CheckCircleIcon, Warning as WarningIcon } from '@mui/icons-material';
-import { TellerAccount, TellerTransaction, Receipt, Transaction } from '@fresh-expense/types';
+  CircularProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useCallback, useState } from "react";
+import TransactionEnrichmentService from "../../services/TransactionEnrichmentService";
 import {
-  formatTransactionAmount,
-  categorizeTransactionType,
-  needsReview,
-  getTransactionStatusLabel,
-  TransactionValidationError,
   TransactionMappingError,
-  TransactionStatus,
-} from '../../types/teller';
-import TransactionEnrichmentService from '../../services/TransactionEnrichmentService';
+  type TransactionStatus,
+  TransactionValidationError,
+  categorizeTransactionType,
+  formatTransactionAmount,
+  getTransactionStatusLabel,
+  needsReview,
+} from "../../types/teller";
 
 interface TransactionProcessorProps {
   transaction: Transaction & { status: TransactionStatus };
@@ -49,7 +50,7 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
       setProcessedTransaction(enrichedTransaction);
       onProcessingComplete?.(enrichedTransaction);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
       setError(errorMessage);
       onError?.(err instanceof Error ? err : new Error(errorMessage));
     } finally {
@@ -69,7 +70,7 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
       setProcessedTransaction(reprocessedTransaction);
       onProcessingComplete?.(reprocessedTransaction);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
       setError(errorMessage);
       onError?.(err instanceof Error ? err : new Error(errorMessage));
     } finally {
@@ -89,7 +90,7 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
             <Typography variant="h6">{transaction.merchant}</Typography>
             <Typography
               variant="h6"
-              color={transactionType === 'expense' ? 'error' : 'success.main'}
+              color={transactionType === "expense" ? "error" : "success.main"}
             >
               {formatTransactionAmount(transaction.amount)}
             </Typography>
@@ -99,13 +100,13 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
           <Stack direction="row" spacing={1}>
             <Chip
               size="small"
-              label={transaction.category || 'Uncategorized'}
-              color={transaction.isAICategorized ? 'primary' : 'default'}
+              label={transaction.category || "Uncategorized"}
+              color={transaction.isAICategorized ? "primary" : "default"}
             />
             <Chip
               size="small"
               label={getTransactionStatusLabel(transaction.status)}
-              color={transaction.status != null ? 'success' : 'default'}
+              color={transaction.status != null ? "success" : "default"}
             />
             {transaction.receiptId && (
               <Chip size="small" icon={<ReceiptIcon />} label="Receipt Attached" color="info" />
@@ -149,7 +150,7 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
               disabled={isProcessing}
               startIcon={isProcessing ? <CircularProgress size={20} /> : undefined}
             >
-              {isProcessing ? 'Processing...' : 'Process Transaction'}
+              {isProcessing ? "Processing..." : "Process Transaction"}
             </Button>
           </Box>
         </Stack>

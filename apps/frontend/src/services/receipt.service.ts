@@ -1,14 +1,14 @@
-import { api } from './api';
-import { Receipt } from '@fresh-expense/types';
+import type { Receipt } from "@fresh-expense/types";
+import { api } from "./api";
 
 export class ReceiptService {
   static async uploadReceipt(transactionId: string, file: File): Promise<Receipt> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     const response = await api.post(`/receipts/${transactionId}`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
 
@@ -26,7 +26,7 @@ export class ReceiptService {
 
   static async downloadReceipt(receiptId: string): Promise<Blob> {
     const response = await api.get(`/receipts/${receiptId}/download`, {
-      responseType: 'blob',
+      responseType: "blob",
     });
     return response.data;
   }
@@ -37,7 +37,9 @@ export class ReceiptService {
   }
 
   static async linkTransaction(receiptId: string, transactionId: string): Promise<Receipt> {
-    const response = await api.post(`/receipts/${receiptId}/link`, { transactionId });
+    const response = await api.post(`/receipts/${receiptId}/link`, {
+      transactionId,
+    });
     return response.data;
   }
 

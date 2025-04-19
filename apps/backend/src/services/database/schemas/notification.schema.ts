@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
 
-import { BaseSchema } from './base.schema';
-export const NOTIFICATION_COLLECTION = 'notifications';
+import { BaseSchema } from "./base.schema";
+export const NOTIFICATION_COLLECTION = "notifications";

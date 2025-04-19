@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from './base.schema';
-import { UserRole, UserStatus } from '../lib/types';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import { UserRole, UserStatus } from "../lib/types";
+import { BaseDocument } from "./base.schema";
 
 export type UserDocument = User & Document;
 
@@ -25,7 +25,7 @@ export class User extends BaseDocument {
   @Prop({ type: String })
   avatar?: string;
 
-  @Prop({ type: [String], default: ['user'] })
+  @Prop({ type: [String], default: ["user"] })
   roles!: string[];
 
   @Prop({ type: Boolean, default: false })
@@ -34,7 +34,7 @@ export class User extends BaseDocument {
   @Prop({ type: Date })
   lastLogin?: Date;
 
-  @Prop({ type: [Types.ObjectId], ref: 'Company', default: [] })
+  @Prop({ type: [Types.ObjectId], ref: "Company", default: [] })
   companies!: Types.ObjectId[];
 
   @Prop({ type: Object })
@@ -78,17 +78,17 @@ UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ role: 1 });
 UserSchema.index({ status: 1 });
 UserSchema.index({ companies: 1 });
-UserSchema.index({ 'metadata.companyId': 1 });
+UserSchema.index({ "metadata.companyId": 1 });
 
 // Virtuals and Methods
-UserSchema.virtual('fullName').get(function() {
+UserSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-UserSchema.methods.isActive = function() {
+UserSchema.methods.isActive = function () {
   return this.status === UserStatus.ACTIVE;
 };
 
-UserSchema.methods.hasRole = function(role: UserRole) {
+UserSchema.methods.hasRole = function (role: UserRole) {
   return this.role === role;
 };

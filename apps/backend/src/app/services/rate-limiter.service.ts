@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { TokenBucketRateLimiter } from '../../services/rateLimiter';
+import { Injectable } from "@nestjs/common";
+import { TokenBucketRateLimiter } from "../../services/rateLimiter";
 
 export interface RateLimitConfig {
   tokensPerInterval: number;
@@ -26,7 +26,11 @@ export class RateLimiterService {
       HUGGINGFACE: {
         INFERENCE: { tokensPerInterval: 30, intervalMs: 60 * 1000 },
         INFERENCE_LARGE: { tokensPerInterval: 8, intervalMs: 60 * 1000 },
-        DAILY: { tokensPerInterval: 1000, intervalMs: 24 * 60 * 60 * 1000, maxBurst: 1000 },
+        DAILY: {
+          tokensPerInterval: 1000,
+          intervalMs: 24 * 60 * 60 * 1000,
+          maxBurst: 1000,
+        },
       },
       BERT: { tokensPerInterval: 50, intervalMs: 60 * 1000 },
     },
@@ -46,7 +50,7 @@ export class RateLimiterService {
         const key = `${service}.${operation}`;
         this.limiters.set(
           key,
-          new TokenBucketRateLimiter(config.tokensPerInterval, config.intervalMs, config.maxBurst)
+          new TokenBucketRateLimiter(config.tokensPerInterval, config.intervalMs, config.maxBurst),
         );
       }
     }
@@ -63,7 +67,7 @@ export class RateLimiterService {
       limiter = new TokenBucketRateLimiter(
         config.tokensPerInterval,
         config.intervalMs,
-        config.maxBurst
+        config.maxBurst,
       );
       this.limiters.set(key, limiter);
     }

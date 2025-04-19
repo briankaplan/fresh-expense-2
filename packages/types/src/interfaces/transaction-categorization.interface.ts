@@ -37,7 +37,7 @@ export interface AICategorizedTransactionDto {
 
 export interface AICategorizationResultDto {
   category: string;
-  company: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company: "Down Home" | "Music City Rodeo" | "Personal";
   tags: string[];
   confidence: number;
   description: string;
@@ -46,7 +46,7 @@ export interface AICategorizationResultDto {
 export interface TransactionUpdateDto {
   transactionId: string;
   category: string;
-  company: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company: "Down Home" | "Music City Rodeo" | "Personal";
   tags: string[];
   description: string;
   confidence: number;
@@ -62,7 +62,7 @@ export interface TransactionPatterns {
 
 export interface MerchantData {
   category?: string;
-  company?: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company?: "Down Home" | "Music City Rodeo" | "Personal";
   confidence?: number;
   tags?: string[];
   description?: string;
@@ -72,7 +72,7 @@ export interface TransactionCategorizationEvent {
   transactionId: string;
   merchant: string;
   category: string;
-  company: 'Down Home' | 'Music City Rodeo' | 'Personal';
+  company: "Down Home" | "Music City Rodeo" | "Personal";
   confidence: number;
   patterns: TransactionPatterns;
 }

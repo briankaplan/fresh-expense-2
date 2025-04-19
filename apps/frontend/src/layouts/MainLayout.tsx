@@ -1,44 +1,44 @@
-import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import HealthCheck from "@/shared/components/HealthCheck";
+import { Category, Receipt } from "@fresh-expense/types";
 import {
-  Box,
-  Drawer,
-  AppBar,
-  Toolbar,
-  List,
-  Typography,
-  Divider,
-  IconButton,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  useTheme,
-  useMediaQuery,
-  Collapse,
-  Avatar,
-  Button,
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
   AccountBalance as AccountBalanceIcon,
-  Subscriptions as SubscriptionsIcon,
   Assessment as AssessmentIcon,
-  Settings as SettingsIcon,
+  AttachMoney as AttachMoneyIcon,
+  CloudUpload as CloudUploadIcon,
+  DarkMode,
+  Dashboard as DashboardIcon,
   Description as DescriptionIcon,
   ExpandLess,
   ExpandMore,
-  Storage as StorageIcon,
-  CloudUpload as CloudUploadIcon,
-  AttachMoney as AttachMoneyIcon,
-  Person,
-  Notifications,
-  DarkMode,
   LightMode,
-} from '@mui/icons-material';
-import { useAuth } from '../context/AuthContext';
-import HealthCheck from '@/shared/components/HealthCheck';
-import { Receipt, Category } from '@fresh-expense/types';
+  Menu as MenuIcon,
+  Notifications,
+  Person,
+  Settings as SettingsIcon,
+  Storage as StorageIcon,
+  Subscriptions as SubscriptionsIcon,
+} from "@mui/icons-material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Collapse,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import React, { useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const DRAWER_WIDTH = 240;
 
@@ -50,35 +50,51 @@ interface NavigationItem {
 }
 
 const navigationItems: NavigationItem[] = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { text: 'Expenses', icon: <AttachMoneyIcon />, path: '/expenses' },
+  { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
+  { text: "Expenses", icon: <AttachMoneyIcon />, path: "/expenses" },
   {
-    text: 'Receipts',
+    text: "Receipts",
     icon: <ReceiptIcon />,
     children: [
-      { text: 'Library', icon: <StorageIcon />, path: '/receipts' },
-      { text: 'Upload', icon: <CloudUploadIcon />, path: '/receipts/upload' },
-      { text: 'Categories', icon: <CategoryIcon />, path: '/receipts/categories' },
+      { text: "Library", icon: <StorageIcon />, path: "/receipts" },
+      { text: "Upload", icon: <CloudUploadIcon />, path: "/receipts/upload" },
+      {
+        text: "Categories",
+        icon: <CategoryIcon />,
+        path: "/receipts/categories",
+      },
     ],
   },
-  { text: 'Accounts', icon: <AccountBalanceIcon />, path: '/accounts' },
-  { text: 'Subscriptions', icon: <SubscriptionsIcon />, path: '/subscriptions' },
+  { text: "Accounts", icon: <AccountBalanceIcon />, path: "/accounts" },
   {
-    text: 'Reports',
+    text: "Subscriptions",
+    icon: <SubscriptionsIcon />,
+    path: "/subscriptions",
+  },
+  {
+    text: "Reports",
     icon: <AssessmentIcon />,
     children: [
-      { text: 'Generated Reports', icon: <DescriptionIcon />, path: '/reports' },
-      { text: 'Templates', icon: <DescriptionIcon />, path: '/reports/templates' },
+      {
+        text: "Generated Reports",
+        icon: <DescriptionIcon />,
+        path: "/reports",
+      },
+      {
+        text: "Templates",
+        icon: <DescriptionIcon />,
+        path: "/reports/templates",
+      },
     ],
   },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+  { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
 ];
 
 const MainLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -87,16 +103,16 @@ const MainLayout: React.FC = () => {
   };
 
   const handleExpandClick = (text: string) => {
-    setExpandedItems(prev => {
+    setExpandedItems((prev) => {
       if (prev.includes(text)) {
-        return prev.filter(item => item !== text);
+        return prev.filter((item) => item !== text);
       }
       return [...prev, text];
     });
   };
 
   const renderNavItems = (items: NavigationItem[], depth = 0) => {
-    return items.map(item => {
+    return items.map((item) => {
       const isSelected = item.path != null;
       const isExpanded = expandedItems.includes(item.text);
       const hasChildren = item.children && item.children.length > 0;
@@ -105,7 +121,7 @@ const MainLayout: React.FC = () => {
         <React.Fragment key={item.text}>
           <ListItem
             button
-            component={item.path ? Link : 'div'}
+            component={item.path ? Link : "div"}
             to={item.path}
             selected={isSelected}
             onClick={() => {
@@ -118,10 +134,10 @@ const MainLayout: React.FC = () => {
             }}
             sx={{
               pl: depth * 2 + 2,
-              color: isSelected ? 'primary.main' : 'text.primary',
+              color: isSelected ? "primary.main" : "text.primary",
             }}
           >
-            <ListItemIcon sx={{ color: isSelected ? 'primary.main' : 'inherit' }}>
+            <ListItemIcon sx={{ color: isSelected ? "primary.main" : "inherit" }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText primary={item.text} />
@@ -144,13 +160,13 @@ const MainLayout: React.FC = () => {
   };
 
   const drawer = (
-    <Box sx={{ height: '100%', bgcolor: 'background.paper' }}>
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+    <Box sx={{ height: "100%", bgcolor: "background.paper" }}>
+      <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}>
         <Avatar
           sx={{
             width: 40,
             height: 40,
-            bgcolor: 'primary.main',
+            bgcolor: "primary.main",
           }}
         >
           {user?.firstName?.[0]}
@@ -166,7 +182,7 @@ const MainLayout: React.FC = () => {
       </Box>
       <Divider />
       <List>
-        {navigationItems.map(item => (
+        {navigationItems.map((item) => (
           <ListItem
             button
             key={item.text}
@@ -180,22 +196,22 @@ const MainLayout: React.FC = () => {
               my: 0.5,
               mx: 1,
               borderRadius: 1,
-              '&.Mui-selected': {
-                bgcolor: 'primary.dark',
-                '&:hover': {
-                  bgcolor: 'primary.dark',
+              "&.Mui-selected": {
+                bgcolor: "primary.dark",
+                "&:hover": {
+                  bgcolor: "primary.dark",
                 },
               },
             }}
           >
-            <ListItemIcon sx={{ color: location.pathname != null ? 'white' : 'inherit' }}>
+            <ListItemIcon sx={{ color: location.pathname != null ? "white" : "inherit" }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
       </List>
-      <Box sx={{ mt: 'auto', p: 2 }}>
+      <Box sx={{ mt: "auto", p: 2 }}>
         <Button fullWidth variant="outlined" color="error" onClick={logout} sx={{ mt: 2 }}>
           Logout
         </Button>
@@ -204,16 +220,22 @@ const MainLayout: React.FC = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
       <AppBar
         position="fixed"
         sx={{
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           ml: { sm: `${DRAWER_WIDTH}px` },
-          bgcolor: 'background.paper',
-          boxShadow: 'none',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          bgcolor: "background.paper",
+          boxShadow: "none",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Toolbar>
@@ -221,7 +243,7 @@ const MainLayout: React.FC = () => {
             color="inherit"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { sm: "none" } }}
           >
             <MenuIcon />
           </IconButton>
@@ -247,12 +269,12 @@ const MainLayout: React.FC = () => {
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: DRAWER_WIDTH,
-              bgcolor: 'background.paper',
-              backgroundImage: 'none',
+              bgcolor: "background.paper",
+              backgroundImage: "none",
             },
           }}
         >
@@ -261,13 +283,13 @@ const MainLayout: React.FC = () => {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: DRAWER_WIDTH,
-              bgcolor: 'background.paper',
-              backgroundImage: 'none',
-              border: 'none',
+              bgcolor: "background.paper",
+              backgroundImage: "none",
+              border: "none",
               boxShadow: 2,
             },
           }}
@@ -281,7 +303,7 @@ const MainLayout: React.FC = () => {
         sx={{
           flexGrow: 1,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          mt: '64px',
+          mt: "64px",
         }}
       >
         <Outlet />

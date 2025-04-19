@@ -1,25 +1,26 @@
-import React, { useState } from 'react';
+import type { Expense } from "@/services/expense.service";
 import {
-  Box,
-  Button,
-  Menu,
-  MenuItem,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Alert,
-} from '@mui/material';
-import {
-  MoreVert as MoreVertIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Label as LabelIcon,
+  MoreVert as MoreVertIcon,
   Share as ShareIcon,
-} from '@mui/icons-material';
-import { Expense } from '@/services/expense.service';
+} from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Menu,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
 
 interface BulkActionsProps {
   selectedExpenses: Expense[];
@@ -38,8 +39,8 @@ export function BulkActions({
 }: BulkActionsProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false);
-  const [label, setLabel] = useState('');
-  const [error, setError] = useState('');
+  const [label, setLabel] = useState("");
+  const [error, setError] = useState("");
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -50,37 +51,37 @@ export function BulkActions({
   };
 
   const handleDelete = () => {
-    onDelete(selectedExpenses.map(expense => expense.id));
+    onDelete(selectedExpenses.map((expense) => expense.id));
     handleMenuClose();
   };
 
   const handleEdit = () => {
-    onEdit(selectedExpenses.map(expense => expense.id));
+    onEdit(selectedExpenses.map((expense) => expense.id));
     handleMenuClose();
   };
 
   const handleLabel = () => {
     if (!label.trim()) {
-      setError('Please enter a label');
+      setError("Please enter a label");
       return;
     }
     onLabel(
-      selectedExpenses.map(expense => expense.id),
-      label
+      selectedExpenses.map((expense) => expense.id),
+      label,
     );
-    setLabel('');
+    setLabel("");
     setIsLabelDialogOpen(false);
     handleMenuClose();
   };
 
   const handleShare = () => {
-    onShare(selectedExpenses.map(expense => expense.id));
+    onShare(selectedExpenses.map((expense) => expense.id));
     handleMenuClose();
   };
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Typography variant="body2" color="text.secondary">
           {selectedExpenses.length} selected
         </Typography>
@@ -107,7 +108,7 @@ export function BulkActions({
           <ShareIcon fontSize="small" sx={{ mr: 1 }} />
           Share Selected
         </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
           Delete Selected
         </MenuItem>
@@ -131,11 +132,11 @@ export function BulkActions({
             fullWidth
             label="Label"
             value={label}
-            onChange={e => {
+            onChange={(e) => {
               setLabel(e.target.value);
-              setError('');
+              setError("");
             }}
-            onKeyPress={e => e.key === 'Enter' && handleLabel()}
+            onKeyPress={(e) => e.key === "Enter" && handleLabel()}
           />
         </DialogContent>
         <DialogActions>

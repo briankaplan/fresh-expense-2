@@ -1,7 +1,7 @@
 export interface ProcessedData {
   id: string;
   type: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: "pending" | "processing" | "completed" | "failed";
   data: Record<string, any>;
   metadata?: Record<string, any>;
   createdAt: Date;
@@ -35,4 +35,4 @@ export interface VerificationResult {
   errors?: string[];
   warnings?: string[];
   metadata?: Record<string, any>;
-} 
+}

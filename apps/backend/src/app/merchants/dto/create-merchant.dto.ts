@@ -1,12 +1,12 @@
+import { Type } from "class-transformer";
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
   IsArray,
   IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
   ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+} from "class-validator";
 
 class LocationDto {
   @IsOptional()

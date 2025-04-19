@@ -1,4 +1,4 @@
-import { MetricType } from './metrics.enum';
+import { MetricType } from "./metrics.enum";
 
 export interface BaseMetric {
   id: string;
@@ -35,9 +35,9 @@ export interface MetricQuery {
 export { MetricType };
 
 // Re-export existing types with explicit naming
-export { 
+export {
   MetricsData,
   MetricsSummary,
   MetricsTrend,
-  MetricsDocument
-} from '../metrics.types';
+  MetricsDocument,
+} from "../metrics.types";

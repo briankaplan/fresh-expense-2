@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { ExpenseFilter } from './expense.service';
+import axios from "axios";
+import type { ExpenseFilter } from "./expense.service";
 
 export interface FilterPreset {
   id: string;
@@ -13,7 +13,7 @@ export interface FilterPreset {
 
 class FilterPresetService {
   private static instance: FilterPresetService;
-  private baseUrl = '/api/filter-presets';
+  private baseUrl = "/api/filter-presets";
 
   private constructor() {}
 
@@ -30,7 +30,7 @@ class FilterPresetService {
   }
 
   async createPreset(
-    preset: Omit<FilterPreset, 'id' | 'createdAt' | 'updatedAt'>
+    preset: Omit<FilterPreset, "id" | "createdAt" | "updatedAt">,
   ): Promise<FilterPreset> {
     const response = await axios.post<FilterPreset>(this.baseUrl, preset);
     return response.data;

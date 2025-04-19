@@ -1,9 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
 
-import { TransactionsController } from './transactions.controller';
-import { TransactionsService } from './transactions.service';
+import { TransactionsController } from "./transactions.controller";
+import { TransactionsService } from "./transactions.service";
 
-import { MongoDBModule } from '@/core/database/mongodb.module';
-
+import { MongoDBModule } from "@/core/database/mongodb.module";
 
 export class TransactionsModule {}

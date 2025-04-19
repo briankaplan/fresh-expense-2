@@ -1,14 +1,14 @@
-import { jwtVerify } from 'jose';
-import { Env, CustomRequest } from '../types';
+import { jwtVerify } from "jose";
+import type { CustomRequest, Env } from "../types";
 
 export async function auth(request: CustomRequest, env: Env) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response('Unauthorized', { status: 401 });
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(" ")[1];
     const secret = new TextEncoder().encode(env.JWT_SECRET);
 
     const { payload } = await jwtVerify(token, secret, {
@@ -17,7 +17,7 @@ export async function auth(request: CustomRequest, env: Env) {
     });
 
     if (!payload.sub || !payload.email || !payload.role) {
-      return new Response('Invalid token payload', { status: 401 });
+      return new Response("Invalid token payload", { status: 401 });
     }
 
     request.user = {
@@ -28,7 +28,7 @@ export async function auth(request: CustomRequest, env: Env) {
 
     return undefined;
   } catch (error) {
-    console.error('Auth error:', error);
-    return new Response('Unauthorized', { status: 401 });
+    console.error("Auth error:", error);
+    return new Response("Unauthorized", { status: 401 });
   }
 }

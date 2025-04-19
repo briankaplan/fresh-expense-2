@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ReceiptStorageService } from './receipt-storage.service';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { ReceiptMatcherService } from './receipt-matcher.service';
-import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import axios from "axios";
+import type { ReceiptMatcherService } from "./receipt-matcher.service";
+import type { ReceiptStorageService } from "./receipt-storage.service";
 
 interface ProcessingResult {
   receipt: ReceiptDocument;
@@ -29,9 +29,9 @@ export class ReceiptProcessorService {
   constructor(
     private readonly storageService: ReceiptStorageService,
     private readonly receiptMatcher: ReceiptMatcherService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
-    this.workerUrl = this.configService.get<string>('CLOUDFLARE_WORKER_URL');
+    this.workerUrl = this.configService.get<string>("CLOUDFLARE_WORKER_URL");
   }
 
   async processReceipt(userId: string, file: Buffer, filename: string): Promise<ProcessingResult> {
@@ -44,16 +44,16 @@ export class ReceiptProcessorService {
       const thumbnailKey = await this.storageService.uploadFile(
         userId,
         thumbnail,
-        `thumb_${filename}`
+        `thumb_${filename}`,
       );
 
       // 3. Perform OCR
       const formData = new FormData();
-      formData.append('file', new Blob([file]));
+      formData.append("file", new Blob([file]));
 
       const ocrResponse = await axios.post(`${this.workerUrl}/ocr`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -84,7 +84,7 @@ export class ReceiptProcessorService {
         extractedData,
       };
     } catch (error) {
-      this.logger.error('Error processing receipt:', error);
+      this.logger.error("Error processing receipt:", error);
       throw error;
     }
   }

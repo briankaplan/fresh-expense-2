@@ -1,17 +1,17 @@
-import { Skeleton } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Skeleton } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const SkeletonContainer = styled('div')(({ theme }) => ({
+const SkeletonContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: theme.spacing(2),
 }));
 
-const SkeletonRow = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '16px',
+const SkeletonRow = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  gap: "16px",
 });
 
 export const LoadingSkeleton: React.FC = () => {

@@ -1,8 +1,8 @@
-import { toast } from 'react-hot-toast';
-import api from './api';
+import { toast } from "react-hot-toast";
+import api from "./api";
 
 interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   services: {
     database: boolean;
     api: boolean;
@@ -14,7 +14,7 @@ interface HealthStatus {
 
 class HealthService {
   private static instance: HealthService;
-  private checkInterval: number = 30000; // 30 seconds
+  private checkInterval = 30000; // 30 seconds
   private intervalId?: ReturnType<typeof setInterval>;
 
   private constructor() {
@@ -30,10 +30,10 @@ class HealthService {
 
   public async checkHealth(): Promise<HealthStatus> {
     try {
-      const response = await api.get<HealthStatus>('/api/health');
+      const response = await api.get<HealthStatus>("/api/health");
       return response.data;
     } catch (error) {
-      console.error('Health check failed:', error);
+      console.error("Health check failed:", error);
       throw error;
     }
   }
@@ -64,13 +64,13 @@ class HealthService {
     try {
       const health = await this.checkHealth();
 
-      if (health.status !== 'healthy') {
-        toast.error('Some services are currently degraded');
-        console.warn('Health check warning:', health);
+      if (health.status !== "healthy") {
+        toast.error("Some services are currently degraded");
+        console.warn("Health check warning:", health);
       }
     } catch (error) {
-      toast.error('Unable to connect to the server');
-      console.error('Health check error:', error);
+      toast.error("Unable to connect to the server");
+      console.error("Health check error:", error);
     }
   }
 }

@@ -1,14 +1,14 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, PipelineStage } from 'mongoose';
-import {
-  Metrics,
+import type {
   MetricType,
-  MetricsQueryParams,
+  Metrics,
   MetricsAggregation,
+  MetricsQueryParams,
   MetricsTrend,
-} from '@fresh-expense/types';
-import { MetricsDocument, MetricsModel } from './metrics.schema';
+} from "@fresh-expense/types";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model, PipelineStage } from "mongoose";
+import { type MetricsDocument, MetricsModel } from "./metrics.schema";
 
 @Injectable()
 export class MetricsService {
@@ -39,8 +39,11 @@ export class MetricsService {
       const saved = await createdMetrics.save();
       return this.toMetrics(saved);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to create metrics: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to create metrics: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to create metrics: ${errorMessage}`);
     }
   }
@@ -63,8 +66,11 @@ export class MetricsService {
       const metrics = await this.metricsModel.find(filter).exec();
       return metrics.map(this.toMetrics);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to find metrics: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to find metrics: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to find metrics: ${errorMessage}`);
     }
   }
@@ -80,8 +86,11 @@ export class MetricsService {
       const metrics = await this.metricsModel.find({ type }).exec();
       return metrics.map(this.toMetrics);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to find metrics by type: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to find metrics by type: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to find metrics by type: ${errorMessage}`);
     }
   }
@@ -100,8 +109,11 @@ export class MetricsService {
       }
       return this.toMetrics(metrics);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to find metrics: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to find metrics: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to find metrics: ${errorMessage}`);
     }
   }
@@ -123,8 +135,11 @@ export class MetricsService {
       }
       return this.toMetrics(updatedMetrics);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to update metrics: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to update metrics: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to update metrics: ${errorMessage}`);
     }
   }
@@ -141,8 +156,11 @@ export class MetricsService {
         throw new NotFoundException(`Metrics with ID ${id} not found`);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to remove metrics: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to remove metrics: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to remove metrics: ${errorMessage}`);
     }
   }
@@ -158,8 +176,16 @@ export class MetricsService {
       const { userId, startDate, endDate, type } = query;
       const matchStage: any = { userId };
 
-      if (startDate) matchStage.timestamp = { ...matchStage.timestamp, $gte: new Date(startDate) };
-      if (endDate) matchStage.timestamp = { ...matchStage.timestamp, $lte: new Date(endDate) };
+      if (startDate)
+        matchStage.timestamp = {
+          ...matchStage.timestamp,
+          $gte: new Date(startDate),
+        };
+      if (endDate)
+        matchStage.timestamp = {
+          ...matchStage.timestamp,
+          $lte: new Date(endDate),
+        };
       if (type) matchStage.type = type;
 
       const pipeline: PipelineStage[] = [
@@ -167,11 +193,11 @@ export class MetricsService {
         {
           $group: {
             _id: null,
-            total: { $sum: '$value' },
-            average: { $avg: '$value' },
+            total: { $sum: "$value" },
+            average: { $avg: "$value" },
             count: { $sum: 1 },
-            min: { $min: '$value' },
-            max: { $max: '$value' },
+            min: { $min: "$value" },
+            max: { $max: "$value" },
           },
         },
       ];
@@ -179,8 +205,11 @@ export class MetricsService {
       const result = await this.metricsModel.aggregate(pipeline).exec();
       return result[0] || { total: 0, average: 0, count: 0, min: 0, max: 0 };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to aggregate metrics: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to aggregate metrics: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to aggregate metrics: ${errorMessage}`);
     }
   }
@@ -196,16 +225,24 @@ export class MetricsService {
       const { userId, startDate, endDate, type } = query;
       const matchStage: any = { userId };
 
-      if (startDate) matchStage.timestamp = { ...matchStage.timestamp, $gte: new Date(startDate) };
-      if (endDate) matchStage.timestamp = { ...matchStage.timestamp, $lte: new Date(endDate) };
+      if (startDate)
+        matchStage.timestamp = {
+          ...matchStage.timestamp,
+          $gte: new Date(startDate),
+        };
+      if (endDate)
+        matchStage.timestamp = {
+          ...matchStage.timestamp,
+          $lte: new Date(endDate),
+        };
       if (type) matchStage.type = type;
 
       const pipeline: PipelineStage[] = [
         { $match: matchStage },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } },
-            value: { $sum: '$value' },
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+            value: { $sum: "$value" },
           },
         },
         { $sort: { _id: 1 } },
@@ -218,8 +255,11 @@ export class MetricsService {
         change: 0, // This would need to be calculated based on previous period
       }));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to calculate metrics trend: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to calculate metrics trend: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to calculate metrics trend: ${errorMessage}`);
     }
   }

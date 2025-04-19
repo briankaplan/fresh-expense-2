@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Grid, Paper, Typography, CircularProgress, Tabs, Tab } from '@mui/material';
-import { TransactionListContainer } from '../TransactionList/TransactionListContainer';
-import { ReceiptBank } from '@/features/receipts/components/ReceiptBank/ReceiptBank';
-import { formatCurrency } from '@utils';
-import { toast } from 'react-hot-toast';
-import { Transaction } from '@fresh-expense/types';
+import { ReceiptBank } from "@/features/receipts/components/ReceiptBank/ReceiptBank";
+import type { Transaction } from "@fresh-expense/types";
+import { Box, CircularProgress, Grid, Paper, Tab, Tabs, Typography } from "@mui/material";
+import { formatCurrency } from "@utils";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { TransactionListContainer } from "../TransactionList/TransactionListContainer";
 
 interface DashboardStats {
   totalExpenses: number;
@@ -15,7 +15,7 @@ interface DashboardStats {
 }
 
 export function Dashboard() {
-  const [selectedCompany, setSelectedCompany] = useState<string>('');
+  const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [stats, setStats] = useState<DashboardStats>({
     totalExpenses: 0,
     missingReceipts: 0,
@@ -35,16 +35,16 @@ export function Dashboard() {
     try {
       setLoading(true);
       const queryParams = new URLSearchParams();
-      if (selectedCompany) queryParams.append('company', selectedCompany);
+      if (selectedCompany) queryParams.append("company", selectedCompany);
 
       const response = await fetch(`/api/expenses/stats?${queryParams.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch stats');
+      if (!response.ok) throw new Error("Failed to fetch stats");
 
       const data = await response.json();
       setStats(data);
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      toast.error('Failed to load dashboard statistics');
+      console.error("Error fetching stats:", error);
+      toast.error("Failed to load dashboard statistics");
     } finally {
       setLoading(false);
     }
@@ -53,13 +53,13 @@ export function Dashboard() {
   const StatCard = ({
     title,
     value,
-    color = 'primary',
+    color = "primary",
   }: {
     title: string;
     value: string | number;
-    color?: 'primary' | 'secondary' | 'error';
+    color?: "primary" | "secondary" | "error";
   }) => (
-    <Paper sx={{ p: 2, height: '100%' }}>
+    <Paper sx={{ p: 2, height: "100%" }}>
       <Typography variant="h6" color="text.secondary" gutterBottom>
         {title}
       </Typography>
@@ -75,7 +75,7 @@ export function Dashboard() {
         Expense Dashboard
       </Typography>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value)}>
           <Tab label="Overview" />
           <Tab label="Transactions" />
@@ -104,13 +104,13 @@ export function Dashboard() {
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <StatCard title="Selected Company" value={selectedCompany || 'All Companies'} />
+              <StatCard title="Selected Company" value={selectedCompany || "All Companies"} />
             </Grid>
           </Grid>
 
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, height: '100%' }}>
+              <Paper sx={{ p: 2, height: "100%" }}>
                 <Typography variant="h6" gutterBottom>
                   Expenses by Company
                 </Typography>
@@ -125,7 +125,7 @@ export function Dashboard() {
               </Paper>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, height: '100%' }}>
+              <Paper sx={{ p: 2, height: "100%" }}>
                 <Typography variant="h6" gutterBottom>
                   Expenses by Category
                 </Typography>
@@ -151,11 +151,11 @@ export function Dashboard() {
         <ReceiptBank
           company={selectedCompany}
           transactions={transactions}
-          onReceiptsChange={receipts => {
+          onReceiptsChange={(receipts) => {
             // Update stats when receipts change
-            setStats(prev => ({
+            setStats((prev) => ({
               ...prev,
-              missingReceipts: receipts.filter(r => !r.transactionId).length,
+              missingReceipts: receipts.filter((r) => !r.transactionId).length,
             }));
           }}
         />

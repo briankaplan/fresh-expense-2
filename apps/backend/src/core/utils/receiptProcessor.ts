@@ -1,13 +1,13 @@
+import { createHash } from "crypto";
+import { Readable } from "stream";
 import {
-  S3Client,
-  PutObjectCommand,
   HeadObjectCommand,
-  PutObjectCommandInput,
-} from '@aws-sdk/client-s3';
-import fetch, { Response } from 'node-fetch';
-import { createHash } from 'crypto';
-import { lookup } from 'mime-types';
-import { Readable } from 'stream';
+  PutObjectCommand,
+  type PutObjectCommandInput,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { lookup } from "mime-types";
+import fetch, { type Response } from "node-fetch";
 
 interface UnifiedReceipt {
   merchant: string;
@@ -47,38 +47,38 @@ interface ReceiptProcessingResult {
 }
 
 const s3Client = new S3Client({
-  region: process.env['AWS_REGION'] || 'auto',
-  endpoint: process.env['R2_ENDPOINT'] || undefined,
+  region: process.env["AWS_REGION"] || "auto",
+  endpoint: process.env["R2_ENDPOINT"] || undefined,
   credentials: {
-    accessKeyId: process.env['R2_ACCESS_KEY_ID'] || '',
-    secretAccessKey: process.env['R2_SECRET_ACCESS_KEY'] || '',
+    accessKeyId: process.env["R2_ACCESS_KEY_ID"] || "",
+    secretAccessKey: process.env["R2_SECRET_ACCESS_KEY"] || "",
   },
 });
 
 export class ReceiptProcessor {
   private static readonly ALLOWED_MIME_TYPES = new Set([
-    'application/pdf',
-    'image/jpeg',
-    'image/png',
-    'image/heic',
-    'image/heif',
-    'image/tiff',
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/heic",
+    "image/heif",
+    "image/tiff",
   ]);
 
   private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   private static readonly DOWNLOAD_TIMEOUT = 30000; // 30 seconds
-  private static readonly OCR_ENDPOINT = process.env['OCR_API_ENDPOINT'] || '';
-  private static readonly OCR_API_KEY = process.env['OCR_API_KEY'] || '';
+  private static readonly OCR_ENDPOINT = process.env["OCR_API_ENDPOINT"] || "";
+  private static readonly OCR_API_KEY = process.env["OCR_API_KEY"] || "";
 
   private static async checkIfReceiptExists(
-    key: string
+    key: string,
   ): Promise<{ exists: boolean; metadata?: any }> {
     try {
       const result = await s3Client.send(
         new HeadObjectCommand({
-          Bucket: process.env['R2_BUCKET_NAME'] || '',
+          Bucket: process.env["R2_BUCKET_NAME"] || "",
           Key: key,
-        })
+        }),
       );
       return {
         exists: true,
@@ -91,7 +91,7 @@ export class ReceiptProcessor {
 
   private static async performOCR(
     buffer: Buffer,
-    mimeType: string
+    mimeType: string,
   ): Promise<UnifiedReceipt | null> {
     if (!this.OCR_ENDPOINT || !this.OCR_API_KEY) {
       return null;
@@ -99,22 +99,22 @@ export class ReceiptProcessor {
 
     try {
       const response = await fetch(this.OCR_ENDPOINT, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': mimeType,
-          'X-API-Key': this.OCR_API_KEY,
+          "Content-Type": mimeType,
+          "X-API-Key": this.OCR_API_KEY,
         },
         body: buffer,
       });
 
       if (!response.ok) {
-        throw new Error('OCR processing failed');
+        throw new Error("OCR processing failed");
       }
 
       const result = await response.json();
       return this.normalizeOCRResult(result);
     } catch (error) {
-      console.error('OCR processing error:', error);
+      console.error("OCR processing error:", error);
       return null;
     }
   }
@@ -122,32 +122,32 @@ export class ReceiptProcessor {
   private static normalizeOCRResult(ocrResult: any): UnifiedReceipt {
     // Implement normalization logic based on your OCR service's response format
     return {
-      merchant: ocrResult.merchant_name || '',
-      date: ocrResult.date || '',
-      total: parseFloat(ocrResult.total) || 0,
+      merchant: ocrResult.merchant_name || "",
+      date: ocrResult.date || "",
+      total: Number.parseFloat(ocrResult.total) || 0,
       items: ocrResult.items?.map((item: any) => ({
-        description: item.description || '',
-        amount: parseFloat(item.amount) || 0,
-        quantity: parseInt(item.quantity) || 1,
+        description: item.description || "",
+        amount: Number.parseFloat(item.amount) || 0,
+        quantity: Number.parseInt(item.quantity) || 1,
       })),
-      tax: parseFloat(ocrResult.tax) || 0,
-      tip: parseFloat(ocrResult.tip) || 0,
-      subtotal: parseFloat(ocrResult.subtotal) || 0,
-      paymentMethod: ocrResult.payment_method || '',
-      currency: ocrResult.currency || 'USD',
+      tax: Number.parseFloat(ocrResult.tax) || 0,
+      tip: Number.parseFloat(ocrResult.tip) || 0,
+      subtotal: Number.parseFloat(ocrResult.subtotal) || 0,
+      paymentMethod: ocrResult.payment_method || "",
+      currency: ocrResult.currency || "USD",
       location: {
-        address: ocrResult.address || '',
-        city: ocrResult.city || '',
-        state: ocrResult.state || '',
-        country: ocrResult.country || '',
-        postalCode: ocrResult.postal_code || '',
+        address: ocrResult.address || "",
+        city: ocrResult.city || "",
+        state: ocrResult.state || "",
+        country: ocrResult.country || "",
+        postalCode: ocrResult.postal_code || "",
       },
     };
   }
 
   private static getFileExtensionFromUrl(url: string, contentType?: string | null): string {
     // Try to get extension from URL first
-    const urlExtension = url.split('.').pop()?.toLowerCase();
+    const urlExtension = url.split(".").pop()?.toLowerCase();
     if (urlExtension && urlExtension.length <= 4) {
       return urlExtension;
     }
@@ -159,7 +159,7 @@ export class ReceiptProcessor {
     }
 
     // Default to pdf if we can't determine the type
-    return 'pdf';
+    return "pdf";
   }
 
   private static async downloadWithTimeout(url: string): Promise<Response> {
@@ -182,12 +182,12 @@ export class ReceiptProcessor {
   }
 
   private static async streamToBuffer(
-    stream: NodeJS.ReadableStream | ReadableStream<any>
+    stream: NodeJS.ReadableStream | ReadableStream<any>,
   ): Promise<Buffer> {
     let nodeStream: NodeJS.ReadableStream;
 
     // Check if it's a web ReadableStream by checking for getReader method
-    if ('getReader' in stream) {
+    if ("getReader" in stream) {
       const reader = (stream as ReadableStream<any>).getReader();
       nodeStream = new Readable({
         async read() {
@@ -199,7 +199,7 @@ export class ReceiptProcessor {
               this.push(value);
             }
           } catch (error) {
-            this.emit('error', error);
+            this.emit("error", error);
             this.push(null);
           }
         },
@@ -210,25 +210,25 @@ export class ReceiptProcessor {
 
     const chunks: Buffer[] = [];
     return new Promise((resolve, reject) => {
-      nodeStream.on('data', (chunk: Buffer) => {
+      nodeStream.on("data", (chunk: Buffer) => {
         if (Buffer.concat(chunks).length > this.MAX_FILE_SIZE) {
           const destroyableStream = nodeStream as { destroy?: () => void };
-          if (typeof destroyableStream.destroy === 'function') {
+          if (typeof destroyableStream.destroy === "function") {
             destroyableStream.destroy();
           }
-          reject(new Error('File size exceeds limit'));
+          reject(new Error("File size exceeds limit"));
           return;
         }
         chunks.push(chunk);
       });
-      nodeStream.on('error', error => reject(error));
-      nodeStream.on('end', () => resolve(Buffer.concat(chunks)));
+      nodeStream.on("error", (error) => reject(error));
+      nodeStream.on("end", () => resolve(Buffer.concat(chunks)));
     });
   }
 
   public static async processReceipt(url: string): Promise<ReceiptProcessingResult> {
     try {
-      const hash = createHash('md5').update(url).digest('hex');
+      const hash = createHash("md5").update(url).digest("hex");
       const baseKey = `receipts/${hash}`;
 
       // Check if receipt already exists
@@ -236,13 +236,13 @@ export class ReceiptProcessor {
       if (exists && metadata?.unifiedReceipt) {
         return {
           success: true,
-          url: `${process.env['R2_PUBLIC_URL']}/${baseKey}`,
+          url: `${process.env["R2_PUBLIC_URL"]}/${baseKey}`,
           originalUrl: url,
           unifiedReceipt: JSON.parse(metadata.unifiedReceipt),
           metadata: {
-            ocrConfidence: parseFloat(metadata.ocrConfidence || '0'),
+            ocrConfidence: Number.parseFloat(metadata.ocrConfidence || "0"),
             processedAt: metadata.processedAt || new Date().toISOString(),
-            source: metadata.source || 'cache',
+            source: metadata.source || "cache",
           },
         };
       }
@@ -253,9 +253,9 @@ export class ReceiptProcessor {
         throw new Error(`Failed to download receipt: ${response.statusText}`);
       }
 
-      const contentType = response.headers.get('content-type');
+      const contentType = response.headers.get("content-type");
       if (!this.validateContentType(contentType)) {
-        throw new Error('Invalid file type');
+        throw new Error("Invalid file type");
       }
 
       const extension = this.getFileExtensionFromUrl(url, contentType);
@@ -263,18 +263,18 @@ export class ReceiptProcessor {
 
       // Convert to buffer and perform OCR
       const buffer = await this.streamToBuffer(response.body as NodeJS.ReadableStream);
-      const unifiedReceipt = await this.performOCR(buffer, contentType || 'application/pdf');
+      const unifiedReceipt = await this.performOCR(buffer, contentType || "application/pdf");
 
       // Upload to S3
       const putObjectParams: PutObjectCommandInput = {
-        Bucket: process.env['R2_BUCKET_NAME'] || '',
+        Bucket: process.env["R2_BUCKET_NAME"] || "",
         Key: finalKey,
         Body: buffer,
         ContentType: contentType || undefined,
         Metadata: {
-          unifiedReceipt: unifiedReceipt ? JSON.stringify(unifiedReceipt) : '',
+          unifiedReceipt: unifiedReceipt ? JSON.stringify(unifiedReceipt) : "",
           processedAt: new Date().toISOString(),
-          source: 'ocr',
+          source: "ocr",
         },
       };
 
@@ -282,25 +282,25 @@ export class ReceiptProcessor {
 
       return {
         success: true,
-        url: `${process.env['R2_PUBLIC_URL']}/${finalKey}`,
+        url: `${process.env["R2_PUBLIC_URL"]}/${finalKey}`,
         originalUrl: url,
         unifiedReceipt: unifiedReceipt || undefined,
         metadata: {
           processedAt: new Date().toISOString(),
-          source: 'ocr',
+          source: "ocr",
         },
       };
     } catch (error) {
-      console.error('Error processing receipt:', error);
+      console.error("Error processing receipt:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         originalUrl: url,
       };
     }
   }
 
   public static async processReceiptBatch(urls: string[]): Promise<ReceiptProcessingResult[]> {
-    return Promise.all(urls.map(url => this.processReceipt(url)));
+    return Promise.all(urls.map((url) => this.processReceipt(url)));
   }
 }

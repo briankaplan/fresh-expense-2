@@ -1,2 +1,2 @@
-export { ReceiptManager } from './ReceiptManager';
-export type { ReceiptManagerProps } from './ReceiptManager';
+export { ReceiptManager } from "./ReceiptManager";
+export type { ReceiptManagerProps } from "./ReceiptManager";

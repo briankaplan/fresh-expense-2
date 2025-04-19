@@ -1,61 +1,51 @@
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
-} from '@nestjs/common';
-import { ReportsService } from './reports.service';
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
-
-
+} from "@nestjs/common";
+import type { CreateReportDto } from "./dto/create-report.dto";
+import type { UpdateReportDto } from "./dto/update-report.dto";
+import type { ReportsService } from "./reports.service";
 
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
-  
   create(@Body() createReportDto: CreateReportDto) {
     return this.reportsService.create(createReportDto);
   }
 
-  
   findAll(@Query() query: any) {
     return this.reportsService.findAll(query);
   }
 
-  
-  findOne(@Param('id') id: string) {
+  findOne(@Param("id") id: string) {
     return this.reportsService.findOne(id);
   }
 
-  
-  update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
+  update(@Param("id") id: string, @Body() updateReportDto: UpdateReportDto) {
     return this.reportsService.update(id, updateReportDto);
   }
 
-  
-  remove(@Param('id') id: string) {
+  remove(@Param("id") id: string) {
     return this.reportsService.remove(id);
   }
 
-  
-  findByUserId(@Param('userId') userId: string, @Query() query: any) {
+  findByUserId(@Param("userId") userId: string, @Query() query: any) {
     return this.reportsService.findByUserId(userId, query);
   }
 
-  
-  findByCompanyId(@Param('companyId') companyId: string, @Query() query: any) {
+  findByCompanyId(@Param("companyId") companyId: string, @Query() query: any) {
     return this.reportsService.findByCompanyId(companyId, query);
   }
 
-  
-  generateReport(@Param('id') id: string) {
+  generateReport(@Param("id") id: string) {
     return this.reportsService.generateReport(id);
   }
 }

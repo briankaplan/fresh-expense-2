@@ -1,23 +1,23 @@
-import { Injectable, LoggerService } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as winston from 'winston';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from "fs";
+import * as path from "path";
+import { Injectable, type LoggerService } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import * as winston from "winston";
 
 @Injectable()
 export class LoggingService implements LoggerService {
   private logger: winston.Logger;
 
   constructor(private configService: ConfigService) {
-    const logsDir = path.join(process.cwd(), 'logs');
+    const logsDir = path.join(process.cwd(), "logs");
 
     // Create logs directory if it doesn't exist
     if (!fs.existsSync(logsDir)) {
       fs.mkdirSync(logsDir, { recursive: true });
     }
 
-    const logLevel = this.configService.get<string>('logging.level', 'debug');
-    const enableDebug = this.configService.get<boolean>('logging.enableDebug', true);
+    const logLevel = this.configService.get<string>("logging.level", "debug");
+    const enableDebug = this.configService.get<boolean>("logging.enableDebug", true);
 
     this.logger = winston.createLogger({
       level: logLevel,
@@ -29,14 +29,14 @@ export class LoggingService implements LoggerService {
         }),
         // Write all logs with level 'info' and below to combined.log
         new winston.transports.File({
-          filename: path.join(logsDir, 'combined.log'),
+          filename: path.join(logsDir, "combined.log"),
           maxsize: 5242880, // 5MB
           maxFiles: 5,
         }),
         // Write all errors to error.log
         new winston.transports.File({
-          filename: path.join(logsDir, 'error.log'),
-          level: 'error',
+          filename: path.join(logsDir, "error.log"),
+          level: "error",
           maxsize: 5242880, // 5MB
           maxFiles: 5,
         }),
@@ -46,11 +46,11 @@ export class LoggingService implements LoggerService {
     if (enableDebug) {
       this.logger.add(
         new winston.transports.File({
-          filename: path.join(logsDir, 'debug.log'),
-          level: 'debug',
+          filename: path.join(logsDir, "debug.log"),
+          level: "debug",
           maxsize: 5242880, // 5MB
           maxFiles: 3,
-        })
+        }),
       );
     }
   }

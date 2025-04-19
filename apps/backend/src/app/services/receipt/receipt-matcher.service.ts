@@ -1,12 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { BaseTransactionData, ReceiptDocument, ReceiptMetadata, ReceiptMatchResult } from '@fresh-expense/types';
-import { Transaction, TransactionDocument } from '../../transactions/schemas/transaction.schema';
+import {
+  type BaseTransactionData,
+  type ReceiptDocument,
+  type ReceiptMatchResult,
+  ReceiptMetadata,
+} from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
 import {
   calculateStringSimilarity,
   normalizeText,
-} from '@packages/utils/src/string/string-comparison';
+} from "@packages/utils/src/string/string-comparison";
+import type { Model } from "mongoose";
+import {
+  Transaction,
+  type TransactionDocument,
+} from "../../transactions/schemas/transaction.schema";
 
 interface MatchResult {
   receipt: ReceiptDocument;
@@ -58,24 +66,25 @@ export class ReceiptMatcherService {
       paymentMethod: 0.05,
       text: 0.05,
       pattern: 0.05,
-      frequency: 0.05
+      frequency: 0.05,
     },
     amountTolerance: 0.1,
     dateRangeDays: 3,
     merchantMatchThreshold: 0.8,
     locationRadiusKm: 0.5,
     patternMatchThreshold: 0.7,
-    frequencyWeight: 0.1
+    frequencyWeight: 0.1,
   };
 
   constructor(
-    @InjectModel('Transaction') private transactionModel: Model<TransactionDocument>,
+    @InjectModel("Transaction")
+    private transactionModel: Model<TransactionDocument>,
   ) {}
 
   async findMatchesForReceipt(
     receipt: ReceiptDocument,
     transactions: BaseTransactionData[],
-    preferences: Partial<MatchingPreferences> = {}
+    preferences: Partial<MatchingPreferences> = {},
   ): Promise<MatchResult[]> {
     const finalPreferences = { ...this.defaultPreferences, ...preferences };
     const matches: MatchResult[] = [];
@@ -88,7 +97,7 @@ export class ReceiptMatcherService {
         receipt,
         transaction,
         finalPreferences,
-        transactionPatterns
+        transactionPatterns,
       );
       const confidence = this.calculateTotalScore(matchDetails, finalPreferences.weights);
 
@@ -109,24 +118,24 @@ export class ReceiptMatcherService {
     receipt: ReceiptDocument,
     transaction: BaseTransactionData,
     preferences: MatchingPreferences,
-    transactionPatterns: Map<string, number>
-  ): Promise<MatchResult['matchDetails']> {
+    transactionPatterns: Map<string, number>,
+  ): Promise<MatchResult["matchDetails"]> {
     return {
       merchantScore: this.calculateMerchantScore(
         receipt.merchant,
         transaction.merchantName,
-        preferences
+        preferences,
       ),
       amountScore: this.calculateAmountScore(
         receipt.amount,
         transaction.amount,
-        preferences.amountTolerance
+        preferences.amountTolerance,
       ),
       dateScore: this.calculateDateScore(receipt.date, transaction.date, preferences.dateRangeDays),
       locationScore: this.calculateLocationScore(
         receipt,
         transaction,
-        preferences.locationRadiusKm
+        preferences.locationRadiusKm,
       ),
       categoryScore: this.calculateCategoryScore(receipt, transaction),
       paymentMethodScore: this.calculatePaymentMethodScore(receipt, transaction),
@@ -135,21 +144,21 @@ export class ReceiptMatcherService {
         receipt,
         transaction,
         transactionPatterns,
-        preferences.patternMatchThreshold
+        preferences.patternMatchThreshold,
       ),
       frequencyScore: this.calculateFrequencyScore(
         receipt,
         transaction,
         transactionPatterns,
-        preferences.frequencyWeight
-      )
+        preferences.frequencyWeight,
+      ),
     };
   }
 
   private calculateMerchantScore(
     receiptMerchant: string,
     transactionMerchant: string,
-    preferences: MatchingPreferences
+    preferences: MatchingPreferences,
   ): number {
     const normalized1 = normalizeText(receiptMerchant);
     const normalized2 = normalizeText(transactionMerchant);
@@ -159,11 +168,11 @@ export class ReceiptMatcherService {
 
     // Enhanced merchant matching with common abbreviations and patterns
     const commonPatterns = [
-      { pattern: /inc\.?/i, replacement: 'incorporated' },
-      { pattern: /llc\.?/i, replacement: 'limited liability company' },
-      { pattern: /corp\.?/i, replacement: 'corporation' },
-      { pattern: /co\.?/i, replacement: 'company' },
-      { pattern: /ltd\.?/i, replacement: 'limited' },
+      { pattern: /inc\.?/i, replacement: "incorporated" },
+      { pattern: /llc\.?/i, replacement: "limited liability company" },
+      { pattern: /corp\.?/i, replacement: "corporation" },
+      { pattern: /co\.?/i, replacement: "company" },
+      { pattern: /ltd\.?/i, replacement: "limited" },
     ];
 
     let processed1 = normalized1;
@@ -180,7 +189,7 @@ export class ReceiptMatcherService {
   private calculateAmountScore(
     receiptAmount: number,
     transactionAmount: number,
-    tolerance: number
+    tolerance: number,
   ): number {
     if (receiptAmount === transactionAmount) return 1;
 
@@ -198,7 +207,7 @@ export class ReceiptMatcherService {
   private calculateDateScore(
     receiptDate: Date,
     transactionDate: Date,
-    maxDaysDifference: number
+    maxDaysDifference: number,
   ): number {
     const diffInDays =
       Math.abs(receiptDate.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -216,19 +225,25 @@ export class ReceiptMatcherService {
   private calculateLocationScore(
     receipt: ReceiptDocument,
     transaction: BaseTransactionData,
-    radiusKm: number
+    radiusKm: number,
   ): number {
     if (!receipt.metadata?.location || !transaction.metadata?.location) return 0;
 
-    const location1 = receipt.metadata.location as { latitude: number; longitude: number };
-    const location2 = transaction.metadata.location as { latitude: number; longitude: number };
+    const location1 = receipt.metadata.location as {
+      latitude: number;
+      longitude: number;
+    };
+    const location2 = transaction.metadata.location as {
+      latitude: number;
+      longitude: number;
+    };
 
     // Add null checks for coordinates
     if (
-      typeof location1.latitude !== 'number' ||
-      typeof location1.longitude !== 'number' ||
-      typeof location2.latitude !== 'number' ||
-      typeof location2.longitude !== 'number'
+      typeof location1.latitude !== "number" ||
+      typeof location1.longitude !== "number" ||
+      typeof location2.latitude !== "number" ||
+      typeof location2.longitude !== "number"
     ) {
       return 0;
     }
@@ -237,7 +252,7 @@ export class ReceiptMatcherService {
       location1.latitude,
       location1.longitude,
       location2.latitude,
-      location2.longitude
+      location2.longitude,
     );
     if (distance <= radiusKm) {
       // Use a sigmoid function for smoother distance scoring
@@ -251,7 +266,7 @@ export class ReceiptMatcherService {
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
   ): number {
     const R = 6371; // Earth's radius in kilometers
     const dLat = this.toRad(lat2 - lat1);
@@ -272,7 +287,7 @@ export class ReceiptMatcherService {
 
   private calculateCategoryScore(
     receipt: ReceiptDocument,
-    transaction: BaseTransactionData
+    transaction: BaseTransactionData,
   ): number {
     if (!receipt.category || !transaction.category) return 0;
     return receipt.category === transaction.category ? 1 : 0;
@@ -280,7 +295,7 @@ export class ReceiptMatcherService {
 
   private calculatePaymentMethodScore(
     receipt: ReceiptDocument,
-    transaction: BaseTransactionData
+    transaction: BaseTransactionData,
   ): number {
     if (!receipt.metadata?.paymentMethod || !transaction.metadata?.paymentMethod) return 0;
     return receipt.metadata.paymentMethod === transaction.metadata.paymentMethod ? 1 : 0;
@@ -291,7 +306,7 @@ export class ReceiptMatcherService {
     if (!receipt.metadata?.ocrText || !transaction.description) return 0;
     return calculateStringSimilarity(
       normalizeText(receipt.metadata.ocrText),
-      normalizeText(transaction.description)
+      normalizeText(transaction.description),
     );
   }
 
@@ -317,7 +332,7 @@ export class ReceiptMatcherService {
     receipt: ReceiptDocument,
     transaction: BaseTransactionData,
     patterns: Map<string, number>,
-    threshold: number
+    threshold: number,
   ): number {
     const merchant = normalizeText(transaction.merchantName);
     const patternScore = patterns.get(merchant) || 0;
@@ -328,7 +343,7 @@ export class ReceiptMatcherService {
     receipt: ReceiptDocument,
     transaction: BaseTransactionData,
     patterns: Map<string, number>,
-    weight: number
+    weight: number,
   ): number {
     const merchant = normalizeText(transaction.merchantName);
     const frequency = patterns.get(merchant) || 0;
@@ -336,14 +351,14 @@ export class ReceiptMatcherService {
   }
 
   private calculateTotalScore(
-    matchDetails: MatchResult['matchDetails'],
-    weights: MatchingPreferences['weights']
+    matchDetails: MatchResult["matchDetails"],
+    weights: MatchingPreferences["weights"],
   ): number {
     let totalScore = 0;
     let totalWeight = 0;
 
     for (const [key, weight] of Object.entries(weights)) {
-      const score = matchDetails[`${key}Score` as keyof MatchResult['matchDetails']] || 0;
+      const score = matchDetails[`${key}Score` as keyof MatchResult["matchDetails"]] || 0;
       totalScore += score * weight;
       totalWeight += weight;
     }
@@ -378,7 +393,7 @@ export class ReceiptMatcherService {
     }
 
     const transactions = await this.transactionModel.find(query).exec();
-    
+
     if (transactions.length === 0) {
       return {
         matched: false,

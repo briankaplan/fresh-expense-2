@@ -1,15 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { User } from '@fresh-expense/types';
+import { User } from "@fresh-expense/types";
+import { ConfigService } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
+import { getModelToken } from "@nestjs/mongoose";
+import { Test, type TestingModule } from "@nestjs/testing";
+import type { Model } from "mongoose";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AuthService } from "./auth.service";
+import type { LoginDto } from "./dto/login.dto";
+import type { RegisterDto } from "./dto/register.dto";
 
-describe('AuthService', () => {
+describe("AuthService", () => {
   let service: AuthService;
   let userModel: Model<User>;
   let jwtService: JwtService;
@@ -22,14 +22,14 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: {
-            signAsync: vi.fn().mockImplementation(() => Promise.resolve('token')),
+            signAsync: vi.fn().mockImplementation(() => Promise.resolve("token")),
             verifyAsync: vi.fn(),
           },
         },
         {
           provide: ConfigService,
           useValue: {
-            get: vi.fn().mockReturnValue('test-secret'),
+            get: vi.fn().mockReturnValue("test-secret"),
           },
         },
         {
@@ -50,17 +50,17 @@ describe('AuthService', () => {
     configService = module.get<ConfigService>(ConfigService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('register', () => {
-    it('should create a new user', async () => {
+  describe("register", () => {
+    it("should create a new user", async () => {
       const registerDto: RegisterDto = {
-        email: 'test@example.com',
-        password: 'password123',
-        firstName: 'Test',
-        lastName: 'User',
+        email: "test@example.com",
+        password: "password123",
+        firstName: "Test",
+        lastName: "User",
       };
 
       const mockUser = {
@@ -68,32 +68,34 @@ describe('AuthService', () => {
         save: vi.fn().mockResolvedValue(true),
       };
 
-      vi.spyOn(userModel, 'findOne').mockResolvedValue(null);
-      vi.spyOn(userModel, 'create').mockResolvedValue(mockUser as unknown);
+      vi.spyOn(userModel, "findOne").mockResolvedValue(null);
+      vi.spyOn(userModel, "create").mockResolvedValue(mockUser as unknown);
 
       const result = await service.register(registerDto);
 
       expect(result).toBeDefined();
-      expect(userModel.findOne).toHaveBeenCalledWith({ email: registerDto.email });
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        email: registerDto.email,
+      });
       expect(userModel.create).toHaveBeenCalled();
     });
   });
 
-  describe('login', () => {
-    it('should return tokens for valid credentials', async () => {
+  describe("login", () => {
+    it("should return tokens for valid credentials", async () => {
       const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'password123',
+        email: "test@example.com",
+        password: "password123",
       };
 
       const mockUser = {
         email: loginDto.email,
-        password: 'hashedPassword',
+        password: "hashedPassword",
         comparePassword: vi.fn().mockResolvedValue(true),
         save: vi.fn().mockResolvedValue(true),
       };
 
-      vi.spyOn(userModel, 'findOne').mockResolvedValue(mockUser as unknown);
+      vi.spyOn(userModel, "findOne").mockResolvedValue(mockUser as unknown);
 
       const result = await service.login(loginDto);
 

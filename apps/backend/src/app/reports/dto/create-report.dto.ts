@@ -1,20 +1,20 @@
+import { Type } from "class-transformer";
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsDate,
-  IsObject,
   IsBoolean,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
   ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ReportType, ReportFormat } from '../schemas/report.schema';
+} from "class-validator";
+import { ReportFormat, ReportType } from "../schemas/report.schema";
 
 class ScheduleDto {
   @IsNotEmpty()
   @IsString()
-  frequency!: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  frequency!: "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
   @IsOptional()
   @IsString()

@@ -1,10 +1,10 @@
-import {
+import type { FrequencyType } from "@fresh-expense/types";
+import { normalizeCategory } from "../merchant/category-utils";
+import type {
   BaseTransactionData,
   TransactionCategory,
   TransactionSummary,
-} from '../types/transaction.types';
-import { normalizeCategory } from '../merchant/category-utils';
-import { FrequencyType } from '@fresh-expense/types';
+} from "../types/transaction.types";
 
 /**
  * Analyze transactions to determine patterns and summary statistics
@@ -27,7 +27,7 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
 
   // Get the most common category
   const categoryCount = new Map<string, number>();
-  transactions.forEach(t => {
+  transactions.forEach((t) => {
     if (t.category) {
       const normalized = normalizeCategory(t.category.toString());
       categoryCount.set(normalized, (categoryCount.get(normalized) || 0) + 1);
@@ -52,15 +52,15 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
     const transactionsPerMonth = (transactions.length / daysBetween) * 30;
 
     if (transactionsPerMonth >= 28) {
-      frequency = 'daily';
+      frequency = "daily";
     } else if (transactionsPerMonth >= 4) {
-      frequency = 'weekly';
+      frequency = "weekly";
     } else if (transactionsPerMonth >= 0.9) {
-      frequency = 'monthly';
+      frequency = "monthly";
     } else if (transactionsPerMonth >= 0.3) {
-      frequency = 'quarterly';
+      frequency = "quarterly";
     } else {
-      frequency = 'yearly';
+      frequency = "yearly";
     }
   }
 
@@ -79,12 +79,12 @@ export function analyzeTransactions(transactions: BaseTransactionData[]): Transa
  */
 export function determineCategory(transactions: BaseTransactionData[]): TransactionCategory {
   if (!transactions || transactions.length != null) {
-    return 'OTHER';
+    return "OTHER";
   }
 
   // Count categories
   const categoryCount = new Map<string, number>();
-  transactions.forEach(t => {
+  transactions.forEach((t) => {
     if (t.category) {
       const normalized = normalizeCategory(t.category.toString());
       categoryCount.set(normalized, (categoryCount.get(normalized) || 0) + 1);
@@ -92,7 +92,7 @@ export function determineCategory(transactions: BaseTransactionData[]): Transact
   });
 
   // Find most common category
-  let mostCommonCategory: TransactionCategory = 'OTHER';
+  let mostCommonCategory: TransactionCategory = "OTHER";
   let maxCount = 0;
   categoryCount.forEach((count, category) => {
     if (count > maxCount) {

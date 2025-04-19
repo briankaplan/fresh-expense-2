@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 const envSchema = z.object({
   VITE_API_URL: z.string().url(),
@@ -8,7 +8,7 @@ const envSchema = z.object({
   VITE_R2_PUBLIC_URL: z.string().url(),
   VITE_HUGGINGFACE_API_KEY: z.string().min(1),
   VITE_TELLER_APPLICATION_ID: z.string().min(1),
-  VITE_TELLER_ENVIRONMENT: z.enum(['sandbox', 'production']),
+  VITE_TELLER_ENVIRONMENT: z.enum(["sandbox", "production"]),
   VITE_TELLER_WEBHOOK_URL: z.string().url(),
   VITE_TELLER_SIGNING_SECRET: z.string().min(1),
   VITE_TELLER_SIGNING_KEY: z.string().min(1),

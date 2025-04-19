@@ -1,45 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Download as DownloadIcon,
+  ContentCopy as DuplicateIcon,
+  Edit as EditIcon,
+  Schedule as ScheduleIcon,
+} from "@mui/icons-material";
 import {
   Box,
-  Typography,
-  Paper,
-  Grid,
   Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
   IconButton,
+  MenuItem,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
-  MenuItem,
-  Stack,
-  CircularProgress,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Schedule as ScheduleIcon,
-  Download as DownloadIcon,
-  ContentCopy as DuplicateIcon,
-} from '@mui/icons-material';
-import { toast } from 'react-hot-toast';
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface ReportTemplate {
   id: string;
   name: string;
   description: string;
-  type: 'expense' | 'receipt' | 'custom';
-  format: 'pdf' | 'csv' | 'excel';
+  type: "expense" | "receipt" | "custom";
+  format: "pdf" | "csv" | "excel";
   filters: {
-    dateRange: 'day' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
+    dateRange: "day" | "week" | "month" | "quarter" | "year" | "custom";
     startDate?: Date;
     endDate?: Date;
     categories?: string[];
@@ -47,7 +48,7 @@ interface ReportTemplate {
     status?: string[];
   };
   scheduling?: {
-    frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
+    frequency: "daily" | "weekly" | "monthly" | "custom";
     nextRun: Date;
     recipients: string[];
     active: boolean;
@@ -65,7 +66,7 @@ interface ScheduledReport {
   id: string;
   templateId: string;
   templateName: string;
-  status: 'scheduled' | 'running' | 'completed' | 'failed';
+  status: "scheduled" | "running" | "completed" | "failed";
   createdAt: Date;
   scheduledFor: Date;
   completedAt?: Date;
@@ -74,7 +75,7 @@ interface ScheduledReport {
 }
 
 interface ScheduleFormData {
-  frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
+  frequency: "daily" | "weekly" | "monthly" | "custom";
   nextRun: Date;
   recipients: string[];
   active: boolean;
@@ -88,16 +89,16 @@ export const Reports: React.FC = () => {
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [scheduleData, setScheduleData] = useState<ScheduleFormData>({
-    frequency: 'monthly',
+    frequency: "monthly",
     nextRun: new Date(),
     recipients: [],
     active: true,
   });
   const [templateForm, setTemplateForm] = useState<Partial<ReportTemplate>>({
-    name: '',
-    description: '',
-    type: 'expense',
-    format: 'pdf',
+    name: "",
+    description: "",
+    type: "expense",
+    format: "pdf",
   });
 
   useEffect(() => {
@@ -108,12 +109,12 @@ export const Reports: React.FC = () => {
     try {
       setLoading(true);
       const [templatesResponse, reportsResponse] = await Promise.all([
-        fetch('/api/reports/templates'),
-        fetch('/api/reports/scheduled'),
+        fetch("/api/reports/templates"),
+        fetch("/api/reports/scheduled"),
       ]);
 
       if (!templatesResponse.ok || !reportsResponse.ok) {
-        throw new Error('Failed to fetch reports data');
+        throw new Error("Failed to fetch reports data");
       }
 
       const templatesData = await templatesResponse.json();
@@ -122,8 +123,8 @@ export const Reports: React.FC = () => {
       setTemplates(templatesData);
       setScheduledReports(reportsData);
     } catch (error) {
-      console.error('Error fetching reports:', error);
-      toast.error('Failed to load reports');
+      console.error("Error fetching reports:", error);
+      toast.error("Failed to load reports");
     } finally {
       setLoading(false);
     }
@@ -131,54 +132,54 @@ export const Reports: React.FC = () => {
 
   const handleCreateTemplate = async (template: Partial<ReportTemplate>) => {
     try {
-      const response = await fetch('/api/reports/templates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/reports/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(template),
       });
 
-      if (!response.ok) throw new Error('Failed to create template');
+      if (!response.ok) throw new Error("Failed to create template");
 
       const newTemplate = await response.json();
-      setTemplates(prev => [...prev, newTemplate]);
-      toast.success('Template created successfully');
+      setTemplates((prev) => [...prev, newTemplate]);
+      toast.success("Template created successfully");
       setIsTemplateDialogOpen(false);
     } catch (error) {
-      console.error('Error creating template:', error);
-      toast.error('Failed to create template');
+      console.error("Error creating template:", error);
+      toast.error("Failed to create template");
     }
   };
 
   const handleScheduleReport = async (
     templateId: string,
-    schedule: ReportTemplate['scheduling']
+    schedule: ReportTemplate["scheduling"],
   ) => {
     try {
       const response = await fetch(`/api/reports/templates/${templateId}/schedule`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(schedule),
       });
 
-      if (!response.ok) throw new Error('Failed to schedule report');
+      if (!response.ok) throw new Error("Failed to schedule report");
 
       await fetchTemplatesAndReports();
-      toast.success('Report scheduled successfully');
+      toast.success("Report scheduled successfully");
       setIsScheduleDialogOpen(false);
     } catch (error) {
-      console.error('Error scheduling report:', error);
-      toast.error('Failed to schedule report');
+      console.error("Error scheduling report:", error);
+      toast.error("Failed to schedule report");
     }
   };
 
   const handleDownloadReport = async (reportId: string) => {
     try {
       const response = await fetch(`/api/reports/${reportId}/download`);
-      if (!response.ok) throw new Error('Failed to download report');
+      if (!response.ok) throw new Error("Failed to download report");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `report-${reportId}.pdf`;
       document.body.appendChild(a);
@@ -186,30 +187,30 @@ export const Reports: React.FC = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Error downloading report:', error);
-      toast.error('Failed to download report');
+      console.error("Error downloading report:", error);
+      toast.error("Failed to download report");
     }
   };
 
-  const handleScheduleFrequencyChange = (frequency: ScheduleFormData['frequency']) => {
-    setScheduleData(prev => ({
+  const handleScheduleFrequencyChange = (frequency: ScheduleFormData["frequency"]) => {
+    setScheduleData((prev) => ({
       ...prev,
       frequency,
     }));
   };
 
   const handleRecipientsChange = (recipientsString: string) => {
-    setScheduleData(prev => ({
+    setScheduleData((prev) => ({
       ...prev,
       recipients: recipientsString
-        .split(',')
-        .map(email => email.trim())
+        .split(",")
+        .map((email) => email.trim())
         .filter(Boolean),
     }));
   };
 
   const handleTemplateFormChange = (field: keyof ReportTemplate, value: any) => {
-    setTemplateForm(prev => ({
+    setTemplateForm((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -217,7 +218,7 @@ export const Reports: React.FC = () => {
 
   const handleTemplateSubmit = () => {
     if (!templateForm.name || !templateForm.type || !templateForm.format) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -238,7 +239,7 @@ export const Reports: React.FC = () => {
       fullWidth
     >
       <DialogTitle>
-        {selectedTemplate ? 'Edit Report Template' : 'Create Report Template'}
+        {selectedTemplate ? "Edit Report Template" : "Create Report Template"}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={3} sx={{ mt: 1 }}>
@@ -248,7 +249,7 @@ export const Reports: React.FC = () => {
               label="Template Name"
               required
               value={templateForm.name}
-              onChange={e => handleTemplateFormChange('name', e.target.value)}
+              onChange={(e) => handleTemplateFormChange("name", e.target.value)}
             />
           </Grid>
           <Grid item xs={12}>
@@ -258,7 +259,7 @@ export const Reports: React.FC = () => {
               multiline
               rows={3}
               value={templateForm.description}
-              onChange={e => handleTemplateFormChange('description', e.target.value)}
+              onChange={(e) => handleTemplateFormChange("description", e.target.value)}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -268,7 +269,7 @@ export const Reports: React.FC = () => {
               label="Report Type"
               required
               value={templateForm.type}
-              onChange={e => handleTemplateFormChange('type', e.target.value)}
+              onChange={(e) => handleTemplateFormChange("type", e.target.value)}
             >
               <MenuItem value="expense">Expense Report</MenuItem>
               <MenuItem value="receipt">Receipt Report</MenuItem>
@@ -282,7 +283,7 @@ export const Reports: React.FC = () => {
               label="Output Format"
               required
               value={templateForm.format}
-              onChange={e => handleTemplateFormChange('format', e.target.value)}
+              onChange={(e) => handleTemplateFormChange("format", e.target.value)}
             >
               <MenuItem value="pdf">PDF</MenuItem>
               <MenuItem value="csv">CSV</MenuItem>
@@ -294,7 +295,7 @@ export const Reports: React.FC = () => {
       <DialogActions>
         <Button onClick={() => setIsTemplateDialogOpen(false)}>Cancel</Button>
         <Button variant="contained" color="primary" onClick={handleTemplateSubmit}>
-          {selectedTemplate ? 'Save Changes' : 'Create Template'}
+          {selectedTemplate ? "Save Changes" : "Create Template"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -316,8 +317,8 @@ export const Reports: React.FC = () => {
               select
               label="Frequency"
               value={scheduleData.frequency}
-              onChange={e =>
-                handleScheduleFrequencyChange(e.target.value as ScheduleFormData['frequency'])
+              onChange={(e) =>
+                handleScheduleFrequencyChange(e.target.value as ScheduleFormData["frequency"])
               }
             >
               <MenuItem value="daily">Daily</MenuItem>
@@ -330,8 +331,8 @@ export const Reports: React.FC = () => {
               fullWidth
               label="Recipients"
               placeholder="Enter email addresses (comma-separated)"
-              value={scheduleData.recipients.join(', ')}
-              onChange={e => handleRecipientsChange(e.target.value)}
+              value={scheduleData.recipients.join(", ")}
+              onChange={(e) => handleRecipientsChange(e.target.value)}
             />
           </Grid>
         </Grid>
@@ -352,7 +353,14 @@ export const Reports: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h4">Reports</Typography>
         <Button
           variant="contained"
@@ -367,7 +375,7 @@ export const Reports: React.FC = () => {
       </Box>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
           <CircularProgress />
         </Box>
       ) : (
@@ -384,15 +392,15 @@ export const Reports: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {templates.map(template => (
+                {templates.map((template) => (
                   <TableRow key={template.id}>
                     <TableCell>{template.name}</TableCell>
                     <TableCell>{template.type}</TableCell>
                     <TableCell>{template.format}</TableCell>
                     <TableCell>
                       <Chip
-                        label={template.scheduling?.active ? 'Active' : 'Inactive'}
-                        color={template.scheduling?.active ? 'success' : 'default'}
+                        label={template.scheduling?.active ? "Active" : "Inactive"}
+                        color={template.scheduling?.active ? "success" : "default"}
                         size="small"
                       />
                     </TableCell>
@@ -445,7 +453,7 @@ export const Reports: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {scheduledReports.map(report => (
+                {scheduledReports.map((report) => (
                   <TableRow key={report.id}>
                     <TableCell>{report.templateName}</TableCell>
                     <TableCell>
@@ -453,19 +461,19 @@ export const Reports: React.FC = () => {
                         label={report.status}
                         color={
                           report.status != null
-                            ? 'success'
+                            ? "success"
                             : report.status != null
-                              ? 'error'
+                              ? "error"
                               : report.status != null
-                                ? 'warning'
-                                : 'default'
+                                ? "warning"
+                                : "default"
                         }
                         size="small"
                       />
                     </TableCell>
                     <TableCell>{new Date(report.scheduledFor).toLocaleString()}</TableCell>
                     <TableCell>
-                      {report.completedAt ? new Date(report.completedAt).toLocaleString() : '-'}
+                      {report.completedAt ? new Date(report.completedAt).toLocaleString() : "-"}
                     </TableCell>
                     <TableCell align="right">
                       <Stack direction="row" spacing={1} justifyContent="flex-end">

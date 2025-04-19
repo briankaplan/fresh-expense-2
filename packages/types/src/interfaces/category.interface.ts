@@ -8,4 +8,4 @@ export interface Category {
   isDefault?: boolean;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import {
+import type {
+  MerchantLearningConfig,
   MerchantLearningData,
   MerchantLearningResult,
-  MerchantLearningConfig,
   MerchantSource,
-} from '@fresh-expense/types';
+} from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class MerchantLearningService {
@@ -22,7 +22,7 @@ export class MerchantLearningService {
 
   async learnFromData(data: MerchantLearningData): Promise<MerchantLearningResult> {
     if (!data.merchantName || !data.userId) {
-      throw new Error('Merchant name and user ID are required');
+      throw new Error("Merchant name and user ID are required");
     }
 
     // Normalize confidence to be between 0 and 1
@@ -35,7 +35,7 @@ export class MerchantLearningService {
     const result: MerchantLearningResult = {
       merchantName: data.merchantName,
       userId: data.userId,
-      category: data.category || 'uncategorized',
+      category: data.category || "uncategorized",
       confidence: finalConfidence,
       tags: data.metadata?.tags || [],
       metadata: {
@@ -60,12 +60,12 @@ export class MerchantLearningService {
         ? Math.max(0, newConfig.minTransactions)
         : undefined,
       categoryWeights: newConfig.categoryWeights
-        ? Object.fromEntries(
+        ? (Object.fromEntries(
             Object.entries(newConfig.categoryWeights).map(([key, value]) => [
               key as MerchantSource,
               Math.max(0, Math.min(1, value)),
             ]),
-          ) as Record<MerchantSource, number>
+          ) as Record<MerchantSource, number>)
         : this.config.categoryWeights,
     };
 

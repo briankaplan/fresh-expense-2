@@ -1,4 +1,4 @@
-import { ReceiptDocument } from '../../schemas/receipt.schema';
+import type { ReceiptDocument } from "../../schemas/receipt.schema";
 
 /**
  * Options for processing a receipt
@@ -72,4 +72,4 @@ export interface ReceiptProcessingResult {
      */
     enriched: boolean;
   };
-} 
+}

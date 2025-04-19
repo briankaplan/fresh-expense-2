@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '@/layouts/DashboardLayout';
-import { DashboardCard } from '@/shared/components/common/DashboardCard';
-import { Box, Grid, Typography, CircularProgress } from '@mui/material';
-import { useAuth } from '@/context/AuthContext';
-import { formatCurrency } from '@/utils/format';
-import { toast } from 'react-hot-toast';
-import { Transaction } from '@fresh-expense/types';
+import { useAuth } from "@/context/AuthContext";
+import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { DashboardCard } from "@/shared/components/common/DashboardCard";
+import { formatCurrency } from "@/utils/format";
+import type { Transaction } from "@fresh-expense/types";
+import { Box, CircularProgress, Grid, Typography } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 interface DashboardStats {
   totalExpenses: number;
@@ -34,13 +34,13 @@ export default function Dashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/expenses/stats');
-      if (!response.ok) throw new Error('Failed to fetch stats');
+      const response = await fetch("/api/expenses/stats");
+      if (!response.ok) throw new Error("Failed to fetch stats");
       const data = await response.json();
       setStats(data);
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      toast.error('Failed to load dashboard statistics');
+      console.error("Error fetching stats:", error);
+      toast.error("Failed to load dashboard statistics");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function Dashboard() {
   }
 
   return (
-    <DashboardLayout title="Dashboard" subtitle={`Welcome back, ${user?.firstName || 'User'}`}>
+    <DashboardLayout title="Dashboard" subtitle={`Welcome back, ${user?.firstName || "User"}`}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
           <DashboardCard title="Total Expenses" subtitle="This month" icon="AttachMoney">

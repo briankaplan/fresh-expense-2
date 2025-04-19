@@ -1,5 +1,5 @@
-import { Document } from 'mongoose';
-import { MetricType } from './metrics/metrics.enum';
+import type { Document } from "mongoose";
+import type { MetricType } from "./metrics/metrics.enum";
 
 export interface Metrics {
   id: string;
@@ -52,7 +52,7 @@ export interface MetricsSummary {
   count: number;
   byTag?: Record<string, number>;
   trend?: {
-    direction: 'up' | 'down' | 'stable';
+    direction: "up" | "down" | "stable";
     change: number;
     changePercent: number;
   };

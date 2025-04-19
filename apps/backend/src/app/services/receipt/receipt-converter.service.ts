@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import * as puppeteer from 'puppeteer';
-import sharp from 'sharp';
-import { PDFDocument } from 'pdf-lib';
-import { OCRService } from '../../../services/ocr/ocr.service';
-import NodeCache from 'node-cache';
-import { createWorker } from 'tesseract.js';
-import { ProcessedData, ExtractedReceiptData } from '@fresh-expense/types';
+import type { ExtractedReceiptData, ProcessedData } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import NodeCache from "node-cache";
+import { PDFDocument } from "pdf-lib";
+import * as puppeteer from "puppeteer";
+import sharp from "sharp";
+import { createWorker } from "tesseract.js";
+import type { OCRService } from "../../../services/ocr/ocr.service";
 
 interface ConversionOptions {
   width?: number;
@@ -77,7 +77,7 @@ export class ReceiptConverterService {
 
   constructor(
     private readonly ocrService: OCRService,
-    private readonly options: BatchProcessingOptions = {}
+    private readonly options: BatchProcessingOptions = {},
   ) {
     this.cache = new NodeCache({
       stdTTL: 3600, // 1 hour default
@@ -112,7 +112,7 @@ export class ReceiptConverterService {
   private async processWithRetry<T>(
     item: T,
     processor: (item: T) => Promise<ProcessedData>,
-    maxRetries = 3
+    maxRetries = 3,
   ): Promise<ProcessedData> {
     let lastError: Error | undefined;
 
@@ -122,7 +122,7 @@ export class ReceiptConverterService {
       } catch (error) {
         lastError = error as Error;
         if (attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000)); // Exponential backoff
+          await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000)); // Exponential backoff
         }
       }
     }
@@ -133,10 +133,16 @@ export class ReceiptConverterService {
   private async addToQueue(
     buffer: Buffer,
     filename: string,
-    expectedData?: ExtractedReceiptData
+    expectedData?: ExtractedReceiptData,
   ): Promise<ProcessedData> {
     return new Promise((resolve, reject) => {
-      this.processingQueue.push({ item: buffer, filename, expectedData, resolve, reject });
+      this.processingQueue.push({
+        item: buffer,
+        filename,
+        expectedData,
+        resolve,
+        reject,
+      });
       this.processQueue();
     });
   }
@@ -155,30 +161,30 @@ export class ReceiptConverterService {
           this.processWithRetry(
             { buffer: item, filename, expectedData },
             async ({ buffer, filename, expectedData }) => {
-              const cacheKey = `receipt:${filename}:${buffer.toString('base64').slice(0, 32)}`;
+              const cacheKey = `receipt:${filename}:${buffer.toString("base64").slice(0, 32)}`;
               const cached = await this.getCached(cacheKey);
               if (cached) return cached;
 
               const fileObj: Express.Multer.File = {
-                fieldname: 'file',
+                fieldname: "file",
                 originalname: filename,
-                encoding: '7bit',
-                mimetype: 'application/octet-stream',
+                encoding: "7bit",
+                mimetype: "application/octet-stream",
                 buffer,
                 size: buffer.length,
                 stream: null as unknown,
-                destination: '',
+                destination: "",
                 filename: filename,
-                path: '',
+                path: "",
               };
 
               const result = await this.processUploadedFile(fileObj);
               await this.setCached(cacheKey, result);
               return result;
             },
-            this.options.maxRetries
-          )
-        )
+            this.options.maxRetries,
+          ),
+        ),
       );
 
       batch.forEach(({ resolve }, index) => resolve(results[index]));
@@ -193,7 +199,11 @@ export class ReceiptConverterService {
   }
 
   async processBatch(
-    items: Array<{ buffer: Buffer; filename: string; expectedData?: ExtractedReceiptData }>
+    items: Array<{
+      buffer: Buffer;
+      filename: string;
+      expectedData?: ExtractedReceiptData;
+    }>,
   ): Promise<Array<ProcessedData>> {
     const batchSize = this.options.batchSize || 10;
     const delayBetweenBatches = this.options.delayBetweenBatches || 1000;
@@ -203,13 +213,13 @@ export class ReceiptConverterService {
     for (const batch of batches) {
       const batchResults = await Promise.all(
         batch.map(({ buffer, filename, expectedData }) =>
-          this.addToQueue(buffer, filename, expectedData)
-        )
+          this.addToQueue(buffer, filename, expectedData),
+        ),
       );
       results.push(...batchResults);
 
       if (batches.indexOf(batch) < batches.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+        await new Promise((resolve) => setTimeout(resolve, delayBetweenBatches));
       }
     }
 
@@ -229,7 +239,7 @@ export class ReceiptConverterService {
         width: options.width ? `${options.width}px` : undefined,
         height: options.height ? `${options.height}px` : undefined,
         printBackground: true,
-        format: options.width ? undefined : 'A4',
+        format: options.width ? undefined : "A4",
       });
 
       return pdf;
@@ -243,7 +253,7 @@ export class ReceiptConverterService {
    */
   async pdfToImage(
     pdfBuffer: Buffer,
-    options: ConversionOptions = {}
+    options: ConversionOptions = {},
   ): Promise<{ buffer: Buffer; pages: number }> {
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pages = pdfDoc.getPageCount();
@@ -262,7 +272,7 @@ export class ReceiptConverterService {
     // Convert to image using sharp
     const image = await sharp(singlePageBuffer)
       .resize(options.width || width, options.height || height, {
-        fit: 'contain',
+        fit: "contain",
         background: { r: 255, g: 255, b: 255, alpha: 1 },
       })
       .png({ quality: options.quality || 100 })
@@ -277,9 +287,9 @@ export class ReceiptConverterService {
   async generatePreview(
     buffer: Buffer,
     mimeType: string,
-    options: ConversionOptions = {}
+    options: ConversionOptions = {},
   ): Promise<Buffer> {
-    if (mimeType === 'application/pdf') {
+    if (mimeType === "application/pdf") {
       const { buffer: imageBuffer } = await this.pdfToImage(buffer, options);
       return imageBuffer;
     }
@@ -287,7 +297,7 @@ export class ReceiptConverterService {
     // For images, just resize
     return sharp(buffer)
       .resize(options.width || 800, options.height, {
-        fit: 'inside',
+        fit: "inside",
         withoutEnlargement: true,
       })
       .jpeg({ quality: options.quality || 80 })
@@ -306,21 +316,21 @@ export class ReceiptConverterService {
 
     // Remove common suffixes and prefixes
     const cleanFoundNoSuffix = cleanFound
-      .replace(/^(?:TST\*|DD\s+|THE\s+)/, '')
-      .replace(/\.(?:COM|NET|ORG).*$/i, '')
-      .replace(/\/.*$/, '')
-      .replace(/\s*(?:INC|LLC|LTD|CORP|CORPORATION|COMPANY)\.?$/i, '')
-      .replace(/\s*-\s*.*$/, '')
-      .replace(/\s+PRO$/i, '')
+      .replace(/^(?:TST\*|DD\s+|THE\s+)/, "")
+      .replace(/\.(?:COM|NET|ORG).*$/i, "")
+      .replace(/\/.*$/, "")
+      .replace(/\s*(?:INC|LLC|LTD|CORP|CORPORATION|COMPANY)\.?$/i, "")
+      .replace(/\s*-\s*.*$/, "")
+      .replace(/\s+PRO$/i, "")
       .trim();
 
     const cleanExpectedNoSuffix = cleanExpected
-      .replace(/^(?:TST\*|DD\s+|THE\s+)/, '')
-      .replace(/\.(?:COM|NET|ORG).*$/i, '')
-      .replace(/\/.*$/, '')
-      .replace(/\s*(?:INC|LLC|LTD|CORP|CORPORATION|COMPANY)\.?$/i, '')
-      .replace(/\s*-\s*.*$/, '')
-      .replace(/\s+PRO$/i, '')
+      .replace(/^(?:TST\*|DD\s+|THE\s+)/, "")
+      .replace(/\.(?:COM|NET|ORG).*$/i, "")
+      .replace(/\/.*$/, "")
+      .replace(/\s*(?:INC|LLC|LTD|CORP|CORPORATION|COMPANY)\.?$/i, "")
+      .replace(/\s*-\s*.*$/, "")
+      .replace(/\s+PRO$/i, "")
       .trim();
 
     // Exact match after cleaning
@@ -337,7 +347,7 @@ export class ReceiptConverterService {
     // Calculate word overlap
     const foundWords = new Set(cleanFoundNoSuffix.split(/\s+/));
     const expectedWords = new Set(cleanExpectedNoSuffix.split(/\s+/));
-    const overlap = [...foundWords].filter(word => expectedWords.has(word)).length;
+    const overlap = [...foundWords].filter((word) => expectedWords.has(word)).length;
     const totalWords = Math.max(foundWords.size, expectedWords.size);
 
     if (totalWords === 0) return 0;
@@ -370,10 +380,10 @@ export class ReceiptConverterService {
   private calculateItemsScore(extractedItems: string[], expectedItems: string[]): number {
     if (!extractedItems || extractedItems.length != null) return 0;
 
-    const extractedSet = new Set(extractedItems.map(item => item.toLowerCase()));
-    const expectedSet = new Set(expectedItems.map(item => item.toLowerCase()));
+    const extractedSet = new Set(extractedItems.map((item) => item.toLowerCase()));
+    const expectedSet = new Set(expectedItems.map((item) => item.toLowerCase()));
 
-    const intersection = new Set([...extractedSet].filter(x => expectedSet.has(x)));
+    const intersection = new Set([...extractedSet].filter((x) => expectedSet.has(x)));
     return intersection.size / Math.max(extractedSet.size, expectedSet.size);
   }
 
@@ -384,9 +394,9 @@ export class ReceiptConverterService {
       amount?: number;
       date?: Date | null;
       items?: string[];
-    }
+    },
   ): VerificationResult {
-    const merchantScore = this.calculateMerchantScore(extracted.merchant, expected.merchant ?? '');
+    const merchantScore = this.calculateMerchantScore(extracted.merchant, expected.merchant ?? "");
     const amountScore = this.calculateAmountScore(extracted.amount, expected.amount ?? 0);
     const dateScore = this.calculateDateScore(extracted.date, expected.date ?? null);
     const itemsScore = expected.items
@@ -417,7 +427,7 @@ export class ReceiptConverterService {
   }
 
   private extractMerchantName(text: string): string | undefined {
-    const lines = text.split('\n');
+    const lines = text.split("\n");
     if (lines.length > 0) {
       // Look at the first few lines for the merchant name
       for (let i = 0; i < Math.min(5, lines.length); i++) {
@@ -450,7 +460,7 @@ export class ReceiptConverterService {
       const match = text.match(pattern);
       if (match) {
         try {
-          return parseFloat(match[1].replace(/,/g, ''));
+          return Number.parseFloat(match[1].replace(/,/g, ""));
         } catch (e) {
           this.logger.warn(`Failed to parse amount: ${match[1]}`);
         }
@@ -466,16 +476,16 @@ export class ReceiptConverterService {
     if (cached) return cached;
 
     // Convert to lowercase and remove special characters
-    const normalized = merchant.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+    const normalized = merchant.toLowerCase().replace(/[^a-z0-9\s]/g, "");
 
     // Common merchant name variations
     const variations = {
-      doordash: ['door dash', 'door-dash', 'doordash.com', 'door dash order'],
-      uber: ['uber.com', 'uber eats', 'uber-eats', 'uber receipt'],
-      amazon: ['amazon.com', 'amazon prime', 'amazon order'],
-      apple: ['apple.com', 'apple bill', 'apple receipt'],
-      spotify: ['spotify usa', 'spotify.com', 'spotify receipt'],
-      starbucks: ['starbucks coffee', 'starbucks.com', 'starbucks order'],
+      doordash: ["door dash", "door-dash", "doordash.com", "door dash order"],
+      uber: ["uber.com", "uber eats", "uber-eats", "uber receipt"],
+      amazon: ["amazon.com", "amazon prime", "amazon order"],
+      apple: ["apple.com", "apple bill", "apple receipt"],
+      spotify: ["spotify usa", "spotify.com", "spotify receipt"],
+      starbucks: ["starbucks coffee", "starbucks.com", "starbucks order"],
     };
 
     // Check for exact matches first
@@ -508,7 +518,7 @@ export class ReceiptConverterService {
 
     if (bestScore >= 0.8 && bestMatch) {
       this.logger.debug(
-        `Found fuzzy match: ${normalized} -> ${bestMatch} (score: ${bestScore.toFixed(2)})`
+        `Found fuzzy match: ${normalized} -> ${bestMatch} (score: ${bestScore.toFixed(2)})`,
       );
       this.merchantCache.set(cacheKey, bestMatch);
       return bestMatch;
@@ -543,7 +553,7 @@ export class ReceiptConverterService {
           matrix[i][j] = Math.min(
             matrix[i - 1][j - 1] + 1,
             matrix[i][j - 1] + 1,
-            matrix[i - 1][j] + 1
+            matrix[i - 1][j] + 1,
           );
         }
       }
@@ -591,26 +601,26 @@ export class ReceiptConverterService {
   }
 
   private parseCSV(file: Express.Multer.File): string {
-    const csvData = file.buffer.toString('utf-8');
-    const lines = csvData.split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
+    const csvData = file.buffer.toString("utf-8");
+    const lines = csvData.split("\n");
+    const headers = lines[0].split(",").map((h) => h.trim());
 
     // Find relevant columns
     const merchantIndex = headers.findIndex(
-      h => h.toLowerCase().includes('merchant') || h.toLowerCase().includes('store')
+      (h) => h.toLowerCase().includes("merchant") || h.toLowerCase().includes("store"),
     );
     const amountIndex = headers.findIndex(
-      h => h.toLowerCase().includes('amount') || h.toLowerCase().includes('total')
+      (h) => h.toLowerCase().includes("amount") || h.toLowerCase().includes("total"),
     );
-    const dateIndex = headers.findIndex(h => h.toLowerCase().includes('date'));
+    const dateIndex = headers.findIndex((h) => h.toLowerCase().includes("date"));
 
     // Process first data row
-    const data = lines[1].split(',').map(d => d.trim());
+    const data = lines[1].split(",").map((d) => d.trim());
 
     return JSON.stringify({
       merchant: merchantIndex >= 0 ? data[merchantIndex] : null,
-      amount: amountIndex >= 0 ? parseFloat(data[amountIndex]) : null,
-      date: dateIndex >= 0 ? new Date(data[dateIndex].replace(/\s+/g, 'T')) : null,
+      amount: amountIndex >= 0 ? Number.parseFloat(data[amountIndex]) : null,
+      date: dateIndex >= 0 ? new Date(data[dateIndex].replace(/\s+/g, "T")) : null,
     });
   }
 
@@ -621,13 +631,13 @@ export class ReceiptConverterService {
       amount?: number;
       date?: Date;
       items?: string[];
-    }
+    },
   ): Promise<ProcessedData> {
     const text = await this.extractTextFromAttachment(attachment);
     const extracted = await this.extractReceiptData(text);
 
     const result: ProcessedData = {
-      merchant: extracted.merchant ?? '',
+      merchant: extracted.merchant ?? "",
       amount: extracted.amount ?? 0,
       date: extracted.date ?? undefined,
       items: extracted.items,
@@ -647,13 +657,13 @@ export class ReceiptConverterService {
       amount?: number;
       date?: Date;
       items?: string[];
-    }
+    },
   ): Promise<ProcessedData> {
     const text = await this.extractTextFromFile(file);
     const extracted = await this.extractReceiptData(text);
 
     const result: ProcessedData = {
-      merchant: extracted.merchant ?? '',
+      merchant: extracted.merchant ?? "",
       amount: extracted.amount ?? 0,
       date: extracted.date ?? undefined,
       items: extracted.items,
@@ -673,13 +683,13 @@ export class ReceiptConverterService {
       amount?: number;
       date?: Date;
       items?: string[];
-    }
+    },
   ): Promise<ProcessedData> {
     const csvData = this.parseCSV(file);
     const extracted = await this.extractReceiptData(csvData);
 
     const result: ProcessedData = {
-      merchant: extracted.merchant ?? '',
+      merchant: extracted.merchant ?? "",
       amount: extracted.amount ?? 0,
       date: extracted.date ?? undefined,
       items: extracted.items,

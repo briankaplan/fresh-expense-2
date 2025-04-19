@@ -1,6 +1,6 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
-import { toast } from 'react-hot-toast';
-import { validateEnvironment } from '../utils/env-validation';
+import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios";
+import { toast } from "react-hot-toast";
+import { validateEnvironment } from "../utils/env-validation";
 
 export interface ApiError {
   message: string;
@@ -34,9 +34,9 @@ class ApiClient {
       baseURL: import.meta.env.VITE_API_URL,
       timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
       headers: {
-        'Content-Type': 'application/json',
-        'X-Application-Id': import.meta.env.VITE_TELLER_APPLICATION_ID,
-        'X-Environment': import.meta.env.VITE_TELLER_ENVIRONMENT,
+        "Content-Type": "application/json",
+        "X-Application-Id": import.meta.env.VITE_TELLER_APPLICATION_ID,
+        "X-Environment": import.meta.env.VITE_TELLER_ENVIRONMENT,
       },
     });
     this.cache = new Map();
@@ -53,16 +53,16 @@ class ApiClient {
   private setupInterceptors() {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
-      config => {
+      (config) => {
         const token = localStorage.getItem(import.meta.env.VITE_JWT_STORAGE_KEY);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
         // Add Teller-specific headers for Teller API endpoints
-        if (config.url?.includes('/teller/')) {
-          config.headers['X-Application-Id'] = import.meta.env.VITE_TELLER_APPLICATION_ID;
-          config.headers['X-Environment'] = import.meta.env.VITE_TELLER_ENVIRONMENT;
+        if (config.url?.includes("/teller/")) {
+          config.headers["X-Application-Id"] = import.meta.env.VITE_TELLER_APPLICATION_ID;
+          config.headers["X-Environment"] = import.meta.env.VITE_TELLER_ENVIRONMENT;
         }
 
         if (import.meta.env.DEV) {
@@ -70,28 +70,28 @@ class ApiClient {
         }
         return config;
       },
-      error => {
+      (error) => {
         if (import.meta.env.DEV) {
-          console.error('[API Request Error]', error);
+          console.error("[API Request Error]", error);
         }
         return Promise.reject(error);
-      }
+      },
     );
 
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
-      response => {
+      (response) => {
         if (import.meta.env.DEV) {
           console.log(
             `[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`,
-            response.data
+            response.data,
           );
         }
         return response;
       },
       async (error: AxiosError<ApiError>) => {
         if (import.meta.env.DEV) {
-          console.error('[API Error]', error.response?.data || error.message);
+          console.error("[API Error]", error.response?.data || error.message);
         }
 
         if (error.response) {
@@ -99,36 +99,36 @@ class ApiClient {
 
           switch (status) {
             case 401:
-              toast.error('Session expired. Please log in again.');
+              toast.error("Session expired. Please log in again.");
               localStorage.removeItem(import.meta.env.VITE_JWT_STORAGE_KEY);
-              window.location.href = '/login';
+              window.location.href = "/login";
               break;
             case 403:
-              toast.error('You do not have permission to perform this action');
+              toast.error("You do not have permission to perform this action");
               break;
             case 404:
-              toast.error('Resource not found');
+              toast.error("Resource not found");
               break;
             case 422:
-              toast.error(data?.details?.message || 'Invalid data provided');
+              toast.error(data?.details?.message || "Invalid data provided");
               break;
             case 429:
-              toast.error('Too many requests. Please try again later.');
+              toast.error("Too many requests. Please try again later.");
               break;
             case 500:
-              toast.error('An unexpected error occurred. Please try again later.');
+              toast.error("An unexpected error occurred. Please try again later.");
               break;
             default:
-              toast.error(data?.message || 'Something went wrong');
+              toast.error(data?.message || "Something went wrong");
           }
         } else if (error.request) {
-          toast.error('Unable to connect to the server. Please check your internet connection.');
+          toast.error("Unable to connect to the server. Please check your internet connection.");
         } else {
-          toast.error('An error occurred while processing your request');
+          toast.error("An error occurred while processing your request");
         }
 
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -162,7 +162,7 @@ class ApiClient {
   public async post<T>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.post<ApiResponse<T>>(url, data, config);
     // Invalidate cache for related GET requests
@@ -173,7 +173,7 @@ class ApiClient {
   public async put<T>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.put<ApiResponse<T>>(url, data, config);
     // Invalidate cache for related GET requests
@@ -191,7 +191,7 @@ class ApiClient {
   public async patch<T>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.patch<ApiResponse<T>>(url, data, config);
     // Invalidate cache for related GET requests

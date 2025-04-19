@@ -1,43 +1,43 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import {
-  Sendgrid,
-  SendgridSchema,
-  Receipt,
-  ReceiptSchema,
-  TransactionModel,
-  TransactionSchema,
-  Merchant,
-  MerchantSchema,
-  UserModel,
-  UserSchema,
-  Expense,
-  ExpenseSchema,
-  Category,
-  CategorySchema,
-  Budget,
-  BudgetSchema,
-  Report,
-  ReportSchema,
-  Subscription,
-  SubscriptionSchema,
-  Analytics,
-  AnalyticsSchema,
-  Search,
-  SearchSchema,
   AIModel,
   AIModelSchema,
-  OCR,
-  OcrSchema,
+  Analytics,
+  AnalyticsSchema,
+  Budget,
+  BudgetSchema,
+  Category,
+  CategorySchema,
+  Expense,
+  ExpenseSchema,
   Integration,
   IntegrationSchema,
+  Merchant,
+  MerchantSchema,
+  OCR,
+  OcrSchema,
+  Receipt,
+  ReceiptSchema,
+  Report,
+  ReportSchema,
+  Search,
+  SearchSchema,
+  Sendgrid,
+  SendgridSchema,
   Settings,
   SettingsSchema,
-} from '@fresh-expense/types';
+  Subscription,
+  SubscriptionSchema,
+  TransactionModel,
+  TransactionSchema,
+  UserModel,
+  UserSchema,
+} from "@fresh-expense/types";
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
 
-import { ProcessorFactory } from './processors/processor.factory';
-import { SendGridProcessor } from './processors/sendgrid.processor';
-import { ReceiptService } from './receipt.service';
+import { ProcessorFactory } from "./processors/processor.factory";
+import { SendGridProcessor } from "./processors/sendgrid.processor";
+import { ReceiptService } from "./receipt.service";
 
 @Module({
   imports: [

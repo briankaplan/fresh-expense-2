@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import {
+  Clear as ClearIcon,
+  FilterList as FilterIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import {
   Box,
-  TextField,
-  InputAdornment,
+  Chip,
   IconButton,
+  InputAdornment,
   Menu,
   MenuItem,
-  Chip,
   Stack,
+  TextField,
   Typography,
-} from '@mui/material';
-import {
-  Search as SearchIcon,
-  FilterList as FilterIcon,
-  Clear as ClearIcon,
-} from '@mui/icons-material';
-import { useDebouncedSearch } from '@/hooks/useDebouncedSearch';
+} from "@mui/material";
+import React, { useState } from "react";
 
 export interface FilterOption {
   label: string;
   value: string;
-  type: 'text' | 'number' | 'date' | 'select';
+  type: "text" | "number" | "date" | "select";
   options?: { label: string; value: string }[];
 }
 
@@ -35,9 +35,9 @@ export function SearchAndFilter({
   onSearch,
   onFilter,
   filterOptions,
-  placeholder = 'Search...',
+  placeholder = "Search...",
 }: SearchAndFilterProps) {
-  const [searchValue, setSearchValue] = useDebouncedSearch('');
+  const [searchValue, setSearchValue] = useDebouncedSearch("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
 
@@ -46,7 +46,7 @@ export function SearchAndFilter({
   };
 
   const handleSearchClear = () => {
-    setSearchValue('');
+    setSearchValue("");
   };
 
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -106,7 +106,7 @@ export function SearchAndFilter({
         <Box sx={{ mt: 1 }}>
           <Stack direction="row" spacing={1} flexWrap="wrap">
             {Object.entries(activeFilters).map(([key, value]) => {
-              const option = filterOptions.find(opt => opt.value === key);
+              const option = filterOptions.find((opt) => opt.value === key);
               return (
                 <Chip
                   key={key}
@@ -121,24 +121,24 @@ export function SearchAndFilter({
       )}
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFilterClose}>
-        {filterOptions.map(option => (
+        {filterOptions.map((option) => (
           <MenuItem key={option.value}>
             <Box sx={{ minWidth: 200 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 {option.label}
               </Typography>
-              {option.type === 'select' && option.options ? (
+              {option.type === "select" && option.options ? (
                 <TextField
                   select
                   fullWidth
-                  value={activeFilters[option.value] || ''}
-                  onChange={e => handleFilterChange(option.value, e.target.value)}
+                  value={activeFilters[option.value] || ""}
+                  onChange={(e) => handleFilterChange(option.value, e.target.value)}
                   SelectProps={{
                     native: true,
                   }}
                 >
                   <option value="">All</option>
-                  {option.options.map(opt => (
+                  {option.options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -148,8 +148,8 @@ export function SearchAndFilter({
                 <TextField
                   fullWidth
                   type={option.type}
-                  value={activeFilters[option.value] || ''}
-                  onChange={e => handleFilterChange(option.value, e.target.value)}
+                  value={activeFilters[option.value] || ""}
+                  onChange={(e) => handleFilterChange(option.value, e.target.value)}
                 />
               )}
             </Box>

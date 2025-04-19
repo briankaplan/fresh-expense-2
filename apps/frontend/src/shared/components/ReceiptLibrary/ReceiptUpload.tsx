@@ -1,17 +1,18 @@
-import React, { useState, useCallback } from 'react';
 import {
   Box,
   Button,
-  TextField,
-  Typography,
   CircularProgress,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-} from '@mui/material';
-import { useDropzone } from 'react-dropzone';
-import api from '../../services/api';
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import api from "../../services/api";
 
 interface ReceiptUploadProps {
   onSuccess: (receipt: any) => void;
@@ -25,10 +26,10 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
   transactionId,
 }) => {
   const [file, setFile] = useState<File | null>(null);
-  const [merchant, setMerchant] = useState('');
-  const [amount, setAmount] = useState('');
+  const [merchant, setMerchant] = useState("");
+  const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -42,8 +43,8 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png'],
-      'application/pdf': ['.pdf'],
+      "image/*": [".jpeg", ".jpg", ".png"],
+      "application/pdf": [".pdf"],
     },
     maxFiles: 1,
     multiple: false,
@@ -52,32 +53,32 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !merchant || !amount) {
-      setError('Please fill in all required fields');
+      setError("Please fill in all required fields");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('merchant', merchant);
-      formData.append('amount', amount);
+      formData.append("file", file);
+      formData.append("merchant", merchant);
+      formData.append("amount", amount);
       if (transactionId) {
-        formData.append('transactionId', transactionId);
+        formData.append("transactionId", transactionId);
       }
 
-      const response = await api.post('/receipts', formData, {
+      const response = await api.post("/receipts", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
       onSuccess(response.data);
     } catch (err) {
-      setError('Failed to upload receipt. Please try again.');
-      console.error('Upload error:', err);
+      setError("Failed to upload receipt. Please try again.");
+      console.error("Upload error:", err);
     } finally {
       setLoading(false);
     }
@@ -91,15 +92,15 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
           <Box
             {...getRootProps()}
             sx={{
-              border: '2px dashed',
-              borderColor: isDragActive ? 'primary.main' : 'grey.300',
+              border: "2px dashed",
+              borderColor: isDragActive ? "primary.main" : "grey.300",
               borderRadius: 1,
               p: 3,
               mb: 3,
-              textAlign: 'center',
-              cursor: 'pointer',
-              '&:hover': {
-                borderColor: 'primary.main',
+              textAlign: "center",
+              cursor: "pointer",
+              "&:hover": {
+                borderColor: "primary.main",
               },
             }}
           >
@@ -110,16 +111,16 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
                 src={preview}
                 alt="Receipt preview"
                 sx={{
-                  maxWidth: '100%',
+                  maxWidth: "100%",
                   maxHeight: 200,
-                  objectFit: 'contain',
+                  objectFit: "contain",
                 }}
               />
             ) : (
               <Typography>
                 {isDragActive
-                  ? 'Drop the receipt here'
-                  : 'Drag and drop a receipt, or click to select'}
+                  ? "Drop the receipt here"
+                  : "Drag and drop a receipt, or click to select"}
               </Typography>
             )}
           </Box>
@@ -128,7 +129,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
             fullWidth
             label="Merchant"
             value={merchant}
-            onChange={e => setMerchant(e.target.value)}
+            onChange={(e) => setMerchant(e.target.value)}
             margin="normal"
             required
           />
@@ -137,11 +138,11 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
             fullWidth
             label="Amount"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             margin="normal"
             required
             type="number"
-            inputProps={{ step: '0.01' }}
+            inputProps={{ step: "0.01" }}
           />
 
           {error && (
@@ -154,7 +155,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
         <Button onClick={handleSubmit} variant="contained" disabled={loading || !file}>
-          {loading ? <CircularProgress size={24} /> : 'Upload'}
+          {loading ? <CircularProgress size={24} /> : "Upload"}
         </Button>
       </DialogActions>
     </>

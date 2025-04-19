@@ -1,4 +1,4 @@
-import { MerchantData } from './transaction-categorization.interface';
+import type { MerchantData } from "./transaction-categorization.interface";
 
 export interface IMerchantLearningService {
   getMerchantData(merchantName: string): Promise<MerchantData>;
@@ -6,7 +6,7 @@ export interface IMerchantLearningService {
   getMerchantSuggestions(merchantName: string): Promise<MerchantData[]>;
 }
 
-export type MerchantSource = 'manual' | 'ocr' | 'transaction' | 'api';
+export type MerchantSource = "manual" | "ocr" | "transaction" | "api";
 
 export interface MerchantLearningConfig {
   minConfidence: number;

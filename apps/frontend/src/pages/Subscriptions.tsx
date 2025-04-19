@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from "@mui/icons-material";
 import {
   Box,
-  Typography,
-  Card,
-  Grid,
-  Chip,
   Button,
-  IconButton,
+  Card,
+  Chip,
   Dialog,
-  DialogContent,
   DialogActions,
-  Tabs,
+  DialogContent,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
   Tab,
   Table,
   TableBody,
@@ -18,17 +24,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  MenuItem,
+  Tabs,
   TextField,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from '@mui/icons-material';
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 // Subscription type
 interface Subscription {
@@ -37,31 +38,31 @@ interface Subscription {
   description?: string;
   merchant: string;
   amount: number;
-  billingCycle: 'monthly' | 'quarterly' | 'annual' | 'custom';
+  billingCycle: "monthly" | "quarterly" | "annual" | "custom";
   nextBillingDate: Date;
   category: string;
-  type: 'business' | 'personal';
-  businessEntity?: 'Down Home' | 'Music City Rodeo';
+  type: "business" | "personal";
+  businessEntity?: "Down Home" | "Music City Rodeo";
   active: boolean;
   autoRenew: boolean;
   startDate: Date;
   lastBillingDate?: Date;
 }
 
-interface SubscriptionFormData extends Omit<Subscription, 'id'> {
+interface SubscriptionFormData extends Omit<Subscription, "id"> {
   id?: string;
 }
 
 const initialFormData: SubscriptionFormData = {
-  name: '',
-  description: '',
-  merchant: '',
+  name: "",
+  description: "",
+  merchant: "",
   amount: 0,
-  billingCycle: 'monthly',
+  billingCycle: "monthly",
   nextBillingDate: new Date(),
-  category: 'Software',
-  type: 'business',
-  businessEntity: 'Down Home',
+  category: "Software",
+  type: "business",
+  businessEntity: "Down Home",
   active: true,
   autoRenew: true,
   startDate: new Date(),
@@ -81,50 +82,50 @@ const Subscriptions: React.FC = () => {
     // This would be an API call to your backend
     const mockSubscriptions: Subscription[] = [
       {
-        id: '1',
-        name: 'Adobe Creative Cloud',
-        merchant: 'Adobe',
-        description: 'Design software suite',
+        id: "1",
+        name: "Adobe Creative Cloud",
+        merchant: "Adobe",
+        description: "Design software suite",
         amount: 52.99,
-        billingCycle: 'monthly',
-        nextBillingDate: new Date('2025-05-10'),
-        category: 'Software',
-        type: 'business',
-        businessEntity: 'Down Home',
+        billingCycle: "monthly",
+        nextBillingDate: new Date("2025-05-10"),
+        category: "Software",
+        type: "business",
+        businessEntity: "Down Home",
         active: true,
         autoRenew: true,
-        startDate: new Date('2023-01-15'),
-        lastBillingDate: new Date('2025-04-10'),
+        startDate: new Date("2023-01-15"),
+        lastBillingDate: new Date("2025-04-10"),
       },
       {
-        id: '2',
-        name: 'Spotify Premium',
-        merchant: 'Spotify',
+        id: "2",
+        name: "Spotify Premium",
+        merchant: "Spotify",
         amount: 9.99,
-        billingCycle: 'monthly',
-        nextBillingDate: new Date('2025-05-03'),
-        category: 'Entertainment',
-        type: 'personal',
+        billingCycle: "monthly",
+        nextBillingDate: new Date("2025-05-03"),
+        category: "Entertainment",
+        type: "personal",
         active: true,
         autoRenew: true,
-        startDate: new Date('2022-05-03'),
-        lastBillingDate: new Date('2025-04-03'),
+        startDate: new Date("2022-05-03"),
+        lastBillingDate: new Date("2025-04-03"),
       },
       {
-        id: '3',
-        name: 'Mailchimp',
-        merchant: 'Mailchimp',
-        description: 'Email marketing platform',
+        id: "3",
+        name: "Mailchimp",
+        merchant: "Mailchimp",
+        description: "Email marketing platform",
         amount: 79.99,
-        billingCycle: 'monthly',
-        nextBillingDate: new Date('2025-04-21'),
-        category: 'Marketing',
-        type: 'business',
-        businessEntity: 'Music City Rodeo',
+        billingCycle: "monthly",
+        nextBillingDate: new Date("2025-04-21"),
+        category: "Marketing",
+        type: "business",
+        businessEntity: "Music City Rodeo",
         active: true,
         autoRenew: true,
-        startDate: new Date('2023-10-21'),
-        lastBillingDate: new Date('2025-03-21'),
+        startDate: new Date("2023-10-21"),
+        lastBillingDate: new Date("2025-03-21"),
       },
     ];
 
@@ -133,40 +134,40 @@ const Subscriptions: React.FC = () => {
 
   // Calculate totals
   const businessTotal = subscriptions
-    .filter(s => s.type === 'business' && s.active)
+    .filter((s) => s.type === "business" && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
 
   const personalTotal = subscriptions
-    .filter(s => s.type === 'personal' && s.active)
+    .filter((s) => s.type === "personal" && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
 
   const downHomeTotal = subscriptions
-    .filter(s => s.businessEntity === 'Down Home' && s.active)
+    .filter((s) => s.businessEntity === "Down Home" && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
 
   const musicCityTotal = subscriptions
-    .filter(s => s.businessEntity === 'Music City Rodeo' && s.active)
+    .filter((s) => s.businessEntity === "Music City Rodeo" && s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
 
   const totalMonthly = subscriptions
-    .filter(s => s.active)
+    .filter((s) => s.active)
     .reduce((sum, curr) => sum + curr.amount, 0);
 
   // Filter subscriptions based on UI state
-  const filteredSubscriptions = subscriptions.filter(s => {
-    if (s.type === 'business' && !showBusiness) return false;
-    if (s.type === 'personal' && !showPersonal) return false;
+  const filteredSubscriptions = subscriptions.filter((s) => {
+    if (s.type === "business" && !showBusiness) return false;
+    if (s.type === "personal" && !showPersonal) return false;
 
     // Filter by tab
-    if (tabValue === 1 && s.type !== 'business') return false;
-    if (tabValue === 2 && s.type !== 'personal') return false;
+    if (tabValue === 1 && s.type !== "business") return false;
+    if (tabValue === 2 && s.type !== "personal") return false;
 
     return true;
   });
 
   // Sort subscriptions by next billing date
   const sortedSubscriptions = [...filteredSubscriptions].sort(
-    (a, b) => a.nextBillingDate.getTime() - b.nextBillingDate.getTime()
+    (a, b) => a.nextBillingDate.getTime() - b.nextBillingDate.getTime(),
   );
 
   const handleAddSubscription = () => {
@@ -187,7 +188,7 @@ const Subscriptions: React.FC = () => {
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -196,23 +197,23 @@ const Subscriptions: React.FC = () => {
   const handleSubmit = () => {
     if (selectedSubscription) {
       // Update existing subscription
-      setSubscriptions(prev =>
-        prev.map(sub => (sub.id === selectedSubscription.id ? { ...formData, id: sub.id } : sub))
+      setSubscriptions((prev) =>
+        prev.map((sub) => (sub.id === selectedSubscription.id ? { ...formData, id: sub.id } : sub)),
       );
     } else {
       // Add new subscription
-      setSubscriptions(prev => [...prev, { ...formData, id: Date.now().toString() }]);
+      setSubscriptions((prev) => [...prev, { ...formData, id: Date.now().toString() }]);
     }
     setDialogOpen(false);
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: "100%" }}>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           mb: 3,
         }}
       >
@@ -221,13 +222,13 @@ const Subscriptions: React.FC = () => {
           <IconButton
             sx={{ mr: 1 }}
             onClick={() => setShowPersonal(!showPersonal)}
-            color={showPersonal ? 'primary' : 'default'}
-            title={showPersonal ? 'Hide Personal' : 'Show Personal'}
+            color={showPersonal ? "primary" : "default"}
+            title={showPersonal ? "Hide Personal" : "Show Personal"}
           >
             <Chip
               label="Personal"
-              color={showPersonal ? 'primary' : 'default'}
-              variant={showPersonal ? 'filled' : 'outlined'}
+              color={showPersonal ? "primary" : "default"}
+              variant={showPersonal ? "filled" : "outlined"}
               size="small"
             />
           </IconButton>
@@ -235,13 +236,13 @@ const Subscriptions: React.FC = () => {
           <IconButton
             sx={{ mr: 2 }}
             onClick={() => setShowBusiness(!showBusiness)}
-            color={showBusiness ? 'secondary' : 'default'}
-            title={showBusiness ? 'Hide Business' : 'Show Business'}
+            color={showBusiness ? "secondary" : "default"}
+            title={showBusiness ? "Hide Business" : "Show Business"}
           >
             <Chip
               label="Business"
-              color={showBusiness ? 'secondary' : 'default'}
-              variant={showBusiness ? 'filled' : 'outlined'}
+              color={showBusiness ? "secondary" : "default"}
+              variant={showBusiness ? "filled" : "outlined"}
               size="small"
             />
           </IconButton>
@@ -263,7 +264,7 @@ const Subscriptions: React.FC = () => {
               ${totalMonthly.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Active subscriptions: {subscriptions.filter(s => s.active).length}
+              Active subscriptions: {subscriptions.filter((s) => s.active).length}
             </Typography>
           </Card>
         </Grid>
@@ -277,7 +278,7 @@ const Subscriptions: React.FC = () => {
               ${businessTotal.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subscriptions.filter(s => s.type === 'business' && s.active).length} active
+              {subscriptions.filter((s) => s.type === "business" && s.active).length} active
               subscriptions
             </Typography>
           </Card>
@@ -292,7 +293,7 @@ const Subscriptions: React.FC = () => {
               ${downHomeTotal.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subscriptions.filter(s => s.businessEntity === 'Down Home' && s.active).length}{' '}
+              {subscriptions.filter((s) => s.businessEntity === "Down Home" && s.active).length}{" "}
               subscriptions
             </Typography>
           </Card>
@@ -308,9 +309,9 @@ const Subscriptions: React.FC = () => {
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               {
-                subscriptions.filter(s => s.businessEntity === 'Music City Rodeo' && s.active)
+                subscriptions.filter((s) => s.businessEntity === "Music City Rodeo" && s.active)
                   .length
-              }{' '}
+              }{" "}
               subscriptions
             </Typography>
           </Card>
@@ -348,12 +349,12 @@ const Subscriptions: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedSubscriptions.map(subscription => (
+            {sortedSubscriptions.map((subscription) => (
               <TableRow
                 key={subscription.id}
                 sx={{
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
                   },
                   opacity: subscription.active ? 1 : 0.5,
                 }}
@@ -378,17 +379,17 @@ const Subscriptions: React.FC = () => {
                 <TableCell>
                   <Chip
                     label={
-                      subscription.type === 'business' ? subscription.businessEntity : 'Personal'
+                      subscription.type === "business" ? subscription.businessEntity : "Personal"
                     }
                     size="small"
-                    color={subscription.type === 'business' ? 'secondary' : 'primary'}
+                    color={subscription.type === "business" ? "secondary" : "primary"}
                   />
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={subscription.active ? 'Active' : 'Inactive'}
+                    label={subscription.active ? "Active" : "Inactive"}
                     size="small"
-                    color={subscription.active ? 'success' : 'default'}
+                    color={subscription.active ? "success" : "default"}
                     variant="outlined"
                   />
                 </TableCell>
@@ -407,7 +408,7 @@ const Subscriptions: React.FC = () => {
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogContent>
           <Typography variant="h6" sx={{ mb: 3 }}>
-            {selectedSubscription ? 'Edit Subscription' : 'Add New Subscription'}
+            {selectedSubscription ? "Edit Subscription" : "Add New Subscription"}
           </Typography>
 
           <Grid container spacing={2}>
@@ -437,7 +438,7 @@ const Subscriptions: React.FC = () => {
                 name="amount"
                 type="number"
                 InputProps={{
-                  startAdornment: '$',
+                  startAdornment: "$",
                 }}
                 fullWidth
                 value={formData.amount}
@@ -467,9 +468,9 @@ const Subscriptions: React.FC = () => {
                 name="nextBillingDate"
                 type="date"
                 fullWidth
-                value={formData.nextBillingDate.toISOString().split('T')[0]}
-                onChange={e =>
-                  setFormData(prev => ({
+                value={formData.nextBillingDate.toISOString().split("T")[0]}
+                onChange={(e) =>
+                  setFormData((prev) => ({
                     ...prev,
                     nextBillingDate: new Date(e.target.value),
                   }))
@@ -502,7 +503,7 @@ const Subscriptions: React.FC = () => {
                 fullWidth
                 value={formData.businessEntity}
                 onChange={handleFormChange}
-                disabled={formData.type === 'personal'}
+                disabled={formData.type === "personal"}
               >
                 <MenuItem value="Down Home">Down Home</MenuItem>
                 <MenuItem value="Music City Rodeo">Music City Rodeo</MenuItem>
@@ -533,11 +534,11 @@ const Subscriptions: React.FC = () => {
                 label="Status"
                 name="active"
                 fullWidth
-                value={formData.active ? 'active' : 'inactive'}
-                onChange={e =>
-                  setFormData(prev => ({
+                value={formData.active ? "active" : "inactive"}
+                onChange={(e) =>
+                  setFormData((prev) => ({
                     ...prev,
-                    active: e.target.value === 'active',
+                    active: e.target.value === "active",
                   }))
                 }
               >
@@ -562,7 +563,7 @@ const Subscriptions: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleSubmit} variant="contained" color="primary">
-            {selectedSubscription ? 'Save Changes' : 'Add Subscription'}
+            {selectedSubscription ? "Save Changes" : "Add Subscription"}
           </Button>
         </DialogActions>
       </Dialog>

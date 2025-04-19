@@ -1,22 +1,22 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { BaseDocument } from "./base.schema";
 
 export type SearchDocument = Search & Document;
 
 export enum SearchType {
-  MERCHANT = 'MERCHANT',
-  TRANSACTION = 'TRANSACTION',
-  RECEIPT = 'RECEIPT',
-  CATEGORY = 'CATEGORY',
-  TAG = 'TAG',
+  MERCHANT = "MERCHANT",
+  TRANSACTION = "TRANSACTION",
+  RECEIPT = "RECEIPT",
+  CATEGORY = "CATEGORY",
+  TAG = "TAG",
 }
 
 export enum MatchAlgorithm {
-  FUZZY = 'FUZZY',
-  SEMANTIC = 'SEMANTIC',
-  RULE_BASED = 'RULE_BASED',
-  HYBRID = 'HYBRID',
+  FUZZY = "FUZZY",
+  SEMANTIC = "SEMANTIC",
+  RULE_BASED = "RULE_BASED",
+  HYBRID = "HYBRID",
 }
 
 export interface SearchResult {
@@ -29,14 +29,14 @@ export interface SearchResult {
 
 export interface MatchRule {
   field: string;
-  operator: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'regex';
+  operator: "equals" | "contains" | "startsWith" | "endsWith" | "regex";
   value: string;
   weight: number;
 }
 
 @Schema({
   timestamps: true,
-  collection: 'search_index',
+  collection: "search_index",
 })
 export class Search implements BaseDocument {
   _id!: string;
@@ -110,8 +110,8 @@ export const SearchSchema = SchemaFactory.createForClass(Search);
 
 // Indexes
 SearchSchema.index({ userId: 1, type: 1 });
-SearchSchema.index({ content: 'text' });
-SearchSchema.index({ 'metadata.originalId': 1 });
-SearchSchema.index({ 'embeddings.vector': '2dsphere' });
-SearchSchema.index({ 'matches.targetId': 1 });
-SearchSchema.index({ 'statistics.lastSearched': 1 });
+SearchSchema.index({ content: "text" });
+SearchSchema.index({ "metadata.originalId": 1 });
+SearchSchema.index({ "embeddings.vector": "2dsphere" });
+SearchSchema.index({ "matches.targetId": 1 });
+SearchSchema.index({ "statistics.lastSearched": 1 });

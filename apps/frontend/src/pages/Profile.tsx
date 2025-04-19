@@ -1,27 +1,27 @@
-import React from 'react';
+import AnimatedWrapper from "@/shared/components/AnimatedWrapper";
 import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
   Avatar,
+  Box,
   Button,
   Divider,
+  Grid,
   List,
   ListItem,
   ListItemText,
-  useTheme,
-  useMediaQuery,
+  Paper,
   Stack,
-} from '@mui/material';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import type React from "react";
+import { useAuth } from "../context/AuthContext";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const containerAnimation = {
     hidden: { opacity: 0 },
@@ -61,18 +61,18 @@ const Profile: React.FC = () => {
               <Paper
                 sx={{
                   p: { xs: 2, sm: 3 },
-                  textAlign: 'center',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
+                  textAlign: "center",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
               >
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{
-                    type: 'spring',
+                    type: "spring",
                     stiffness: 260,
                     damping: 20,
                     delay: 0.3,
@@ -82,9 +82,9 @@ const Profile: React.FC = () => {
                     sx={{
                       width: { xs: 80, sm: 100 },
                       height: { xs: 80, sm: 100 },
-                      fontSize: { xs: '2rem', sm: '2.5rem' },
-                      margin: '0 auto 16px',
-                      bgcolor: 'primary.main',
+                      fontSize: { xs: "2rem", sm: "2.5rem" },
+                      margin: "0 auto 16px",
+                      bgcolor: "primary.main",
                     }}
                   >
                     {user?.firstName?.[0]}
@@ -106,7 +106,7 @@ const Profile: React.FC = () => {
                     variant="outlined"
                     sx={{
                       mt: 2,
-                      width: { xs: '100%', sm: 'auto' },
+                      width: { xs: "100%", sm: "auto" },
                     }}
                   >
                     Edit Profile
@@ -130,7 +130,7 @@ const Profile: React.FC = () => {
                         primary="Email"
                         secondary={user?.email}
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                     </ListItem>
@@ -142,7 +142,7 @@ const Profile: React.FC = () => {
                         primary="Role"
                         secondary={user?.role}
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                     </ListItem>
@@ -154,7 +154,7 @@ const Profile: React.FC = () => {
                         primary="Member Since"
                         secondary="March 2024"
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                     </ListItem>
@@ -167,7 +167,7 @@ const Profile: React.FC = () => {
                     </Typography>
                   </motion.div>
                   <motion.div variants={itemAnimation} transition={{ delay: 0.2 }}>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 2 }}>
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
                       <Button variant="outlined" color="primary" fullWidth={isMobile}>
                         Change Password
                       </Button>

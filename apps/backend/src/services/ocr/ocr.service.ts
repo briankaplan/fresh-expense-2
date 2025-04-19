@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { createWorker, PSM } from 'tesseract.js';
-import sharp from 'sharp';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationService } from '../notification/notification.service';
-import { OCRResult } from '@fresh-expense/types';
+import type { OCRResult } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import sharp from "sharp";
+import { PSM, createWorker } from "tesseract.js";
+import type { NotificationService } from "../notification/notification.service";
 
 @Injectable()
 export class OCRService {
@@ -12,39 +12,39 @@ export class OCRService {
   private worker: any;
   private initialized = false;
   private readonly receiptTypes = [
-    'retail',
-    'restaurant',
-    'grocery',
-    'gas',
-    'pharmacy',
-    'medical',
-    'utility',
-    'hotel',
-    'transportation',
-    'digital',
-    'subscription',
-    'app_store',
-    'play_store',
+    "retail",
+    "restaurant",
+    "grocery",
+    "gas",
+    "pharmacy",
+    "medical",
+    "utility",
+    "hotel",
+    "transportation",
+    "digital",
+    "subscription",
+    "app_store",
+    "play_store",
   ];
 
   private readonly subscriptionKeywords = [
-    'subscription',
-    'recurring',
-    'monthly',
-    'yearly',
-    'weekly',
-    'quarterly',
-    'auto-renewal',
-    'next billing',
-    'next payment',
-    'billing period',
-    'renewal date',
+    "subscription",
+    "recurring",
+    "monthly",
+    "yearly",
+    "weekly",
+    "quarterly",
+    "auto-renewal",
+    "next billing",
+    "next payment",
+    "billing period",
+    "renewal date",
   ];
 
   constructor(
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {}
 
   async initialize(): Promise<boolean> {
@@ -53,19 +53,19 @@ export class OCRService {
         return true;
       }
 
-      this.worker = await createWorker('eng');
+      this.worker = await createWorker("eng");
       await this.worker.setParameters({
         tessedit_pageseg_mode: PSM.AUTO,
       });
 
       this.initialized = true;
-      this.logger.log('OCR service initialized successfully');
+      this.logger.log("OCR service initialized successfully");
       return true;
     } catch (error) {
-      this.logger.error('Failed to initialize OCR service:', error);
+      this.logger.error("Failed to initialize OCR service:", error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'OCR Service Initialization'
+        "OCR Service Initialization",
       );
       return false;
     }
@@ -78,10 +78,10 @@ export class OCRService {
         this.worker = null;
       }
       this.initialized = false;
-      this.logger.log('OCR service cleaned up successfully');
+      this.logger.log("OCR service cleaned up successfully");
       return true;
     } catch (error) {
-      this.logger.error('Error cleaning up OCR service:', error);
+      this.logger.error("Error cleaning up OCR service:", error);
       return false;
     }
   }
@@ -90,7 +90,7 @@ export class OCRService {
     if (!this.initialized) {
       const success = await this.initialize();
       if (!success) {
-        throw new Error('Failed to initialize OCR Service');
+        throw new Error("Failed to initialize OCR Service");
       }
     }
 
@@ -102,7 +102,7 @@ export class OCRService {
       const { data } = await this.worker.recognize(preprocessedBuffer);
 
       if (!data || !data.text || data.text.trim().length != null) {
-        throw new Error('No text recognized from image');
+        throw new Error("No text recognized from image");
       }
 
       // Extract structured information
@@ -114,10 +114,10 @@ export class OCRService {
         structuredData,
       };
     } catch (error) {
-      this.logger.error('Error processing receipt:', error);
+      this.logger.error("Error processing receipt:", error);
       await this.notificationService.notifyError(
         error instanceof Error ? error : new Error(String(error)),
-        'Receipt Processing'
+        "Receipt Processing",
       );
       throw error;
     }
@@ -126,15 +126,15 @@ export class OCRService {
   private async preprocessImage(buffer: Buffer): Promise<Buffer> {
     return sharp(buffer)
       .grayscale()
-      .resize(2000, null, { fit: 'inside' })
+      .resize(2000, null, { fit: "inside" })
       .normalize()
       .sharpen()
       .toBuffer();
   }
 
-  private extractStructuredData(text: string): OCRResult['structuredData'] {
-    const result: OCRResult['structuredData'] = {
-      merchantName: '',
+  private extractStructuredData(text: string): OCRResult["structuredData"] {
+    const result: OCRResult["structuredData"] = {
+      merchantName: "",
       date: new Date(),
       total: 0,
       subtotal: 0,
@@ -143,11 +143,11 @@ export class OCRService {
       subscriptionInfo: this.extractSubscriptionInfo(text),
     };
 
-    const lines = text.split('\n');
+    const lines = text.split("\n");
 
     // Extract merchant name (typically at the top)
     for (let i = 0; i < Math.min(5, lines.length); i++) {
-      const line = lines[i]?.trim() ?? '';
+      const line = lines[i]?.trim() ?? "";
       if (line.length > 3 && !line.match(/receipt|invoice|order|phone|fax|www|http/i)) {
         result.merchantName = line;
         break;
@@ -183,8 +183,8 @@ export class OCRService {
     for (const pattern of totalPatterns) {
       const match = text.match(pattern);
       if (match) {
-        const amountStr = match[1]?.replace(/,/g, '') ?? '0';
-        result.total = parseFloat(amountStr);
+        const amountStr = match[1]?.replace(/,/g, "") ?? "0";
+        result.total = Number.parseFloat(amountStr);
         break;
       }
     }
@@ -198,8 +198,8 @@ export class OCRService {
     for (const pattern of itemPatterns) {
       let itemMatch;
       while ((itemMatch = pattern.exec(text)) !== null) {
-        const itemName = itemMatch[1]?.trim() ?? '';
-        const itemPrice = parseFloat(itemMatch[2] ?? '0');
+        const itemName = itemMatch[1]?.trim() ?? "";
+        const itemPrice = Number.parseFloat(itemMatch[2] ?? "0");
 
         if (!itemName.toLowerCase().match(/total|subtotal|tax|tip|discount|balance/i)) {
           result.items.push({
@@ -213,15 +213,15 @@ export class OCRService {
     return result;
   }
 
-  private extractSubscriptionInfo(text: string): OCRResult['structuredData']['subscriptionInfo'] {
+  private extractSubscriptionInfo(text: string): OCRResult["structuredData"]["subscriptionInfo"] {
     const lowerText = text.toLowerCase();
-    const isSubscription = this.subscriptionKeywords.some(keyword => lowerText.includes(keyword));
+    const isSubscription = this.subscriptionKeywords.some((keyword) => lowerText.includes(keyword));
 
     if (!isSubscription) {
       return undefined;
     }
 
-    const result: NonNullable<OCRResult['structuredData']['subscriptionInfo']> = {
+    const result: NonNullable<OCRResult["structuredData"]["subscriptionInfo"]> = {
       isSubscription: true,
     };
 
@@ -265,8 +265,8 @@ export class OCRService {
     for (const pattern of recurringAmountPatterns) {
       const match = text.match(pattern);
       if (match) {
-        const amountStr = match[1]?.replace(/,/g, '') ?? '0';
-        result.amount = parseFloat(amountStr);
+        const amountStr = match[1]?.replace(/,/g, "") ?? "0";
+        result.amount = Number.parseFloat(amountStr);
         break;
       }
     }

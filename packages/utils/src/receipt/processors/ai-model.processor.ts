@@ -1,6 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { BaseReceiptProcessor, ProcessingResult, ProcessingOptions } from './base.processor';
-import { AIModelDocument, AIModelStatus } from '@fresh-expense/types';
+import { type AIModelDocument, AIModelStatus } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import {
+  BaseReceiptProcessor,
+  type ProcessingOptions,
+  type ProcessingResult,
+} from "./base.processor";
 
 @Injectable()
 export class AIModelProcessor extends BaseReceiptProcessor {
@@ -13,7 +17,7 @@ export class AIModelProcessor extends BaseReceiptProcessor {
     try {
       // Validate document
       if (options.validate && !this.validateDocument(doc)) {
-        return { success: false, error: 'Invalid document' };
+        return { success: false, error: "Invalid document" };
       }
 
       // Update status to processing
@@ -24,8 +28,8 @@ export class AIModelProcessor extends BaseReceiptProcessor {
         steps: [
           ...(doc.processing?.steps || []),
           {
-            name: 'start',
-            status: 'matched',
+            name: "start",
+            status: "matched",
             completedAt: new Date(),
           },
         ],
@@ -61,8 +65,8 @@ export class AIModelProcessor extends BaseReceiptProcessor {
         steps: [
           ...(doc.processing?.steps || []),
           {
-            name: 'finalize',
-            status: 'matched',
+            name: "finalize",
+            status: "matched",
             completedAt: new Date(),
           },
         ],
@@ -73,27 +77,27 @@ export class AIModelProcessor extends BaseReceiptProcessor {
       doc.status = AIModelStatus.FAILED;
       doc.processing = {
         ...doc.processing,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         steps: [
           ...(doc.processing?.steps || []),
           {
-            name: 'error',
-            status: 'matched',
+            name: "error",
+            status: "matched",
             completedAt: new Date(),
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
           },
         ],
       };
 
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
 
   async processSendGrid(): Promise<ProcessingResult> {
-    throw new Error('SendGrid processing not supported by AI Model processor');
+    throw new Error("SendGrid processing not supported by AI Model processor");
   }
 
   protected async processContent(
@@ -111,7 +115,7 @@ export class AIModelProcessor extends BaseReceiptProcessor {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Content processing failed',
+        error: error instanceof Error ? error.message : "Content processing failed",
       };
     }
   }

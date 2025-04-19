@@ -1,21 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IMerchantLearningService, MerchantData } from '@fresh-expense/types';
-import { MerchantDocument } from '@fresh-expense/types';
+import type { IMerchantLearningService, MerchantData } from "@fresh-expense/types";
+import type { MerchantDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
 
 @Injectable()
 export class MerchantLearningService implements IMerchantLearningService {
   private readonly logger = new Logger(MerchantLearningService.name);
 
-  constructor(@InjectModel('Merchant') private merchantModel: Model<MerchantDocument>) {}
+  constructor(@InjectModel("Merchant") private merchantModel: Model<MerchantDocument>) {}
 
   async getMerchantData(merchantName: string): Promise<MerchantData> {
     try {
       const merchant = await this.merchantModel.findOne({ name: merchantName });
       if (!merchant) {
         return {
-      confidence: 0,
+          confidence: 0,
           tags: [],
           description: merchantName,
         };
@@ -30,7 +30,7 @@ export class MerchantLearningService implements IMerchantLearningService {
       };
     } catch (error) {
       this.logger.error(`Failed to get merchant data for ${merchantName}: ${error.message}`);
-    return {
+      return {
         confidence: 0,
         tags: [],
         description: merchantName,
@@ -79,12 +79,12 @@ export class MerchantLearningService implements IMerchantLearningService {
     try {
       const merchants = await this.merchantModel
         .find({
-          name: { $regex: merchantName, $options: 'i' },
+          name: { $regex: merchantName, $options: "i" },
         })
         .sort({ confidence: -1 })
         .limit(5);
 
-      return merchants.map(merchant => ({
+      return merchants.map((merchant) => ({
         category: merchant.category,
         company: merchant.company,
         confidence: merchant.confidence || 0,

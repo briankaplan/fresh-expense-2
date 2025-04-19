@@ -1,6 +1,6 @@
-import { TransactionFilters, TransactionSearchQuery } from '../lib/transaction-types';
-import { Transaction } from '@fresh-expense/types';
-import { Transaction as TransactionSchema } from '../schemas/transaction.schema';
+import type { Transaction } from "@fresh-expense/types";
+import type { TransactionFilters, TransactionSearchQuery } from "../lib/transaction-types";
+import type { Transaction as TransactionSchema } from "../schemas/transaction.schema";
 
 export interface ITransactionRepository {
   // Core CRUD operations
@@ -27,7 +27,7 @@ export interface ITransactionRepository {
   // Aggregation operations
   getTotalByCategory(
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<
     Array<{
       category: string;
@@ -64,12 +64,12 @@ export interface ITransactionRepository {
     merchantName: string,
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<TransactionSchema[]>;
 
   getMerchantStats(
     merchantName: string,
-    userId: string
+    userId: string,
   ): Promise<{
     transactionCount: number;
     totalAmount: number;

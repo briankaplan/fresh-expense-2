@@ -1,55 +1,56 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Paper,
-  InputAdornment,
-  IconButton,
-  Alert,
-  Fade,
-} from '@mui/material';
+import { useAuth } from "@/context/AuthContext";
 import {
   Email as EmailIcon,
   Lock as LockIcon,
   Visibility,
   VisibilityOff,
-} from '@mui/icons-material';
-import { useAuth } from '@/context/AuthContext';
-import { motion } from 'framer-motion';
+} from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Fade,
+  IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import type React from "react";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     try {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     }
   };
 
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       }}
     >
       <Container maxWidth="sm">
@@ -62,11 +63,11 @@ export default function Login() {
             elevation={24}
             sx={{
               p: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               borderRadius: 2,
-              background: 'rgba(255, 255, 255, 0.95)',
+              background: "rgba(255, 255, 255, 0.95)",
             }}
           >
             <Typography
@@ -74,10 +75,10 @@ export default function Login() {
               variant="h4"
               sx={{
                 mb: 3,
-                fontWeight: 'bold',
-                background: 'linear-gradient(45deg, #667eea, #764ba2)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                fontWeight: "bold",
+                background: "linear-gradient(45deg, #667eea, #764ba2)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               }}
             >
               Welcome Back
@@ -85,13 +86,13 @@ export default function Login() {
 
             {error && (
               <Fade in={!!error}>
-                <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+                <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
                   {error}
                 </Alert>
               </Fade>
             )}
 
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
               <TextField
                 margin="normal"
                 required
@@ -102,7 +103,7 @@ export default function Login() {
                 autoComplete="email"
                 autoFocus
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -119,11 +120,11 @@ export default function Login() {
                 fullWidth
                 name="password"
                 label="Password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 id="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -149,34 +150,34 @@ export default function Login() {
                   mt: 3,
                   mb: 2,
                   py: 1.5,
-                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
-                  '&:hover': {
-                    background: 'linear-gradient(45deg, #764ba2, #667eea)',
+                  background: "linear-gradient(45deg, #667eea, #764ba2)",
+                  "&:hover": {
+                    background: "linear-gradient(45deg, #764ba2, #667eea)",
                   },
                 }}
               >
                 Sign In
               </Button>
 
-              <Box sx={{ textAlign: 'center' }}>
+              <Box sx={{ textAlign: "center" }}>
                 <Link
                   to="/forgot-password"
                   style={{
-                    textDecoration: 'none',
-                    color: '#667eea',
-                    fontSize: '0.875rem',
+                    textDecoration: "none",
+                    color: "#667eea",
+                    fontSize: "0.875rem",
                   }}
                 >
                   Forgot password?
                 </Link>
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                  Don't have an account?{' '}
+                  Don't have an account?{" "}
                   <Link
                     to="/register"
                     style={{
-                      textDecoration: 'none',
-                      color: '#667eea',
-                      fontWeight: 'bold',
+                      textDecoration: "none",
+                      color: "#667eea",
+                      fontWeight: "bold",
                     }}
                   >
                     Sign up

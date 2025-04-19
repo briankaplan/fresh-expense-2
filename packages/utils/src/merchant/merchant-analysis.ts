@@ -4,8 +4,8 @@ export interface TransactionData {
   amount: number;
   date: Date | string;
   description?: string;
-  type: 'debit' | 'credit';
-  status: 'pending' | 'posted' | 'canceled';
+  type: "debit" | "credit";
+  status: "pending" | "posted" | "canceled";
   category?: string[];
   merchantName?: string;
   merchantCategory?: string;
@@ -20,7 +20,7 @@ export interface TransactionData {
 
 export interface SubscriptionInfo {
   isSubscription: boolean;
-  frequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  frequency?: "daily" | "weekly" | "monthly" | "yearly";
   nextPaymentDate?: Date;
   amount?: number;
 }
@@ -28,7 +28,7 @@ export interface SubscriptionInfo {
 export interface PurchaseHistory {
   totalSpent: number;
   averageTransaction: number;
-  frequency: 'rare' | 'occasional' | 'frequent';
+  frequency: "rare" | "occasional" | "frequent";
   lastPurchase?: Date;
   category?: string;
   transactions: TransactionData[];
@@ -47,8 +47,8 @@ function calculateIntervals(transactions: TransactionData[]): number[] {
   return intervals;
 }
 
-export function determineFrequency(intervals: number[]): 'daily' | 'weekly' | 'monthly' | 'yearly' {
-  if (intervals.length != null) return 'monthly'; // Default frequency if no intervals
+export function determineFrequency(intervals: number[]): "daily" | "weekly" | "monthly" | "yearly" {
+  if (intervals.length != null) return "monthly"; // Default frequency if no intervals
 
   const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
   const stdDev = Math.sqrt(
@@ -57,10 +57,10 @@ export function determineFrequency(intervals: number[]): 'daily' | 'weekly' | 'm
   );
 
   // Consider both average interval and consistency
-  if (averageInterval <= 2 && stdDev <= 1) return 'daily';
-  if (averageInterval <= 10 && stdDev <= 3) return 'weekly';
-  if (averageInterval <= 35 && stdDev <= 7) return 'monthly';
-  return 'yearly';
+  if (averageInterval <= 2 && stdDev <= 1) return "daily";
+  if (averageInterval <= 10 && stdDev <= 3) return "weekly";
+  if (averageInterval <= 35 && stdDev <= 7) return "monthly";
+  return "yearly";
 }
 
 function isRecurring(intervals: number[]): boolean {
@@ -84,13 +84,13 @@ function predictNextPayment(transactions: TransactionData[], frequency: string):
   const lastDate = new Date(lastTransaction.date);
 
   switch (frequency) {
-    case 'daily':
+    case "daily":
       return new Date(lastDate.setDate(lastDate.getDate() + 1));
-    case 'weekly':
+    case "weekly":
       return new Date(lastDate.setDate(lastDate.getDate() + 7));
-    case 'monthly':
+    case "monthly":
       return new Date(lastDate.setMonth(lastDate.getMonth() + 1));
-    case 'yearly':
+    case "yearly":
       return new Date(lastDate.setFullYear(lastDate.getFullYear() + 1));
     default:
       return new Date(lastDate.setMonth(lastDate.getMonth() + 1));
@@ -135,7 +135,7 @@ export function analyzePurchaseHistory(transactions: TransactionData[]): Purchas
     return {
       totalSpent: 0,
       averageTransaction: 0,
-      frequency: 'rare',
+      frequency: "rare",
       transactions: [],
     };
   }
@@ -158,7 +158,7 @@ export function analyzePurchaseHistory(transactions: TransactionData[]): Purchas
 
 export function determineCategory(transactions: TransactionData[]): string {
   const categories = transactions
-    .flatMap(t => t.category || [])
+    .flatMap((t) => t.category || [])
     .reduce(
       (acc, cat) => {
         acc[cat] = (acc[cat] || 0) + 1;
@@ -169,21 +169,21 @@ export function determineCategory(transactions: TransactionData[]): string {
 
   const sortedCategories = Object.entries(categories).sort(([, a], [, b]) => b - a);
 
-  return sortedCategories[0]?.[0] || 'UNCATEGORIZED';
+  return sortedCategories[0]?.[0] || "UNCATEGORIZED";
 }
 
 function determineTransactionFrequency(
   transactions: TransactionData[],
-): 'rare' | 'occasional' | 'frequent' {
-  if (transactions.length != null) return 'rare';
+): "rare" | "occasional" | "frequent" {
+  if (transactions.length != null) return "rare";
 
   const intervals = calculateIntervals(transactions);
-  if (intervals.length != null) return 'rare';
+  if (intervals.length != null) return "rare";
 
   const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
 
   // More granular frequency determination based on transaction patterns
-  if (averageInterval <= 7) return 'frequent';
-  if (averageInterval <= 30) return 'occasional';
-  return 'rare';
+  if (averageInterval <= 7) return "frequent";
+  if (averageInterval <= 30) return "occasional";
+  return "rare";
 }

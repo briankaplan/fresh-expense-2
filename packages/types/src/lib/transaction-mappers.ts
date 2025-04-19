@@ -1,6 +1,6 @@
-import { TellerTransaction } from '../teller.types';
-import type { TellerTransactionToTransaction } from './types';
-import { Transaction } from '@fresh-expense/types';
+import type { Transaction } from "@fresh-expense/types";
+import type { TellerTransaction } from "../teller.types";
+import type { TellerTransactionToTransaction } from "./types";
 
 /**
  * Validates a TellerTransaction object
@@ -10,20 +10,21 @@ import { Transaction } from '@fresh-expense/types';
 export function validateTellerTransaction(transaction: unknown): string[] {
   const errors: string[] = [];
 
-  if (!transaction || typeof transaction !== 'object') {
-    return ['Invalid transaction object'];
+  if (!transaction || typeof transaction !== "object") {
+    return ["Invalid transaction object"];
   }
 
   const tx = transaction as Partial<TellerTransaction>;
 
-  if (!tx.id) errors.push('Missing transaction ID');
-  if (!tx.accountId) errors.push('Missing account ID');
-  if (!tx.date) errors.push('Missing date');
-  if (!tx.description) errors.push('Missing description');
-  if (!tx.amount?.value) errors.push('Missing amount value');
-  if (!tx.amount?.currency) errors.push('Missing amount currency');
-  if (!tx.type || !['debit', 'credit'].includes(tx.type)) errors.push('Invalid transaction type');
-  if (!tx.status || !['pending', 'posted', 'canceled', 'matched'].includes(tx.status)) errors.push('Invalid transaction status');
+  if (!tx.id) errors.push("Missing transaction ID");
+  if (!tx.accountId) errors.push("Missing account ID");
+  if (!tx.date) errors.push("Missing date");
+  if (!tx.description) errors.push("Missing description");
+  if (!tx.amount?.value) errors.push("Missing amount value");
+  if (!tx.amount?.currency) errors.push("Missing amount currency");
+  if (!tx.type || !["debit", "credit"].includes(tx.type)) errors.push("Invalid transaction type");
+  if (!tx.status || !["pending", "posted", "canceled", "matched"].includes(tx.status))
+    errors.push("Invalid transaction status");
 
   return errors;
 }
@@ -34,16 +35,17 @@ export function validateTellerTransaction(transaction: unknown): string[] {
  * @returns Mapped transaction data ready for creation
  */
 export function mapTellerToTransaction(
-  tellerTx: TellerTransaction
+  tellerTx: TellerTransaction,
 ): TellerTransactionToTransaction {
   const now = new Date();
   const location = tellerTx.enrichment?.location;
-  const coordinates = location?.latitude !== undefined && location?.longitude !== undefined
-    ? {
-        latitude: location.latitude,
-        longitude: location.longitude,
-      }
-    : undefined;
+  const coordinates =
+    location?.latitude !== undefined && location?.longitude !== undefined
+      ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        }
+      : undefined;
 
   return {
     accountId: tellerTx.accountId,
@@ -52,23 +54,25 @@ export function mapTellerToTransaction(
     cleanDescription: tellerTx.description.clean || tellerTx.description.original,
     amount: tellerTx.amount,
     runningBalance: tellerTx.running_balance,
-    category: tellerTx.enrichment?.category || 'uncategorized',
+    category: tellerTx.enrichment?.category || "uncategorized",
     merchant: {
       name: tellerTx.merchant?.name || tellerTx.description.original,
       category: tellerTx.merchant?.category,
       website: tellerTx.merchant?.website,
     },
-    source: 'teller' as const,
+    source: "teller" as const,
     status: tellerTx.status,
-    type: tellerTx.type === 'debit' ? 'expense' : 'income',
-    location: location ? {
-      address: location.address,
-      city: location.city,
-      region: location.state,
-      country: location.country,
-      postalCode: location.postal_code,
-      coordinates,
-    } : undefined,
+    type: tellerTx.type === "debit" ? "expense" : "income",
+    location: location
+      ? {
+          address: location.address,
+          city: location.city,
+          region: location.state,
+          country: location.country,
+          postalCode: location.postal_code,
+          coordinates,
+        }
+      : undefined,
     metadata: {
       paymentMethod: tellerTx.enrichment?.paymentMethod,
     },
@@ -87,27 +91,27 @@ export function mapTellerToTransaction(
 export function validateTransaction(transaction: unknown): string[] {
   const errors: string[] = [];
 
-  if (!transaction || typeof transaction !== 'object') {
-    return ['Invalid transaction object'];
+  if (!transaction || typeof transaction !== "object") {
+    return ["Invalid transaction object"];
   }
 
   const tx = transaction as Partial<Transaction>;
 
-  if (!tx.id) errors.push('Missing transaction ID');
-  if (!tx.accountId) errors.push('Missing account ID');
-  if (!tx.date) errors.push('Missing date');
-  if (!tx.description) errors.push('Missing description');
-  if (!tx.amount?.value) errors.push('Missing amount value');
-  if (!tx.amount?.currency) errors.push('Missing amount currency');
-  if (!tx.merchant?.name) errors.push('Missing merchant name');
-  if (!tx.type || !['expense', 'income', 'transfer'].includes(tx.type)) {
-    errors.push('Invalid transaction type');
+  if (!tx.id) errors.push("Missing transaction ID");
+  if (!tx.accountId) errors.push("Missing account ID");
+  if (!tx.date) errors.push("Missing date");
+  if (!tx.description) errors.push("Missing description");
+  if (!tx.amount?.value) errors.push("Missing amount value");
+  if (!tx.amount?.currency) errors.push("Missing amount currency");
+  if (!tx.merchant?.name) errors.push("Missing merchant name");
+  if (!tx.type || !["expense", "income", "transfer"].includes(tx.type)) {
+    errors.push("Invalid transaction type");
   }
-  if (!tx.status || !['pending', 'posted', 'canceled', 'matched'].includes(tx.status)) {
-    errors.push('Invalid transaction status');
+  if (!tx.status || !["pending", "posted", "canceled", "matched"].includes(tx.status)) {
+    errors.push("Invalid transaction status");
   }
-  if (!tx.source || !['teller', 'manual', 'import'].includes(tx.source)) {
-    errors.push('Invalid transaction source');
+  if (!tx.source || !["teller", "manual", "import"].includes(tx.source)) {
+    errors.push("Invalid transaction source");
   }
 
   return errors;

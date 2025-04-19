@@ -1,7 +1,7 @@
-import { IsString, IsOptional, IsArray, ValidateNested, IsObject } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { TransactionCategory } from '@packages/utils';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import type { TransactionCategory } from "@packages/utils";
+import { Type } from "class-transformer";
+import { IsArray, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 
 class LocationDto {
   @IsString()
@@ -30,7 +30,7 @@ class LocationDto {
 }
 
 export class CreateMerchantDto {
-  @ApiProperty({ description: 'Name of the merchant' })
+  @ApiProperty({ description: "Name of the merchant" })
   @IsString()
   name!: string;
 
@@ -38,7 +38,7 @@ export class CreateMerchantDto {
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional({ description: 'Category of the merchant' })
+  @ApiPropertyOptional({ description: "Category of the merchant" })
   @IsString()
   @IsOptional()
   category?: TransactionCategory;
@@ -65,13 +65,13 @@ export class CreateMerchantDto {
   @IsOptional()
   email?: string;
 
-  @ApiPropertyOptional({ description: 'Alternative names for the merchant' })
+  @ApiPropertyOptional({ description: "Alternative names for the merchant" })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
   aliases?: string[];
 
-  @ApiPropertyOptional({ description: 'Additional metadata' })
+  @ApiPropertyOptional({ description: "Additional metadata" })
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;

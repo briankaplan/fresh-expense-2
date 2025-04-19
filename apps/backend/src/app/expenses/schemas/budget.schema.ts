@@ -1,6 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from "mongoose";
 
 export class Budget {
   @Prop({ required: true })
@@ -18,7 +17,7 @@ export class Budget {
   @Prop({ required: true })
   endDate: Date;
 
-  @Prop({ default: 'monthly' })
+  @Prop({ default: "monthly" })
   period: string;
 
   @Prop({ type: Object })

@@ -1,36 +1,44 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { MigrationDocument } from './schemas/migration.schema';
-import {
-  UserDocument,
-  TransactionDocument,
-  ExpenseDocument,
-  ReceiptDocument,
-  SubscriptionDocument,
-  ReportDocument,
-  MerchantDocument,
+import type {
   AIModelDocument,
-  OCRDocument,
   AnalyticsDocument,
-} from '@fresh-expense/types';
+  ExpenseDocument,
+  MerchantDocument,
+  OCRDocument,
+  ReceiptDocument,
+  ReportDocument,
+  SubscriptionDocument,
+  TransactionDocument,
+  UserDocument,
+} from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import type { MigrationDocument } from "./schemas/migration.schema";
 
 @Injectable()
 export class MigrationService {
   private readonly logger = new Logger(MigrationService.name);
 
   constructor(
-    @InjectModel('Migration') private readonly migrationModel: Model<MigrationDocument>,
-    @InjectModel('User') private readonly userModel: Model<UserDocument>,
-    @InjectModel('Transaction') private readonly transactionModel: Model<TransactionDocument>,
-    @InjectModel('Expense') private readonly expenseModel: Model<ExpenseDocument>,
-    @InjectModel('Receipt') private readonly receiptModel: Model<ReceiptDocument>,
-    @InjectModel('Subscription') private readonly subscriptionModel: Model<SubscriptionDocument>,
-    @InjectModel('Report') private readonly reportModel: Model<ReportDocument>,
-    @InjectModel('Merchant') private readonly merchantModel: Model<MerchantDocument>,
-    @InjectModel('AIModel') private readonly aiModelModel: Model<AIModelDocument>,
-    @InjectModel('OCR') private readonly ocrModel: Model<OCRDocument>,
-    @InjectModel('Analytics') private readonly analyticsModel: Model<AnalyticsDocument>
+    @InjectModel("Migration")
+    private readonly migrationModel: Model<MigrationDocument>,
+    @InjectModel("User") private readonly userModel: Model<UserDocument>,
+    @InjectModel("Transaction")
+    private readonly transactionModel: Model<TransactionDocument>,
+    @InjectModel("Expense")
+    private readonly expenseModel: Model<ExpenseDocument>,
+    @InjectModel("Receipt")
+    private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Subscription")
+    private readonly subscriptionModel: Model<SubscriptionDocument>,
+    @InjectModel("Report") private readonly reportModel: Model<ReportDocument>,
+    @InjectModel("Merchant")
+    private readonly merchantModel: Model<MerchantDocument>,
+    @InjectModel("AIModel")
+    private readonly aiModelModel: Model<AIModelDocument>,
+    @InjectModel("OCR") private readonly ocrModel: Model<OCRDocument>,
+    @InjectModel("Analytics")
+    private readonly analyticsModel: Model<AnalyticsDocument>,
   ) {}
 
   async runMigrations(): Promise<void> {
@@ -52,14 +60,14 @@ export class MigrationService {
           await this.migrationModel.create({
             version,
             appliedAt: new Date(),
-            status: 'matched',
+            status: "matched",
           });
         }
       }
 
-      this.logger.log('Migrations completed successfully');
+      this.logger.log("Migrations completed successfully");
     } catch (error) {
-      this.logger.error('Migration failed:', error);
+      this.logger.error("Migration failed:", error);
       throw error;
     }
   }
@@ -100,10 +108,10 @@ export class MigrationService {
   private async updateExistingSchemas(): Promise<void> {
     // Update existing documents with new fields
     const updates = [
-      this.userModel.updateMany({}, { $set: { 'metadata.lastUpdated': new Date() } }),
-      this.transactionModel.updateMany({}, { $set: { 'metadata.lastUpdated': new Date() } }),
-      this.expenseModel.updateMany({}, { $set: { 'metadata.lastUpdated': new Date() } }),
-      this.receiptModel.updateMany({}, { $set: { 'metadata.lastUpdated': new Date() } }),
+      this.userModel.updateMany({}, { $set: { "metadata.lastUpdated": new Date() } }),
+      this.transactionModel.updateMany({}, { $set: { "metadata.lastUpdated": new Date() } }),
+      this.expenseModel.updateMany({}, { $set: { "metadata.lastUpdated": new Date() } }),
+      this.receiptModel.updateMany({}, { $set: { "metadata.lastUpdated": new Date() } }),
     ];
 
     await Promise.all(updates);
@@ -122,7 +130,7 @@ export class MigrationService {
 
       this.logger.log(`Rollback to version ${version} completed successfully`);
     } catch (error) {
-      this.logger.error('Rollback failed:', error);
+      this.logger.error("Rollback failed:", error);
       throw error;
     }
   }

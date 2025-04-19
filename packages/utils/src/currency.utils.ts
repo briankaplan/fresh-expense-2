@@ -5,9 +5,9 @@
  * @param locale The locale (default: 'en-US')
  * @returns The formatted currency string
  */
-export function formatCurrency(amount: number, currency = 'USD', locale = 'en-US'): string {
+export function formatCurrency(amount: number, currency = "USD", locale = "en-US"): string {
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency,
   }).format(amount);
 }
@@ -19,23 +19,23 @@ export function formatCurrency(amount: number, currency = 'USD', locale = 'en-US
  * @param locale The locale (default: 'en-US')
  * @returns The parsed number or NaN if invalid
  */
-export function parseCurrency(currencyString: string, currency = 'USD', locale = 'en-US'): number {
+export function parseCurrency(currencyString: string, currency = "USD", locale = "en-US"): number {
   const formatter = new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency,
   });
   const parts = formatter.formatToParts(0);
-  const decimal = parts.find(part => part.type != null)?.value || '.';
-  const group = parts.find(part => part.type != null)?.value || ',';
-  const symbol = parts.find(part => part.type != null)?.value || '$';
+  const decimal = parts.find((part) => part.type != null)?.value || ".";
+  const group = parts.find((part) => part.type != null)?.value || ",";
+  const symbol = parts.find((part) => part.type != null)?.value || "$";
 
   const cleanString = currencyString
-    .replace(symbol, '')
-    .replace(new RegExp(`[${group}]`, 'g'), '')
-    .replace(decimal, '.')
+    .replace(symbol, "")
+    .replace(new RegExp(`[${group}]`, "g"), "")
+    .replace(decimal, ".")
     .trim();
 
-  return parseFloat(cleanString);
+  return Number.parseFloat(cleanString);
 }
 
 /**
@@ -101,7 +101,7 @@ export function calculatePercentageDifference(
  * @param locale The locale (default: 'en-US')
  * @returns True if the string is a valid currency amount, false otherwise
  */
-export function isValidCurrency(amount: string, currency = 'USD', locale = 'en-US'): boolean {
+export function isValidCurrency(amount: string, currency = "USD", locale = "en-US"): boolean {
   try {
     const parsed = parseCurrency(amount, currency, locale);
     return !isNaN(parsed);
@@ -116,12 +116,12 @@ export function isValidCurrency(amount: string, currency = 'USD', locale = 'en-U
  * @param locale The locale (default: 'en-US')
  * @returns The currency symbol
  */
-export function getCurrencySymbol(currency: string, locale = 'en-US'): string {
+export function getCurrencySymbol(currency: string, locale = "en-US"): string {
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency,
   })
     .format(0)
-    .replace(/0/g, '')
+    .replace(/0/g, "")
     .trim();
 }

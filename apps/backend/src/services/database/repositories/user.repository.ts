@@ -1,7 +1,7 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { UserSchema, USER_COLLECTION } from '../schemas/user.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import { USER_COLLECTION, type UserSchema } from "../schemas/user.schema";
+import { BaseRepository } from "./base.repository";
 
 export class UserRepository extends BaseRepository<UserSchema> {
   protected readonly collectionName = USER_COLLECTION;
@@ -24,7 +24,7 @@ export class UserRepository extends BaseRepository<UserSchema> {
 
   async updatePreferences(
     userId: string,
-    preferences: Partial<UserSchema['preferences']>
+    preferences: Partial<UserSchema["preferences"]>,
   ): Promise<boolean> {
     return this.update({ _id: userId }, { $set: { preferences } });
   }

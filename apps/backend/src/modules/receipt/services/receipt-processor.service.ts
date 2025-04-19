@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import * as pdf2img from 'pdf-img-convert';
-import sharp from 'sharp';
+import { Injectable, Logger } from "@nestjs/common";
+import * as pdf2img from "pdf-img-convert";
+import sharp from "sharp";
 
 export interface ProcessedReceipt {
   imageBuffer: Buffer;
@@ -28,13 +28,13 @@ export class ReceiptProcessorService {
   async process(
     file: Buffer,
     mimeType: string,
-    options: { performOcr?: boolean } = {}
+    options: { performOcr?: boolean } = {},
   ): Promise<ProcessedReceipt> {
     try {
       let imageBuffer = file;
 
       // Convert PDF to image if needed
-      if (mimeType === 'application/pdf') {
+      if (mimeType === "application/pdf") {
         imageBuffer = await this.convertPDFToImage(file);
       }
 
@@ -54,14 +54,14 @@ export class ReceiptProcessorService {
         imageBuffer: optimizedImage,
         thumbnailBuffer: thumbnail,
         metadata: {
-          mimeType: 'image/jpeg',
+          mimeType: "image/jpeg",
           originalSize: file.length,
           processedSize: optimizedImage.length,
           ...(ocrData && { ocrData }),
         },
       };
     } catch (error) {
-      this.logger.error('Error processing receipt:', error);
+      this.logger.error("Error processing receipt:", error);
       throw error;
     }
   }
@@ -77,7 +77,7 @@ export class ReceiptProcessorService {
 
       return await sharp(pngPages[0]).jpeg({ quality: 85 }).toBuffer();
     } catch (error) {
-      this.logger.error('Error converting PDF to image:', error);
+      this.logger.error("Error converting PDF to image:", error);
       throw error;
     }
   }
@@ -91,7 +91,7 @@ export class ReceiptProcessorService {
         .jpeg({ quality: 85 })
         .toBuffer();
     } catch (error) {
-      this.logger.error('Error optimizing image:', error);
+      this.logger.error("Error optimizing image:", error);
       throw error;
     }
   }
@@ -100,7 +100,7 @@ export class ReceiptProcessorService {
     try {
       return await sharp(imageBuffer)
         .resize(300, null, {
-          fit: 'contain',
+          fit: "contain",
           withoutEnlargement: true,
         })
         .jpeg({
@@ -109,7 +109,7 @@ export class ReceiptProcessorService {
         })
         .toBuffer();
     } catch (error) {
-      this.logger.error('Error creating thumbnail:', error);
+      this.logger.error("Error creating thumbnail:", error);
       throw error;
     }
   }

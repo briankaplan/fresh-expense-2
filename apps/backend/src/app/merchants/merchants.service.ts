@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { MerchantDocument } from '@fresh-expense/types';
-import { CreateMerchantDto } from './dto/create-merchant.dto';
-import { UpdateMerchantDto } from './dto/update-merchant.dto';
+import type { MerchantDocument } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import type { CreateMerchantDto } from "./dto/create-merchant.dto";
+import type { UpdateMerchantDto } from "./dto/update-merchant.dto";
 
 @Injectable()
 export class MerchantsService {
@@ -38,17 +38,13 @@ export class MerchantsService {
     return this.merchantModel.findOne({ tellerMerchantId }).exec();
   }
 
-  async findNearby(
-    latitude: number,
-    longitude: number,
-    maxDistance: number = 5000
-  ): Promise<Merchant[]> {
+  async findNearby(latitude: number, longitude: number, maxDistance = 5000): Promise<Merchant[]> {
     return this.merchantModel
       .find({
         locations: {
           $near: {
             $geometry: {
-              type: 'Point',
+              type: "Point",
               coordinates: [longitude, latitude],
             },
             $maxDistance: maxDistance,
@@ -61,7 +57,7 @@ export class MerchantsService {
   async getDefaultMerchants(): Promise<Merchant[]> {
     return this.merchantModel
       .find({
-        name: { $in: ['Netflix', 'Spotify', 'Amazon'] },
+        name: { $in: ["Netflix", "Spotify", "Amazon"] },
       })
       .exec();
   }

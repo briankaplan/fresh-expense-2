@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { useReceiptUpload, useReceiptOCR, useReceiptNormalization } from '@fresh-expense/hooks';
-import { Card, Table, Tag, Space, Input, Select, DatePicker } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import type { TableProps, TablePaginationConfig } from 'antd/es/table';
-import type { FilterValue, SorterResult } from 'antd/es/table/interface';
-import type { Moment } from 'moment';
-import './ReceiptManager.css';
+import { SearchOutlined } from "@ant-design/icons";
+import { useReceiptNormalization, useReceiptOCR, useReceiptUpload } from "@fresh-expense/hooks";
+import { Card, DatePicker, Input, Select, Space, Table, Tag } from "antd";
+import type { TablePaginationConfig, TableProps } from "antd/es/table";
+import type { FilterValue, SorterResult } from "antd/es/table/interface";
+import type { Moment } from "moment";
+import type React from "react";
+import { useState } from "react";
+import "./ReceiptManager.css";
 
 interface ReceiptItem {
   description: string;
@@ -15,7 +16,7 @@ interface ReceiptItem {
 interface Receipt {
   id: string;
   url: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: "pending" | "processing" | "completed" | "failed";
   uploadDate: string;
   merchantName?: string;
   total?: number;
@@ -39,7 +40,7 @@ interface TableParams {
 const { Column } = Table;
 
 const ReceiptManager: React.FC = () => {
-  const [searchText, setSearchText] = useState<string>('');
+  const [searchText, setSearchText] = useState<string>("");
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -57,10 +58,10 @@ const ReceiptManager: React.FC = () => {
 
   const [processedReceipts] = useState<Receipt[]>([]);
 
-  const handleTableChange: TableProps<Receipt>['onChange'] = (
+  const handleTableChange: TableProps<Receipt>["onChange"] = (
     pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>,
-    sorter: SorterResult<Receipt> | SorterResult<Receipt>[]
+    sorter: SorterResult<Receipt> | SorterResult<Receipt>[],
   ) => {
     const { field, order } = sorter as SorterResult<Receipt>;
     setTableParams({
@@ -108,10 +109,10 @@ const ReceiptManager: React.FC = () => {
   };
 
   const formatTotal = (total: number | undefined): string => {
-    if (!total) return '-';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    if (!total) return "-";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(total);
   };
 
@@ -134,7 +135,7 @@ const ReceiptManager: React.FC = () => {
   };
 
   const sortByStatus = (a: Receipt, b: Receipt): number => {
-    const statusOrder: Record<Receipt['status'], number> = {
+    const statusOrder: Record<Receipt["status"], number> = {
       completed: 0,
       processing: 1,
       pending: 2,
@@ -145,7 +146,7 @@ const ReceiptManager: React.FC = () => {
 
   return (
     <Card>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space direction="vertical" style={{ width: "100%" }}>
         <div className="receipt-manager-filters">
           <Space>
             <Input
@@ -198,7 +199,7 @@ const ReceiptManager: React.FC = () => {
             dataIndex="confidence"
             key="confidence"
             render={(confidence: number | undefined) =>
-              confidence ? `${Math.round(confidence * 100)}%` : '-'
+              confidence ? `${Math.round(confidence * 100)}%` : "-"
             }
             sorter={sortByConfidence}
           />
@@ -206,16 +207,16 @@ const ReceiptManager: React.FC = () => {
             title="Status"
             dataIndex="status"
             key="status"
-            render={(status: Receipt['status']) => (
+            render={(status: Receipt["status"]) => (
               <Tag
                 color={
-                  status === 'completed'
-                    ? 'success'
-                    : status === 'processing'
-                      ? 'processing'
-                      : status === 'pending'
-                        ? 'default'
-                        : 'error'
+                  status === "completed"
+                    ? "success"
+                    : status === "processing"
+                      ? "processing"
+                      : status === "pending"
+                        ? "default"
+                        : "error"
                 }
               >
                 {status.toUpperCase()}

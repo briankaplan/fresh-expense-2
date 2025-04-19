@@ -1,11 +1,11 @@
-import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import request from 'supertest';
-import { Response } from 'supertest';
-import { createTestApp, closeTestApp } from './setup';
+import type { INestApplication } from "@nestjs/common";
+import { Test } from "@nestjs/testing";
+import request from "supertest";
+import type { Response } from "supertest";
+import { AppModule } from "../src/app.module";
+import { closeTestApp, createTestApp } from "./setup";
 
-describe('MetricsController (e2e)', () => {
+describe("MetricsController (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -16,29 +16,29 @@ describe('MetricsController (e2e)', () => {
     await closeTestApp(app);
   });
 
-  describe('/metrics (POST)', () => {
-    it('should create a new metric', () => {
+  describe("/metrics (POST)", () => {
+    it("should create a new metric", () => {
       return request(app.getHttpServer())
-        .post('/metrics')
+        .post("/metrics")
         .send({
-          type: 'TRANSACTION',
+          type: "TRANSACTION",
           value: 100,
-          metadata: { userId: 'user1' },
+          metadata: { userId: "user1" },
         })
         .expect(201)
         .expect((res: Response) => {
-          expect(res.body).toHaveProperty('_id');
-          expect(res.body.type).toBe('TRANSACTION');
+          expect(res.body).toHaveProperty("_id");
+          expect(res.body.type).toBe("TRANSACTION");
           expect(res.body.value).toBe(100);
-          expect(res.body.metadata.userId).toBe('user1');
+          expect(res.body.metadata.userId).toBe("user1");
         });
     });
   });
 
-  describe('/metrics (GET)', () => {
-    it('should return all metrics', () => {
+  describe("/metrics (GET)", () => {
+    it("should return all metrics", () => {
       return request(app.getHttpServer())
-        .get('/metrics')
+        .get("/metrics")
         .expect(200)
         .expect((res: Response) => {
           expect(Array.isArray(res.body)).toBe(true);
@@ -46,15 +46,15 @@ describe('MetricsController (e2e)', () => {
     });
   });
 
-  describe('/metrics/:id (GET)', () => {
-    it('should return a specific metric', async () => {
+  describe("/metrics/:id (GET)", () => {
+    it("should return a specific metric", async () => {
       // First create a metric
       const createResponse = await request(app.getHttpServer())
-        .post('/metrics')
+        .post("/metrics")
         .send({
-          type: 'TRANSACTION',
+          type: "TRANSACTION",
           value: 100,
-          metadata: { userId: 'user1' },
+          metadata: { userId: "user1" },
         });
 
       const metricId = createResponse.body._id;
@@ -64,21 +64,21 @@ describe('MetricsController (e2e)', () => {
         .expect(200)
         .expect((res: Response) => {
           expect(res.body._id).toBe(metricId);
-          expect(res.body.type).toBe('TRANSACTION');
+          expect(res.body.type).toBe("TRANSACTION");
           expect(res.body.value).toBe(100);
         });
     });
   });
 
-  describe('/metrics/:id (PUT)', () => {
-    it('should update a metric', async () => {
+  describe("/metrics/:id (PUT)", () => {
+    it("should update a metric", async () => {
       // First create a metric
       const createResponse = await request(app.getHttpServer())
-        .post('/metrics')
+        .post("/metrics")
         .send({
-          type: 'TRANSACTION',
+          type: "TRANSACTION",
           value: 100,
-          metadata: { userId: 'user1' },
+          metadata: { userId: "user1" },
         });
 
       const metricId = createResponse.body._id;
@@ -94,15 +94,15 @@ describe('MetricsController (e2e)', () => {
     });
   });
 
-  describe('/metrics/:id (DELETE)', () => {
-    it('should delete a metric', async () => {
+  describe("/metrics/:id (DELETE)", () => {
+    it("should delete a metric", async () => {
       // First create a metric
       const createResponse = await request(app.getHttpServer())
-        .post('/metrics')
+        .post("/metrics")
         .send({
-          type: 'TRANSACTION',
+          type: "TRANSACTION",
           value: 100,
-          metadata: { userId: 'user1' },
+          metadata: { userId: "user1" },
         });
 
       const metricId = createResponse.body._id;

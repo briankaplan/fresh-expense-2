@@ -1,5 +1,5 @@
-import { Collection, ObjectId, Document, WithId } from 'mongodb';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException } from "@nestjs/common";
+import { type Collection, type Document, ObjectId, type WithId } from "mongodb";
 
 /**
  * Find an entity by ID with optional user ID check
@@ -9,7 +9,7 @@ export async function findEntityById<T extends Document & { _id: string | Object
   collection: Collection<T>,
   id: string,
   userId?: string,
-  errorMessage = 'Entity not found',
+  errorMessage = "Entity not found",
 ): Promise<WithId<T>> {
   const query: any = { _id: new ObjectId(id) };
 
@@ -37,7 +37,7 @@ export async function updateEntity<T extends Document & { _id: string | ObjectId
   id: string,
   update: Partial<T>,
   userId?: string,
-  errorMessage = 'Entity not found',
+  errorMessage = "Entity not found",
 ): Promise<WithId<T>> {
   const query: any = { _id: new ObjectId(id) };
 
@@ -49,7 +49,7 @@ export async function updateEntity<T extends Document & { _id: string | ObjectId
   const result = await collection.findOneAndUpdate(
     query,
     { $set: update },
-    { returnDocument: 'after' },
+    { returnDocument: "after" },
   );
 
   if (!result) {
@@ -127,9 +127,9 @@ export function createSortOptions(sortString?: string): SortOptions {
     return { _id: -1 }; // Default sort by _id desc
   }
 
-  const [field, direction] = sortString.split(':');
+  const [field, direction] = sortString.split(":");
   return {
-    [field]: direction?.toLowerCase() === 'desc' ? -1 : 1,
+    [field]: direction?.toLowerCase() === "desc" ? -1 : 1,
   };
 }
 
@@ -180,24 +180,24 @@ export async function getPaginatedResults<T extends Document>(
  */
 export function calculateNextDate(
   currentDate: Date | string,
-  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly',
+  frequency: "daily" | "weekly" | "monthly" | "quarterly" | "yearly",
 ): Date {
   const nextDate = new Date(currentDate);
 
   switch (frequency) {
-    case 'daily':
+    case "daily":
       nextDate.setDate(nextDate.getDate() + 1);
       break;
-    case 'weekly':
+    case "weekly":
       nextDate.setDate(nextDate.getDate() + 7);
       break;
-    case 'monthly':
+    case "monthly":
       nextDate.setMonth(nextDate.getMonth() + 1);
       break;
-    case 'quarterly':
+    case "quarterly":
       nextDate.setMonth(nextDate.getMonth() + 3);
       break;
-    case 'yearly':
+    case "yearly":
       nextDate.setFullYear(nextDate.getFullYear() + 1);
       break;
     default:

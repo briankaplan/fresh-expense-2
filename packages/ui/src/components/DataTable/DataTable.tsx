@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import type { Column } from "@fresh-expense/types/src";
+import { Search as SearchIcon } from "@mui/icons-material";
 import {
+  Box,
+  InputAdornment,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper,
   TablePagination,
+  TableRow,
   TableSortLabel,
-  Box,
   TextField,
-  InputAdornment,
-} from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
-import { Column } from '@fresh-expense/types/src';
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
 
 interface DataTableProps<T extends Record<string, any>> {
   data: T[];
@@ -33,27 +34,29 @@ export function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState<keyof T | null>(null);
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const handleSort = (property: keyof T) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
-  const filteredData = data.filter(row =>
-    Object.values(row).some(value => String(value).toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredData = data.filter((row) =>
+    Object.values(row).some((value) =>
+      String(value).toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const sortedData = orderBy
@@ -63,7 +66,7 @@ export function DataTable<T extends Record<string, any>>({
         if (aValue === bValue) return 0;
         if (aValue === null || aValue === undefined) return 1;
         if (bValue === null || bValue === undefined) return -1;
-        return (String(aValue) < String(bValue) ? -1 : 1) * (order === 'asc' ? 1 : -1);
+        return (String(aValue) < String(bValue) ? -1 : 1) * (order === "asc" ? 1 : -1);
       })
     : filteredData;
 
@@ -78,7 +81,7 @@ export function DataTable<T extends Record<string, any>>({
           variant="outlined"
           placeholder="Search..."
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -92,7 +95,7 @@ export function DataTable<T extends Record<string, any>>({
         <Table>
           <TableHead>
             <TableRow>
-              {columns.map(column => (
+              {columns.map((column) => (
                 <TableCell
                   key={String(column.id)}
                   align={column.align}
@@ -101,7 +104,7 @@ export function DataTable<T extends Record<string, any>>({
                   {sortable ? (
                     <TableSortLabel
                       active={orderBy === column.id}
-                      direction={orderBy === column.id ? order : 'asc'}
+                      direction={orderBy === column.id ? order : "asc"}
                       onClick={() => handleSort(column.id as keyof T)}
                     >
                       {column.label}
@@ -119,13 +122,13 @@ export function DataTable<T extends Record<string, any>>({
                 key={index}
                 hover
                 onClick={() => onRowClick?.(row)}
-                style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                style={{ cursor: onRowClick ? "pointer" : "default" }}
               >
-                {columns.map(column => (
+                {columns.map((column) => (
                   <TableCell key={String(column.id)} align={column.align}>
                     {column.format
                       ? column.format(row[column.id as keyof T])
-                      : String(row[column.id as keyof T] ?? '')}
+                      : String(row[column.id as keyof T] ?? "")}
                   </TableCell>
                 ))}
               </TableRow>

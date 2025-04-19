@@ -1,4 +1,4 @@
-import { ValidationError } from './errors';
+import { ValidationError } from "./errors";
 
 /**
  * Formats a date to YYYY-MM-DD format
@@ -6,12 +6,12 @@ import { ValidationError } from './errors';
  */
 export function formatDateToISO(date: Date): string {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new ValidationError('Invalid date provided');
+    throw new ValidationError("Invalid date provided");
   }
 
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
@@ -22,12 +22,12 @@ export function formatDateToISO(date: Date): string {
  */
 export function parseISODate(dateString: string): Date {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    throw new ValidationError('Invalid date format. Expected YYYY-MM-DD');
+    throw new ValidationError("Invalid date format. Expected YYYY-MM-DD");
   }
 
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
-    throw new ValidationError('Invalid date string provided');
+    throw new ValidationError("Invalid date string provided");
   }
 
   return date;
@@ -55,13 +55,13 @@ export function getEndOfCurrentMonth(): Date {
  */
 export function isDateInRange(date: Date, startDate: Date, endDate: Date): boolean {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new ValidationError('Invalid date provided');
+    throw new ValidationError("Invalid date provided");
   }
   if (!(startDate instanceof Date) || isNaN(startDate.getTime())) {
-    throw new ValidationError('Invalid start date provided');
+    throw new ValidationError("Invalid start date provided");
   }
   if (!(endDate instanceof Date) || isNaN(endDate.getTime())) {
-    throw new ValidationError('Invalid end date provided');
+    throw new ValidationError("Invalid end date provided");
   }
 
   return date >= startDate && date <= endDate;
@@ -73,10 +73,10 @@ export function isDateInRange(date: Date, startDate: Date, endDate: Date): boole
  */
 export function getDaysBetween(startDate: Date, endDate: Date): number {
   if (!(startDate instanceof Date) || isNaN(startDate.getTime())) {
-    throw new ValidationError('Invalid start date provided');
+    throw new ValidationError("Invalid start date provided");
   }
   if (!(endDate instanceof Date) || isNaN(endDate.getTime())) {
-    throw new ValidationError('Invalid end date provided');
+    throw new ValidationError("Invalid end date provided");
   }
 
   const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
@@ -89,7 +89,7 @@ export function getDaysBetween(startDate: Date, endDate: Date): number {
  */
 export function addDays(date: Date, days: number): Date {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new ValidationError('Invalid date provided');
+    throw new ValidationError("Invalid date provided");
   }
 
   const result = new Date(date);
@@ -103,33 +103,33 @@ export function addDays(date: Date, days: number): Date {
  */
 export function formatDateHumanReadable(date: Date): string {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new ValidationError('Invalid date provided');
+    throw new ValidationError("Invalid date provided");
   }
 
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 }
 
 export function formatDateTime(date: string | Date): string {
   const d = new Date(date);
-  return d.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
+  return d.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
   });
 }
 

@@ -1,15 +1,15 @@
 export interface LoginCredentials {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 export interface RegisterData {
-    email: string;
-    password: string;
-    name: string;
+  email: string;
+  password: string;
+  name: string;
 }
 export interface ChangePasswordData {
-    currentPassword: string;
-    newPassword: string;
+  currentPassword: string;
+  newPassword: string;
 }
 export declare const login: (credentials: LoginCredentials) => Promise<any>;
 export declare const register: (data: RegisterData) => Promise<any>;

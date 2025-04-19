@@ -1,14 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationRepository } from '@/core/database/repositories/notification.repository';
-import { NotificationSchema } from '@/core/database/schemas/notification.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Notification, NotificationDocument } from '../../models/notification.model';
+import type { NotificationRepository } from "@/core/database/repositories/notification.repository";
+import type { NotificationSchema } from "@/core/database/schemas/notification.schema";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import { Notification, type NotificationDocument } from "../../models/notification.model";
 
 export interface Notification {
-  type: 'success' | 'error' | 'info' | 'warning';
+  type: "success" | "error" | "info" | "warning";
   title: string;
   message: string;
   timestamp: Date;
@@ -32,10 +32,11 @@ export class NotificationService {
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
     private readonly notificationRepository: NotificationRepository,
-    @InjectModel(Notification.name) private notificationModel: Model<NotificationDocument>
+    @InjectModel(Notification.name)
+    private notificationModel: Model<NotificationDocument>,
   ) {}
 
-  async notify(notification: Omit<Notification, 'timestamp'>): Promise<void> {
+  async notify(notification: Omit<Notification, "timestamp">): Promise<void> {
     const fullNotification: Notification = {
       ...notification,
       timestamp: new Date(),
@@ -43,41 +44,41 @@ export class NotificationService {
 
     try {
       // Emit event for real-time notifications
-      this.eventEmitter.emit('notification.created', fullNotification);
+      this.eventEmitter.emit("notification.created", fullNotification);
 
       // Log based on type
       switch (notification.type) {
-        case 'error':
+        case "error":
           this.logger.error(
             `${notification.title}: ${notification.message}`,
-            notification.metadata
+            notification.metadata,
           );
           break;
-        case 'warning':
+        case "warning":
           this.logger.warn(`${notification.title}: ${notification.message}`, notification.metadata);
           break;
-        case 'info':
+        case "info":
           this.logger.log(`${notification.title}: ${notification.message}`, notification.metadata);
           break;
-        case 'success':
+        case "success":
           this.logger.log(`${notification.title}: ${notification.message}`, notification.metadata);
           break;
       }
 
       // TODO: Add email notifications if configured
-      if (this.configService.get<boolean>('NOTIFICATIONS_EMAIL_ENABLED')) {
+      if (this.configService.get<boolean>("NOTIFICATIONS_EMAIL_ENABLED")) {
         // Implement email notification logic
       }
     } catch (error) {
-      this.logger.error('Error sending notification:', error);
+      this.logger.error("Error sending notification:", error);
       // Don't throw to prevent breaking the main flow
     }
   }
 
   async notifyError(error: Error, context?: string): Promise<void> {
     await this.notify({
-      type: 'error',
-      title: context || 'Error',
+      type: "error",
+      title: context || "Error",
       message: error.message,
       metadata: {
         stack: error.stack,
@@ -88,7 +89,7 @@ export class NotificationService {
 
   async notifySuccess(title: string, message: string): Promise<void> {
     await this.notify({
-      type: 'success',
+      type: "success",
       title,
       message,
     });
@@ -96,7 +97,7 @@ export class NotificationService {
 
   async notifyInfo(title: string, message: string): Promise<void> {
     await this.notify({
-      type: 'info',
+      type: "info",
       title,
       message,
     });
@@ -104,7 +105,7 @@ export class NotificationService {
 
   async notifyWarning(title: string, message: string): Promise<void> {
     await this.notify({
-      type: 'warning',
+      type: "warning",
       title,
       message,
     });
@@ -114,15 +115,15 @@ export class NotificationService {
     userId: string;
     title: string;
     message: string;
-    type: NotificationSchema['type'];
-    priority?: NotificationSchema['priority'];
-    action?: NotificationSchema['action'];
+    type: NotificationSchema["type"];
+    priority?: NotificationSchema["priority"];
+    action?: NotificationSchema["action"];
     metadata?: Record<string, any>;
   }): Promise<NotificationSchema> {
     return this.notificationRepository.createNotification({
       ...data,
-      priority: data.priority || 'medium',
-      status: 'matched',
+      priority: data.priority || "medium",
+      status: "matched",
     });
   }
 
@@ -131,7 +132,7 @@ export class NotificationService {
   }
 
   async getUnreadNotifications(userId: string): Promise<NotificationSchema[]> {
-    return this.notificationRepository.findByStatus(userId, 'unread');
+    return this.notificationRepository.findByStatus(userId, "unread");
   }
 
   async getUnreadCount(userId: string): Promise<number> {
@@ -160,7 +161,7 @@ export class NotificationService {
 
       const notification = new this.notificationModel({
         userId,
-        type: 'receipt_match',
+        type: "receipt_match",
         data,
         read: false,
         createdAt: new Date(),
@@ -171,7 +172,7 @@ export class NotificationService {
       // TODO: Implement real-time notification delivery (e.g., WebSocket, push notification)
       this.logger.log(`Match notification created: ${notification._id}`);
     } catch (error) {
-      this.logger.error('Error sending match notification:', error);
+      this.logger.error("Error sending match notification:", error);
       throw error;
     }
   }

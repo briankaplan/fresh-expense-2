@@ -1,12 +1,12 @@
-import { MongoClient } from 'mongodb';
-import { Octokit } from '@octokit/rest';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { DatabaseConfig, EnvironmentConfig, Secret, DeploymentConfig } from './types';
-import chalk from 'chalk';
-import fs from 'fs-extra';
-import path from 'path';
-import dotenv from 'dotenv';
+import { exec } from "child_process";
+import path from "path";
+import { promisify } from "util";
+import { Octokit } from "@octokit/rest";
+import chalk from "chalk";
+import dotenv from "dotenv";
+import fs from "fs-extra";
+import { MongoClient } from "mongodb";
+import { DatabaseConfig, DeploymentConfig, EnvironmentConfig, Secret } from "./types";
 
 const execAsync = promisify(exec);
 
@@ -47,7 +47,7 @@ export class ProjectManager {
 
   async manageDatabase() {
     if (!this.mongoClient) {
-      throw new Error('MongoDB client not initialized');
+      throw new Error("MongoDB client not initialized");
     }
 
     try {
@@ -63,7 +63,7 @@ export class ProjectManager {
 
       // Check database health
       const stats = await db.stats();
-      console.log(chalk.green('Database health check passed'));
+      console.log(chalk.green("Database health check passed"));
       console.log(chalk.blue(`Database size: ${stats.dataSize} bytes`));
       console.log(chalk.blue(`Collections: ${stats.collections}`));
     } finally {
@@ -74,20 +74,20 @@ export class ProjectManager {
   async manageEnvironment() {
     const envContent = Object.entries(this.config.environment.variables)
       .map(([key, value]) => `${key}=${value}`)
-      .join('\n');
+      .join("\n");
 
-    await fs.writeFile('.env', envContent);
-    console.log(chalk.green('Environment file generated'));
+    await fs.writeFile(".env", envContent);
+    console.log(chalk.green("Environment file generated"));
   }
 
   async manageSecrets() {
     if (!this.octokit) {
-      throw new Error('Octokit client not initialized');
+      throw new Error("Octokit client not initialized");
     }
 
-    const [owner, repo] = process.env.GITHUB_REPOSITORY?.split('/') || [];
+    const [owner, repo] = process.env.GITHUB_REPOSITORY?.split("/") || [];
     if (!owner || !repo) {
-      throw new Error('GITHUB_REPOSITORY environment variable not set');
+      throw new Error("GITHUB_REPOSITORY environment variable not set");
     }
 
     // Get the public key for encryption
@@ -99,8 +99,8 @@ export class ProjectManager {
     });
 
     for (const [secretName, value] of Object.entries(this.config.environment.variables)) {
-      if (value.startsWith('secret:')) {
-        const secretValue = value.replace('secret:', '');
+      if (value.startsWith("secret:")) {
+        const secretValue = value.replace("secret:", "");
         await this.octokit.actions.createOrUpdateRepoSecret({
           owner,
           repo,
@@ -121,24 +121,24 @@ export class ProjectManager {
     // Run health checks
     for (const check of this.config.deployment.healthChecks) {
       const { stdout } = await execAsync(check);
-      if (!stdout.includes('OK')) {
+      if (!stdout.includes("OK")) {
         throw new Error(`Health check failed: ${check}`);
       }
     }
 
-    console.log(chalk.green('Deployment completed successfully'));
+    console.log(chalk.green("Deployment completed successfully"));
   }
 }
 
 // Export a singleton instance
 export const projectManager = new ProjectManager({
   database: {
-    url: '',
-    name: '',
+    url: "",
+    name: "",
     collections: [],
   },
   environment: {
-    name: '',
+    name: "",
     variables: {},
   },
   deployment: {

@@ -1,6 +1,6 @@
-import type { TellerAccount, TellerTransaction, Column, ExtendedUser } from '../teller.types';
-import { UserRole, UserStatus, ExpenseStatus, ExpenseCategory } from './enums';
-import { Receipt } from '../schemas/receipt.schema';
+import type { Receipt } from "../schemas/receipt.schema";
+import type { Column, ExtendedUser, TellerAccount, TellerTransaction } from "../teller.types";
+import { ExpenseCategory, ExpenseStatus, UserRole, UserStatus } from "./enums";
 
 export { UserRole, UserStatus, ExpenseStatus, ExpenseCategory };
 
@@ -26,7 +26,7 @@ export interface User {
 }
 
 export interface UserSettings {
-  theme?: 'light' | 'dark';
+  theme?: "light" | "dark";
   notifications?: boolean;
   currency?: string;
   language?: string;
@@ -66,19 +66,19 @@ export interface PaginatedResponse<T> {
 
 export interface SortOptions {
   field: string;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
 export interface FilterOptions {
   field: string;
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'regex';
+  operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "regex";
   value: any;
 }
 
 /**
  * Utility type to convert TellerTransaction to our internal Transaction format
  */
-export type TellerTransactionToTransaction = Omit<Transaction, 'id'> & {
+export type TellerTransactionToTransaction = Omit<Transaction, "id"> & {
   tellerId: string;
   tellerAccountId: string;
 };
@@ -86,17 +86,11 @@ export type TellerTransactionToTransaction = Omit<Transaction, 'id'> & {
 /**
  * Utility type for transaction creation
  */
-export type CreateTransactionDto = Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateTransactionDto = Omit<Transaction, "id" | "createdAt" | "updatedAt">;
 
 /**
  * Utility type for transaction updates
  */
-export type UpdateTransactionDto = Partial<Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>>;
+export type UpdateTransactionDto = Partial<Omit<Transaction, "id" | "createdAt" | "updatedAt">>;
 
-export type {
-  TellerAccount,
-  TellerTransaction,
-  Column,
-  ExtendedUser,
-  Receipt,
-};
+export type { TellerAccount, TellerTransaction, Column, ExtendedUser, Receipt };

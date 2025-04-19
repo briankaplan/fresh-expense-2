@@ -1,13 +1,13 @@
-import React from 'react';
-import { Box, Typography, Paper, Grid, useTheme, useMediaQuery } from '@mui/material';
-import { motion } from 'framer-motion';
-import AccountsList from '@/shared/components/AccountsList';
-import AddAccountButton from '@/shared/components/AddAccountButton';
-import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
+import AccountsList from "@/shared/components/AccountsList";
+import AddAccountButton from "@/shared/components/AddAccountButton";
+import AnimatedWrapper from "@/shared/components/AnimatedWrapper";
+import { Box, Grid, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
+import type React from "react";
 
 const Accounts: React.FC = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <AnimatedWrapper>
@@ -23,9 +23,9 @@ const Accounts: React.FC = () => {
             alignItems="center"
             sx={{
               mb: 3,
-              flexDirection: { xs: 'column', sm: 'row' },
-              '& > .MuiGrid-item': {
-                width: { xs: '100%', sm: 'auto' },
+              flexDirection: { xs: "column", sm: "row" },
+              "& > .MuiGrid-item": {
+                width: { xs: "100%", sm: "auto" },
               },
             }}
           >
@@ -33,7 +33,7 @@ const Accounts: React.FC = () => {
               <Typography
                 variant="h4"
                 sx={{
-                  textAlign: { xs: 'center', sm: 'left' },
+                  textAlign: { xs: "center", sm: "left" },
                   mb: { xs: 2, sm: 0 },
                 }}
               >
@@ -43,7 +43,7 @@ const Accounts: React.FC = () => {
             <Grid
               item
               sx={{
-                width: { xs: '100%', sm: 'auto' },
+                width: { xs: "100%", sm: "auto" },
               }}
             >
               <AddAccountButton fullWidth={isMobile} />
@@ -59,7 +59,7 @@ const Accounts: React.FC = () => {
           <Paper
             sx={{
               p: { xs: 1.5, sm: 2 },
-              overflowX: 'auto',
+              overflowX: "auto",
             }}
           >
             <AccountsList />

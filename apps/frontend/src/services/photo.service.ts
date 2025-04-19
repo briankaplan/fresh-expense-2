@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError } from "axios";
 
 export interface Photo {
   id: string;
@@ -18,7 +18,7 @@ export interface Photo {
       longitude: number;
     };
   };
-  status: 'pending' | 'processed' | 'error';
+  status: "pending" | "processed" | "error";
   error?: string;
 }
 
@@ -27,9 +27,9 @@ export interface PhotoFilter {
   tags?: string[];
   startDate?: string;
   endDate?: string;
-  status?: Photo['status'];
+  status?: Photo["status"];
   sortField?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   page?: number;
   limit?: number;
 }
@@ -44,7 +44,7 @@ export interface PaginatedPhotos {
 
 class PhotoService {
   private static instance: PhotoService;
-  private baseUrl = '/api/photos';
+  private baseUrl = "/api/photos";
 
   private constructor() {}
 
@@ -62,12 +62,14 @@ class PhotoService {
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('An unexpected error occurred');
+    throw new Error("An unexpected error occurred");
   }
 
   async getPhotos(filters: PhotoFilter): Promise<PaginatedPhotos> {
     try {
-      const response = await axios.get<PaginatedPhotos>(this.baseUrl, { params: filters });
+      const response = await axios.get<PaginatedPhotos>(this.baseUrl, {
+        params: filters,
+      });
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -86,10 +88,10 @@ class PhotoService {
   async uploadPhoto(file: File): Promise<Photo> {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
       const response = await axios.post<Photo>(this.baseUrl, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
@@ -164,8 +166,8 @@ class PhotoService {
         `${this.baseUrl}/bulk-download`,
         { ids },
         {
-          responseType: 'blob',
-        }
+          responseType: "blob",
+        },
       );
       return response.data;
     } catch (error) {
@@ -182,11 +184,11 @@ class PhotoService {
     }
   }
 
-  async exportPhotos(format: 'zip' | 'pdf', filters?: PhotoFilter): Promise<Blob> {
+  async exportPhotos(format: "zip" | "pdf", filters?: PhotoFilter): Promise<Blob> {
     try {
       const response = await axios.get(`${this.baseUrl}/export`, {
         params: { ...filters, format },
-        responseType: 'blob',
+        responseType: "blob",
       });
       return response.data;
     } catch (error) {

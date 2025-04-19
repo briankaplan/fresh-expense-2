@@ -1,8 +1,8 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { CategorySchema, CATEGORY_COLLECTION } from '../schemas/category.schema';
-import { BaseSchema } from '../schemas/base.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import type { BaseSchema } from "../schemas/base.schema";
+import { CATEGORY_COLLECTION, type CategorySchema } from "../schemas/category.schema";
+import { BaseRepository } from "./base.repository";
 
 export class CategoryRepository extends BaseRepository<CategorySchema> {
   protected readonly collectionName = CATEGORY_COLLECTION;
@@ -15,7 +15,7 @@ export class CategoryRepository extends BaseRepository<CategorySchema> {
     return this.find({ userId });
   }
 
-  async findByType(userId: string, type: CategorySchema['type']): Promise<CategorySchema[]> {
+  async findByType(userId: string, type: CategorySchema["type"]): Promise<CategorySchema[]> {
     return this.find({ userId, type });
   }
 
@@ -33,13 +33,13 @@ export class CategoryRepository extends BaseRepository<CategorySchema> {
 
   async updateCategory(
     categoryId: string,
-    updates: Partial<Omit<CategorySchema, keyof BaseSchema>>
+    updates: Partial<Omit<CategorySchema, keyof BaseSchema>>,
   ): Promise<boolean> {
     return this.update(
       { _id: categoryId },
       {
         $set: updates,
-      }
+      },
     );
   }
 
@@ -47,7 +47,7 @@ export class CategoryRepository extends BaseRepository<CategorySchema> {
     // First check if there are any subcategories
     const subcategories = await this.findSubcategories(categoryId);
     if (subcategories.length > 0) {
-      throw new Error('Cannot delete category with subcategories');
+      throw new Error("Cannot delete category with subcategories");
     }
     return this.delete({ _id: categoryId });
   }

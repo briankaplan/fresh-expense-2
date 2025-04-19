@@ -1,20 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import * as path from "path";
 import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
   S3ClientConfig,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
-import { HfInference } from '@huggingface/inference';
-import { RateLimiterService } from '../rate-limiter.service';
-import { createWorker } from 'tesseract.js';
-import { Types } from 'mongoose';
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { HfInference } from "@huggingface/inference";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import { Types } from "mongoose";
+import sharp from "sharp";
+import { createWorker } from "tesseract.js";
+import { v4 as uuidv4 } from "uuid";
+import type { RateLimiterService } from "../rate-limiter.service";
 
 interface UploadResult {
   _id?: Types.ObjectId;
@@ -44,7 +44,7 @@ interface ReceiptData {
   merchantName?: string;
   items?: ReceiptItem[];
   metadata?: Record<string, any>;
-  status?: 'pending' | 'processed' | 'failed';
+  status?: "pending" | "processed" | "failed";
   processingConfidence?: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -68,32 +68,32 @@ export class R2Service {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly rateLimiterService: RateLimiterService
+    private readonly rateLimiterService: RateLimiterService,
   ) {
     this.s3 = new S3Client({
-      region: this.configService.get<string>('R2_REGION') || 'auto',
-      endpoint: this.configService.get<string>('R2_ENDPOINT'),
+      region: this.configService.get<string>("R2_REGION") || "auto",
+      endpoint: this.configService.get<string>("R2_ENDPOINT"),
       credentials: {
-        accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID') || '',
-        secretAccessKey: this.configService.get<string>('R2_SECRET_ACCESS_KEY') || '',
+        accessKeyId: this.configService.get<string>("R2_ACCESS_KEY_ID") || "",
+        secretAccessKey: this.configService.get<string>("R2_SECRET_ACCESS_KEY") || "",
       },
     });
-    this.bucket = this.configService.get<string>('R2_BUCKET') || '';
-    const publicUrl = this.configService.get<string>('R2_PUBLIC_URL');
-    const huggingfaceApiKey = this.configService.get<string>('HUGGING_FACE_API_KEY');
+    this.bucket = this.configService.get<string>("R2_BUCKET") || "";
+    const publicUrl = this.configService.get<string>("R2_PUBLIC_URL");
+    const huggingfaceApiKey = this.configService.get<string>("HUGGING_FACE_API_KEY");
 
     if (!publicUrl || !huggingfaceApiKey) {
-      throw new Error('Missing required configuration for R2Service');
+      throw new Error("Missing required configuration for R2Service");
     }
 
     this.publicUrl = publicUrl;
     this.hf = new HfInference(huggingfaceApiKey);
 
     // Set up rate limits for Hugging Face API
-    this.rateLimiterService.setLimit('huggingface-api', {
+    this.rateLimiterService.setLimit("huggingface-api", {
       maxRequests: 100,
       timeWindow: 60 * 1000, // 1 minute
-      backoffStrategy: 'exponential',
+      backoffStrategy: "exponential",
       maxRetries: 3,
     });
   }
@@ -113,19 +113,19 @@ export class R2Service {
     try {
       return await sharp(buffer)
         .resize(300, 300, {
-          fit: 'inside',
+          fit: "inside",
           withoutEnlargement: true,
         })
         .toBuffer();
     } catch (error) {
-      this.logger.error('Error generating thumbnail:', error);
+      this.logger.error("Error generating thumbnail:", error);
       throw error;
     }
   }
 
   private async handleS3Operation<T>(
     operation: () => Promise<T>,
-    operationName: string
+    operationName: string,
   ): Promise<T> {
     try {
       return await operation();
@@ -144,9 +144,9 @@ export class R2Service {
             Key: key,
             Body: buffer,
             ContentType: contentType,
-          })
+          }),
         ),
-      'uploading to S3'
+      "uploading to S3",
     );
   }
 
@@ -157,7 +157,7 @@ export class R2Service {
         Key: key,
       });
       return getSignedUrl(this.s3, command, { expiresIn });
-    }, 'generating signed URL');
+    }, "generating signed URL");
   }
 
   async uploadFile(
@@ -167,7 +167,7 @@ export class R2Service {
       filename: string;
       mimeType: string;
       generateThumbnail?: boolean;
-    }
+    },
   ): Promise<UploadResult> {
     const key = this.generateKey(options.userId, options.filename);
     const thumbnailKey = options.generateThumbnail ? this.generateThumbnailKey(key) : undefined;
@@ -200,9 +200,9 @@ export class R2Service {
           new DeleteObjectCommand({
             Bucket: this.bucket,
             Key: key,
-          })
+          }),
         ),
-      'deleting file from S3'
+      "deleting file from S3",
     );
   }
 
@@ -214,8 +214,8 @@ export class R2Service {
     try {
       // First try Hugging Face OCR
       const result = await this.hf.textGeneration({
-        inputs: imageBuffer.toString('base64'),
-        model: 'microsoft/trocr-base-printed',
+        inputs: imageBuffer.toString("base64"),
+        model: "microsoft/trocr-base-printed",
       });
 
       if (result && result.generated_text) {
@@ -239,22 +239,22 @@ export class R2Service {
         confidence: confidence / 100, // Convert Tesseract confidence to 0-1 scale
       };
     } catch (error) {
-      this.logger.error('Error processing receipt:', error);
+      this.logger.error("Error processing receipt:", error);
       throw error;
     }
   }
 
   private parseLines(text: string): ReceiptData {
-    const lines = text.split('\n').filter((line: string) => line.trim().length > 0);
+    const lines = text.split("\n").filter((line: string) => line.trim().length > 0);
 
     const data: ReceiptData = {
       _id: new Types.ObjectId(),
       rawText: text,
       total: 0,
       date: new Date(),
-      merchantName: '',
+      merchantName: "",
       items: [],
-      status: 'processed',
+      status: "processed",
       createdAt: new Date(),
       updatedAt: new Date(),
       metadata: {},

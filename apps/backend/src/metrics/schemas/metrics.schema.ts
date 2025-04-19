@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { Metrics, MetricType } from '@fresh-expense/types';
-import { BaseDocument } from '@fresh-expense/types';
+import { MetricType, Metrics } from "@fresh-expense/types";
+import type { BaseDocument } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
 
 export type MetricsDocument = MetricsModel & Document;
 
@@ -44,6 +44,6 @@ export const MetricsSchema = SchemaFactory.createForClass(MetricsModel);
 // Create indexes for common queries
 MetricsSchema.index({ userId: 1, type: 1 });
 MetricsSchema.index({ userId: 1, timestamp: 1 });
-MetricsSchema.index({ userId: 1, 'metadata.category': 1 });
-MetricsSchema.index({ userId: 1, 'metadata.merchant': 1 });
-MetricsSchema.index({ userId: 1, 'metadata.period': 1 });
+MetricsSchema.index({ userId: 1, "metadata.category": 1 });
+MetricsSchema.index({ userId: 1, "metadata.merchant": 1 });
+MetricsSchema.index({ userId: 1, "metadata.period": 1 });

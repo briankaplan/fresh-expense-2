@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { MongoDBService } from '@/core/database/mongodb.service';
+import type { MongoDBService } from "@/core/database/mongodb.service";
+import { EXPENSE_COLLECTION, type ExpenseSchema } from "@/core/database/schemas/expense.schema";
 import {
-  TransactionSchema,
   TRANSACTION_COLLECTION,
-} from '@/core/database/schemas/transaction.schema';
-import { ExpenseSchema, EXPENSE_COLLECTION } from '@/core/database/schemas/expense.schema';
-import { Collection } from 'mongodb';
+  type TransactionSchema,
+} from "@/core/database/schemas/transaction.schema";
+import { Injectable, Logger } from "@nestjs/common";
+import type { Collection } from "mongodb";
 
 @Injectable()
 export class TransactionEditorService {
@@ -24,13 +24,16 @@ export class TransactionEditorService {
   async updateTransaction(
     transactionId: string,
     userId: string,
-    updates: Partial<TransactionSchema>
+    updates: Partial<TransactionSchema>,
   ): Promise<TransactionSchema> {
     const transactionCollection = await this.getTransactionCollection();
     const expenseCollection = await this.getExpenseCollection();
 
     // Get the current transaction
-    const transaction = await transactionCollection.findOne({ _id: transactionId, userId });
+    const transaction = await transactionCollection.findOne({
+      _id: transactionId,
+      userId,
+    });
     if (!transaction) {
       throw new Error(`Transaction ${transactionId} not found`);
     }
@@ -44,12 +47,12 @@ export class TransactionEditorService {
           updatedAt: new Date(),
           metadata: {
             ...transaction.metadata,
-            enrichmentSource: 'manual',
+            enrichmentSource: "manual",
             enrichmentTimestamp: new Date(),
           },
         },
       },
-      { returnDocument: 'after' }
+      { returnDocument: "after" },
     );
 
     if (!result) {
@@ -86,7 +89,7 @@ export class TransactionEditorService {
         updatedAt: new Date(),
         metadata: {
           ...transaction.metadata,
-          enrichmentSource: 'manual',
+          enrichmentSource: "manual",
           enrichmentTimestamp: new Date(),
         },
       };
@@ -100,7 +103,7 @@ export class TransactionEditorService {
   async updateExpense(
     expenseId: string,
     userId: string,
-    updates: Partial<ExpenseSchema>
+    updates: Partial<ExpenseSchema>,
   ): Promise<ExpenseSchema> {
     const expenseCollection = await this.getExpenseCollection();
     const transactionCollection = await this.getTransactionCollection();
@@ -120,12 +123,12 @@ export class TransactionEditorService {
           updatedAt: new Date(),
           metadata: {
             ...expense.metadata,
-            enrichmentSource: 'manual',
+            enrichmentSource: "manual",
             enrichmentTimestamp: new Date(),
           },
         },
       },
-      { returnDocument: 'after' }
+      { returnDocument: "after" },
     );
 
     if (!result) {
@@ -162,14 +165,14 @@ export class TransactionEditorService {
         updatedAt: new Date(),
         metadata: {
           ...expense.metadata,
-          enrichmentSource: 'manual',
+          enrichmentSource: "manual",
           enrichmentTimestamp: new Date(),
         },
       };
 
       await transactionCollection.updateOne(
         { _id: expense.transactionId },
-        { $set: transactionUpdates }
+        { $set: transactionUpdates },
       );
     }
 
@@ -186,26 +189,28 @@ export class TransactionEditorService {
       {
         $set: {
           receiptId,
-          receiptStatus: 'matched',
+          receiptStatus: "matched",
           receiptMatchedAt: new Date(),
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     // If transaction is linked to an expense, update the expense as well
-    const transaction = await transactionCollection.findOne({ _id: transactionId });
+    const transaction = await transactionCollection.findOne({
+      _id: transactionId,
+    });
     if (transaction?.expenseId) {
       await expenseCollection.updateOne(
         { _id: transaction.expenseId },
         {
           $set: {
             receiptId,
-            receiptStatus: 'matched',
+            receiptStatus: "matched",
             receiptMatchedAt: new Date(),
             updatedAt: new Date(),
           },
-        }
+        },
       );
     }
   }
@@ -220,26 +225,28 @@ export class TransactionEditorService {
       {
         $set: {
           receiptId: undefined,
-          receiptStatus: 'unmatched',
+          receiptStatus: "unmatched",
           receiptUnmatchedAt: new Date(),
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     // If transaction is linked to an expense, update the expense as well
-    const transaction = await transactionCollection.findOne({ _id: transactionId });
+    const transaction = await transactionCollection.findOne({
+      _id: transactionId,
+    });
     if (transaction?.expenseId) {
       await expenseCollection.updateOne(
         { _id: transaction.expenseId },
         {
           $set: {
             receiptId: undefined,
-            receiptStatus: 'unmatched',
+            receiptStatus: "unmatched",
             receiptUnmatchedAt: new Date(),
             updatedAt: new Date(),
           },
-        }
+        },
       );
     }
   }

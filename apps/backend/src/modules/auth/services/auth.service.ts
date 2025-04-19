@@ -1,16 +1,16 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import * as argon2 from 'argon2';
-import { RegisterDto } from '../dto/register.dto';
-import { LoginDto } from '../dto/login.dto';
-import { ChangePasswordDto } from '../dto/change-password.dto';
-import { ResetPasswordDto } from '../dto/reset-password.dto';
-import { EmailService } from '../../services/email/email.service';
-import { v4 as uuidv4 } from 'uuid';
-import { User } from '@fresh-expense/types';
+import { User } from "@fresh-expense/types";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { JwtService } from "@nestjs/jwt";
+import { InjectModel } from "@nestjs/mongoose";
+import * as argon2 from "argon2";
+import type { Model } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
+import type { EmailService } from "../../services/email/email.service";
+import type { ChangePasswordDto } from "../dto/change-password.dto";
+import type { LoginDto } from "../dto/login.dto";
+import type { RegisterDto } from "../dto/register.dto";
+import type { ResetPasswordDto } from "../dto/reset-password.dto";
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private emailService: EmailService
+    private emailService: EmailService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -33,7 +33,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const payload = { email: user.email, sub: user._id };
@@ -44,9 +44,11 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.userModel.findOne({ email: registerDto.email });
+    const existingUser = await this.userModel.findOne({
+      email: registerDto.email,
+    });
     if (existingUser) {
-      throw new BadRequestException('User already exists');
+      throw new BadRequestException("User already exists");
     }
 
     const hashedPassword = await argon2.hash(registerDto.password);
@@ -68,19 +70,19 @@ export class AuthService {
       const user = await this.userModel.findByIdAndUpdate(
         payload.userId,
         { isEmailVerified: true },
-        { new: true }
+        { new: true },
       );
       const { password, ...result } = user.toObject();
       return result;
     } catch (error) {
-      throw new BadRequestException('Invalid or expired verification token');
+      throw new BadRequestException("Invalid or expired verification token");
     }
   }
 
   async initiatePasswordReset(email: string) {
     const user = await this.userModel.findOne({ email });
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException("User not found");
     }
 
     const resetToken = uuidv4();
@@ -93,7 +95,7 @@ export class AuthService {
 
     await this.emailService.sendPasswordResetEmail(email, resetToken);
 
-    return { message: 'Password reset email sent' };
+    return { message: "Password reset email sent" };
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -103,7 +105,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid or expired reset token');
+      throw new BadRequestException("Invalid or expired reset token");
     }
 
     const hashedPassword = await argon2.hash(resetPasswordDto.newPassword);
@@ -113,19 +115,19 @@ export class AuthService {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    return { message: 'Password reset successful' };
+    return { message: "Password reset successful" };
   }
 
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException("User not found");
     }
 
     const isPasswordValid = await argon2.verify(user.password, changePasswordDto.currentPassword);
 
     if (!isPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException("Current password is incorrect");
     }
 
     const hashedPassword = await argon2.hash(changePasswordDto.newPassword);
@@ -133,13 +135,13 @@ export class AuthService {
     user.password = hashedPassword;
     await user.save();
 
-    return { message: 'Password changed successfully' };
+    return { message: "Password changed successfully" };
   }
 
   async refreshToken(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
 
     const payload = { email: user.email, sub: user._id };
@@ -149,9 +151,11 @@ export class AuthService {
   }
 
   async updateUser(userId: string, updateUserDto: any) {
-    const user = await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
+    const user = await this.userModel.findByIdAndUpdate(userId, updateUserDto, {
+      new: true,
+    });
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
     const { password, ...result } = user.toObject();
     return result;
@@ -160,7 +164,7 @@ export class AuthService {
   async findUserById(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
     const { password, ...result } = user.toObject();
     return result;
@@ -169,7 +173,7 @@ export class AuthService {
   async updatePassword(userId: string, newPassword: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException("User not found");
     }
 
     const hashedPassword = await argon2.hash(newPassword);
@@ -177,13 +181,13 @@ export class AuthService {
     user.password = hashedPassword;
     await user.save();
 
-    return { message: 'Password updated successfully' };
+    return { message: "Password updated successfully" };
   }
 
   async findUserByEmail(email: string) {
     const user = await this.userModel.findOne({ email });
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
     const { password, ...result } = user.toObject();
     return result;

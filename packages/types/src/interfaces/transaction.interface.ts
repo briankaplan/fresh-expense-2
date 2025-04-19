@@ -1,4 +1,4 @@
-import { TransactionStatus, TransactionType } from '../constants/transaction.constants';
+import type { TransactionStatus, TransactionType } from "../constants/transaction.constants";
 
 export interface TransactionAmount {
   value: number;
@@ -29,8 +29,8 @@ export interface TransactionMetrics {
   monthlyTotal?: number;
   yearlyAverage?: number;
   yearlyTotal?: number;
-  frequency?: 'one-time' | 'recurring';
-  trend?: 'increasing' | 'decreasing' | 'stable';
+  frequency?: "one-time" | "recurring";
+  trend?: "increasing" | "decreasing" | "stable";
 }
 
 export interface Transaction {
@@ -45,7 +45,7 @@ export interface Transaction {
   merchant: TransactionMerchant;
   status: TransactionStatus;
   type: TransactionType;
-  source: 'teller' | 'manual' | 'import';
+  source: "teller" | "manual" | "import";
   location?: TransactionLocation;
   metadata?: Record<string, unknown>;
   metrics?: TransactionMetrics;

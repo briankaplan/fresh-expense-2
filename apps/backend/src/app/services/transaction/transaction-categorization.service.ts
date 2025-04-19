@@ -1,21 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
-  TransactionDocument,
-  ITransactionCategorizationService,
-  CategorizationConfig,
+  type AICategorizationRequestDto,
+  type AICategorizationResponseDto,
+  type AICategorizedTransactionDto,
+  type CategorizationConfig,
   CategorizationValidationRules,
-  AICategorizationRequestDto,
-  AICategorizationResponseDto,
-  AICategorizedTransactionDto,
-  TransactionUpdateDto,
-  TransactionPatterns,
-  MerchantData,
-  TransactionCategorizationEvent,
-} from '@fresh-expense/types';
-import { MerchantLearningService } from '../merchant/merchant-learning.service';
+  type ITransactionCategorizationService,
+  type MerchantData,
+  type TransactionCategorizationEvent,
+  type TransactionDocument,
+  type TransactionPatterns,
+  type TransactionUpdateDto,
+} from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import type { MerchantLearningService } from "../merchant/merchant-learning.service";
 
 @Injectable()
 export class TransactionCategorizationService implements ITransactionCategorizationService {
@@ -28,16 +28,17 @@ export class TransactionCategorizationService implements ITransactionCategorizat
   };
 
   constructor(
-    @InjectModel('Transaction') private transactionModel: Model<TransactionDocument>,
+    @InjectModel("Transaction")
+    private transactionModel: Model<TransactionDocument>,
     private readonly merchantLearning: MerchantLearningService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
    * Categorizes a batch of transactions using AI
    */
   async categorizeTransactions(
-    request: AICategorizationRequestDto
+    request: AICategorizationRequestDto,
   ): Promise<AICategorizationResponseDto> {
     this.validateRequest(request);
 
@@ -59,7 +60,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
           transactionId: transaction._id.toString(),
           categorization,
           wasUpdated,
-          error: wasUpdated ? undefined : 'Confidence below threshold',
+          error: wasUpdated ? undefined : "Confidence below threshold",
         });
 
         totalProcessed++;
@@ -68,9 +69,9 @@ export class TransactionCategorizationService implements ITransactionCategorizat
           totalConfidence += categorization.confidence;
         }
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
         this.logger.error(
-          `Failed to process transaction ${transaction._id.toString()}: ${errorMessage}`
+          `Failed to process transaction ${transaction._id.toString()}: ${errorMessage}`,
         );
         results.push({
           transactionId: transaction._id.toString(),
@@ -93,7 +94,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
    * Applies categorization results to transactions
    */
   async applyCategorization(updates: TransactionUpdateDto[]): Promise<number> {
-    const bulkOps = updates.map(update => ({
+    const bulkOps = updates.map((update) => ({
       updateOne: {
         filter: { _id: update.transactionId },
         update: {
@@ -102,7 +103,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
             company: update.company,
             tags: update.tags,
             description: update.description,
-            'metadata.confidence': update.confidence,
+            "metadata.confidence": update.confidence,
           },
         },
       },
@@ -117,14 +118,14 @@ export class TransactionCategorizationService implements ITransactionCategorizat
    */
   validateConfidence(
     result: AICategorizationResponseDto,
-    threshold: number = this.config.confidenceThreshold
+    threshold: number = this.config.confidenceThreshold,
   ): boolean {
     return result.averageConfidence >= threshold;
   }
 
   private validateRequest(request: AICategorizationRequestDto): void {
     if (!request.transactionIds?.length) {
-      throw new Error('No transaction IDs provided');
+      throw new Error("No transaction IDs provided");
     }
 
     if (request.transactionIds.length > this.config.maxBatchSize) {
@@ -132,7 +133,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
     }
 
     if (request.confidenceThreshold && !this.isValidConfidence(request.confidenceThreshold)) {
-      throw new Error('Invalid confidence threshold');
+      throw new Error("Invalid confidence threshold");
     }
   }
 
@@ -141,12 +142,12 @@ export class TransactionCategorizationService implements ITransactionCategorizat
   }
 
   private async processTransaction(
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): Promise<AICategorizationResultDto> {
     try {
       // 1. Get merchant learning data
       const merchantData = (await this.merchantLearning.getMerchantData(
-        transaction.merchantName
+        transaction.merchantName,
       )) as MerchantData;
 
       // 2. Analyze transaction patterns
@@ -176,7 +177,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
         confidence,
         patterns,
       };
-      this.eventEmitter.emit('transaction.categorized', event);
+      this.eventEmitter.emit("transaction.categorized", event);
 
       return {
         category,
@@ -186,16 +187,16 @@ export class TransactionCategorizationService implements ITransactionCategorizat
         description,
       };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       this.logger.error(
-        `Failed to process transaction ${transaction._id.toString()}: ${errorMessage}`
+        `Failed to process transaction ${transaction._id.toString()}: ${errorMessage}`,
       );
       throw error;
     }
   }
 
   private async analyzeTransactionPatterns(
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): Promise<TransactionPatterns> {
     // Get similar transactions for pattern analysis
     const similarTransactions = await this.transactionModel
@@ -225,7 +226,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
   private async determineCategory(
     transaction: TransactionDocument,
     merchantData: MerchantData,
-    patterns: TransactionPatterns
+    patterns: TransactionPatterns,
   ): Promise<string> {
     // 1. Check merchant's known category
     if (merchantData?.category && merchantData.confidence && merchantData.confidence > 0.9) {
@@ -234,23 +235,23 @@ export class TransactionCategorizationService implements ITransactionCategorizat
 
     // 2. Check transaction patterns
     if (patterns.isRecurring) {
-      return 'Subscription';
+      return "Subscription";
     }
 
     // 3. Use amount-based categorization
     if (transaction.amount > 1000) {
-      return 'Major Purchase';
+      return "Major Purchase";
     }
 
     // 4. Default to merchant's category or 'Other'
-    return merchantData?.category || 'Other';
+    return merchantData?.category || "Other";
   }
 
   private async determineCompany(
     transaction: TransactionDocument,
     merchantData: MerchantData,
-    patterns: TransactionPatterns
-  ): Promise<'Down Home' | 'Music City Rodeo' | 'Personal'> {
+    patterns: TransactionPatterns,
+  ): Promise<"Down Home" | "Music City Rodeo" | "Personal"> {
     // 1. Check merchant's known company
     if (merchantData?.company && merchantData.confidence && merchantData.confidence > 0.9) {
       return merchantData.company;
@@ -258,43 +259,43 @@ export class TransactionCategorizationService implements ITransactionCategorizat
 
     // 2. Use pattern-based determination
     if (patterns.isRecurring && patterns.frequency > 3) {
-      return 'Down Home'; // Default for recurring business expenses
+      return "Down Home"; // Default for recurring business expenses
     }
 
     // 3. Use amount-based determination
     if (transaction.amount > 500) {
-      return 'Down Home'; // Large expenses likely business
+      return "Down Home"; // Large expenses likely business
     }
 
     // 4. Default to Personal
-    return 'Personal';
+    return "Personal";
   }
 
   private async generateTags(
     transaction: TransactionDocument,
     merchantData: MerchantData,
-    patterns: TransactionPatterns
+    patterns: TransactionPatterns,
   ): Promise<string[]> {
     const tags = new Set<string>();
 
     // Add merchant-based tags
     if (merchantData?.tags) {
-      merchantData.tags.forEach(tag => tags.add(tag));
+      merchantData.tags.forEach((tag) => tags.add(tag));
     }
 
     // Add pattern-based tags
     if (patterns.isRecurring) {
-      tags.add('recurring');
+      tags.add("recurring");
     }
     if (patterns.amountDeviation < 0.1) {
-      tags.add('consistent-amount');
+      tags.add("consistent-amount");
     }
 
     // Add amount-based tags
     if (transaction.amount > 1000) {
-      tags.add('large-purchase');
+      tags.add("large-purchase");
     } else if (transaction.amount < 10) {
-      tags.add('small-purchase');
+      tags.add("small-purchase");
     }
 
     return Array.from(tags);
@@ -304,7 +305,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
     merchantData: MerchantData,
     patterns: TransactionPatterns,
     category: string,
-    company: string
+    company: string,
   ): number {
     let confidence = 0;
 
@@ -322,7 +323,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
     }
 
     // Category confidence
-    if (category !== 'Other') {
+    if (category !== "Other") {
       confidence += 0.1;
     }
 
@@ -332,9 +333,9 @@ export class TransactionCategorizationService implements ITransactionCategorizat
   private async generateDescription(
     transaction: TransactionDocument,
     merchantData: MerchantData,
-    patterns: TransactionPatterns
+    patterns: TransactionPatterns,
   ): Promise<string> {
-    let description = transaction.description || '';
+    let description = transaction.description || "";
 
     // Enhance with merchant data
     if (merchantData?.description) {
@@ -343,7 +344,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
 
     // Add pattern information
     if (patterns.isRecurring) {
-      description += ` (Recurring payment${patterns.frequency > 1 ? `, ${patterns.frequency} occurrences` : ''})`;
+      description += ` (Recurring payment${patterns.frequency > 1 ? `, ${patterns.frequency} occurrences` : ""})`;
     }
 
     return description;
@@ -373,7 +374,7 @@ export class TransactionCategorizationService implements ITransactionCategorizat
 
   private shouldUpdate(
     categorization: AICategorizationResultDto,
-    request: AICategorizationRequestDto
+    request: AICategorizationRequestDto,
   ): boolean {
     const threshold = request.confidenceThreshold ?? this.config.confidenceThreshold;
     return categorization.confidence >= threshold;

@@ -1,43 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  Button,
-  Chip,
-  IconButton,
-  Tooltip,
-  LinearProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  Divider,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
+import type { Receipt, Transaction } from "@fresh-expense/types";
 import {
   Check,
   Close,
-  Warning,
-  Visibility,
-  Link as LinkIcon,
-  Unlink,
-  Refresh,
-  Edit,
   Delete,
-} from '@mui/icons-material';
-import { ReceiptService } from '../../../../services/receipt.service';
-import { TransactionService } from '../../../../services/transaction.service';
-import { toast } from 'react-toastify';
-import { Receipt, Transaction } from '@fresh-expense/types';
+  Edit,
+  Link as LinkIcon,
+  Refresh,
+  Unlink,
+  Visibility,
+  Warning,
+} from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Paper,
+  Select,
+  type SelectChangeEvent,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { ReceiptService } from "../../../../services/receipt.service";
+import { TransactionService } from "../../../../services/transaction.service";
 
 interface MatchResult {
   receipt: Receipt;
@@ -57,7 +57,10 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
   const [loading, setLoading] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
   const [confidenceThreshold, setConfidenceThreshold] = useState(0.7);
-  const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
+  const [dateRange, setDateRange] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>({
     start: null,
     end: null,
   });
@@ -74,8 +77,8 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
       const receipts = await ReceiptService.getUnmatchedReceipts(company);
       setUnmatchedReceipts(receipts);
     } catch (error) {
-      toast.error('Failed to fetch unmatched receipts');
-      console.error('Error fetching unmatched receipts:', error);
+      toast.error("Failed to fetch unmatched receipts");
+      console.error("Error fetching unmatched receipts:", error);
     } finally {
       setLoading(false);
     }
@@ -109,8 +112,8 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
 
       setMatches(newMatches);
     } catch (error) {
-      toast.error('Failed to find matches');
-      console.error('Error finding matches:', error);
+      toast.error("Failed to find matches");
+      console.error("Error finding matches:", error);
     } finally {
       setLoading(false);
     }
@@ -128,8 +131,8 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
 
     const merchantMatch =
       calculateStringSimilarity(
-        receipt.merchant?.toLowerCase() || '',
-        transaction.merchant?.toLowerCase() || ''
+        receipt.merchant?.toLowerCase() || "",
+        transaction.merchant?.toLowerCase() || "",
       ) > 0.8;
     if (merchantMatch) confidence += 0.2;
 
@@ -171,17 +174,17 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
   const handleMatchConfirm = async (match: MatchResult) => {
     try {
       await ReceiptService.linkReceiptToTransaction(match.receipt.id, match.transaction.id);
-      setMatches(matches.filter(m => m !== match));
-      setUnmatchedReceipts(unmatchedReceipts.filter(r => r.id !== match.receipt.id));
+      setMatches(matches.filter((m) => m !== match));
+      setUnmatchedReceipts(unmatchedReceipts.filter((r) => r.id !== match.receipt.id));
       setSelectedMatch(null);
     } catch (error) {
-      toast.error('Failed to match receipt');
-      console.error('Error matching receipt:', error);
+      toast.error("Failed to match receipt");
+      console.error("Error matching receipt:", error);
     }
   };
 
   const handleMatchReject = (match: MatchResult) => {
-    setMatches(matches.filter(m => m !== match));
+    setMatches(matches.filter((m) => m !== match));
     setSelectedMatch(null);
   };
 
@@ -211,8 +214,8 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
                 <FormControl sx={{ minWidth: 120 }}>
                   <InputLabel>Date Range</InputLabel>
                   <Select
-                    value={dateRange.start ? dateRange.start.toISOString().split('T')[0] : ''}
-                    onChange={e =>
+                    value={dateRange.start ? dateRange.start.toISOString().split("T")[0] : ""}
+                    onChange={(e) =>
                       setDateRange({
                         ...dateRange,
                         start: e.target.value ? new Date(e.target.value) : null,
@@ -226,8 +229,8 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
                 <FormControl sx={{ minWidth: 120 }}>
                   <InputLabel>End Date</InputLabel>
                   <Select
-                    value={dateRange.end ? dateRange.end.toISOString().split('T')[0] : ''}
-                    onChange={e =>
+                    value={dateRange.end ? dateRange.end.toISOString().split("T")[0] : ""}
+                    onChange={(e) =>
                       setDateRange({
                         ...dateRange,
                         end: e.target.value ? new Date(e.target.value) : null,
@@ -252,7 +255,7 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
             {loading && <LinearProgress />}
 
             <Grid container spacing={2}>
-              {matches.map(match => (
+              {matches.map((match) => (
                 <Grid item xs={12} md={6} key={`${match.receipt.id}-${match.transaction.id}`}>
                   <Paper sx={{ p: 2 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -330,9 +333,9 @@ export function ReceiptMatcher({ company }: ReceiptMatcherProps) {
                       src={selectedMatch.receipt.url}
                       alt="Receipt"
                       sx={{
-                        width: '100%',
+                        width: "100%",
                         maxHeight: 300,
-                        objectFit: 'contain',
+                        objectFit: "contain",
                       }}
                     />
                   </Box>

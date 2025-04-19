@@ -1,7 +1,7 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { SettingsSchema, SETTINGS_COLLECTION } from '../schemas/settings.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import { SETTINGS_COLLECTION, type SettingsSchema } from "../schemas/settings.schema";
+import { BaseRepository } from "./base.repository";
 
 export class SettingsRepository extends BaseRepository<SettingsSchema> {
   protected readonly collectionName = SETTINGS_COLLECTION;
@@ -16,43 +16,43 @@ export class SettingsRepository extends BaseRepository<SettingsSchema> {
 
   async updateNotificationSettings(
     userId: string,
-    settings: Partial<SettingsSchema['notifications']>
+    settings: Partial<SettingsSchema["notifications"]>,
   ): Promise<boolean> {
     return this.update(
       { userId },
       {
         $set: { notifications: settings },
-      }
+      },
     );
   }
 
   async updateBudgetSettings(
     userId: string,
-    settings: Partial<SettingsSchema['budget']>
+    settings: Partial<SettingsSchema["budget"]>,
   ): Promise<boolean> {
     return this.update(
       { userId },
       {
         $set: { budget: settings },
-      }
+      },
     );
   }
 
   async updateUserPreferences(
     userId: string,
     preferences: {
-      theme?: SettingsSchema['theme'];
+      theme?: SettingsSchema["theme"];
       language?: string;
       timezone?: string;
       dateFormat?: string;
       currencyFormat?: string;
-    }
+    },
   ): Promise<boolean> {
     return this.update(
       { userId },
       {
         $set: preferences,
-      }
+      },
     );
   }
 
@@ -62,19 +62,19 @@ export class SettingsRepository extends BaseRepository<SettingsSchema> {
         email: true,
         push: true,
         inApp: true,
-        frequency: 'immediate',
+        frequency: "immediate",
       },
       budget: {
-        defaultCurrency: 'USD',
-        defaultPeriod: 'monthly',
+        defaultCurrency: "USD",
+        defaultPeriod: "monthly",
         rolloverUnused: false,
         alertThreshold: 80,
       },
-      theme: 'system',
-      language: 'en',
-      timezone: 'UTC',
-      dateFormat: 'MM/DD/YYYY',
-      currencyFormat: '$0,0.00',
+      theme: "system",
+      language: "en",
+      timezone: "UTC",
+      dateFormat: "MM/DD/YYYY",
+      currencyFormat: "$0,0.00",
     };
   }
 }

@@ -1,4 +1,4 @@
-import { OpenAI } from 'openai';
+import { OpenAI } from "openai";
 
 interface ExtractedData {
   merchant: string;
@@ -36,15 +36,15 @@ export class AIExtractionService {
       Text: ${text}`;
 
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: "gpt-4",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are a receipt data extraction assistant. Extract structured data from receipt text.',
+              "You are a receipt data extraction assistant. Extract structured data from receipt text.",
           },
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
@@ -58,7 +58,7 @@ export class AIExtractionService {
         date: new Date(extracted.date),
       };
     } catch (error) {
-      throw new Error('AI extraction failed');
+      throw new Error("AI extraction failed");
     }
   }
 }

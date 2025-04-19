@@ -1,4 +1,4 @@
-import { Transaction } from '@fresh-expense/types';
+import type { Transaction } from "@fresh-expense/types";
 
 /**
  * Custom error types for transaction processing
@@ -6,14 +6,14 @@ import { Transaction } from '@fresh-expense/types';
 export class TransactionValidationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'TransactionValidationError';
+    this.name = "TransactionValidationError";
   }
 }
 
 export class TransactionMappingError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'TransactionMappingError';
+    this.name = "TransactionMappingError";
   }
 }
 
@@ -58,19 +58,19 @@ export interface AIProcessedData {
  * Predefined transaction categories
  */
 export const TRANSACTION_CATEGORIES = {
-  SOFTWARE_SUBSCRIPTIONS: 'Software Subscriptions',
-  TRAVEL_RIDESHARE: 'Travel Costs - Cab/Uber/Bus Fare',
-  TRAVEL_HOTELS: 'Travel Costs - Hotel',
-  TRAVEL_CAR: 'Travel Costs - Gas/Rental Car',
-  TRAVEL_AIRFARE: 'Travel Costs - Airfare',
-  CLIENT_MEALS: 'DH: BD: Client Business Meals',
-  COMPANY_MEALS: 'Company Meetings and Meals',
-  PERSONAL_MEALS: 'Meals (Non-Business Related)',
-  OFFICE_SUPPLIES: 'Office Supplies',
-  ADVERTISING: 'BD: Advertising & Promotion',
-  HARDWARE: 'Hardware & Equipment',
-  CONFERENCE: 'Conference & Training Expenses',
-  UNCATEGORIZED: 'Uncategorized',
+  SOFTWARE_SUBSCRIPTIONS: "Software Subscriptions",
+  TRAVEL_RIDESHARE: "Travel Costs - Cab/Uber/Bus Fare",
+  TRAVEL_HOTELS: "Travel Costs - Hotel",
+  TRAVEL_CAR: "Travel Costs - Gas/Rental Car",
+  TRAVEL_AIRFARE: "Travel Costs - Airfare",
+  CLIENT_MEALS: "DH: BD: Client Business Meals",
+  COMPANY_MEALS: "Company Meetings and Meals",
+  PERSONAL_MEALS: "Meals (Non-Business Related)",
+  OFFICE_SUPPLIES: "Office Supplies",
+  ADVERTISING: "BD: Advertising & Promotion",
+  HARDWARE: "Hardware & Equipment",
+  CONFERENCE: "Conference & Training Expenses",
+  UNCATEGORIZED: "Uncategorized",
 } as const;
 
 /**
@@ -93,164 +93,164 @@ export const CATEGORY_DEFINITIONS: Array<{
   patterns?: RegExp[];
 }> = [
   {
-    name: 'SOFTWARE_SUBSCRIPTIONS',
-    description: 'Monthly or annual software services',
+    name: "SOFTWARE_SUBSCRIPTIONS",
+    description: "Monthly or annual software services",
     keywords: [
-      'subscription',
-      'software',
-      'monthly',
-      'annual',
-      'recurring',
-      'service',
-      'adobe',
-      'microsoft',
-      'google',
-      'spotify',
-      'netflix',
-      'github',
-      'slack',
-      'zoom',
-      'dropbox',
-      'apple.com/bill',
-      'aws',
-      'azure',
+      "subscription",
+      "software",
+      "monthly",
+      "annual",
+      "recurring",
+      "service",
+      "adobe",
+      "microsoft",
+      "google",
+      "spotify",
+      "netflix",
+      "github",
+      "slack",
+      "zoom",
+      "dropbox",
+      "apple.com/bill",
+      "aws",
+      "azure",
     ],
     patterns: [/(?:monthly|annual|subscription|recurring)/i],
   },
   {
-    name: 'TRAVEL_RIDESHARE',
-    description: 'Rideshare, taxi, and public transportation',
-    keywords: ['uber', 'lyft', 'taxi', 'cab', 'bus', 'transit', 'train', 'fare'],
+    name: "TRAVEL_RIDESHARE",
+    description: "Rideshare, taxi, and public transportation",
+    keywords: ["uber", "lyft", "taxi", "cab", "bus", "transit", "train", "fare"],
     patterns: [/(?:ride|trip|fare|transit)/i],
   },
   {
-    name: 'TRAVEL_HOTELS',
-    description: 'Hotel and lodging expenses',
+    name: "TRAVEL_HOTELS",
+    description: "Hotel and lodging expenses",
     keywords: [
-      'hotel',
-      'lodging',
-      'stay',
-      'accommodation',
-      'airbnb',
-      'motel',
-      'inn',
-      'marriott',
-      'hilton',
-      'hyatt',
+      "hotel",
+      "lodging",
+      "stay",
+      "accommodation",
+      "airbnb",
+      "motel",
+      "inn",
+      "marriott",
+      "hilton",
+      "hyatt",
     ],
     patterns: [/(?:night|stay|room|lodging)/i],
   },
   {
-    name: 'TRAVEL_CAR',
-    description: 'Gas, rental cars, and vehicle-related expenses',
-    keywords: ['gas', 'fuel', 'rental', 'car', 'vehicle', 'hertz', 'avis', 'enterprise'],
+    name: "TRAVEL_CAR",
+    description: "Gas, rental cars, and vehicle-related expenses",
+    keywords: ["gas", "fuel", "rental", "car", "vehicle", "hertz", "avis", "enterprise"],
     patterns: [/(?:rental|gas|fuel|mile)/i],
   },
   {
-    name: 'TRAVEL_AIRFARE',
-    description: 'Flight tickets and airline fees',
+    name: "TRAVEL_AIRFARE",
+    description: "Flight tickets and airline fees",
     keywords: [
-      'flight',
-      'airline',
-      'ticket',
-      'airfare',
-      'delta',
-      'united',
-      'american',
-      'southwest',
-      'air',
+      "flight",
+      "airline",
+      "ticket",
+      "airfare",
+      "delta",
+      "united",
+      "american",
+      "southwest",
+      "air",
     ],
     patterns: [/(?:flight|airline|airfare|ticket)/i],
   },
   {
-    name: 'CLIENT_MEALS',
-    description: 'Client-facing business meals',
-    keywords: ['client', 'business', 'meeting', 'dinner', 'lunch', 'restaurant'],
+    name: "CLIENT_MEALS",
+    description: "Client-facing business meals",
+    keywords: ["client", "business", "meeting", "dinner", "lunch", "restaurant"],
     patterns: [/(?:client|prospect|customer|meeting)/i],
   },
   {
-    name: 'COMPANY_MEALS',
-    description: 'Internal team meals and meetings',
-    keywords: ['team', 'meeting', 'lunch', 'dinner', 'company', 'staff', 'internal'],
+    name: "COMPANY_MEALS",
+    description: "Internal team meals and meetings",
+    keywords: ["team", "meeting", "lunch", "dinner", "company", "staff", "internal"],
     patterns: [/(?:team|staff|company|meeting)/i],
   },
   {
-    name: 'PERSONAL_MEALS',
-    description: 'Personal meal expenses',
+    name: "PERSONAL_MEALS",
+    description: "Personal meal expenses",
     keywords: [
-      'restaurant',
-      'cafe',
-      'food',
-      'meal',
-      'dining',
-      'lunch',
-      'dinner',
-      'starbucks',
-      'mcdonald',
-      'doordash',
-      'grubhub',
-      'ubereats',
+      "restaurant",
+      "cafe",
+      "food",
+      "meal",
+      "dining",
+      "lunch",
+      "dinner",
+      "starbucks",
+      "mcdonald",
+      "doordash",
+      "grubhub",
+      "ubereats",
     ],
     patterns: [/(?:food|meal|restaurant|cafe)/i],
   },
   {
-    name: 'OFFICE_SUPPLIES',
-    description: 'Office materials and supplies',
+    name: "OFFICE_SUPPLIES",
+    description: "Office materials and supplies",
     keywords: [
-      'office depot',
-      'staples',
-      'supplies',
-      'paper',
-      'stationery',
-      'ink',
-      'toner',
-      'printer',
-      'officemax',
+      "office depot",
+      "staples",
+      "supplies",
+      "paper",
+      "stationery",
+      "ink",
+      "toner",
+      "printer",
+      "officemax",
     ],
     patterns: [/(?:office|supply|supplies|paper|ink)/i],
   },
   {
-    name: 'ADVERTISING',
-    description: 'Advertising and promotional expenses',
+    name: "ADVERTISING",
+    description: "Advertising and promotional expenses",
     keywords: [
-      'facebook ads',
-      'google ads',
-      'advertising',
-      'promotion',
-      'marketing',
-      'ad spend',
-      'campaign',
+      "facebook ads",
+      "google ads",
+      "advertising",
+      "promotion",
+      "marketing",
+      "ad spend",
+      "campaign",
     ],
     patterns: [/(?:ad\s|ads\s|advert|promo|campaign)/i],
   },
   {
-    name: 'HARDWARE',
-    description: 'Computer hardware and equipment',
+    name: "HARDWARE",
+    description: "Computer hardware and equipment",
     keywords: [
-      'computer',
-      'laptop',
-      'monitor',
-      'keyboard',
-      'mouse',
-      'server',
-      'hardware',
-      'equipment',
-      'device',
+      "computer",
+      "laptop",
+      "monitor",
+      "keyboard",
+      "mouse",
+      "server",
+      "hardware",
+      "equipment",
+      "device",
     ],
     patterns: [/(?:hardware|equipment|device)/i],
   },
   {
-    name: 'CONFERENCE',
-    description: 'Conference and training expenses',
+    name: "CONFERENCE",
+    description: "Conference and training expenses",
     keywords: [
-      'conference',
-      'training',
-      'workshop',
-      'seminar',
-      'course',
-      'certification',
-      'ticket',
-      'event',
+      "conference",
+      "training",
+      "workshop",
+      "seminar",
+      "course",
+      "certification",
+      "ticket",
+      "event",
     ],
     patterns: [/(?:conference|training|workshop|seminar)/i],
   },
@@ -259,7 +259,7 @@ export const CATEGORY_DEFINITIONS: Array<{
 /**
  * Transaction processing status
  */
-export type TransactionStatus = 'pending' | 'processed' | 'failed' | 'rejected';
+export type TransactionStatus = "pending" | "processed" | "failed" | "rejected";
 
 /**
  * Receipt patterns for text extraction
@@ -284,7 +284,7 @@ export const transactionValidationRules = {
     max: 1000000,
   },
   date: {
-    minDate: new Date('2020-01-01'),
+    minDate: new Date("2020-01-01"),
     maxDate: new Date(),
   },
   description: {
@@ -320,12 +320,12 @@ export const mapTellerToTransaction = (
   tellerTx: TellerTransaction,
   companyId: string,
   userId: string,
-  aiData?: AIProcessedData
+  aiData?: AIProcessedData,
 ): Partial<Transaction> => {
   return {
     tellerTransactionId: tellerTx.id,
     date: new Date(tellerTx.date),
-    amount: Math.abs(parseFloat(tellerTx.amount)), // Teller amounts are signed
+    amount: Math.abs(Number.parseFloat(tellerTx.amount)), // Teller amounts are signed
     merchant: aiData?.merchant || tellerTx.details?.counterparty?.name || tellerTx.description,
     description: aiData?.description || tellerTx.description,
     category:
@@ -333,7 +333,7 @@ export const mapTellerToTransaction = (
     isAICategorized: !!aiData?.category,
     companyId,
     createdBy: userId,
-    status: 'pending',
+    status: "pending",
     tags: [],
     isReconciled: false,
   };
@@ -344,7 +344,7 @@ export const mapTellerToTransaction = (
  */
 export const updateTransactionWithAI = (
   transaction: Transaction,
-  aiData: AIProcessedData
+  aiData: AIProcessedData,
 ): Transaction => {
   return {
     ...transaction,
@@ -361,7 +361,7 @@ export const updateTransactionWithAI = (
  * Validates if a transaction can be linked to a receipt
  */
 export const canLinkReceipt = (transaction: Transaction): boolean => {
-  return !transaction.receiptId && transaction.amount > 0 && transaction.status !== 'rejected';
+  return !transaction.receiptId && transaction.amount > 0 && transaction.status !== "rejected";
 };
 
 /**
@@ -369,7 +369,7 @@ export const canLinkReceipt = (transaction: Transaction): boolean => {
  */
 export const linkReceiptToTransaction = (
   transaction: Transaction,
-  receiptId: string
+  receiptId: string,
 ): Transaction => {
   return {
     ...transaction,
@@ -384,13 +384,13 @@ export const linkReceiptToTransaction = (
 export const isTellerTransaction = (obj: any): obj is TellerTransaction => {
   return (
     obj &&
-    typeof obj.id === 'string' &&
-    typeof obj.account_id === 'string' &&
-    typeof obj.date === 'string' &&
-    typeof obj.description === 'string' &&
-    typeof obj.amount === 'string' &&
+    typeof obj.id === "string" &&
+    typeof obj.account_id === "string" &&
+    typeof obj.date === "string" &&
+    typeof obj.description === "string" &&
+    typeof obj.amount === "string" &&
     obj.details &&
-    typeof obj.status === 'string'
+    typeof obj.status === "string"
   );
 };
 
@@ -408,10 +408,10 @@ export const mapAndValidateTellerTransaction = (
   tellerTx: TellerTransaction,
   companyId: string,
   userId: string,
-  aiData?: AIProcessedData
+  aiData?: AIProcessedData,
 ): Partial<Transaction> => {
   try {
-    const amount = Math.abs(parseFloat(tellerTx.amount));
+    const amount = Math.abs(Number.parseFloat(tellerTx.amount));
     const date = new Date(tellerTx.date);
 
     // Validate amount
@@ -426,7 +426,7 @@ export const mapAndValidateTellerTransaction = (
 
     // Validate description length
     if (tellerTx.description.length > transactionValidationRules.description.maxLength) {
-      throw new TransactionValidationError('Description too long');
+      throw new TransactionValidationError("Description too long");
     }
 
     return {
@@ -441,7 +441,7 @@ export const mapAndValidateTellerTransaction = (
       confidence: aiData?.category.confidence || 0.5,
       companyId,
       createdBy: userId,
-      status: 'pending',
+      status: "pending",
       tags: [],
       isReconciled: false,
       createdAt: new Date(),
@@ -461,23 +461,23 @@ export const mapAndValidateTellerTransaction = (
  */
 export const isDuplicateTransaction = (
   transaction: Transaction,
-  existingTransactions: Transaction[]
+  existingTransactions: Transaction[],
 ): boolean => {
   return existingTransactions.some(
-    existing =>
+    (existing) =>
       existing.amount != null &&
       existing.date.getTime() === transaction.date.getTime() &&
       existing.merchant != null &&
-      existing.id !== transaction.id
+      existing.id !== transaction.id,
   );
 };
 
 /**
  * Utility function to format transaction amount for display
  */
-export const formatTransactionAmount = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+export const formatTransactionAmount = (amount: number, currency = "USD"): string => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
   }).format(amount);
 };
@@ -486,12 +486,12 @@ export const formatTransactionAmount = (amount: number, currency: string = 'USD'
  * Utility function to categorize transaction type
  */
 export const categorizeTransactionType = (
-  transaction: Transaction
-): 'expense' | 'income' | 'transfer' => {
-  if (transaction.category.toLowerCase().includes('transfer')) {
-    return 'transfer';
+  transaction: Transaction,
+): "expense" | "income" | "transfer" => {
+  if (transaction.category.toLowerCase().includes("transfer")) {
+    return "transfer";
   }
-  return transaction.amount >= 0 ? 'income' : 'expense';
+  return transaction.amount >= 0 ? "income" : "expense";
 };
 
 /**
@@ -499,10 +499,10 @@ export const categorizeTransactionType = (
  */
 export const getTransactionStatusLabel = (status: TransactionStatus): string => {
   const statusMap: Record<TransactionStatus, string> = {
-    pending: 'Pending',
-    processed: 'Processed',
-    failed: 'Failed',
-    rejected: 'Rejected',
+    pending: "Pending",
+    processed: "Processed",
+    failed: "Failed",
+    rejected: "Rejected",
   };
   return statusMap[status] || status;
 };

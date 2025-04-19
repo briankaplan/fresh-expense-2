@@ -1,6 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
 
-import { ReceiptConverterService } from './receipt-converter.service';
-
+import { ReceiptConverterService } from "./receipt-converter.service";
 
 export class ReceiptConverterModule {}

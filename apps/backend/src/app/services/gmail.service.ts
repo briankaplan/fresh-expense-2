@@ -1,11 +1,11 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google, gmail_v1, Auth } from 'googleapis';
-import { TokenManagerService } from './token-manager.service';
-import { RateLimiter } from 'limiter';
-import { retry } from 'ts-retry-promise';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { GoogleService } from './google.service';
+import { Injectable, Logger, type OnModuleInit } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { Auth, type gmail_v1, google } from "googleapis";
+import { RateLimiter } from "limiter";
+import { retry } from "ts-retry-promise";
+import { GoogleService } from "./google.service";
+import type { TokenManagerService } from "./token-manager.service";
 
 interface SearchCriteria {
   dateRange?: {
@@ -57,7 +57,7 @@ interface SearchProgress {
   account: string;
   total: number;
   processed: number;
-  status: 'searching' | 'processing' | 'completed' | 'error';
+  status: "searching" | "processing" | "completed" | "error";
   error?: string;
 }
 
@@ -71,7 +71,7 @@ export class GmailService extends GoogleService implements OnModuleInit {
   constructor(
     protected readonly configService: ConfigService,
     protected readonly tokenManager: TokenManagerService,
-    protected readonly eventEmitter: EventEmitter2
+    protected readonly eventEmitter: EventEmitter2,
   ) {
     super(configService, tokenManager, eventEmitter);
   }
@@ -82,17 +82,17 @@ export class GmailService extends GoogleService implements OnModuleInit {
 
   async init() {
     if (this.accounts.size != null) {
-      this.logger.warn('No Google accounts configured for Gmail service');
+      this.logger.warn("No Google accounts configured for Gmail service");
       return;
     }
-    this.logger.log('Gmail service initialized');
+    this.logger.log("Gmail service initialized");
   }
 
   private async withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
     return retry(fn, {
       retries: this.MAX_RETRIES,
       delay: this.RETRY_DELAY,
-      backoff: 'LINEAR',
+      backoff: "LINEAR",
     });
   }
 
@@ -101,20 +101,20 @@ export class GmailService extends GoogleService implements OnModuleInit {
       account,
       total: 0,
       processed: 0,
-      status: 'matched',
+      status: "matched",
     };
     this.progressMap.set(account, { ...current, ...progress });
-    this.eventEmitter.emit('gmail.search.progress', this.progressMap.get(account));
+    this.eventEmitter.emit("gmail.search.progress", this.progressMap.get(account));
   }
 
-  async searchEmails(query: string, maxResults: number = 10): Promise<gmail_v1.Schema$Message[]> {
-    return this.withAuth('kaplan.brian@gmail.com', async oauth2Client => {
-      const gmail = google.gmail('v1');
+  async searchEmails(query: string, maxResults = 10): Promise<gmail_v1.Schema$Message[]> {
+    return this.withAuth("kaplan.brian@gmail.com", async (oauth2Client) => {
+      const gmail = google.gmail("v1");
       gmail.context._options.auth = oauth2Client;
 
       return this.withRateLimit(async () => {
         const response = await gmail.users.messages.list({
-          userId: 'me',
+          userId: "me",
           q: query,
           maxResults,
         });
@@ -126,11 +126,11 @@ export class GmailService extends GoogleService implements OnModuleInit {
         const messages = await Promise.all(
           response.data.messages.map(async (message: gmail_v1.Schema$Message) => {
             const fullMessage = await gmail.users.messages.get({
-              userId: 'me',
+              userId: "me",
               id: message.id!,
             });
             return fullMessage.data as gmail_v1.Schema$Message;
-          })
+          }),
         );
 
         return messages;
@@ -147,15 +147,15 @@ export class GmailService extends GoogleService implements OnModuleInit {
     }
 
     if (criteria.from?.length) {
-      queryParts.push(`from:(${criteria.from.join(' OR ')})`);
+      queryParts.push(`from:(${criteria.from.join(" OR ")})`);
     }
 
     if (criteria.subject?.length) {
-      queryParts.push(`subject:(${criteria.subject.join(' OR ')})`);
+      queryParts.push(`subject:(${criteria.subject.join(" OR ")})`);
     }
 
     if (criteria.body?.length) {
-      queryParts.push(`(${criteria.body.join(' OR ')})`);
+      queryParts.push(`(${criteria.body.join(" OR ")})`);
     }
 
     if (criteria.merchant) {
@@ -166,32 +166,32 @@ export class GmailService extends GoogleService implements OnModuleInit {
       queryParts.push(`$${criteria.amount}`);
     }
 
-    return queryParts.join(' ');
+    return queryParts.join(" ");
   }
 
   private parseMessageDetails(
     messageData: GmailMessage,
-    accountEmail: string
+    accountEmail: string,
   ): EmailMessage | null {
     if (!messageData.payload) {
       return null;
     }
 
     const headers = messageData.payload.headers || [];
-    const subject = headers.find(h => h.name.toLowerCase() === 'subject')?.value || '';
-    const from = headers.find(h => h.name.toLowerCase() === 'from')?.value || '';
-    const date = new Date(headers.find(h => h.name.toLowerCase() === 'date')?.value || '');
+    const subject = headers.find((h) => h.name.toLowerCase() === "subject")?.value || "";
+    const from = headers.find((h) => h.name.toLowerCase() === "from")?.value || "";
+    const date = new Date(headers.find((h) => h.name.toLowerCase() === "date")?.value || "");
 
-    let body = '';
+    let body = "";
     if (messageData.payload.parts) {
       for (const part of messageData.payload.parts) {
         if (part.mimeType != null && part.body?.data) {
-          body = Buffer.from(part.body.data, 'base64').toString('utf-8');
+          body = Buffer.from(part.body.data, "base64").toString("utf-8");
           break;
         }
       }
     } else if (messageData.payload.body?.data) {
-      body = Buffer.from(messageData.payload.body.data, 'base64').toString('utf-8');
+      body = Buffer.from(messageData.payload.body.data, "base64").toString("utf-8");
     }
 
     return {

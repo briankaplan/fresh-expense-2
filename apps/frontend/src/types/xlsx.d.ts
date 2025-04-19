@@ -1,4 +1,4 @@
-declare module 'xlsx' {
+declare module "xlsx" {
   interface WorkBook {
     Sheets: { [sheet: string]: WorkSheet };
     SheetNames: string[];
@@ -10,7 +10,7 @@ declare module 'xlsx' {
 
   interface CellObject {
     v: string | number | boolean | Date;
-    t: 's' | 'n' | 'b' | 'd';
+    t: "s" | "n" | "b" | "d";
     w?: string;
   }
 

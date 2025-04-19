@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Metrics, MetricsQueryParams, MetricsSummary } from '@fresh-expense/types';
-import { metricsService } from '../services/metrics.service';
+import type { Metrics, MetricsQueryParams, MetricsSummary } from "@fresh-expense/types";
+import type React from "react";
+import { createContext, useCallback, useContext, useState } from "react";
+import { metricsService } from "../services/metrics.service";
 
 interface MetricsContextType {
   metrics: Metrics[];
@@ -29,7 +30,7 @@ export const MetricsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const data = await metricsService.findAll(params);
       setMetrics(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch metrics');
+      setError(err instanceof Error ? err.message : "Failed to fetch metrics");
     } finally {
       setLoading(false);
     }
@@ -42,7 +43,7 @@ export const MetricsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const data = await metricsService.aggregateMetrics(params);
       setAggregatedData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch aggregated metrics');
+      setError(err instanceof Error ? err.message : "Failed to fetch aggregated metrics");
     } finally {
       setLoading(false);
     }
@@ -53,9 +54,9 @@ export const MetricsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
       const newMetric = await metricsService.create(metric);
-      setMetrics(prev => [...prev, newMetric]);
+      setMetrics((prev) => [...prev, newMetric]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create metric');
+      setError(err instanceof Error ? err.message : "Failed to create metric");
     } finally {
       setLoading(false);
     }
@@ -66,9 +67,9 @@ export const MetricsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
       const updatedMetric = await metricsService.update(id, metric);
-      setMetrics(prev => prev.map(m => (m._id === id ? updatedMetric : m)));
+      setMetrics((prev) => prev.map((m) => (m._id === id ? updatedMetric : m)));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update metric');
+      setError(err instanceof Error ? err.message : "Failed to update metric");
     } finally {
       setLoading(false);
     }
@@ -79,9 +80,9 @@ export const MetricsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
       await metricsService.delete(id);
-      setMetrics(prev => prev.filter(m => m._id !== id));
+      setMetrics((prev) => prev.filter((m) => m._id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete metric');
+      setError(err instanceof Error ? err.message : "Failed to delete metric");
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ export const MetricsProvider: React.FC<{ children: React.ReactNode }> = ({ child
 export const useMetrics = () => {
   const context = useContext(MetricsContext);
   if (context === undefined) {
-    throw new Error('useMetrics must be used within a MetricsProvider');
+    throw new Error("useMetrics must be used within a MetricsProvider");
   }
   return context;
 };

@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
-import { BaseDocument } from '@fresh-expense/types';
-import { TransactionCategory, FrequencyType } from '@fresh-expense/types';
+import type { BaseDocument } from "@fresh-expense/types";
+import type { FrequencyType, TransactionCategory } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Schema as MongooseSchema } from "mongoose";
 
 export type MerchantDocument = Merchant & Document;
 
@@ -16,7 +16,7 @@ export class Merchant implements BaseDocument {
   @Prop({ required: true })
   name!: string;
 
-  @Prop({ type: String, ref: 'TransactionCategory' })
+  @Prop({ type: String, ref: "TransactionCategory" })
   category?: TransactionCategory;
 
   @Prop({ type: [String], default: [] })

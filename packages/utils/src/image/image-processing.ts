@@ -1,20 +1,20 @@
-import sharp from 'sharp';
-import * as pdfImgConvert from 'pdf-img-convert';
-import { Logger } from '@nestjs/common';
+import { Logger } from "@nestjs/common";
+import * as pdfImgConvert from "pdf-img-convert";
+import sharp from "sharp";
 
-const logger = new Logger('ImageProcessingUtil');
+const logger = new Logger("ImageProcessingUtil");
 
 export interface ImageProcessingOptions {
   width?: number;
   height?: number;
   quality?: number;
-  format?: 'jpeg' | 'png' | 'webp';
+  format?: "jpeg" | "png" | "webp";
 }
 
 export interface ThumbnailOptions {
   width: number;
   height: number;
-  fit?: 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
+  fit?: "cover" | "contain" | "fill" | "inside" | "outside";
 }
 
 /**
@@ -32,16 +32,16 @@ export async function convertPdfToImages(
     });
 
     // Convert Uint8Array to Buffer
-    return pages.map(page => {
+    return pages.map((page) => {
       if (page instanceof Uint8Array) {
         return Buffer.from(page.buffer);
       }
       // If it's a base64 string (shouldn't happen with base64: false)
-      return Buffer.from(page, 'base64');
+      return Buffer.from(page, "base64");
     });
   } catch (error) {
-    logger.error('Error converting PDF to images:', error);
-    throw new Error('Failed to convert PDF to images');
+    logger.error("Error converting PDF to images:", error);
+    throw new Error("Failed to convert PDF to images");
   }
 }
 
@@ -57,19 +57,19 @@ export async function optimizeImage(
 
     if (options.width || options.height) {
       image.resize(options.width, options.height, {
-        fit: 'inside',
+        fit: "inside",
         withoutEnlargement: true,
       });
     }
 
     switch (options.format) {
-      case 'jpeg':
+      case "jpeg":
         image.jpeg({ quality: options.quality || 80 });
         break;
-      case 'png':
+      case "png":
         image.png({ quality: options.quality || 80 });
         break;
-      case 'webp':
+      case "webp":
         image.webp({ quality: options.quality || 80 });
         break;
       default:
@@ -79,8 +79,8 @@ export async function optimizeImage(
 
     return image.toBuffer();
   } catch (error) {
-    logger.error('Error optimizing image:', error);
-    throw new Error('Failed to optimize image');
+    logger.error("Error optimizing image:", error);
+    throw new Error("Failed to optimize image");
   }
 }
 
@@ -94,14 +94,14 @@ export async function generateThumbnail(
   try {
     return sharp(imageBuffer)
       .resize(options.width, options.height, {
-        fit: options.fit || 'cover',
-        position: 'center',
+        fit: options.fit || "cover",
+        position: "center",
       })
       .jpeg({ quality: 80 })
       .toBuffer();
   } catch (error) {
-    logger.error('Error generating thumbnail:', error);
-    throw new Error('Failed to generate thumbnail');
+    logger.error("Error generating thumbnail:", error);
+    throw new Error("Failed to generate thumbnail");
   }
 }
 
@@ -120,7 +120,7 @@ export async function extractImageMetadata(imageBuffer: Buffer) {
       orientation: metadata.orientation,
     };
   } catch (error) {
-    logger.error('Error extracting image metadata:', error);
-    throw new Error('Failed to extract image metadata');
+    logger.error("Error extracting image metadata:", error);
+    throw new Error("Failed to extract image metadata");
   }
 }

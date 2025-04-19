@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Notification, NotificationDocument } from '../models/notification.model';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import { Notification, type NotificationDocument } from "../models/notification.model";
 
 @Injectable()
 export class NotificationRepository {
   constructor(
     @InjectModel(Notification.name)
-    private notificationModel: Model<NotificationDocument>
+    private notificationModel: Model<NotificationDocument>,
   ) {}
 
   async create(notification: Partial<Notification>): Promise<NotificationDocument> {

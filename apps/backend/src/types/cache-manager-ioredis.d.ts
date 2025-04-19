@@ -1,6 +1,6 @@
-declare module 'cache-manager-ioredis' {
-  import { Store, Cache } from 'cache-manager';
-  import { Redis } from 'ioredis';
+declare module "cache-manager-ioredis" {
+  import { type Store, Cache } from "cache-manager";
+  import type { Redis } from "ioredis";
 
   interface RedisStore extends Store {
     getClient(): Redis;

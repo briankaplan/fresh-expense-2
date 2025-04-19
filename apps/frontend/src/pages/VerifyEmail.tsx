@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { verifyEmail } from '@/core/api/auth';
+import { verifyEmail } from "@/core/api/auth";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const VerifyEmail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-  const [message, setMessage] = useState('Verifying your email...');
+  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
+  const [message, setMessage] = useState("Verifying your email...");
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
     if (!token) {
-      setStatus('error');
-      setMessage('Invalid verification link');
+      setStatus("error");
+      setMessage("Invalid verification link");
       return;
     }
 
     const verify = async () => {
       try {
         await verifyEmail(token);
-        setStatus('success');
-        setMessage('Email verified successfully! You can now log in.');
+        setStatus("success");
+        setMessage("Email verified successfully! You can now log in.");
         setTimeout(() => {
-          navigate('/login');
+          navigate("/login");
         }, 3000);
       } catch (error) {
-        setStatus('error');
-        setMessage('Failed to verify email. The link may be expired or invalid.');
+        setStatus("error");
+        setMessage("Failed to verify email. The link may be expired or invalid.");
       }
     };
 
@@ -44,19 +45,19 @@ const VerifyEmail: React.FC = () => {
           <div className="mt-4">
             <div
               className={`text-center p-4 rounded-md ${
-                status === 'verifying'
-                  ? 'bg-blue-100 text-blue-700'
-                  : status === 'success'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
+                status === "verifying"
+                  ? "bg-blue-100 text-blue-700"
+                  : status === "success"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
               }`}
             >
               {message}
             </div>
-            {status === 'error' && (
+            {status === "error" && (
               <div className="mt-4 text-center">
                 <button
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate("/login")}
                   className="text-indigo-600 hover:text-indigo-500"
                 >
                   Return to Login

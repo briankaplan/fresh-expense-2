@@ -1,4 +1,4 @@
-import { ExpenseCategory, ExpenseCategoryType } from '@fresh-expense/types';
+import { ExpenseCategory, ExpenseCategoryType } from "@fresh-expense/types";
 
 // User related types
 // Auth related types

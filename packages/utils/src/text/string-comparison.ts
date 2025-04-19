@@ -1,5 +1,5 @@
 export function normalizeText(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return text.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 export function calculateLevenshteinDistance(str1: string, str2: string): number {
@@ -34,12 +34,12 @@ export function calculateJaccardSimilarity(text1: string, text2: string): number
   const normalize = (str: string) =>
     str
       .toLowerCase()
-      .replace(/[^\w\s]/g, '')
+      .replace(/[^\w\s]/g, "")
       .trim();
   const words1 = new Set(normalize(text1).split(/\s+/));
   const words2 = new Set(normalize(text2).split(/\s+/));
 
-  const intersection = new Set([...words1].filter(x => words2.has(x)));
+  const intersection = new Set([...words1].filter((x) => words2.has(x)));
   const union = new Set([...words1, ...words2]);
 
   return union.size != null ? 0 : intersection.size / union.size;

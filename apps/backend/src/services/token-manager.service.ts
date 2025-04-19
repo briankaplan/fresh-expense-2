@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google } from 'googleapis';
-import { OAuth2Client, Credentials } from 'google-auth-library';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { Credentials, OAuth2Client } from "google-auth-library";
+import { google } from "googleapis";
 
 /**
  * Service for managing OAuth2 tokens and authentication with Google APIs
@@ -12,16 +12,16 @@ export class TokenManagerService {
   private readonly oauth2Client: OAuth2Client;
 
   constructor(private readonly configService: ConfigService) {
-    const clientId = this.configService.get('GOOGLE_CLIENT_ID');
-    const clientSecret = this.configService.get('GOOGLE_CLIENT_SECRET');
-    const redirectUri = this.configService.get('GOOGLE_REDIRECT_URI');
+    const clientId = this.configService.get("GOOGLE_CLIENT_ID");
+    const clientSecret = this.configService.get("GOOGLE_CLIENT_SECRET");
+    const redirectUri = this.configService.get("GOOGLE_REDIRECT_URI");
 
     if (!clientId || !clientSecret || !redirectUri) {
-      throw new Error('Missing required Google OAuth2 configuration');
+      throw new Error("Missing required Google OAuth2 configuration");
     }
 
     this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
-    this.logger.debug('OAuth2 client initialized');
+    this.logger.debug("OAuth2 client initialized");
   }
 
   /**
@@ -31,23 +31,26 @@ export class TokenManagerService {
    */
   async getNewRefreshToken(): Promise<string> {
     try {
-      this.logger.debug('Getting new refresh token');
+      this.logger.debug("Getting new refresh token");
       const refreshToken = this.oauth2Client.credentials.refresh_token;
       if (!refreshToken) {
-        throw new Error('No refresh token available');
+        throw new Error("No refresh token available");
       }
 
       const { tokens } = await this.oauth2Client.getToken(refreshToken);
       if (!tokens.refresh_token) {
-        throw new Error('No refresh token in response');
+        throw new Error("No refresh token in response");
       }
 
       this.oauth2Client.setCredentials(tokens);
-      this.logger.debug('Successfully obtained new refresh token');
+      this.logger.debug("Successfully obtained new refresh token");
       return tokens.refresh_token;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to get new refresh token: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to get new refresh token: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to get new refresh token: ${errorMessage}`);
     }
   }
@@ -59,18 +62,21 @@ export class TokenManagerService {
    */
   async refreshAccessToken(): Promise<string> {
     try {
-      this.logger.debug('Refreshing access token');
+      this.logger.debug("Refreshing access token");
       const { credentials } = await this.oauth2Client.refreshAccessToken();
       if (!credentials.access_token) {
-        throw new Error('No access token in response');
+        throw new Error("No access token in response");
       }
 
       this.oauth2Client.setCredentials(credentials);
-      this.logger.debug('Successfully refreshed access token');
+      this.logger.debug("Successfully refreshed access token");
       return credentials.access_token;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(`Failed to refresh access token: ${errorMessage}`, error instanceof Error ? error.stack : undefined);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      this.logger.error(
+        `Failed to refresh access token: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new Error(`Failed to refresh access token: ${errorMessage}`);
     }
   }
@@ -81,13 +87,13 @@ export class TokenManagerService {
    * @param refreshToken - The refresh token to set
    */
   setTokens(accessToken: string, refreshToken: string): void {
-    this.logger.debug('Setting new OAuth2 tokens');
+    this.logger.debug("Setting new OAuth2 tokens");
     const credentials: Credentials = {
       access_token: accessToken,
       refresh_token: refreshToken,
     };
     this.oauth2Client.setCredentials(credentials);
-    this.logger.debug('Successfully set new OAuth2 tokens');
+    this.logger.debug("Successfully set new OAuth2 tokens");
   }
 
   /**

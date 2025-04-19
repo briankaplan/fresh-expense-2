@@ -1,4 +1,4 @@
-import { UserSettings, UserPreferences } from './user.interface';
+import type { UserPreferences, UserSettings } from "./user.interface";
 
 export interface Settings {
   id: string;
@@ -7,4 +7,4 @@ export interface Settings {
   preferences: UserPreferences;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

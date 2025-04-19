@@ -1,19 +1,19 @@
-import { Router } from 'express';
-import { z } from 'zod';
-import { validateRequest } from '@/shared/middleware/validateRequest';
-import { ObjectId } from 'mongodb';
-import { getDb } from '@/core/database';
-import fetch from 'node-fetch';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { createHash } from 'crypto';
+import { createHash } from "crypto";
+import { getDb } from "@/core/database";
+import { validateRequest } from "@/shared/middleware/validateRequest";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Router } from "express";
+import { ObjectId } from "mongodb";
+import fetch from "node-fetch";
+import { z } from "zod";
 
 const router = Router();
 const s3Client = new S3Client({
-  region: process.env['AWS_REGION'] || 'auto',
-  endpoint: process.env['R2_ENDPOINT'],
+  region: process.env["AWS_REGION"] || "auto",
+  endpoint: process.env["R2_ENDPOINT"],
   credentials: {
-    accessKeyId: process.env['R2_ACCESS_KEY_ID'] || '',
-    secretAccessKey: process.env['R2_SECRET_ACCESS_KEY'] || '',
+    accessKeyId: process.env["R2_ACCESS_KEY_ID"] || "",
+    secretAccessKey: process.env["R2_SECRET_ACCESS_KEY"] || "",
   },
 });
 
@@ -43,7 +43,7 @@ const bulkImportSchema = z.object({
       company: z.string(),
       tags: z.array(z.string()).optional(),
       receiptUrl: z.string().url().optional().nullable(),
-    })
+    }),
   ),
 });
 
@@ -59,7 +59,7 @@ const findMatchesSchema = z.object({
       receiptUrl: z.string().url().optional(),
       tags: z.array(z.string()).optional(),
       company: z.string().optional(),
-    })
+    }),
   ),
 });
 
@@ -83,7 +83,7 @@ const enrichSchema = z.object({
         date: z.string(),
       }),
       matchConfidence: z.number().min(0).max(1),
-    })
+    }),
   ),
 });
 
@@ -91,28 +91,28 @@ async function downloadAndUploadReceipt(url: string): Promise<string> {
   try {
     // Download the receipt
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Failed to download receipt');
+    if (!response.ok) throw new Error("Failed to download receipt");
     const buffer = await response.buffer();
 
     // Generate a unique filename
-    const hash = createHash('md5').update(url).digest('hex');
-    const extension = url.split('.').pop() || 'pdf';
+    const hash = createHash("md5").update(url).digest("hex");
+    const extension = url.split(".").pop() || "pdf";
     const key = `receipts/${hash}.${extension}`;
 
     // Upload to R2
     await s3Client.send(
       new PutObjectCommand({
-        Bucket: process.env['R2_BUCKET_NAME'],
+        Bucket: process.env["R2_BUCKET_NAME"],
         Key: key,
         Body: buffer,
-        ContentType: response.headers.get('content-type') || 'application/pdf',
-      })
+        ContentType: response.headers.get("content-type") || "application/pdf",
+      }),
     );
 
     // Return the R2 URL
-    return `${process.env['R2_PUBLIC_URL']}/${key}`;
+    return `${process.env["R2_PUBLIC_URL"]}/${key}`;
   } catch (error) {
-    console.error('Error processing receipt:', error);
+    console.error("Error processing receipt:", error);
     throw error;
   }
 }
@@ -147,13 +147,13 @@ function calculateMatchConfidence(csvTransaction: any, existingTransaction: any)
 }
 
 // PATCH /api/expenses/:id
-router.patch('/:id', validateRequest({ body: expenseUpdateSchema }), async (req, res) => {
+router.patch("/:id", validateRequest({ body: expenseUpdateSchema }), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
     const db = await getDb();
-    const collection = db.collection('expenses');
+    const collection = db.collection("expenses");
 
     // Validate that the expense exists
     const existingExpense = await collection.findOne({
@@ -161,33 +161,33 @@ router.patch('/:id', validateRequest({ body: expenseUpdateSchema }), async (req,
     });
 
     if (!existingExpense) {
-      return res.status(404).json({ error: 'Expense not found' });
+      return res.status(404).json({ error: "Expense not found" });
     }
 
     // Update the expense
     const result = await collection.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: updateData },
-      { returnDocument: 'after' }
+      { returnDocument: "after" },
     );
 
     if (!result) {
-      return res.status(404).json({ error: 'Expense not found' });
+      return res.status(404).json({ error: "Expense not found" });
     }
 
     return res.json(result);
   } catch (error) {
-    console.error('Error updating expense:', error);
-    return res.status(500).json({ error: 'Failed to update expense' });
+    console.error("Error updating expense:", error);
+    return res.status(500).json({ error: "Failed to update expense" });
   }
 });
 
 // POST /api/expenses/bulk-import
-router.post('/bulk-import', validateRequest({ body: bulkImportSchema }), async (req, res) => {
+router.post("/bulk-import", validateRequest({ body: bulkImportSchema }), async (req, res) => {
   try {
     const { data } = req.body;
     const db = await getDb();
-    const collection = db.collection('expenses');
+    const collection = db.collection("expenses");
 
     // Insert all expenses
     const result = await collection.insertMany(data);
@@ -198,17 +198,17 @@ router.post('/bulk-import', validateRequest({ body: bulkImportSchema }), async (
       insertedIds: result.insertedIds,
     });
   } catch (error) {
-    console.error('Error bulk importing expenses:', error);
-    res.status(500).json({ error: 'Failed to import expenses' });
+    console.error("Error bulk importing expenses:", error);
+    res.status(500).json({ error: "Failed to import expenses" });
   }
 });
 
 // POST /api/expenses/find-matches
-router.post('/find-matches', validateRequest({ body: findMatchesSchema }), async (req, res) => {
+router.post("/find-matches", validateRequest({ body: findMatchesSchema }), async (req, res) => {
   try {
     const { data: csvTransactions } = req.body;
     const db = await getDb();
-    const collection = db.collection('expenses');
+    const collection = db.collection("expenses");
 
     const matches: any[] = [];
 
@@ -246,17 +246,17 @@ router.post('/find-matches', validateRequest({ body: findMatchesSchema }), async
 
     res.json(matches);
   } catch (error) {
-    console.error('Error finding matches:', error);
-    res.status(500).json({ error: 'Failed to find matches' });
+    console.error("Error finding matches:", error);
+    res.status(500).json({ error: "Failed to find matches" });
   }
 });
 
 // POST /api/expenses/enrich
-router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res) => {
+router.post("/enrich", validateRequest({ body: enrichSchema }), async (req, res) => {
   try {
     const { matches } = req.body;
     const db = await getDb();
-    const collection = db.collection('expenses');
+    const collection = db.collection("expenses");
     let enrichedCount = 0;
 
     for (const match of matches) {
@@ -278,7 +278,7 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
           } catch (error) {
             console.error(
               `Failed to process receipt for transaction ${match.existingTransaction.id}:`,
-              error
+              error,
             );
           }
         }
@@ -287,7 +287,7 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
         if (Object.keys(updateData).length > 0) {
           const result = await collection.updateOne(
             { _id: new ObjectId(match.existingTransaction.id) },
-            { $set: updateData }
+            { $set: updateData },
           );
 
           if (result.modifiedCount > 0) {
@@ -299,8 +299,8 @@ router.post('/enrich', validateRequest({ body: enrichSchema }), async (req, res)
 
     res.json({ success: true, enrichedCount });
   } catch (error) {
-    console.error('Error enriching transactions:', error);
-    res.status(500).json({ error: 'Failed to enrich transactions' });
+    console.error("Error enriching transactions:", error);
+    res.status(500).json({ error: "Failed to enrich transactions" });
   }
 });
 

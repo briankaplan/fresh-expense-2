@@ -1,29 +1,29 @@
-import React from 'react';
+import AnimatedWrapper from "@/shared/components/AnimatedWrapper";
 import {
   Box,
-  Typography,
   Container,
-  Paper,
   Divider,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
   List,
   ListItem,
   ListItemText,
-  Switch,
-  FormControlLabel,
-  Select,
   MenuItem,
-  FormControl,
-  InputLabel,
-  useTheme,
-  useMediaQuery,
+  Paper,
+  Select,
   Stack,
-} from '@mui/material';
-import { motion } from 'framer-motion';
-import AnimatedWrapper from '@/shared/components/AnimatedWrapper';
+  Switch,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import type React from "react";
 
 const Settings: React.FC = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const containerAnimation = {
     hidden: { opacity: 0 },
@@ -69,7 +69,7 @@ const Settings: React.FC = () => {
                         primary="Dark Mode"
                         secondary="Use dark theme across the application"
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                       <Switch />
@@ -79,7 +79,7 @@ const Settings: React.FC = () => {
                         primary="Compact Mode"
                         secondary="Reduce padding and margins for denser layout"
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                       <Switch />
@@ -101,7 +101,7 @@ const Settings: React.FC = () => {
                         primary="Email Notifications"
                         secondary="Receive updates and alerts via email"
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                       <Switch defaultChecked />
@@ -111,7 +111,7 @@ const Settings: React.FC = () => {
                         primary="Push Notifications"
                         secondary="Receive instant notifications in your browser"
                         primaryTypographyProps={{
-                          variant: isMobile ? 'body2' : 'body1',
+                          variant: isMobile ? "body2" : "body1",
                         }}
                       />
                       <Switch defaultChecked />
@@ -134,7 +134,7 @@ const Settings: React.FC = () => {
                         labelId="currency-label"
                         defaultValue="USD"
                         label="Default Currency"
-                        size={isMobile ? 'small' : 'medium'}
+                        size={isMobile ? "small" : "medium"}
                       >
                         <MenuItem value="USD">USD ($)</MenuItem>
                         <MenuItem value="EUR">EUR (€)</MenuItem>
@@ -148,7 +148,7 @@ const Settings: React.FC = () => {
                         labelId="date-format-label"
                         defaultValue="MM/DD/YYYY"
                         label="Date Format"
-                        size={isMobile ? 'small' : 'medium'}
+                        size={isMobile ? "small" : "medium"}
                       >
                         <MenuItem value="MM/DD/YYYY">MM/DD/YYYY</MenuItem>
                         <MenuItem value="DD/MM/YYYY">DD/MM/YYYY</MenuItem>

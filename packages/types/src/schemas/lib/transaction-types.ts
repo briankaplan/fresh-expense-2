@@ -37,7 +37,7 @@ export interface TransactionSearchQuery {
 }
 
 export interface TransactionExportOptions {
-  format: 'csv' | 'json' | 'pdf';
+  format: "csv" | "json" | "pdf";
   filters?: TransactionFilters;
   fields?: string[];
   includeMetadata?: boolean;

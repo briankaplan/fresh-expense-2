@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { Merchant, MerchantDocument } from '@fresh-expense/types';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Merchant, type MerchantDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
 
 interface MerchantStats {
   receiptCount: number;
@@ -11,7 +11,7 @@ interface MerchantStats {
   lastSeen: Date;
   subscriptionInfo?: {
     isSubscription: boolean;
-    frequency?: 'monthly' | 'annual' | 'weekly';
+    frequency?: "monthly" | "annual" | "weekly";
     startDate?: Date;
     amount?: number;
   };
@@ -23,7 +23,7 @@ export class MerchantService {
 
   constructor(
     @InjectModel(Merchant.name)
-    private readonly merchantModel: Model<MerchantDocument>
+    private readonly merchantModel: Model<MerchantDocument>,
   ) {}
 
   async updateMerchantFromReceipt(receipt: ReceiptDocument): Promise<void> {
@@ -40,14 +40,14 @@ export class MerchantService {
         await this.createNewMerchant(receipt);
       }
     } catch (error) {
-      this.logger.error('Error updating merchant from receipt:', error);
+      this.logger.error("Error updating merchant from receipt:", error);
       throw error;
     }
   }
 
   private async updateExistingMerchant(
     merchant: MerchantDocument,
-    receipt: ReceiptDocument
+    receipt: ReceiptDocument,
   ): Promise<void> {
     const stats = await this.calculateMerchantStats(merchant, receipt);
 
@@ -78,7 +78,7 @@ export class MerchantService {
 
   private async calculateMerchantStats(
     merchant: MerchantDocument,
-    receipt: ReceiptDocument
+    receipt: ReceiptDocument,
   ): Promise<MerchantStats> {
     const receiptCount = merchant.receiptCount + 1;
     const totalSpent = merchant.totalSpent + receipt.amount;
@@ -95,8 +95,8 @@ export class MerchantService {
 
   private async checkForSubscription(
     merchant: MerchantDocument,
-    receipt: ReceiptDocument
-  ): Promise<MerchantStats['subscriptionInfo']> {
+    receipt: ReceiptDocument,
+  ): Promise<MerchantStats["subscriptionInfo"]> {
     // TODO: Implement subscription detection
     // This should:
     // 1. Check receipt text for subscription keywords
@@ -109,7 +109,7 @@ export class MerchantService {
     try {
       const merchant = await this.merchantModel.findOne({ name: merchantName });
       if (!merchant) {
-        throw new Error('Merchant not found');
+        throw new Error("Merchant not found");
       }
 
       return {
@@ -120,7 +120,7 @@ export class MerchantService {
         subscriptionInfo: merchant.subscriptionInfo,
       };
     } catch (error) {
-      this.logger.error('Error getting merchant stats:', error);
+      this.logger.error("Error getting merchant stats:", error);
       throw error;
     }
   }

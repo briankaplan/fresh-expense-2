@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from "react";
 interface ExpenseFormProps {
-    expenseId?: string;
+  expenseId?: string;
 }
 declare const ExpenseForm: React.FC<ExpenseFormProps>;
 export default ExpenseForm;

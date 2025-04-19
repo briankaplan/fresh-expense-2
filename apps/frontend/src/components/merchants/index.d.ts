@@ -1,2 +1,2 @@
-export * from './MerchantList';
+export * from "./MerchantList";
 //# sourceMappingURL=index.d.ts.map

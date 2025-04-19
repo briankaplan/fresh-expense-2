@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { convertPdfToImages, optimizeImage, generateThumbnail } from '@packages/utils';
+import { Injectable, Logger } from "@nestjs/common";
+import { convertPdfToImages, generateThumbnail, optimizeImage } from "@packages/utils";
 
 @Injectable()
 export class ReceiptConverterService {
@@ -12,7 +12,7 @@ export class ReceiptConverterService {
     try {
       return await convertPdfToImages(pdfBuffer);
     } catch (error) {
-      this.logger.error('Error in PDF conversion:', error);
+      this.logger.error("Error in PDF conversion:", error);
       throw error;
     }
   }
@@ -24,7 +24,7 @@ export class ReceiptConverterService {
     try {
       return await optimizeImage(imageBuffer);
     } catch (error) {
-      this.logger.error('Error in image optimization:', error);
+      this.logger.error("Error in image optimization:", error);
       throw error;
     }
   }
@@ -36,7 +36,7 @@ export class ReceiptConverterService {
     try {
       return await generateThumbnail(imageBuffer, { width, height: width });
     } catch (error) {
-      this.logger.error('Error in thumbnail creation:', error);
+      this.logger.error("Error in thumbnail creation:", error);
       throw error;
     }
   }

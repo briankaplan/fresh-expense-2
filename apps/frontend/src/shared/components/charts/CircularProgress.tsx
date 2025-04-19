@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
-import { CircularProgress as MuiCircularProgress } from '@mui/material';
+import { Box, Typography, useTheme } from "@mui/material";
+import { CircularProgress as MuiCircularProgress } from "@mui/material";
+import type React from "react";
 
 interface CircularProgressProps {
   value: number;
@@ -32,13 +32,13 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   return (
     <Box
       sx={{
-        position: 'relative',
-        display: 'inline-flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        position: "relative",
+        display: "inline-flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
-      <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+      <Box sx={{ position: "relative", display: "inline-flex" }}>
         <MuiCircularProgress
           variant="determinate"
           value={100}
@@ -53,9 +53,9 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           thickness={thickness}
           sx={{
             color: getColor(),
-            position: 'absolute',
+            position: "absolute",
             left: 0,
-            transition: 'all 0.3s ease-in-out',
+            transition: "all 0.3s ease-in-out",
           }}
         />
         <Box
@@ -64,11 +64,11 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
             left: 0,
             bottom: 0,
             right: 0,
-            position: 'absolute',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
+            position: "absolute",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
           }}
         >
           {showPercentage && (

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, IconButton, Paper, Divider, Chip } from '@mui/material';
-import { Link, Unlink, Edit, Delete } from '@mui/icons-material';
-import { TransactionLinkDialog } from '../ReceiptLibrary/TransactionLinkDialog';
-import { ReceiptService } from '../../../../services/receipt.service';
-import { toast } from 'react-toastify';
+import { Delete, Edit, Link, Unlink } from "@mui/icons-material";
+import { Box, Button, Chip, Divider, IconButton, Paper, Typography } from "@mui/material";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { ReceiptService } from "../../../../services/receipt.service";
+import { TransactionLinkDialog } from "../ReceiptLibrary/TransactionLinkDialog";
 
 interface ReceiptDetailsProps {
   receipt: any;
@@ -18,10 +19,10 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ receipt, onUpdat
     try {
       const updatedReceipt = await ReceiptService.unlinkTransaction(receipt.id);
       onUpdate(updatedReceipt);
-      toast.success('Receipt unlinked from transaction successfully');
+      toast.success("Receipt unlinked from transaction successfully");
     } catch (error) {
-      toast.error('Failed to unlink receipt from transaction');
-      console.error('Error unlinking receipt:', error);
+      toast.error("Failed to unlink receipt from transaction");
+      console.error("Error unlinking receipt:", error);
     }
   };
 
@@ -63,8 +64,8 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ receipt, onUpdat
           Status
         </Typography>
         <Chip
-          label={receipt.transactionId ? 'Linked' : 'Unlinked'}
-          color={receipt.transactionId ? 'success' : 'default'}
+          label={receipt.transactionId ? "Linked" : "Unlinked"}
+          color={receipt.transactionId ? "success" : "default"}
         />
       </Box>
 
@@ -75,7 +76,7 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ receipt, onUpdat
         <Typography variant="body1">
           {receipt.transactionId
             ? `Linked to transaction #${receipt.transactionId}`
-            : 'No linked transaction'}
+            : "No linked transaction"}
         </Typography>
       </Box>
 

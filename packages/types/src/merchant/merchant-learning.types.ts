@@ -1,4 +1,4 @@
-export type MerchantSource = 'manual' | 'ocr' | 'transaction' | 'api';
+export type MerchantSource = "manual" | "ocr" | "transaction" | "api";
 
 export interface MerchantLearningData {
   merchantName: string;

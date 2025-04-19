@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationService } from './notification/notification.service';
+import { Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import type { NotificationService } from "./notification/notification.service";
 
 export interface ServiceState {
   isConnected: boolean;
@@ -19,7 +19,7 @@ export abstract class BaseService {
   constructor(
     protected readonly notificationService: NotificationService,
     protected readonly eventEmitter: EventEmitter2,
-    serviceName: string
+    serviceName: string,
   ) {
     this.logger = new Logger(serviceName);
   }
@@ -30,9 +30,9 @@ export abstract class BaseService {
   }
 
   protected async notify(
-    type: 'success' | 'error' | 'info' | 'warning',
+    type: "success" | "error" | "info" | "warning",
     message: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ) {
     await this.notificationService.notify({
       type,
@@ -45,7 +45,7 @@ export abstract class BaseService {
   protected async executeWithRetry<T>(
     operation: string,
     fn: () => Promise<T>,
-    maxRetries = 3
+    maxRetries = 3,
   ): Promise<T> {
     let lastError: Error | undefined;
 
@@ -60,7 +60,7 @@ export abstract class BaseService {
 
         if (attempt < maxRetries) {
           this.logger.warn(`Retry ${attempt}/${maxRetries} for ${operation}`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
         }
       }
     }
@@ -69,20 +69,20 @@ export abstract class BaseService {
   }
 
   protected async executeWithLoading<T>(operation: string, fn: () => Promise<T>): Promise<T> {
-    this.eventEmitter.emit('loading.started', {
+    this.eventEmitter.emit("loading.started", {
       operationId: operation,
       timestamp: new Date(),
     });
 
     try {
       const result = await fn();
-      this.eventEmitter.emit('loading.completed', {
+      this.eventEmitter.emit("loading.completed", {
         operationId: operation,
         timestamp: new Date(),
       });
       return result;
     } catch (error) {
-      this.eventEmitter.emit('loading.error', {
+      this.eventEmitter.emit("loading.error", {
         operationId: operation,
         error,
         timestamp: new Date(),

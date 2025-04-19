@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 
 interface RateLimitConfig {
   maxRequests: number;
   timeWindow: number; // in milliseconds
-  backoffStrategy?: 'linear' | 'exponential';
+  backoffStrategy?: "linear" | "exponential";
   maxRetries?: number;
 }
 
@@ -22,7 +22,7 @@ export class RateLimiterService {
   private initializeDefaultLimits() {
     // Add default rate limits from config
     const defaultLimits =
-      this.configService.get<Record<string, RateLimitConfig>>('RATE_LIMITS') || {};
+      this.configService.get<Record<string, RateLimitConfig>>("RATE_LIMITS") || {};
     Object.entries(defaultLimits).forEach(([key, config]) => {
       this.setLimit(key, config);
     });
@@ -32,7 +32,7 @@ export class RateLimiterService {
     this.limits.set(key, {
       maxRequests: config.maxRequests,
       timeWindow: config.timeWindow,
-      backoffStrategy: config.backoffStrategy || 'linear',
+      backoffStrategy: config.backoffStrategy || "linear",
       maxRetries: config.maxRetries || 3,
     });
   }
@@ -56,11 +56,11 @@ export class RateLimiterService {
     }
   }
 
-  private calculateBackoff(attempt: number, strategy: 'linear' | 'exponential'): number {
+  private calculateBackoff(attempt: number, strategy: "linear" | "exponential"): number {
     switch (strategy) {
-      case 'linear':
+      case "linear":
         return 1000 * attempt; // 1s, 2s, 3s, etc.
-      case 'exponential':
+      case "exponential":
         return 1000 * Math.pow(2, attempt - 1); // 1s, 2s, 4s, 8s, etc.
       default:
         return 1000 * attempt;
@@ -87,9 +87,9 @@ export class RateLimiterService {
       }
 
       attempt++;
-      const backoff = this.calculateBackoff(attempt, limit.backoffStrategy || 'linear');
+      const backoff = this.calculateBackoff(attempt, limit.backoffStrategy || "linear");
       this.logger.warn(`Rate limit exceeded for ${key}, attempt ${attempt}, waiting ${backoff}ms`);
-      await new Promise(resolve => setTimeout(resolve, backoff));
+      await new Promise((resolve) => setTimeout(resolve, backoff));
     }
 
     throw new Error(`Rate limit exceeded for ${key} after ${limit.maxRetries} attempts`);

@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from '@fresh-expense/types';
+import type { BaseDocument } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
 
 export type ReceiptDocument = Receipt & Document;
 
@@ -62,8 +62,8 @@ export class Receipt implements BaseDocument {
   @Prop({ type: Object })
   metadata?: Record<string, any>;
 
-  @Prop({ default: 'pending' })
-  status!: 'pending' | 'processed' | 'failed';
+  @Prop({ default: "pending" })
+  status!: "pending" | "processed" | "failed";
 
   @Prop()
   processingConfidence?: number;

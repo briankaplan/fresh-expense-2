@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import type { Model } from "mongoose";
+import type { CreateSubscriptionDto } from "./dto/create-subscription.dto";
+import type { UpdateSubscriptionDto } from "./dto/update-subscription.dto";
 import {
-  Subscription,
-  SubscriptionDocument,
-  SubscriptionStatus,
   BillingCycle,
-} from './schemas/subscription.schema';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
-import { Cron, CronExpression } from '@nestjs/schedule';
+  Subscription,
+  type SubscriptionDocument,
+  SubscriptionStatus,
+} from "./schemas/subscription.schema";
 
 interface SubscriptionQuery {
   userId?: string;
@@ -34,7 +34,8 @@ const VALID_STATUS_TRANSITIONS: Record<SubscriptionStatus, SubscriptionStatus[]>
 @Injectable()
 export class SubscriptionsService {
   constructor(
-    @InjectModel(Subscription.name) private subscriptionModel: Model<SubscriptionDocument>
+    @InjectModel(Subscription.name)
+    private subscriptionModel: Model<SubscriptionDocument>,
   ) {}
 
   async create(createSubscriptionDto: CreateSubscriptionDto): Promise<SubscriptionDocument> {
@@ -47,7 +48,7 @@ export class SubscriptionsService {
       .exec();
 
     if (existingSubscription) {
-      throw new Error('Active subscription already exists for this merchant');
+      throw new Error("Active subscription already exists for this merchant");
     }
 
     const createdSubscription = new this.subscriptionModel(createSubscriptionDto);
@@ -69,7 +70,7 @@ export class SubscriptionsService {
   async update(
     id: string,
     userId: string,
-    updateSubscriptionDto: UpdateSubscriptionDto
+    updateSubscriptionDto: UpdateSubscriptionDto,
   ): Promise<SubscriptionDocument> {
     const subscription = await this.findOne(id, userId);
 
@@ -80,10 +81,7 @@ export class SubscriptionsService {
       // Update dates based on status change
       if (updateSubscriptionDto.status != null) {
         updateSubscriptionDto.lastBillingDate = new Date();
-      } else if (
-        updateSubscriptionDto.status != null &&
-        subscription.status != null
-      ) {
+      } else if (updateSubscriptionDto.status != null && subscription.status != null) {
         updateSubscriptionDto.nextBillingDate = new Date();
       } else if (updateSubscriptionDto.status != null) {
         updateSubscriptionDto.cancellationDate = new Date();
@@ -91,7 +89,9 @@ export class SubscriptionsService {
     }
 
     const updatedSubscription = await this.subscriptionModel
-      .findOneAndUpdate({ _id: id, userId }, updateSubscriptionDto, { new: true })
+      .findOneAndUpdate({ _id: id, userId }, updateSubscriptionDto, {
+        new: true,
+      })
       .exec();
 
     if (!updatedSubscription) {
@@ -110,14 +110,14 @@ export class SubscriptionsService {
 
   async findByUserId(
     userId: string,
-    query: SubscriptionQuery = {}
+    query: SubscriptionQuery = {},
   ): Promise<SubscriptionDocument[]> {
     return this.subscriptionModel.find({ userId, ...query }).exec();
   }
 
   async findByCompanyId(
     companyId: string,
-    query: SubscriptionQuery = {}
+    query: SubscriptionQuery = {},
   ): Promise<SubscriptionDocument[]> {
     return this.subscriptionModel.find({ companyId, ...query }).exec();
   }
@@ -133,7 +133,7 @@ export class SubscriptionsService {
     }
 
     if (subscription.status != null) {
-      throw new BadRequestException('Subscription is already cancelled');
+      throw new BadRequestException("Subscription is already cancelled");
     }
 
     subscription.status = SubscriptionStatus.CANCELLED;
@@ -149,7 +149,7 @@ export class SubscriptionsService {
     }
 
     if (subscription.status !== SubscriptionStatus.ACTIVE) {
-      throw new BadRequestException('Only active subscriptions can be paused');
+      throw new BadRequestException("Only active subscriptions can be paused");
     }
 
     subscription.status = SubscriptionStatus.PAUSED;
@@ -164,7 +164,7 @@ export class SubscriptionsService {
     }
 
     if (subscription.status !== SubscriptionStatus.PAUSED) {
-      throw new BadRequestException('Only paused subscriptions can be resumed');
+      throw new BadRequestException("Only paused subscriptions can be resumed");
     }
 
     subscription.status = SubscriptionStatus.ACTIVE;
@@ -172,7 +172,6 @@ export class SubscriptionsService {
     return subscription.save();
   }
 
-  
   async processSubscriptions() {
     const today = new Date();
     const activeSubscriptions = await this.subscriptionModel
@@ -244,7 +243,7 @@ export class SubscriptionsService {
 
   private validateStatusTransition(
     currentStatus: SubscriptionStatus,
-    newStatus: SubscriptionStatus
+    newStatus: SubscriptionStatus,
   ): void {
     const validTransitions = VALID_STATUS_TRANSITIONS[currentStatus];
     if (!validTransitions.includes(newStatus)) {

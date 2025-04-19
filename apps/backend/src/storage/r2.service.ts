@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import type { Readable } from "stream";
 import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
   DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
-import { Readable } from 'stream';
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class R2Service {
@@ -15,10 +15,10 @@ export class R2Service {
     private readonly accountId: string,
     private readonly accessKeyId: string,
     private readonly secretAccessKey: string,
-    private readonly bucketName: string
+    private readonly bucketName: string,
   ) {
     this.client = new S3Client({
-      region: 'auto',
+      region: "auto",
       endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
       credentials: {
         accessKeyId,
@@ -58,7 +58,7 @@ export class R2Service {
     await this.client.send(command);
   }
 
-  generatePresignedUrl(key: string, expiresIn: number = 3600): string {
+  generatePresignedUrl(key: string, expiresIn = 3600): string {
     // Note: R2 doesn't support presigned URLs directly
     // This is a placeholder for future implementation
     return `https://${this.accountId}.r2.cloudflarestorage.com/${this.bucketName}/${key}`;

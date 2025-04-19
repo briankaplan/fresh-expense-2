@@ -1,29 +1,29 @@
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
-  IsDate,
-  IsString,
   IsOptional,
-  IsArray,
-  IsMongoId,
-  IsEnum,
-  IsBoolean,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+  IsString,
+} from "class-validator";
 
 export enum ExpenseStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  REIMBURSED = 'reimbursed',
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+  REIMBURSED = "reimbursed",
 }
 
 export enum PaymentMethod {
-  CASH = 'cash',
-  CARD = 'card',
-  BANK_TRANSFER = 'bank_transfer',
-  OTHER = 'other',
+  CASH = "cash",
+  CARD = "card",
+  BANK_TRANSFER = "bank_transfer",
+  OTHER = "other",
 }
 
 export class CreateExpenseDto {

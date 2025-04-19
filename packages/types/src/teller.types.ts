@@ -3,7 +3,7 @@
  * @see https://teller.io/docs/api
  */
 
-import { User } from './interfaces/user.interface';
+import type { User } from "./interfaces/user.interface";
 
 /**
  * Represents a bank account from Teller API
@@ -51,8 +51,8 @@ export interface TellerTransaction {
     value: number;
     currency: string;
   };
-  type: 'debit' | 'credit';
-  status: 'pending' | 'posted' | 'canceled' | 'matched';
+  type: "debit" | "credit";
+  status: "pending" | "posted" | "canceled" | "matched";
   merchant?: {
     name: string;
     category?: string;
@@ -77,17 +77,17 @@ export interface TellerTransaction {
  * Maps Teller transaction types to our internal transaction types
  */
 export const TELLER_TRANSACTION_TYPE_MAP = {
-  debit: 'expense',
-  credit: 'income',
+  debit: "expense",
+  credit: "income",
 } as const;
 
 /**
  * Maps Teller transaction status to our internal status
  */
 export const TELLER_STATUS_MAP = {
-  pending: 'pending',
-  posted: 'completed',
-  cancelled: 'cancelled',
+  pending: "pending",
+  posted: "completed",
+  cancelled: "cancelled",
 } as const;
 
 /**
@@ -140,14 +140,14 @@ export interface TellerEnrollment {
 export interface Column {
   field: string;
   header: string;
-  type?: 'text' | 'number' | 'date' | 'currency';
+  type?: "text" | "number" | "date" | "currency";
   format?: string;
   width?: number;
   sortable?: boolean;
   filterable?: boolean;
 }
 
-export interface ExtendedUser extends Omit<User, 'settings'> {
+export interface ExtendedUser extends Omit<User, "settings"> {
   permissions: string[];
   settings: Record<string, any>;
   lastLogin?: Date;

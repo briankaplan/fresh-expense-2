@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MetricsController } from './metrics.controller';
-import { MetricsService } from './metrics.service';
-import { Metrics, MetricType } from '@fresh-expense/types';
+import { type MetricType, Metrics } from "@fresh-expense/types";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { MetricsController } from "./metrics.controller";
+import { MetricsService } from "./metrics.service";
 
-describe('MetricsController', () => {
+describe("MetricsController", () => {
   let controller: MetricsController;
   let service: MetricsService;
 
   const mockMetrics = {
-    userId: 'test-user',
-    type: 'expense' as MetricType,
-    category: 'food',
+    userId: "test-user",
+    type: "expense" as MetricType,
+    category: "food",
     value: 100,
-    description: 'Test expense',
+    description: "Test expense",
   };
 
   const mockMetricsService = {
@@ -40,13 +40,13 @@ describe('MetricsController', () => {
     service = module.get<MetricsService>(MetricsService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a new metric', async () => {
-      const createdMetric = { ...mockMetrics, _id: '1' };
+  describe("create", () => {
+    it("should create a new metric", async () => {
+      const createdMetric = { ...mockMetrics, _id: "1" };
       mockMetricsService.create.mockResolvedValue(createdMetric);
 
       const result = await controller.create(mockMetrics);
@@ -55,61 +55,65 @@ describe('MetricsController', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return all metrics for a user', async () => {
-      const metrics = [{ ...mockMetrics, _id: '1' }];
+  describe("findAll", () => {
+    it("should return all metrics for a user", async () => {
+      const metrics = [{ ...mockMetrics, _id: "1" }];
       mockMetricsService.findAll.mockResolvedValue(metrics);
 
-      const result = await controller.findAll({ userId: 'test-user' });
+      const result = await controller.findAll({ userId: "test-user" });
       expect(result).toEqual(metrics);
-      expect(mockMetricsService.findAll).toHaveBeenCalledWith({ userId: 'test-user' });
+      expect(mockMetricsService.findAll).toHaveBeenCalledWith({
+        userId: "test-user",
+      });
     });
   });
 
-  describe('findByType', () => {
-    it('should return metrics by type', async () => {
-      const metrics = [{ ...mockMetrics, _id: '1' }];
+  describe("findByType", () => {
+    it("should return metrics by type", async () => {
+      const metrics = [{ ...mockMetrics, _id: "1" }];
       mockMetricsService.findByType.mockResolvedValue(metrics);
 
-      const result = await controller.findByType('expense');
+      const result = await controller.findByType("expense");
       expect(result).toEqual(metrics);
-      expect(mockMetricsService.findByType).toHaveBeenCalledWith('expense');
+      expect(mockMetricsService.findByType).toHaveBeenCalledWith("expense");
     });
   });
 
-  describe('findOne', () => {
-    it('should return a metric by id', async () => {
-      const metric = { ...mockMetrics, _id: '1' };
+  describe("findOne", () => {
+    it("should return a metric by id", async () => {
+      const metric = { ...mockMetrics, _id: "1" };
       mockMetricsService.findOne.mockResolvedValue(metric);
 
-      const result = await controller.findOne('1');
+      const result = await controller.findOne("1");
       expect(result).toEqual(metric);
-      expect(mockMetricsService.findOne).toHaveBeenCalledWith('1');
+      expect(mockMetricsService.findOne).toHaveBeenCalledWith("1");
     });
   });
 
-  describe('update', () => {
-    it('should update a metric', async () => {
-      const updatedMetric = { ...mockMetrics, _id: '1', value: 200 };
+  describe("update", () => {
+    it("should update a metric", async () => {
+      const updatedMetric = { ...mockMetrics, _id: "1", value: 200 };
       mockMetricsService.update.mockResolvedValue(updatedMetric);
 
-      const result = await controller.update('1', { value: 200 });
+      const result = await controller.update("1", { value: 200 });
       expect(result).toEqual(updatedMetric);
-      expect(mockMetricsService.update).toHaveBeenCalledWith('1', { value: 200 });
+      expect(mockMetricsService.update).toHaveBeenCalledWith("1", {
+        value: 200,
+      });
     });
   });
 
-  describe('remove', () => {
-    it('should delete a metric', async () => {
+  describe("remove", () => {
+    it("should delete a metric", async () => {
       mockMetricsService.remove.mockResolvedValue(undefined);
 
-      await controller.remove('1');
-      expect(mockMetricsService.remove).toHaveBeenCalledWith('1');
+      await controller.remove("1");
+      expect(mockMetricsService.remove).toHaveBeenCalledWith("1");
     });
   });
 
-  describe('aggregateMetrics', () => {
-    it('should aggregate metrics', async () => {
+  describe("aggregateMetrics", () => {
+    it("should aggregate metrics", async () => {
       const aggregationResult = {
         total: 100,
         average: 50,
@@ -120,9 +124,11 @@ describe('MetricsController', () => {
 
       mockMetricsService.aggregateMetrics.mockResolvedValue(aggregationResult);
 
-      const result = await controller.aggregateMetrics({ userId: 'test-user' });
+      const result = await controller.aggregateMetrics({ userId: "test-user" });
       expect(result).toEqual(aggregationResult);
-      expect(mockMetricsService.aggregateMetrics).toHaveBeenCalledWith({ userId: 'test-user' });
+      expect(mockMetricsService.aggregateMetrics).toHaveBeenCalledWith({
+        userId: "test-user",
+      });
     });
   });
 });

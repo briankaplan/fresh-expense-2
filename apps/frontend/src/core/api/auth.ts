@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 export interface LoginCredentials {
   email: string;
@@ -34,7 +34,9 @@ export const verifyEmail = async (token: string) => {
 };
 
 export const forgotPassword = async (email: string) => {
-  const response = await axios.post(`${API_URL}/auth/forgot-password`, { email });
+  const response = await axios.post(`${API_URL}/auth/forgot-password`, {
+    email,
+  });
   return response.data;
 };
 
@@ -48,7 +50,7 @@ export const resetPassword = async (token: string, newPassword: string) => {
 export const changePassword = async (data: ChangePasswordData) => {
   const response = await axios.put(`${API_URL}/auth/change-password`, data, {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
   return response.data;

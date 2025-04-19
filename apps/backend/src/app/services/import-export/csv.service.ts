@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-const { parse } = require('csv-parse/sync');
-const { stringify } = require('csv-stringify/sync');
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Document } from 'mongoose';
-import { ReceiptDocument, Receipt, Transaction } from '@fresh-expense/types';
-import { TransactionDocument } from '@fresh-expense/types';
+import { Injectable, Logger } from "@nestjs/common";
+const { parse } = require("csv-parse/sync");
+const { stringify } = require("csv-stringify/sync");
+import { Receipt, type ReceiptDocument, Transaction } from "@fresh-expense/types";
+import type { TransactionDocument } from "@fresh-expense/types";
+import { InjectModel } from "@nestjs/mongoose";
+import { Document, type Model } from "mongoose";
 
 interface CSVExpense {
   merchant: string;
@@ -35,7 +35,7 @@ interface ExpensifyTransaction {
   amount: string;
   category?: string;
   expenseId: string;
-  reimbursable: 'Yes' | 'No';
+  reimbursable: "Yes" | "No";
 }
 
 @Injectable()
@@ -43,8 +43,10 @@ export class CSVService {
   private readonly logger = new Logger(CSVService.name);
 
   constructor(
-    @InjectModel('Receipt') private readonly receiptModel: Model<ReceiptDocument>,
-    @InjectModel('Transaction') private readonly transactionModel: Model<TransactionDocument>
+    @InjectModel("Receipt")
+    private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Transaction")
+    private readonly transactionModel: Model<TransactionDocument>,
   ) {}
 
   /**
@@ -59,7 +61,7 @@ export class CSVService {
         cast: true,
       });
     } catch (error) {
-      this.logger.error('Error parsing CSV:', error);
+      this.logger.error("Error parsing CSV:", error);
       throw error;
     }
   }
@@ -68,7 +70,7 @@ export class CSVService {
    * Export receipts to CSV
    */
   async exportReceipts(receipts: ReceiptDocument[]): Promise<string> {
-    const data = receipts.map(receipt => ({
+    const data = receipts.map((receipt) => ({
       merchant: receipt.merchant,
       amount: receipt.amount,
       date: receipt.date,
@@ -79,21 +81,13 @@ export class CSVService {
         status: receipt.status,
         matchConfidence: receipt.matchConfidence,
         createdAt: receipt.createdAt,
-        updatedAt: receipt.updatedAt
+        updatedAt: receipt.updatedAt,
       },
     }));
 
     return stringify(data, {
       header: true,
-      columns: [
-        'merchant',
-        'amount',
-        'date',
-        'category',
-        'imageUrl',
-        'ocrText',
-        'metadata'
-      ],
+      columns: ["merchant", "amount", "date", "category", "imageUrl", "ocrText", "metadata"],
     });
   }
 
@@ -109,18 +103,21 @@ export class CSVService {
         const receipt = new this.receiptModel({
           date: new Date(expense.date),
           merchant: expense.merchant,
-          amount: typeof expense.amount === 'string' ? parseFloat(expense.amount) : expense.amount,
+          amount:
+            typeof expense.amount === "string" ? Number.parseFloat(expense.amount) : expense.amount,
           category: expense.category,
           description: expense.description,
-          source: 'CSV',
+          source: "CSV",
           metadata: {
             processedAt: new Date(),
-            source: 'csv_import',
+            source: "csv_import",
             extractedData: {
               merchant: expense.merchant,
               date: new Date(expense.date),
               amount:
-                typeof expense.amount === 'string' ? parseFloat(expense.amount) : expense.amount,
+                typeof expense.amount === "string"
+                  ? Number.parseFloat(expense.amount)
+                  : expense.amount,
               items: expense.items || [],
             },
           },
@@ -132,7 +129,7 @@ export class CSVService {
 
       return receipts;
     } catch (error) {
-      this.logger.error('Error importing receipts from CSV:', error);
+      this.logger.error("Error importing receipts from CSV:", error);
       throw error;
     }
   }
@@ -151,23 +148,23 @@ export class CSVService {
           date: new Date(csvTx.date),
           description: csvTx.description,
           amount: {
-            value: parseFloat(csvTx.amount),
-            currency: 'USD'
+            value: Number.parseFloat(csvTx.amount),
+            currency: "USD",
           },
-          category: csvTx.category || 'Uncategorized',
+          category: csvTx.category || "Uncategorized",
           merchant: {
             name: csvTx.description,
-            category: csvTx.category
+            category: csvTx.category,
           },
-          status: 'COMPLETED',
-          type: csvTx.type?.toUpperCase() || 'DEBIT',
-          source: 'import',
+          status: "COMPLETED",
+          type: csvTx.type?.toUpperCase() || "DEBIT",
+          source: "import",
           metadata: {
             importDate: new Date(),
-            source: 'bank_csv'
+            source: "bank_csv",
           },
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
 
         await transaction.save();
@@ -176,7 +173,7 @@ export class CSVService {
 
       return transactions;
     } catch (error) {
-      this.logger.error('Error importing bank transactions from CSV:', error);
+      this.logger.error("Error importing bank transactions from CSV:", error);
       throw error;
     }
   }
@@ -184,7 +181,10 @@ export class CSVService {
   /**
    * Import Expensify transactions from CSV
    */
-  async importExpensifyTransactions(content: string, userId: string): Promise<TransactionDocument[]> {
+  async importExpensifyTransactions(
+    content: string,
+    userId: string,
+  ): Promise<TransactionDocument[]> {
     try {
       const csvTransactions = await this.parseCSV<ExpensifyTransaction>(content);
       const transactions: TransactionDocument[] = [];
@@ -195,24 +195,24 @@ export class CSVService {
           date: new Date(csvTx.date),
           description: csvTx.merchant,
           amount: {
-            value: parseFloat(csvTx.amount),
-            currency: 'USD'
+            value: Number.parseFloat(csvTx.amount),
+            currency: "USD",
           },
-          category: csvTx.category || 'Uncategorized',
+          category: csvTx.category || "Uncategorized",
           merchant: {
             name: csvTx.merchant,
-            category: csvTx.category
+            category: csvTx.category,
           },
-          status: 'COMPLETED',
-          type: 'EXPENSE',
-          source: 'import',
+          status: "COMPLETED",
+          type: "EXPENSE",
+          source: "import",
           metadata: {
             expensifyId: csvTx.expenseId,
-            reimbursable: csvTx.reimbursable === 'Yes',
-            importDate: new Date()
+            reimbursable: csvTx.reimbursable === "Yes",
+            importDate: new Date(),
           },
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
 
         await transaction.save();
@@ -221,7 +221,7 @@ export class CSVService {
 
       return transactions;
     } catch (error) {
-      this.logger.error('Error importing Expensify transactions from CSV:', error);
+      this.logger.error("Error importing Expensify transactions from CSV:", error);
       throw error;
     }
   }

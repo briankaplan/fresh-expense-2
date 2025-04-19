@@ -1,14 +1,14 @@
-import React from 'react';
+import { Box, useTheme } from "@mui/material";
+import type React from "react";
 import {
-  ResponsiveContainer,
-  LineChart as RechartsLineChart,
+  CartesianGrid,
   Line,
+  LineChart as RechartsLineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
-import { Box, useTheme } from '@mui/material';
+} from "recharts";
 
 interface LineChartProps {
   data: Array<{
@@ -30,7 +30,7 @@ const LineChart: React.FC<LineChartProps> = ({
   const theme = useTheme();
 
   return (
-    <Box sx={{ width: '100%', height }}>
+    <Box sx={{ width: "100%", height }}>
       <ResponsiveContainer width="100%" height="100%">
         <RechartsLineChart
           data={data}
@@ -45,9 +45,9 @@ const LineChart: React.FC<LineChartProps> = ({
           <XAxis
             dataKey="name"
             stroke={theme.palette.text.secondary}
-            style={{ fontSize: '0.875rem' }}
+            style={{ fontSize: "0.875rem" }}
           />
-          <YAxis stroke={theme.palette.text.secondary} style={{ fontSize: '0.875rem' }} />
+          <YAxis stroke={theme.palette.text.secondary} style={{ fontSize: "0.875rem" }} />
           <Tooltip />
           <Line
             type="monotone"

@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
-  TextField,
   Button,
-  MenuItem,
-  Grid,
   FormControl,
+  Grid,
   InputLabel,
+  MenuItem,
   Select,
-  SelectChangeEvent,
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useNavigate } from 'react-router-dom';
+  type SelectChangeEvent,
+  TextField,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ExpenseFormProps {
   expenseId?: string;
@@ -26,44 +27,44 @@ interface ExpenseFormData {
 }
 
 const categories = [
-  'Food & Dining',
-  'Groceries',
-  'Transportation',
-  'Housing',
-  'Utilities',
-  'Entertainment',
-  'Shopping',
-  'Healthcare',
-  'Travel',
-  'Other',
+  "Food & Dining",
+  "Groceries",
+  "Transportation",
+  "Housing",
+  "Utilities",
+  "Entertainment",
+  "Shopping",
+  "Healthcare",
+  "Travel",
+  "Other",
 ];
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<ExpenseFormData>({
     date: new Date(),
-    description: '',
-    amount: '',
-    category: '',
-    notes: '',
+    description: "",
+    amount: "",
+    category: "",
+    notes: "",
   });
 
   useEffect(() => {
     if (expenseId) {
       // TODO: Fetch expense data if editing
-      console.log('Fetching expense:', expenseId);
+      console.log("Fetching expense:", expenseId);
     }
   }, [expenseId]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>,
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDateChange = (date: Date | null) => {
-    setFormData(prev => ({ ...prev, date }));
+    setFormData((prev) => ({ ...prev, date }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,14 +72,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
     try {
       if (expenseId) {
         // TODO: Update existing expense
-        console.log('Updating expense:', expenseId, formData);
+        console.log("Updating expense:", expenseId, formData);
       } else {
         // TODO: Create new expense
-        console.log('Creating expense:', formData);
+        console.log("Creating expense:", formData);
       }
-      navigate('/expenses');
+      navigate("/expenses");
     } catch (error) {
-      console.error('Error saving expense:', error);
+      console.error("Error saving expense:", error);
     }
   };
 
@@ -108,8 +109,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
             fullWidth
             required
             inputProps={{
-              step: '0.01',
-              min: '0',
+              step: "0.01",
+              min: "0",
             }}
           />
         </Grid>
@@ -133,7 +134,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
               onChange={handleChange}
               label="Category"
             >
-              {categories.map(category => (
+              {categories.map((category) => (
                 <MenuItem key={category} value={category}>
                   {category}
                 </MenuItem>
@@ -153,12 +154,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseId }) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button type="button" onClick={() => navigate('/expenses')}>
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+            <Button type="button" onClick={() => navigate("/expenses")}>
               Cancel
             </Button>
             <Button type="submit" variant="contained" color="primary">
-              {expenseId ? 'Update' : 'Create'} Expense
+              {expenseId ? "Update" : "Create"} Expense
             </Button>
           </Box>
         </Grid>

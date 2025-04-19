@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as glob from 'glob';
-import * as ts from 'typescript';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { exec } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import { promisify } from "util";
+import * as glob from "glob";
+import * as ts from "typescript";
 
 const execAsync = promisify(exec);
 
@@ -36,36 +36,31 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
     dependencyGraph: {},
     circularDependencies: [],
     typeIssues: [],
-    recommendations: []
+    recommendations: [],
   };
 
   // Find all TypeScript files
-  const files = glob.sync('**/*.ts', {
-    ignore: ['**/node_modules/**', '**/dist/**', '**/build/**']
+  const files = glob.sync("**/*.ts", {
+    ignore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
   });
 
   // Build dependency graph
   for (const file of files) {
-    const content = fs.readFileSync(file, 'utf-8');
-    const sourceFile = ts.createSourceFile(
-      file,
-      content,
-      ts.ScriptTarget.Latest,
-      true
-    );
+    const content = fs.readFileSync(file, "utf-8");
+    const sourceFile = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
 
     const node: DependencyNode = {
       file,
       imports: [],
       exports: [],
       typeIssues: [],
-      circularDeps: []
+      circularDeps: [],
     };
 
     // Analyze imports
     ts.forEachChild(sourceFile, (child) => {
       if (ts.isImportDeclaration(child)) {
-        const importPath = child.moduleSpecifier.getText().replace(/['"]/g, '');
+        const importPath = child.moduleSpecifier.getText().replace(/['"]/g, "");
         node.imports.push(importPath);
       }
     });
@@ -73,7 +68,7 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
     // Analyze exports
     ts.forEachChild(sourceFile, (child) => {
       if (ts.isExportDeclaration(child)) {
-        const exportPath = child.moduleSpecifier?.getText().replace(/['"]/g, '');
+        const exportPath = child.moduleSpecifier?.getText().replace(/['"]/g, "");
         if (exportPath) {
           node.exports.push(exportPath);
         }
@@ -87,7 +82,7 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
   for (const [file, node] of Object.entries(report.dependencyGraph)) {
     const visited = new Set<string>();
     const path: string[] = [];
-    
+
     function findCircularDeps(currentFile: string) {
       if (visited.has(currentFile)) {
         const cycleStart = path.indexOf(currentFile);
@@ -122,7 +117,7 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
 
   // Run TypeScript compiler to get type issues
   try {
-    const { stdout } = await execAsync('npx tsc --noEmit --pretty false');
+    const { stdout } = await execAsync("npx tsc --noEmit --pretty false");
     const typeIssues = parseTypeScriptIssues(stdout);
     report.typeIssues = typeIssues;
 
@@ -134,7 +129,7 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
       }
     }
   } catch (error) {
-    console.error('Error running TypeScript check:', error);
+    console.error("Error running TypeScript check:", error);
   }
 
   // Generate recommendations
@@ -145,29 +140,29 @@ async function analyzeCodebase(): Promise<AnalysisReport> {
 
 function resolveImportPath(sourceFile: string, importPath: string): string | null {
   // Basic path resolution - you might want to enhance this
-  if (importPath.startsWith('.')) {
-    return path.resolve(path.dirname(sourceFile), importPath) + '.ts';
+  if (importPath.startsWith(".")) {
+    return path.resolve(path.dirname(sourceFile), importPath) + ".ts";
   }
   return null;
 }
 
 function parseTypeScriptIssues(output: string): TypeIssue[] {
   const issues: TypeIssue[] = [];
-  const lines = output.split('\n');
+  const lines = output.split("\n");
 
   for (const line of lines) {
-    if (line.includes('error TS')) {
+    if (line.includes("error TS")) {
       const match = line.match(/^(.+?):(\d+):(\d+) - error TS(\d+): (.+)$/);
       if (match) {
         const [, file, lineStr, columnStr, code, message] = match;
         if (file && lineStr && columnStr && code && message) {
           issues.push({
             file,
-            line: parseInt(lineStr),
-            column: parseInt(columnStr),
+            line: Number.parseInt(lineStr),
+            column: Number.parseInt(columnStr),
             message,
             code: `TS${code}`,
-            relatedFiles: []
+            relatedFiles: [],
           });
         }
       }
@@ -182,15 +177,15 @@ function generateRecommendations(report: AnalysisReport): string[] {
 
   // Prioritize circular dependencies
   if (report.circularDependencies.length > 0) {
-    recommendations.push('1. Fix circular dependencies:');
+    recommendations.push("1. Fix circular dependencies:");
     report.circularDependencies.forEach((cycle, index) => {
-      recommendations.push(`   ${index + 1}. ${cycle.join(' -> ')}`);
+      recommendations.push(`   ${index + 1}. ${cycle.join(" -> ")}`);
     });
   }
 
   // Group type issues by file
   const issuesByFile = new Map<string, TypeIssue[]>();
-  report.typeIssues.forEach(issue => {
+  report.typeIssues.forEach((issue) => {
     if (!issuesByFile.has(issue.file)) {
       issuesByFile.set(issue.file, []);
     }
@@ -198,18 +193,17 @@ function generateRecommendations(report: AnalysisReport): string[] {
   });
 
   // Sort files by number of issues
-  const sortedFiles = Array.from(issuesByFile.entries())
-    .sort((a, b) => b[1].length - a[1].length);
+  const sortedFiles = Array.from(issuesByFile.entries()).sort((a, b) => b[1].length - a[1].length);
 
   if (sortedFiles.length > 0) {
-    recommendations.push('\n2. Fix type issues in these files (ordered by severity):');
+    recommendations.push("\n2. Fix type issues in these files (ordered by severity):");
     sortedFiles.forEach(([file, issues]) => {
       recommendations.push(`   - ${file} (${issues.length} issues)`);
     });
   }
 
   // Add dependency recommendations
-  recommendations.push('\n3. Review and optimize imports:');
+  recommendations.push("\n3. Review and optimize imports:");
   Object.entries(report.dependencyGraph).forEach(([file, node]) => {
     if (node.imports.length > 10) {
       recommendations.push(`   - ${file} has ${node.imports.length} imports, consider splitting`);
@@ -220,21 +214,21 @@ function generateRecommendations(report: AnalysisReport): string[] {
 }
 
 async function main() {
-  console.log('Analyzing codebase...');
+  console.log("Analyzing codebase...");
   const report = await analyzeCodebase();
 
   // Save report to file
-  const reportPath = path.join(process.cwd(), 'codebase-analysis.json');
+  const reportPath = path.join(process.cwd(), "codebase-analysis.json");
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
 
-  console.log('\nAnalysis complete! Report saved to:', reportPath);
-  console.log('\nKey Findings:');
+  console.log("\nAnalysis complete! Report saved to:", reportPath);
+  console.log("\nKey Findings:");
   console.log(`- Found ${report.circularDependencies.length} circular dependencies`);
   console.log(`- Found ${report.typeIssues.length} type issues`);
   console.log(`- Analyzed ${Object.keys(report.dependencyGraph).length} files`);
 
-  console.log('\nTop Recommendations:');
-  report.recommendations.slice(0, 5).forEach(rec => console.log(rec));
+  console.log("\nTop Recommendations:");
+  report.recommendations.slice(0, 5).forEach((rec) => console.log(rec));
 }
 
-main().catch(console.error); 
+main().catch(console.error);

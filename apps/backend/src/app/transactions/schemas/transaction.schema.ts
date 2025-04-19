@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseTransactionData } from '@fresh-expense/types';
+import type { BaseTransactionData } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
 
 export type TransactionDocument = Transaction & Document;
 
@@ -37,4 +37,4 @@ export class Transaction implements BaseTransactionData {
   metadata?: Record<string, any>;
 }
 
-export const TransactionSchema = SchemaFactory.createForClass(Transaction); 
+export const TransactionSchema = SchemaFactory.createForClass(Transaction);

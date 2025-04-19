@@ -1,10 +1,10 @@
-import React from 'react';
-import { ThemeProvider } from '../context/ThemeContext';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { AuthProvider } from '../context/AuthContext';
-import CssBaseline from '@mui/material/CssBaseline';
-import { Outlet } from 'react-router-dom';
+import CssBaseline from "@mui/material/CssBaseline";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import React from "react";
+import { Outlet } from "react-router-dom";
+import { AuthProvider } from "../context/AuthContext";
+import { ThemeProvider } from "../context/ThemeContext";
 
 export function AppProviders() {
   return (

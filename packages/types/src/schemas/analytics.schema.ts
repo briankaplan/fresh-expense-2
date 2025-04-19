@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { BaseDocument } from './base.schema';
-import { ExpenseCategory } from '../lib/types';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { Document } from "mongoose";
+import type { ExpenseCategory } from "../lib/types";
+import type { BaseDocument } from "./base.schema";
 
 export type AnalyticsDocument = Analytics & Document;
 
@@ -48,4 +48,4 @@ export const AnalyticsSchema = SchemaFactory.createForClass(Analytics);
 AnalyticsSchema.index({ userId: 1, month: 1, year: 1 }, { unique: true });
 AnalyticsSchema.index({ userId: 1, createdAt: -1 });
 AnalyticsSchema.index({ sessionId: 1 });
-AnalyticsSchema.index({ 'location.coordinates': '2dsphere' });
+AnalyticsSchema.index({ "location.coordinates": "2dsphere" });

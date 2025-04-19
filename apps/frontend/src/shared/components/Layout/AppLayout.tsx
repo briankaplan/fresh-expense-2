@@ -1,14 +1,14 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
-import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
-  TransactionOutlined,
-  SettingOutlined,
   LogoutOutlined,
-} from '@ant-design/icons';
-import { useAuth } from '../../hooks/useAuth';
-import '../../styles/App.css';
+  SettingOutlined,
+  TransactionOutlined,
+} from "@ant-design/icons";
+import { Layout, Menu } from "antd";
+import type React from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import "../../styles/App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -18,24 +18,24 @@ export const AppLayout: React.FC = () => {
 
   const menuItems = [
     {
-      key: '/dashboard',
+      key: "/dashboard",
       icon: <DashboardOutlined />,
       label: <Link to="/dashboard">Dashboard</Link>,
     },
     {
-      key: '/transactions',
+      key: "/transactions",
       icon: <TransactionOutlined />,
       label: <Link to="/transactions">Transactions</Link>,
     },
     {
-      key: '/settings',
+      key: "/settings",
       icon: <SettingOutlined />,
       label: <Link to="/settings">Settings</Link>,
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Logout',
+      label: "Logout",
       onClick: logout,
     },
   ];

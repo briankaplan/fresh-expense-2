@@ -17,7 +17,7 @@ export interface TellerWebhookDelivery {
   id: string;
   eventId: string;
   timestamp: string;
-  status: 'success' | 'failed';
+  status: "success" | "failed";
   statusCode?: number;
   error?: string;
   retries: number;

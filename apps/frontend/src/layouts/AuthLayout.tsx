@@ -1,15 +1,15 @@
-import React from 'react';
-import { Box, Container, Paper } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { Box, Container, Paper } from "@mui/material";
+import type React from "react";
+import { Outlet } from "react-router-dom";
 
 const AuthLayout: React.FC = () => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        bgcolor: 'background.default',
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        bgcolor: "background.default",
       }}
     >
       <Container maxWidth="sm">
@@ -17,9 +17,9 @@ const AuthLayout: React.FC = () => {
           elevation={3}
           sx={{
             p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
           <Outlet />

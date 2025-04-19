@@ -1,19 +1,19 @@
+import path from "path";
 /// <reference types="vitest" />
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
-import path from 'path';
+import { nxViteTsPaths } from "@nx/vite/plugins/nx-tsconfig-paths.plugin";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/frontend',
+  cacheDir: "../../node_modules/.vite/frontend",
 
   server: {
     port: 4200,
-    host: 'localhost',
+    host: "localhost",
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
+      "/api": {
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
@@ -22,7 +22,7 @@ export default defineConfig({
 
   preview: {
     port: 4300,
-    host: 'localhost',
+    host: "localhost",
   },
 
   plugins: [react(), nxViteTsPaths()],
@@ -33,7 +33,7 @@ export default defineConfig({
   // },
 
   build: {
-    outDir: '../../dist/apps/frontend',
+    outDir: "../../dist/apps/frontend",
     reportCompressedSize: true,
     commonjsOptions: {
       transformMixedEsModules: true,
@@ -43,25 +43,25 @@ export default defineConfig({
   test: {
     globals: true,
     cache: {
-      dir: '../../node_modules/.vitest',
+      dir: "../../node_modules/.vitest",
     },
-    environment: 'jsdom',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    reporters: ['default'],
+    environment: "jsdom",
+    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    reporters: ["default"],
     coverage: {
-      reportsDirectory: '../../coverage/apps/frontend',
-      provider: 'v8',
+      reportsDirectory: "../../coverage/apps/frontend",
+      provider: "v8",
     },
   },
 
   esbuild: {
-    loader: 'jsx',
+    loader: "jsx",
     include: /\.(jsx|tsx)$/,
   },
 
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });

@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import type { Transaction } from "@fresh-expense/types";
+import { Link, Search } from "@mui/icons-material";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Box,
-  Typography,
   Button,
-  TextField,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   List,
   ListItem,
-  ListItemText,
   ListItemSecondaryAction,
-  IconButton,
-} from '@mui/material';
-import { Link, Search } from '@mui/icons-material';
-import { ReceiptService } from '../../../../services/receipt.service';
-import { toast } from 'react-toastify';
-import { Transaction } from '@fresh-expense/types';
+  ListItemText,
+  TextField,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { ReceiptService } from "../../../../services/receipt.service";
 
 interface TransactionLinkDialogProps {
   receiptId: string;
@@ -34,7 +35,7 @@ export const TransactionLinkDialog: React.FC<TransactionLinkDialogProps> = ({
   onSuccess,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
@@ -52,8 +53,8 @@ export const TransactionLinkDialog: React.FC<TransactionLinkDialogProps> = ({
       const data = await response.json();
       setTransactions(data);
     } catch (error) {
-      toast.error('Failed to fetch transactions');
-      console.error('Error fetching transactions:', error);
+      toast.error("Failed to fetch transactions");
+      console.error("Error fetching transactions:", error);
     } finally {
       setLoading(false);
     }
@@ -66,14 +67,14 @@ export const TransactionLinkDialog: React.FC<TransactionLinkDialogProps> = ({
       setLoading(true);
       const updatedReceipt = await ReceiptService.linkTransaction(
         receiptId,
-        selectedTransaction.id
+        selectedTransaction.id,
       );
       onSuccess(updatedReceipt);
-      toast.success('Receipt linked to transaction successfully');
+      toast.success("Receipt linked to transaction successfully");
       onClose();
     } catch (error) {
-      toast.error('Failed to link receipt to transaction');
-      console.error('Error linking receipt:', error);
+      toast.error("Failed to link receipt to transaction");
+      console.error("Error linking receipt:", error);
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ export const TransactionLinkDialog: React.FC<TransactionLinkDialogProps> = ({
             variant="outlined"
             placeholder="Search transactions..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: <Search sx={{ mr: 1 }} />,
             }}
@@ -105,7 +106,7 @@ export const TransactionLinkDialog: React.FC<TransactionLinkDialogProps> = ({
           </Box>
         ) : (
           <List>
-            {transactions.map(transaction => (
+            {transactions.map((transaction) => (
               <ListItem
                 key={transaction.id}
                 button

@@ -1,6 +1,6 @@
-import { IsString, IsOptional, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { TransactionCategory, TRANSACTION_CATEGORIES } from '@packages/utils';
+import { TRANSACTION_CATEGORIES, type TransactionCategory } from "@packages/utils";
+import { Type } from "class-transformer";
+import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
 
 class LocationDto {
   @IsString()

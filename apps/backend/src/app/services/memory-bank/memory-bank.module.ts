@@ -1,7 +1,6 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 
-import { MemoryBankService } from '../memory-bank.service';
-
+import { MemoryBankService } from "../memory-bank.service";
 
 export class MemoryBankModule {}

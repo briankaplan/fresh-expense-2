@@ -1,7 +1,7 @@
-import React from 'react';
-import { Box, Container, useTheme } from '@mui/material';
-import { MainLayout } from './MainLayout';
-import { DashboardCard } from '@/shared/components/common/DashboardCard';
+import { DashboardCard } from "@/shared/components/common/DashboardCard";
+import { Box, Container, useTheme } from "@mui/material";
+import type React from "react";
+import { MainLayout } from "./MainLayout";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -23,9 +23,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             mb: 4,
           }}
         >
@@ -45,8 +45,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </Box>
         <Box
           sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: theme.spacing(3),
           }}
         >

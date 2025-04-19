@@ -1,5 +1,5 @@
-import { TransactionStatus, TransactionType } from '../constants/transaction.constants';
-import { Transaction } from '../interfaces/transaction.interface';
+import { TransactionStatus, TransactionType } from "../constants/transaction.constants";
+import type { Transaction } from "../interfaces/transaction.interface";
 
 export { TransactionStatus, TransactionType };
 
@@ -124,7 +124,7 @@ export interface TransactionSearchQuery {
  * Type for transaction export options
  */
 export interface TransactionExportOptions {
-  format: 'csv' | 'json' | 'pdf';
+  format: "csv" | "json" | "pdf";
   filters?: TransactionFilters;
   includeMetadata?: boolean;
   includeMerchantDetails?: boolean;
@@ -139,7 +139,7 @@ export interface TransactionExportOptions {
 export interface RecurringTransactionPattern {
   merchantName: string;
   approximateAmount: TransactionAmount;
-  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  frequency: "daily" | "weekly" | "monthly" | "yearly";
   dayOfWeek?: number;
   dayOfMonth?: number;
   month?: number;
@@ -156,7 +156,7 @@ export interface TransactionCategoryRule {
   id: string;
   conditions: {
     field: keyof Transaction;
-    operator: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'regex';
+    operator: "equals" | "contains" | "startsWith" | "endsWith" | "regex";
     value: string;
   }[];
   category: string;

@@ -3,13 +3,13 @@ db.auth(process.env.MONGO_INITDB_ROOT_USERNAME, process.env.MONGO_INITDB_ROOT_PA
 db = db.getSiblingDB(process.env.MONGO_INITDB_DATABASE);
 
 // Create collections
-db.createCollection('users');
-db.createCollection('expenses');
-db.createCollection('categories');
-db.createCollection('merchants');
-db.createCollection('analytics');
-db.createCollection('receipts');
-db.createCollection('reports');
+db.createCollection("users");
+db.createCollection("expenses");
+db.createCollection("categories");
+db.createCollection("merchants");
+db.createCollection("analytics");
+db.createCollection("receipts");
+db.createCollection("reports");
 
 // Create indexes
 db.users.createIndex({ email: 1 }, { unique: true });

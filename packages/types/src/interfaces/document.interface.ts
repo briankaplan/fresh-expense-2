@@ -1,21 +1,21 @@
-import { Document } from 'mongoose';
-import { Transaction } from './transaction.interface';
-import { Receipt } from './receipt.interface';
-import { Merchant } from './merchant.interface';
-import { Category } from './category.interface';
-import { Budget } from './budget.interface';
-import { Report } from './report.interface';
-import { Subscription } from './subscription.interface';
-import { Analytics } from './analytics.interface';
-import { Search } from './search.interface';
-import { AIModel } from './ai-model.interface';
-import { OCR } from './ocr.interface';
-import { Integration } from './integration.interface';
-import { Settings } from './settings.interface';
-import { SendGrid } from './sendgrid.interface';
-import { UserDocument as SchemaUserDocument } from '../schemas/user.schema';
+import type { Document } from "mongoose";
+import type { UserDocument as SchemaUserDocument } from "../schemas/user.schema";
+import type { AIModel } from "./ai-model.interface";
+import type { Analytics } from "./analytics.interface";
+import type { Budget } from "./budget.interface";
+import type { Category } from "./category.interface";
+import type { Integration } from "./integration.interface";
+import type { Merchant } from "./merchant.interface";
+import type { OCR } from "./ocr.interface";
+import type { Receipt } from "./receipt.interface";
+import type { Report } from "./report.interface";
+import type { Search } from "./search.interface";
+import type { SendGrid } from "./sendgrid.interface";
+import type { Settings } from "./settings.interface";
+import type { Subscription } from "./subscription.interface";
+import type { Transaction } from "./transaction.interface";
 
-type PickNonId<T> = Pick<T, Exclude<keyof T, 'id'>>;
+type PickNonId<T> = Pick<T, Exclude<keyof T, "id">>;
 
 // Use the schema-based UserDocument
 export type UserDocument = SchemaUserDocument;

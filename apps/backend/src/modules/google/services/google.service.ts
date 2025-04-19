@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
+import { Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { OAuth2Client } from "google-auth-library";
+import { google } from "googleapis";
 
 @Injectable()
 export class GoogleService {
@@ -9,29 +9,29 @@ export class GoogleService {
 
   constructor(private readonly configService: ConfigService) {
     this.oauth2Client = new google.auth.OAuth2(
-      this.configService.get('GOOGLE_CLIENT_ID'),
-      this.configService.get('GOOGLE_CLIENT_SECRET'),
-      this.configService.get('GOOGLE_REDIRECT_URI')
+      this.configService.get("GOOGLE_CLIENT_ID"),
+      this.configService.get("GOOGLE_CLIENT_SECRET"),
+      this.configService.get("GOOGLE_REDIRECT_URI"),
     );
   }
 
   async searchGmailReceipts(query: string): Promise<any[]> {
     try {
-      const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+      const gmail = google.gmail({ version: "v1", auth: this.oauth2Client });
       const response = await gmail.users.messages.list({
-        userId: 'me',
+        userId: "me",
         q: query,
       });
 
       const messages = response.data.messages || [];
       const receipts = await Promise.all(
-        messages.map(async message => {
+        messages.map(async (message) => {
           const details = await gmail.users.messages.get({
-            userId: 'me',
+            userId: "me",
             id: message.id,
           });
           return details.data;
-        })
+        }),
       );
 
       return receipts;
@@ -42,7 +42,10 @@ export class GoogleService {
 
   async searchPhotos(startDate: Date, endDate: Date): Promise<any[]> {
     try {
-      const photos = google.photoslibrary({ version: 'v1', auth: this.oauth2Client });
+      const photos = google.photoslibrary({
+        version: "v1",
+        auth: this.oauth2Client,
+      });
       const response = await photos.mediaItems.search({
         requestBody: {
           filters: {

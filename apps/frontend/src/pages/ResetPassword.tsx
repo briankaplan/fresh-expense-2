@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { useAuth } from "@/shared/hooks/useAuth";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
   Button,
   Card,
   CardContent,
+  IconButton,
+  InputAdornment,
   TextField,
   Typography,
   useTheme,
-  InputAdornment,
-  IconButton,
-} from '@mui/material';
-import { motion } from 'framer-motion';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '@/shared/hooks/useAuth';
-import { toast } from 'react-hot-toast';
+} from "@mui/material";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import * as yup from "yup";
 
 interface ResetPasswordFormInputs {
   password: string;
@@ -27,16 +27,16 @@ interface ResetPasswordFormInputs {
 const resetPasswordSchema = yup.object().shape({
   password: yup
     .string()
-    .required('Password is required')
-    .min(8, 'Password must be at least 8 characters')
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+      "Password must contain at least one uppercase letter, one lowercase letter, and one number",
     ),
   confirmPassword: yup
     .string()
-    .required('Please confirm your password')
-    .oneOf([yup.ref('password')], 'Passwords must match'),
+    .required("Please confirm your password")
+    .oneOf([yup.ref("password")], "Passwords must match"),
 });
 
 const ResetPassword = () => {
@@ -53,32 +53,32 @@ const ResetPassword = () => {
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormInputs>({
     resolver: yupResolver(resetPasswordSchema),
-    mode: 'onBlur',
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: ResetPasswordFormInputs) => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
     if (!token) {
-      toast.error('Invalid or missing reset token');
+      toast.error("Invalid or missing reset token");
       return;
     }
 
     try {
       await resetPassword(token, data.password);
-      toast.success('Password has been reset successfully');
-      navigate('/login');
+      toast.success("Password has been reset successfully");
+      navigate("/login");
     } catch (error) {
-      toast.error('Failed to reset password. Please try again.');
+      toast.error("Failed to reset password. Please try again.");
     }
   };
 
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         background: theme.palette.background.default,
         backgroundImage: `radial-gradient(at 50% 0%, ${theme.palette.primary.dark}29 0%, transparent 50%), 
                          radial-gradient(at 100% 0%, ${theme.palette.secondary.dark}29 0%, transparent 50%)`,
@@ -89,16 +89,16 @@ const ResetPassword = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: 400 }}
+        style={{ width: "100%", maxWidth: 400 }}
       >
         <Card
           sx={{
-            width: '100%',
-            background: 'rgba(26, 27, 30, 0.7)',
-            backdropFilter: 'blur(20px)',
+            width: "100%",
+            background: "rgba(26, 27, 30, 0.7)",
+            backdropFilter: "blur(20px)",
             borderRadius: 3,
             border: `1px solid ${theme.palette.divider}`,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
           }}
         >
           <CardContent sx={{ p: 4 }}>
@@ -112,8 +112,8 @@ const ResetPassword = () => {
                 fontWeight: 700,
                 mb: 3,
                 background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               }}
             >
               Reset Password
@@ -123,8 +123,8 @@ const ResetPassword = () => {
               variant="body1"
               sx={{
                 mb: 4,
-                textAlign: 'center',
-                color: 'text.secondary',
+                textAlign: "center",
+                color: "text.secondary",
                 opacity: 0.8,
               }}
             >
@@ -135,19 +135,19 @@ const ResetPassword = () => {
               <TextField
                 fullWidth
                 label="New Password"
-                type={showPassword ? 'text' : 'password'}
-                {...register('password')}
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 sx={{
                   mb: 3,
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
                     },
-                    '&.Mui-focused': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    "&.Mui-focused": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
                     },
                   },
                 }}
@@ -170,19 +170,19 @@ const ResetPassword = () => {
               <TextField
                 fullWidth
                 label="Confirm New Password"
-                type={showConfirmPassword ? 'text' : 'password'}
-                {...register('confirmPassword')}
+                type={showConfirmPassword ? "text" : "password"}
+                {...register("confirmPassword")}
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword?.message}
                 sx={{
                   mb: 3,
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
                     },
-                    '&.Mui-focused': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    "&.Mui-focused": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
                     },
                   },
                 }}
@@ -214,18 +214,18 @@ const ResetPassword = () => {
                   py: 1.5,
                   background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                   borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem',
+                  textTransform: "none",
+                  fontSize: "1rem",
                   fontWeight: 600,
-                  '&:hover': {
+                  "&:hover": {
                     background: `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
                   },
-                  '&:disabled': {
+                  "&:disabled": {
                     background: theme.palette.action.disabledBackground,
                   },
                 }}
               >
-                {isSubmitting ? 'Resetting Password...' : 'Reset Password'}
+                {isSubmitting ? "Resetting Password..." : "Reset Password"}
               </Button>
             </form>
           </CardContent>

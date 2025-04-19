@@ -1,4 +1,4 @@
-declare module 'limiter' {
+declare module "limiter" {
   interface RateLimiterOptions {
     tokensPerInterval: number;
     interval: string;

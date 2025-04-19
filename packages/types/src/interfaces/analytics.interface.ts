@@ -1,7 +1,7 @@
 export interface Analytics {
   id: string;
   userId: string;
-  type: 'spending' | 'income' | 'category' | 'merchant' | 'trend';
+  type: "spending" | "income" | "category" | "merchant" | "trend";
   data: Record<string, any>;
   period: {
     start: Date;
@@ -9,4 +9,4 @@ export interface Analytics {
   };
   createdAt: Date;
   updatedAt: Date;
-} 
+}

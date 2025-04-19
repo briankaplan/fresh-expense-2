@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { ReceiptDocument } from '@fresh-expense/types';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
 
 export interface ReceiptSearchOptions {
   userId: string;
@@ -35,11 +35,11 @@ export interface MatchResult {
 export class ReceiptMatcherService {
   private readonly logger = new Logger(ReceiptMatcherService.name);
 
-  constructor(@InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>) {}
+  constructor(@InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>) {}
 
   async findSimilar(
     receipt: ReceiptDocument,
-    options: { threshold?: number; maxResults?: number } = {}
+    options: { threshold?: number; maxResults?: number } = {},
   ): Promise<MatchResult[]> {
     const { threshold = 0.7, maxResults = 5 } = options;
 
@@ -70,7 +70,7 @@ export class ReceiptMatcherService {
 
       return results.sort((a, b) => b.score - a.score).slice(0, maxResults);
     } catch (error) {
-      this.logger.error('Error finding similar receipts:', error);
+      this.logger.error("Error finding similar receipts:", error);
       throw error;
     }
   }
@@ -81,11 +81,11 @@ export class ReceiptMatcherService {
 
       if (options.query) {
         if (options.fuzzyMatch) {
-          const searchRegex = new RegExp(options.query.split('').join('.*'), 'i');
+          const searchRegex = new RegExp(options.query.split("").join(".*"), "i");
           query.$or = [
             { merchant: searchRegex },
-            { 'metadata.text': searchRegex },
-            { 'ocrData.text': searchRegex },
+            { "metadata.text": searchRegex },
+            { "ocrData.text": searchRegex },
           ];
         } else {
           query.$text = { $search: options.query };
@@ -93,7 +93,7 @@ export class ReceiptMatcherService {
       }
 
       if (options.merchant) {
-        query.merchant = options.fuzzyMatch ? new RegExp(options.merchant, 'i') : options.merchant;
+        query.merchant = options.fuzzyMatch ? new RegExp(options.merchant, "i") : options.merchant;
       }
 
       if (options.minAmount !== undefined || options.maxAmount !== undefined) {
@@ -127,14 +127,14 @@ export class ReceiptMatcherService {
         .limit(options.limit || 50)
         .exec();
     } catch (error) {
-      this.logger.error('Error searching receipts:', error);
+      this.logger.error("Error searching receipts:", error);
       throw error;
     }
   }
 
   private async calculateMatchScore(
     receipt1: ReceiptDocument,
-    receipt2: ReceiptDocument
+    receipt2: ReceiptDocument,
   ): Promise<MatchResult> {
     const merchantMatch = this.calculateMerchantSimilarity(receipt1.merchant, receipt2.merchant);
     const amountMatch = this.calculateAmountSimilarity(receipt1.amount, receipt2.amount);
@@ -168,7 +168,7 @@ export class ReceiptMatcherService {
 
   private calculateMerchantSimilarity(merchant1: string, merchant2: string): number {
     if (!merchant1 || !merchant2) return 0;
-    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const m1 = normalize(merchant1);
     const m2 = normalize(merchant2);
     return m1 === m2 ? 1 : this.calculateLevenshteinSimilarity(m1, m2);
@@ -191,7 +191,7 @@ export class ReceiptMatcherService {
   private calculateTextSimilarity(text1: string, text2: string): number {
     const words1 = new Set(text1.toLowerCase().split(/\s+/));
     const words2 = new Set(text2.toLowerCase().split(/\s+/));
-    const intersection = new Set([...words1].filter(x => words2.has(x)));
+    const intersection = new Set([...words1].filter((x) => words2.has(x)));
     return intersection.size / Math.max(words1.size, words2.size);
   }
 
@@ -209,7 +209,7 @@ export class ReceiptMatcherService {
         matrix[i][j] = Math.min(
           matrix[i - 1][j] + 1,
           matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + cost
+          matrix[i - 1][j - 1] + cost,
         );
       }
     }

@@ -1,10 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { ReceiptStorageService } from './receipt-storage.service';
-import { ReceiptProcessorService } from './receipt-processor.service';
-import { ReceiptMatcherService } from './receipt-matcher.service';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
+import type { ReceiptMatcherService } from "./receipt-matcher.service";
+import type { ReceiptProcessorService } from "./receipt-processor.service";
+import type { ReceiptStorageService } from "./receipt-storage.service";
 
 export interface CreateReceiptDto {
   file: Buffer;
@@ -33,10 +33,10 @@ export class ReceiptService {
   private readonly logger = new Logger(ReceiptService.name);
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
     private readonly storageService: ReceiptStorageService,
     private readonly processorService: ReceiptProcessorService,
-    private readonly matcherService: ReceiptMatcherService
+    private readonly matcherService: ReceiptMatcherService,
   ) {}
 
   async create(dto: CreateReceiptDto): Promise<ReceiptDocument> {
@@ -62,7 +62,7 @@ export class ReceiptService {
         date: dto.date || new Date(),
         category: dto.category,
         tags: dto.tags,
-        source: dto.source || 'MANUAL',
+        source: dto.source || "MANUAL",
         transactionId: dto.transactionId ? new Types.ObjectId(dto.transactionId) : undefined,
         ...stored,
         metadata: {
@@ -98,7 +98,7 @@ export class ReceiptService {
 
       return savedReceipt;
     } catch (error) {
-      this.logger.error('Error creating receipt:', error);
+      this.logger.error("Error creating receipt:", error);
       throw error;
     }
   }
@@ -111,7 +111,7 @@ export class ReceiptService {
       });
 
       if (!receipt) {
-        throw new NotFoundException('Receipt not found');
+        throw new NotFoundException("Receipt not found");
       }
 
       // Refresh signed URLs
@@ -121,14 +121,19 @@ export class ReceiptService {
 
       return receipt;
     } catch (error) {
-      this.logger.error('Error finding receipt:', error);
+      this.logger.error("Error finding receipt:", error);
       throw error;
     }
   }
 
   async findByUserId(
     userId: string,
-    options: { search?: string; category?: string; startDate?: Date; endDate?: Date } = {}
+    options: {
+      search?: string;
+      category?: string;
+      startDate?: Date;
+      endDate?: Date;
+    } = {},
   ): Promise<ReceiptDocument[]> {
     try {
       return this.matcherService.search({
@@ -140,7 +145,7 @@ export class ReceiptService {
         fuzzyMatch: true,
       });
     } catch (error) {
-      this.logger.error('Error finding receipts:', error);
+      this.logger.error("Error finding receipts:", error);
       throw error;
     }
   }
@@ -163,11 +168,11 @@ export class ReceiptService {
             }),
           },
         },
-        { new: true }
+        { new: true },
       );
 
       if (!receipt) {
-        throw new NotFoundException('Receipt not found');
+        throw new NotFoundException("Receipt not found");
       }
 
       // Refresh signed URLs
@@ -177,7 +182,7 @@ export class ReceiptService {
 
       return receipt;
     } catch (error) {
-      this.logger.error('Error updating receipt:', error);
+      this.logger.error("Error updating receipt:", error);
       throw error;
     }
   }
@@ -190,7 +195,7 @@ export class ReceiptService {
       });
 
       if (!receipt) {
-        throw new NotFoundException('Receipt not found');
+        throw new NotFoundException("Receipt not found");
       }
 
       // Delete files from storage
@@ -199,7 +204,7 @@ export class ReceiptService {
       // Delete from database
       await receipt.deleteOne();
     } catch (error) {
-      this.logger.error('Error deleting receipt:', error);
+      this.logger.error("Error deleting receipt:", error);
       throw error;
     }
   }

@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from './base.schema';
-import { ExpenseCategory } from '../lib/types';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import type { ExpenseCategory } from "../lib/types";
+import type { BaseDocument } from "./base.schema";
 
 export type ReceiptDocument = Receipt & Document;
 
@@ -13,7 +13,7 @@ export class Receipt implements BaseDocument {
   deletedAt?: Date;
   isDeleted!: boolean;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
   userId!: Types.ObjectId | string;
 
   @Prop({ required: true })

@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Box, Paper, Grid, TextField, MenuItem } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { TransactionList } from './TransactionList';
-import { toast } from 'react-hot-toast';
-import { CsvUploader } from '@fresh-expense/ui';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Transaction } from '@fresh-expense/types';
+import type { Transaction } from "@fresh-expense/types";
+import { CsvUploader } from "@fresh-expense/ui";
+import { Box, Grid, MenuItem, Paper, TextField } from "@mui/material";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { TransactionList } from "./TransactionList";
 
 interface TransactionListContainerProps {
   company?: string;
@@ -19,7 +19,7 @@ export function TransactionListContainer({
   onCompanyChange,
 }: TransactionListContainerProps) {
   const queryClient = useQueryClient();
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [dateRange, setDateRange] = useState<{
     start: Date | null;
     end: Date | null;
@@ -27,22 +27,22 @@ export function TransactionListContainer({
     start: null,
     end: null,
   });
-  const [amountRange, setAmountRange] = useState({ min: '', max: '' });
+  const [amountRange, setAmountRange] = useState({ min: "", max: "" });
 
   // Fetch transactions with React Query
   const { data: transactions = [], isLoading } = useQuery({
-    queryKey: ['transactions', company, selectedCategory, dateRange, amountRange],
+    queryKey: ["transactions", company, selectedCategory, dateRange, amountRange],
     queryFn: async () => {
       const queryParams = new URLSearchParams();
-      if (company) queryParams.append('company', company);
-      if (selectedCategory) queryParams.append('category', selectedCategory);
-      if (dateRange.start) queryParams.append('startDate', dateRange.start.toISOString());
-      if (dateRange.end) queryParams.append('endDate', dateRange.end.toISOString());
-      if (amountRange.min) queryParams.append('minAmount', amountRange.min);
-      if (amountRange.max) queryParams.append('maxAmount', amountRange.max);
+      if (company) queryParams.append("company", company);
+      if (selectedCategory) queryParams.append("category", selectedCategory);
+      if (dateRange.start) queryParams.append("startDate", dateRange.start.toISOString());
+      if (dateRange.end) queryParams.append("endDate", dateRange.end.toISOString());
+      if (amountRange.min) queryParams.append("minAmount", amountRange.min);
+      if (amountRange.max) queryParams.append("maxAmount", amountRange.max);
 
       const response = await fetch(`/api/transactions?${queryParams.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch transactions');
+      if (!response.ok) throw new Error("Failed to fetch transactions");
       return response.json();
     },
   });
@@ -59,23 +59,23 @@ export function TransactionListContainer({
       value: any;
     }) => {
       const response = await fetch(`/api/transactions/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: value }),
       });
-      if (!response.ok) throw new Error('Failed to update transaction');
+      if (!response.ok) throw new Error("Failed to update transaction");
       return response.json();
     },
-    onMutate: async variables => {
+    onMutate: async (variables) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+      await queryClient.cancelQueries({ queryKey: ["transactions"] });
 
       // Snapshot the previous value
-      const previousTransactions = queryClient.getQueryData<Transaction[]>(['transactions']);
+      const previousTransactions = queryClient.getQueryData<Transaction[]>(["transactions"]);
 
       // Optimistically update to the new value
-      queryClient.setQueryData<Transaction[]>(['transactions'], old =>
-        old?.map(t => (t.id != null ? { ...t, [variables.field]: variables.value } : t))
+      queryClient.setQueryData<Transaction[]>(["transactions"], (old) =>
+        old?.map((t) => (t.id != null ? { ...t, [variables.field]: variables.value } : t)),
       );
 
       return { previousTransactions };
@@ -83,13 +83,13 @@ export function TransactionListContainer({
     onError: (_err, _variables, context) => {
       // Rollback to the previous value on error
       if (context?.previousTransactions) {
-        queryClient.setQueryData(['transactions'], context.previousTransactions);
+        queryClient.setQueryData(["transactions"], context.previousTransactions);
       }
-      toast.error('Failed to update transaction');
+      toast.error("Failed to update transaction");
     },
     onSettled: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });
 
@@ -97,56 +97,56 @@ export function TransactionListContainer({
   const categorizeMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/transactions/${id}/categorize`, {
-        method: 'POST',
+        method: "POST",
       });
-      if (!response.ok) throw new Error('Failed to categorize transaction');
+      if (!response.ok) throw new Error("Failed to categorize transaction");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      toast.success('Transaction categorized successfully');
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast.success("Transaction categorized successfully");
     },
     onError: () => {
-      toast.error('Failed to categorize transaction');
+      toast.error("Failed to categorize transaction");
     },
   });
 
   const handleEdit = async (transaction: Transaction, field: keyof Transaction, value: any) => {
     try {
       // Validate the value based on the field type
-      if (field === 'amount' && isNaN(Number(value))) {
-        throw new Error('Invalid amount');
+      if (field === "amount" && isNaN(Number(value))) {
+        throw new Error("Invalid amount");
       }
-      if (field === 'date' && !isValidDate(value)) {
-        throw new Error('Invalid date');
+      if (field === "date" && !isValidDate(value)) {
+        throw new Error("Invalid date");
       }
 
       await updateTransactionMutation.mutateAsync({
         id: transaction.id,
         field,
-        value: field === 'amount' ? Number(value) : value,
+        value: field === "amount" ? Number(value) : value,
       });
     } catch (error) {
-      console.error('Error updating transaction:', error);
+      console.error("Error updating transaction:", error);
     }
   };
 
   const handleReceiptClick = async (transaction: Transaction) => {
     // Implement receipt viewer logic
-    console.log('View receipt for transaction:', transaction.id);
+    console.log("View receipt for transaction:", transaction.id);
   };
 
   const handleAICategorize = async (transaction: Transaction) => {
     try {
       await categorizeMutation.mutateAsync(transaction.id);
     } catch (error) {
-      console.error('Error categorizing transaction:', error);
+      console.error("Error categorizing transaction:", error);
     }
   };
 
   const handleUploadComplete = () => {
-    queryClient.invalidateQueries({ queryKey: ['transactions'] });
-    toast.success('Transactions uploaded successfully');
+    queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    toast.success("Transactions uploaded successfully");
   };
 
   return (
@@ -159,7 +159,7 @@ export function TransactionListContainer({
               fullWidth
               label="Company"
               value={company}
-              onChange={e => onCompanyChange?.(e.target.value)}
+              onChange={(e) => onCompanyChange?.(e.target.value)}
             >
               <MenuItem value="Down Home">Down Home</MenuItem>
               <MenuItem value="Music City Rodeo">Music City Rodeo</MenuItem>
@@ -172,7 +172,7 @@ export function TransactionListContainer({
               fullWidth
               label="Category"
               value={selectedCategory}
-              onChange={e => setSelectedCategory(e.target.value)}
+              onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <MenuItem value="">All Categories</MenuItem>
               <MenuItem value="Food & Dining">Food & Dining</MenuItem>
@@ -191,7 +191,7 @@ export function TransactionListContainer({
               <DatePicker
                 label="Start Date"
                 value={dateRange.start}
-                onChange={date => setDateRange(prev => ({ ...prev, start: date }))}
+                onChange={(date) => setDateRange((prev) => ({ ...prev, start: date }))}
                 slotProps={{ textField: { fullWidth: true } }}
               />
             </LocalizationProvider>
@@ -201,7 +201,7 @@ export function TransactionListContainer({
               <DatePicker
                 label="End Date"
                 value={dateRange.end}
-                onChange={date => setDateRange(prev => ({ ...prev, end: date }))}
+                onChange={(date) => setDateRange((prev) => ({ ...prev, end: date }))}
                 slotProps={{ textField: { fullWidth: true } }}
               />
             </LocalizationProvider>
@@ -211,7 +211,7 @@ export function TransactionListContainer({
               fullWidth
               label="Min Amount"
               value={amountRange.min}
-              onChange={e => setAmountRange(prev => ({ ...prev, min: e.target.value }))}
+              onChange={(e) => setAmountRange((prev) => ({ ...prev, min: e.target.value }))}
               type="number"
             />
           </Grid>
@@ -220,7 +220,7 @@ export function TransactionListContainer({
               fullWidth
               label="Max Amount"
               value={amountRange.max}
-              onChange={e => setAmountRange(prev => ({ ...prev, max: e.target.value }))}
+              onChange={(e) => setAmountRange((prev) => ({ ...prev, max: e.target.value }))}
               type="number"
             />
           </Grid>

@@ -1,12 +1,12 @@
-import { Transaction } from '@fresh-expense/types';
+import type { Transaction } from "@fresh-expense/types";
 
-import { CreateTransactionDto, UpdateTransactionDto } from '../dto/transaction.dto';
-import {
+import type { CreateTransactionDto, UpdateTransactionDto } from "../dto/transaction.dto";
+import type {
+  TransactionExportOptions,
   TransactionFilters,
   TransactionSearchQuery,
-  TransactionExportOptions,
   TransactionStatistics,
-} from '../lib/transaction-types';
+} from "../lib/transaction-types";
 
 export interface TransactionService {
   createTransaction(data: CreateTransactionDto): Promise<Transaction>;

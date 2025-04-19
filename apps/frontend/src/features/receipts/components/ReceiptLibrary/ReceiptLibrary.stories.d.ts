@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ReceiptLibrary } from './ReceiptLibrary';
+import type { Meta, StoryObj } from "@storybook/react";
+import type { ReceiptLibrary } from "./ReceiptLibrary";
 declare const meta: Meta<typeof ReceiptLibrary>;
 export default meta;
 type Story = StoryObj<typeof ReceiptLibrary>;

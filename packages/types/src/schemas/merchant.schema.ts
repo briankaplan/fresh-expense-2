@@ -1,15 +1,15 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from './base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import { BaseDocument } from "./base.schema";
 
 export type MerchantDocument = Merchant & Document;
 
 @Schema({ timestamps: true })
 export class Merchant extends BaseDocument {
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
   userId!: Types.ObjectId | string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Company', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
   companyId!: Types.ObjectId | string;
 
   @Prop({ required: true })

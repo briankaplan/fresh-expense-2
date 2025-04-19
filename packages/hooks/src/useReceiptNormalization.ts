@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from "react";
 
 interface UseReceiptNormalizationResult {
   normalizing: boolean;
@@ -15,7 +15,7 @@ export const useReceiptNormalization = (): UseReceiptNormalizationResult => {
     setNormalizeError(null);
     try {
       // Implement normalization logic here using ocrData
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock normalization
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock normalization
     } catch (error) {
       setNormalizeError(error as Error);
       throw error;

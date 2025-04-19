@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from "react";
 
 interface UseReceiptOCRResult {
   processing: boolean;
@@ -15,7 +15,7 @@ export const useReceiptOCR = (): UseReceiptOCRResult => {
     setOcrError(null);
     try {
       // Implement OCR processing logic here using receiptUrl
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock processing
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock processing
     } catch (error) {
       setOcrError(error as Error);
       throw error;

@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Receipt, ReceiptDocument } from '@fresh-expense/types';
-import { R2Service } from '../../../services/r2/r2.service';
-import { OCRService } from '../../../services/ocr/ocr.service';
-import { ReceiptBankService } from './receipt-bank.service';
-import { UnifiedReceiptProcessorService } from '../unified-receipt-processor.service';
-import { MerchantLearningService } from '../merchant/merchant-learning.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Receipt, type ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
+import type { OCRService } from "../../../services/ocr/ocr.service";
+import type { R2Service } from "../../../services/r2/r2.service";
+import type { MerchantLearningService } from "../merchant/merchant-learning.service";
+import type { UnifiedReceiptProcessorService } from "../unified-receipt-processor.service";
+import type { ReceiptBankService } from "./receipt-bank.service";
 
-export type ReceiptSource = 'EMAIL' | 'GOOGLE_PHOTOS' | 'UPLOAD' | 'CSV' | 'MANUAL';
+export type ReceiptSource = "EMAIL" | "GOOGLE_PHOTOS" | "UPLOAD" | "CSV" | "MANUAL";
 
 interface ProcessReceiptOptions {
   source: ReceiptSource;
@@ -33,13 +33,13 @@ export class UnifiedReceiptService {
   private readonly logger = new Logger(UnifiedReceiptService.name);
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
     private readonly r2Service: R2Service,
     private readonly ocrService: OCRService,
     private readonly receiptBank: ReceiptBankService,
     private readonly unifiedProcessor: UnifiedReceiptProcessorService,
     private readonly merchantLearning: MerchantLearningService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async processReceipt(options: ProcessReceiptOptions): Promise<ReceiptDocument> {
@@ -70,7 +70,7 @@ export class UnifiedReceiptService {
           },
         });
 
-        this.eventEmitter.emit('receipt.duplicate', {
+        this.eventEmitter.emit("receipt.duplicate", {
           originalReceipt: duplicate,
           duplicateReceipt: processedReceipt,
           confidence: duplicates[0].score,
@@ -100,7 +100,7 @@ export class UnifiedReceiptService {
         const bestMatch = matches[0];
         await this.receiptBank.linkReceiptToTransaction(processedReceipt, bestMatch.transaction);
 
-        this.eventEmitter.emit('receipt.matched', {
+        this.eventEmitter.emit("receipt.matched", {
           receipt: processedReceipt,
           transaction: bestMatch.transaction,
           confidence: bestMatch.confidence,
@@ -109,7 +109,7 @@ export class UnifiedReceiptService {
 
       return processedReceipt;
     } catch (error) {
-      this.logger.error('Error processing receipt:', error);
+      this.logger.error("Error processing receipt:", error);
       throw error;
     }
   }

@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
+import type { Receipt } from "@fresh-expense/types";
+import { Close, Delete, Download, Edit, Link, LinkOff, Save } from "@mui/icons-material";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Box,
-  Typography,
   Button,
   Chip,
-  Grid,
-  TextField,
-  IconButton,
   CircularProgress,
-} from '@mui/material';
-import { Close, Download, Link, LinkOff, Delete, Edit, Save } from '@mui/icons-material';
-import { ReceiptService } from '../../../../services/receipt.service';
-import { toast } from 'react-toastify';
-import { Receipt } from '@fresh-expense/types';
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { ReceiptService } from "../../../../services/receipt.service";
 
 interface ReceiptDetailsProps {
   receipt: Receipt;
@@ -32,16 +33,16 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
   onUpdate,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [notes, setNotes] = useState(receipt.notes || '');
+  const [notes, setNotes] = useState(receipt.notes || "");
 
   const handleDownload = async () => {
     try {
       setLoading(true);
       await ReceiptService.downloadReceipt(receipt.id);
-      toast.success('Receipt downloaded successfully');
+      toast.success("Receipt downloaded successfully");
     } catch (error) {
-      toast.error('Failed to download receipt');
-      console.error('Error downloading receipt:', error);
+      toast.error("Failed to download receipt");
+      console.error("Error downloading receipt:", error);
     } finally {
       setLoading(false);
     }
@@ -51,10 +52,10 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
     try {
       setLoading(true);
       // TODO: Implement transaction linking UI
-      toast.success('Receipt linked to transaction');
+      toast.success("Receipt linked to transaction");
     } catch (error) {
-      toast.error('Failed to link receipt');
-      console.error('Error linking receipt:', error);
+      toast.error("Failed to link receipt");
+      console.error("Error linking receipt:", error);
     } finally {
       setLoading(false);
     }
@@ -64,10 +65,10 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
     try {
       setLoading(true);
       // TODO: Implement transaction unlinking
-      toast.success('Receipt unlinked from transaction');
+      toast.success("Receipt unlinked from transaction");
     } catch (error) {
-      toast.error('Failed to unlink receipt');
-      console.error('Error unlinking receipt:', error);
+      toast.error("Failed to unlink receipt");
+      console.error("Error unlinking receipt:", error);
     } finally {
       setLoading(false);
     }
@@ -77,11 +78,11 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
     try {
       setLoading(true);
       await ReceiptService.deleteReceipt(receipt.id);
-      toast.success('Receipt deleted successfully');
+      toast.success("Receipt deleted successfully");
       onClose();
     } catch (error) {
-      toast.error('Failed to delete receipt');
-      console.error('Error deleting receipt:', error);
+      toast.error("Failed to delete receipt");
+      console.error("Error deleting receipt:", error);
     } finally {
       setLoading(false);
     }
@@ -90,12 +91,14 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
   const handleSaveNotes = async () => {
     try {
       setLoading(true);
-      const updatedReceipt = await ReceiptService.updateReceipt(receipt.id, { notes });
+      const updatedReceipt = await ReceiptService.updateReceipt(receipt.id, {
+        notes,
+      });
       onUpdate(updatedReceipt);
-      toast.success('Notes saved successfully');
+      toast.success("Notes saved successfully");
     } catch (error) {
-      toast.error('Failed to save notes');
-      console.error('Error saving notes:', error);
+      toast.error("Failed to save notes");
+      console.error("Error saving notes:", error);
     } finally {
       setLoading(false);
     }
@@ -128,12 +131,12 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
                 label={receipt.status}
                 color={
                   receipt.status != null
-                    ? 'success'
+                    ? "success"
                     : receipt.status != null
-                      ? 'warning'
+                      ? "warning"
                       : receipt.status != null
-                        ? 'info'
-                        : 'error'
+                        ? "info"
+                        : "error"
                 }
               />
             </Box>
@@ -162,7 +165,7 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
                 multiline
                 rows={4}
                 value={notes}
-                onChange={e => setNotes(e.target.value)}
+                onChange={(e) => setNotes(e.target.value)}
                 disabled={loading}
               />
             </Box>
@@ -173,9 +176,9 @@ export const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({
               src={receipt.url}
               alt="Receipt"
               sx={{
-                width: '100%',
+                width: "100%",
                 maxHeight: 400,
-                objectFit: 'contain',
+                objectFit: "contain",
               }}
             />
           </Grid>

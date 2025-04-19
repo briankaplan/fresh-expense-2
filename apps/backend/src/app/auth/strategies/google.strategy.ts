@@ -1,22 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-google-oauth20';
-import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from '@fresh-expense/types';
+import { User } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import { InjectModel } from "@nestjs/mongoose";
+import { PassportStrategy } from "@nestjs/passport";
+import type { Model } from "mongoose";
+import { Strategy } from "passport-google-oauth20";
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   constructor(
     private configService: ConfigService,
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
-      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('GOOGLE_REDIRECT_URI'),
-      scope: ['email', 'profile'],
+      clientID: configService.get<string>("GOOGLE_CLIENT_ID"),
+      clientSecret: configService.get<string>("GOOGLE_CLIENT_SECRET"),
+      callbackURL: configService.get<string>("GOOGLE_REDIRECT_URI"),
+      scope: ["email", "profile"],
     });
   }
 

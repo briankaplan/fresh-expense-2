@@ -1,7 +1,7 @@
 export interface Report {
   id: string;
   name: string;
-  type: 'spending' | 'income' | 'category' | 'merchant' | 'custom';
+  type: "spending" | "income" | "category" | "merchant" | "custom";
   filters: {
     startDate?: Date;
     endDate?: Date;
@@ -13,4 +13,4 @@ export interface Report {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

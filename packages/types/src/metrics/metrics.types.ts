@@ -1,4 +1,4 @@
-import { MetricType } from './metrics.enum';
+import type { MetricType } from "./metrics.enum";
 
 export interface MetricsQueryParams {
   userId: string;

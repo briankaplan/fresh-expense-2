@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google } from 'googleapis';
-import { OCRService } from '../../services/ocr/ocr.service';
-import { R2Service } from '../../services/r2/r2.service';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { TokenManagerService } from './token-manager.service';
-import { RateLimiter } from 'limiter';
-import { retry } from 'ts-retry-promise';
-import { GoogleService } from './google.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { GaxiosResponse } from 'gaxios';
-import { Receipt } from '@fresh-expense/types';
+import type { Receipt } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import type { GaxiosResponse } from "gaxios";
+import { google } from "googleapis";
+import { RateLimiter } from "limiter";
+import type { Model } from "mongoose";
+import { retry } from "ts-retry-promise";
+import type { OCRService } from "../../services/ocr/ocr.service";
+import type { R2Service } from "../../services/r2/r2.service";
+import { GoogleService } from "./google.service";
+import type { TokenManagerService } from "./token-manager.service";
 
 interface SearchFilters {
   dateFilter?: {
@@ -52,7 +52,7 @@ export class GooglePhotosService extends GoogleService {
     protected readonly eventEmitter: EventEmitter2,
     private readonly ocrService: OCRService,
     private readonly r2Service: R2Service,
-    @InjectModel('Receipt') private receiptModel: Model<Receipt>
+    @InjectModel("Receipt") private receiptModel: Model<Receipt>,
   ) {
     super(configService, tokenManager, eventEmitter);
   }
@@ -61,7 +61,7 @@ export class GooglePhotosService extends GoogleService {
     return retry(fn, {
       retries: this.MAX_RETRIES,
       delay: this.RETRY_DELAY,
-      backoff: 'LINEAR',
+      backoff: "LINEAR",
     });
   }
 
@@ -81,8 +81,11 @@ export class GooglePhotosService extends GoogleService {
 
     for (const email of accounts) {
       try {
-        const photos = await this.withAuth(email, async oauth2Client => {
-          const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+        const photos = await this.withAuth(email, async (oauth2Client) => {
+          const photos = google.photoslibrary({
+            version: "v1",
+            auth: oauth2Client,
+          });
           const response = (await this.withRateLimit(() =>
             photos.mediaItems.search({
               requestBody: {
@@ -109,18 +112,18 @@ export class GooglePhotosService extends GoogleService {
                   mediaTypeFilter: filters.mediaTypeFilter,
                 },
               },
-            })
+            }),
           )) as GaxiosResponse<MediaItemsResponse>;
 
           return response.data.mediaItems || [];
         });
 
         results.push(
-          ...photos.map(photo => ({
+          ...photos.map((photo) => ({
             id: photo.id,
             baseUrl: photo.baseUrl,
             filename: photo.filename || `photo-${photo.id}.jpg`,
-          }))
+          })),
         );
       } catch (error) {
         this.logger.error(`Error searching photos for ${email}:`, error);
@@ -142,8 +145,11 @@ export class GooglePhotosService extends GoogleService {
 
     for (const email of accounts) {
       try {
-        const photos = await this.withAuth(email, async oauth2Client => {
-          const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+        const photos = await this.withAuth(email, async (oauth2Client) => {
+          const photos = google.photoslibrary({
+            version: "v1",
+            auth: oauth2Client,
+          });
           const response = (await this.withRateLimit(() =>
             photos.mediaItems.search({
               requestBody: {
@@ -166,7 +172,7 @@ export class GooglePhotosService extends GoogleService {
                   },
                 },
               },
-            })
+            }),
           )) as GaxiosResponse<MediaItemsResponse>;
 
           return response.data.mediaItems || [];

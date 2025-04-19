@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from './redis.service';
+import { Injectable, Logger } from "@nestjs/common";
+import type { RedisService } from "./redis.service";
 
 interface CacheOptions {
   prefix?: string;
@@ -36,7 +36,7 @@ export class CacheService {
       }
       return JSON.parse(rawData) as T;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       this.logger.error(`Cache get error: ${errorMessage}`);
       return null;
     }
@@ -56,7 +56,7 @@ export class CacheService {
 
       await this.redisService.set(prefixedKey, serializedValue, { ttl });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       this.logger.error(`Cache set error: ${errorMessage}`);
     }
   }
@@ -71,7 +71,7 @@ export class CacheService {
       const prefixedKey = this.getPrefixedKey(key, prefix);
       await this.redisService.delete(prefixedKey);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       this.logger.error(`Cache delete error: ${errorMessage}`);
     }
   }
@@ -83,7 +83,7 @@ export class CacheService {
     try {
       await this.redisService.clearAll();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       this.logger.error(`Cache clear error: ${errorMessage}`);
     }
   }
@@ -94,13 +94,13 @@ export class CacheService {
    */
   async clearByPrefix(prefix: string): Promise<void> {
     try {
-      const pattern = this.getPrefixedKey(prefix, '*');
+      const pattern = this.getPrefixedKey(prefix, "*");
       const keys = await this.redisService.generateKey(pattern);
       if (keys) {
         await this.redisService.delete(keys);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       this.logger.error(`Cache clearByPrefix error: ${errorMessage}`);
     }
   }

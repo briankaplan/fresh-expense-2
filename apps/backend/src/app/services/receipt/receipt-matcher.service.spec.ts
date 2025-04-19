@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ReceiptMatcherService } from './receipt-matcher.service';
-import { ReceiptDocument, BaseTransactionData } from '@fresh-expense/types';
+import type { BaseTransactionData, ReceiptDocument } from "@fresh-expense/types";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { ReceiptMatcherService } from "./receipt-matcher.service";
 
-describe('ReceiptMatcherService', () => {
+describe("ReceiptMatcherService", () => {
   let service: ReceiptMatcherService;
 
   beforeEach(async () => {
@@ -13,74 +13,74 @@ describe('ReceiptMatcherService', () => {
     service = module.get<ReceiptMatcherService>(ReceiptMatcherService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('findMatchesForReceipt', () => {
+  describe("findMatchesForReceipt", () => {
     const mockReceipt: ReceiptDocument = {
-      userId: 'user1',
-      merchant: 'Test Store',
+      userId: "user1",
+      merchant: "Test Store",
       amount: 100,
-      date: new Date('2023-01-01'),
+      date: new Date("2023-01-01"),
       metadata: {
         location: {
           latitude: 40.7128,
           longitude: -74.006,
         },
-        paymentMethod: 'credit',
+        paymentMethod: "credit",
       },
     } as ReceiptDocument;
 
     const mockTransactions: BaseTransactionData[] = [
       {
-        id: 'txn1',
-        accountId: 'acc1',
-        merchantName: 'Test Store',
+        id: "txn1",
+        accountId: "acc1",
+        merchantName: "Test Store",
         amount: 100,
-        date: new Date('2023-01-01'),
-        description: 'Test Store Purchase',
-        type: 'debit',
-        status: 'posted',
+        date: new Date("2023-01-01"),
+        description: "Test Store Purchase",
+        type: "debit",
+        status: "posted",
         metadata: {
           location: {
             latitude: 40.7128,
             longitude: -74.006,
           },
-          paymentMethod: 'credit',
+          paymentMethod: "credit",
         },
       },
       {
-        id: 'txn2',
-        accountId: 'acc1',
-        merchantName: 'Different Store',
+        id: "txn2",
+        accountId: "acc1",
+        merchantName: "Different Store",
         amount: 200,
-        date: new Date('2023-01-02'),
-        description: 'Different Store Purchase',
-        type: 'debit',
-        status: 'posted',
+        date: new Date("2023-01-02"),
+        description: "Different Store Purchase",
+        type: "debit",
+        status: "posted",
       },
     ];
 
-    it('should find matches with default preferences', async () => {
+    it("should find matches with default preferences", async () => {
       const matches = await service.findMatchesForReceipt(mockReceipt, mockTransactions);
       expect(matches).toHaveLength(1);
       expect(matches[0]?.confidence).toBeGreaterThan(0.8);
     });
 
-    it('should respect custom preferences', async () => {
+    it("should respect custom preferences", async () => {
       const matches = await service.findMatchesForReceipt(mockReceipt, mockTransactions, {
         merchantMatchThreshold: 0.5,
       });
       expect(matches.length).toBeGreaterThan(0);
     });
 
-    it('should handle empty transaction list', async () => {
+    it("should handle empty transaction list", async () => {
       const matches = await service.findMatchesForReceipt(mockReceipt, []);
       expect(matches).toHaveLength(0);
     });
 
-    it('should handle partial matches with different weights', async () => {
+    it("should handle partial matches with different weights", async () => {
       const matches = await service.findMatchesForReceipt(mockReceipt, mockTransactions, {
         weights: {
           merchant: 0.6,
@@ -95,24 +95,24 @@ describe('ReceiptMatcherService', () => {
       expect(matches.length).toBeGreaterThan(0);
     });
 
-    it('should handle transactions with missing metadata', async () => {
+    it("should handle transactions with missing metadata", async () => {
       const matches = await service.findMatchesForReceipt(mockReceipt, [
         {
-          id: 'txn3',
-          accountId: 'acc1',
-          merchantName: 'Test Store',
+          id: "txn3",
+          accountId: "acc1",
+          merchantName: "Test Store",
           amount: 100,
-          date: new Date('2023-01-01'),
-          description: 'Test Store Purchase',
-          type: 'debit',
-          status: 'posted',
+          date: new Date("2023-01-01"),
+          description: "Test Store Purchase",
+          type: "debit",
+          status: "posted",
         },
       ]);
       expect(matches.length).toBeGreaterThan(0);
     });
   });
 
-  describe('calculateMerchantScore', () => {
+  describe("calculateMerchantScore", () => {
     const defaultPreferences = {
       weights: {
         merchant: 0.4,
@@ -128,119 +128,119 @@ describe('ReceiptMatcherService', () => {
       merchantMatchThreshold: 0.8,
     };
 
-    it('should return 1 for exact matches', () => {
-      const score = service['calculateMerchantScore'](
-        'Test Store',
-        'Test Store',
-        defaultPreferences
+    it("should return 1 for exact matches", () => {
+      const score = service["calculateMerchantScore"](
+        "Test Store",
+        "Test Store",
+        defaultPreferences,
       );
       expect(score).toBe(1);
     });
 
-    it('should return 0.8 for substring matches', () => {
-      const score = service['calculateMerchantScore']('Test Store', 'Store', defaultPreferences);
+    it("should return 0.8 for substring matches", () => {
+      const score = service["calculateMerchantScore"]("Test Store", "Store", defaultPreferences);
       expect(score).toBe(0.8);
     });
 
-    it('should calculate similarity for partial matches', () => {
-      const score = service['calculateMerchantScore'](
-        'Test Store',
-        'Test Shop',
-        defaultPreferences
+    it("should calculate similarity for partial matches", () => {
+      const score = service["calculateMerchantScore"](
+        "Test Store",
+        "Test Shop",
+        defaultPreferences,
       );
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThan(1);
     });
 
-    it('should handle empty strings', () => {
-      const score = service['calculateMerchantScore']('', 'Test Store', defaultPreferences);
+    it("should handle empty strings", () => {
+      const score = service["calculateMerchantScore"]("", "Test Store", defaultPreferences);
       expect(score).toBe(0);
     });
 
-    it('should handle special characters', () => {
-      const score = service['calculateMerchantScore'](
-        'Test-Store',
-        'Test Store',
-        defaultPreferences
+    it("should handle special characters", () => {
+      const score = service["calculateMerchantScore"](
+        "Test-Store",
+        "Test Store",
+        defaultPreferences,
       );
       expect(score).toBe(1);
     });
   });
 
-  describe('calculateAmountScore', () => {
-    it('should return 1 for exact matches', () => {
-      const score = service['calculateAmountScore'](100, 100, 0.1);
+  describe("calculateAmountScore", () => {
+    it("should return 1 for exact matches", () => {
+      const score = service["calculateAmountScore"](100, 100, 0.1);
       expect(score).toBe(1);
     });
 
-    it('should return partial score within tolerance', () => {
-      const score = service['calculateAmountScore'](100, 95, 0.1);
+    it("should return partial score within tolerance", () => {
+      const score = service["calculateAmountScore"](100, 95, 0.1);
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThan(1);
     });
 
-    it('should return 0 outside tolerance', () => {
-      const score = service['calculateAmountScore'](100, 50, 0.1);
+    it("should return 0 outside tolerance", () => {
+      const score = service["calculateAmountScore"](100, 50, 0.1);
       expect(score).toBe(0);
     });
 
-    it('should handle zero amounts', () => {
-      const score = service['calculateAmountScore'](0, 0, 0.1);
+    it("should handle zero amounts", () => {
+      const score = service["calculateAmountScore"](0, 0, 0.1);
       expect(score).toBe(1);
     });
 
-    it('should handle negative amounts', () => {
-      const score = service['calculateAmountScore'](-100, -100, 0.1);
+    it("should handle negative amounts", () => {
+      const score = service["calculateAmountScore"](-100, -100, 0.1);
       expect(score).toBe(1);
     });
   });
 
-  describe('calculateDateScore', () => {
-    it('should return 1 for same day', () => {
-      const date = new Date('2023-01-01');
-      const score = service['calculateDateScore'](date, date, 3);
+  describe("calculateDateScore", () => {
+    it("should return 1 for same day", () => {
+      const date = new Date("2023-01-01");
+      const score = service["calculateDateScore"](date, date, 3);
       expect(score).toBe(1);
     });
 
-    it('should return 0.9 for next day', () => {
-      const score = service['calculateDateScore'](
-        new Date('2023-01-01'),
-        new Date('2023-01-02'),
-        3
+    it("should return 0.9 for next day", () => {
+      const score = service["calculateDateScore"](
+        new Date("2023-01-01"),
+        new Date("2023-01-02"),
+        3,
       );
       expect(score).toBe(0.9);
     });
 
-    it('should return 0 for dates beyond range', () => {
-      const score = service['calculateDateScore'](
-        new Date('2023-01-01'),
-        new Date('2023-01-05'),
-        3
+    it("should return 0 for dates beyond range", () => {
+      const score = service["calculateDateScore"](
+        new Date("2023-01-01"),
+        new Date("2023-01-05"),
+        3,
       );
       expect(score).toBe(0);
     });
 
-    it('should handle same day different times', () => {
-      const score = service['calculateDateScore'](
-        new Date('2023-01-01T12:00:00'),
-        new Date('2023-01-01T18:00:00'),
-        3
+    it("should handle same day different times", () => {
+      const score = service["calculateDateScore"](
+        new Date("2023-01-01T12:00:00"),
+        new Date("2023-01-01T18:00:00"),
+        3,
       );
       expect(score).toBe(1);
     });
 
-    it('should handle invalid dates', () => {
-      const score = service['calculateDateScore'](new Date('invalid'), new Date('2023-01-01'), 3);
+    it("should handle invalid dates", () => {
+      const score = service["calculateDateScore"](new Date("invalid"), new Date("2023-01-01"), 3);
       expect(score).toBe(0);
     });
   });
 
-  describe('calculateLocationScore', () => {
+  describe("calculateLocationScore", () => {
     const receipt: ReceiptDocument = {
-      userId: 'user1',
-      merchant: 'Test Store',
+      userId: "user1",
+      merchant: "Test Store",
       amount: 100,
-      date: new Date('2023-01-01'),
+      date: new Date("2023-01-01"),
       metadata: {
         location: {
           latitude: 40.7128,
@@ -250,14 +250,14 @@ describe('ReceiptMatcherService', () => {
     } as ReceiptDocument;
 
     const transaction: BaseTransactionData = {
-      id: 'txn1',
-      accountId: 'acc1',
-      merchantName: 'Test Store',
+      id: "txn1",
+      accountId: "acc1",
+      merchantName: "Test Store",
       amount: 100,
-      date: new Date('2023-01-01'),
-      description: 'Test Store Purchase',
-      type: 'debit',
-      status: 'posted',
+      date: new Date("2023-01-01"),
+      description: "Test Store Purchase",
+      type: "debit",
+      status: "posted",
       metadata: {
         location: {
           latitude: 40.7128,
@@ -266,20 +266,20 @@ describe('ReceiptMatcherService', () => {
       },
     };
 
-    it('should return 1 for same location', () => {
-      const score = service['calculateLocationScore'](receipt, transaction);
+    it("should return 1 for same location", () => {
+      const score = service["calculateLocationScore"](receipt, transaction);
       expect(score).toBe(1);
     });
 
-    it('should return 0 for missing location data', () => {
-      const score = service['calculateLocationScore'](
+    it("should return 0 for missing location data", () => {
+      const score = service["calculateLocationScore"](
         { metadata: {} } as ReceiptDocument,
-        { metadata: {} } as BaseTransactionData
+        { metadata: {} } as BaseTransactionData,
       );
       expect(score).toBe(0);
     });
 
-    it('should handle nearby locations', () => {
+    it("should handle nearby locations", () => {
       const nearbyTransaction: BaseTransactionData = {
         ...transaction,
         metadata: {
@@ -289,12 +289,12 @@ describe('ReceiptMatcherService', () => {
           },
         },
       };
-      const score = service['calculateLocationScore'](receipt, nearbyTransaction);
+      const score = service["calculateLocationScore"](receipt, nearbyTransaction);
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThan(1);
     });
 
-    it('should handle invalid coordinates', () => {
+    it("should handle invalid coordinates", () => {
       const invalidTransaction: BaseTransactionData = {
         ...transaction,
         metadata: {
@@ -304,7 +304,7 @@ describe('ReceiptMatcherService', () => {
           },
         },
       };
-      const score = service['calculateLocationScore'](receipt, invalidTransaction);
+      const score = service["calculateLocationScore"](receipt, invalidTransaction);
       expect(score).toBe(0);
     });
   });

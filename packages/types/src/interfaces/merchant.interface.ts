@@ -33,4 +33,4 @@ export interface MerchantContact {
     instagram?: string;
     linkedin?: string;
   };
-} 
+}

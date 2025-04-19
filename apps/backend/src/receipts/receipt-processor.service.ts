@@ -1,33 +1,33 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { R2Service } from '../storage/r2.service';
-import { WorkerService } from '../workers/worker.service';
-import { Receipt, Transaction } from '@fresh-expense/types';
+import type { Receipt, Transaction } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import type { R2Service } from "../storage/r2.service";
+import type { WorkerService } from "../workers/worker.service";
 
 @Injectable()
 export class ReceiptProcessorService {
   private readonly logger = new Logger(ReceiptProcessorService.name);
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<Receipt>,
-    @InjectModel('Transaction') private transactionModel: Model<Transaction>,
+    @InjectModel("Receipt") private receiptModel: Model<Receipt>,
+    @InjectModel("Transaction") private transactionModel: Model<Transaction>,
     private readonly r2Service: R2Service,
-    private readonly workerService: WorkerService
+    private readonly workerService: WorkerService,
   ) {}
 
   async processReceipt(file: Express.Multer.File, company?: string): Promise<Receipt> {
     try {
       // Upload file to R2
       const uploadResult = await this.r2Service.uploadFile(file, {
-        prefix: 'receipts',
+        prefix: "receipts",
         metadata: { company },
       });
 
       // Create receipt document
       const receipt = await this.receiptModel.create({
         filename: file.originalname,
-        status: 'matched',
+        status: "matched",
         url: uploadResult.url,
         company,
         uploadedAt: new Date(),
@@ -46,7 +46,7 @@ export class ReceiptProcessorService {
   async processReceiptOCR(receiptId: string): Promise<void> {
     try {
       const receipt = await this.receiptModel.findById(receiptId);
-      if (!receipt) throw new Error('Receipt not found');
+      if (!receipt) throw new Error("Receipt not found");
 
       // Download file from R2
       const fileBuffer = await this.r2Service.downloadFile(receipt.url);
@@ -65,18 +65,20 @@ export class ReceiptProcessorService {
       const matchedTransaction = await this.matchTransaction(receipt);
       if (matchedTransaction) {
         receipt.transactionId = matchedTransaction.id;
-        receipt.status = 'completed';
+        receipt.status = "completed";
       } else {
-        receipt.status = 'completed';
+        receipt.status = "completed";
       }
 
       await receipt.save();
     } catch (error) {
       this.logger.error(
         `Error processing OCR for receipt ${receiptId}: ${error.message}`,
-        error.stack
+        error.stack,
       );
-      await this.receiptModel.findByIdAndUpdate(receiptId, { status: 'matched' });
+      await this.receiptModel.findByIdAndUpdate(receiptId, {
+        status: "matched",
+      });
       throw error;
     }
   }
@@ -107,7 +109,7 @@ export class ReceiptProcessorService {
     const fuzzyMatch = await this.transactionModel.findOne({
       date: { $gte: startDate, $lte: endDate },
       amount: { $gte: amount * 0.95, $lte: amount * 1.05 },
-      merchant: { $regex: merchant, $options: 'i' },
+      merchant: { $regex: merchant, $options: "i" },
       receiptId: { $exists: false },
     });
 
@@ -120,8 +122,8 @@ export class ReceiptProcessorService {
       this.transactionModel.findById(transactionId),
     ]);
 
-    if (!receipt) throw new Error('Receipt not found');
-    if (!transaction) throw new Error('Transaction not found');
+    if (!receipt) throw new Error("Receipt not found");
+    if (!transaction) throw new Error("Transaction not found");
 
     receipt.transactionId = transactionId;
     transaction.receiptId = receiptId;

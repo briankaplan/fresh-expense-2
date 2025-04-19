@@ -34,4 +34,4 @@ export interface OCRResult {
       amount?: number;
     };
   };
-} 
+}

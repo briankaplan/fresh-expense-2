@@ -1,8 +1,8 @@
-import { Logger } from '@nestjs/common';
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { Logger } from "@nestjs/common";
 
-const logger = new Logger('R2Helpers');
+const logger = new Logger("R2Helpers");
 
 export async function updateSignedUrls<
   T extends {
@@ -13,10 +13,10 @@ export async function updateSignedUrls<
   documents: T[],
   r2Service: { getSignedUrl: (key: string) => Promise<string> },
   options = {
-    keyField: 'r2Key',
-    thumbnailField: 'r2ThumbnailKey',
-    urlField: 'fullImageUrl',
-    thumbnailUrlField: 'thumbnailUrl',
+    keyField: "r2Key",
+    thumbnailField: "r2ThumbnailKey",
+    urlField: "fullImageUrl",
+    thumbnailUrlField: "thumbnailUrl",
   },
 ): Promise<void> {
   try {
@@ -33,7 +33,7 @@ export async function updateSignedUrls<
       }
     }
   } catch (error) {
-    logger.error('Error updating signed URLs:', error);
+    logger.error("Error updating signed URLs:", error);
     throw error;
   }
 }
@@ -57,7 +57,7 @@ export interface SignedUrlOptions {
  */
 export function createR2Client(config: R2Config): S3Client {
   return new S3Client({
-    region: 'auto',
+    region: "auto",
     endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
     credentials: {
       accessKeyId: config.accessKeyId,
@@ -111,7 +111,7 @@ export async function getSignedUploadUrl(
  */
 export function getPublicUrl(config: R2Config, key: string): string | null {
   if (!config.publicUrl) return null;
-  return `${config.publicUrl.replace(/\/$/, '')}/${key}`;
+  return `${config.publicUrl.replace(/\/$/, "")}/${key}`;
 }
 
 /**
@@ -121,7 +121,7 @@ export function generateStorageKey(prefix: string, fileName: string, uniqueId?: 
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8);
   const id = uniqueId || random;
-  const extension = fileName.split('.').pop();
+  const extension = fileName.split(".").pop();
 
   return `${prefix}/${timestamp}-${id}.${extension}`;
 }

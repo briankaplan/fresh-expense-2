@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import type { Types } from "mongoose";
 
 // Common interfaces
 export interface Entity {
@@ -39,4 +39,4 @@ export interface Paginated<T> {
   hasMore: boolean;
 }
 
-export * from './receipt';
+export * from "./receipt";

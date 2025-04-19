@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { MemoryBankService } from '../memory-bank.service';
-import { OCRService } from '../../../services/ocr/ocr.service';
-import { R2Service } from '../../../services/r2/r2.service';
-import { ReceiptConverterService } from '../receipt/receipt-converter.service';
-import { ReceiptDocument, Merchant } from '@fresh-expense/types';
-import { MerchantLearningService } from '../merchant/merchant-learning.service';
-import * as puppeteer from 'puppeteer';
+import { Merchant, type ReceiptDocument } from "@fresh-expense/types";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import * as puppeteer from "puppeteer";
+import type { OCRService } from "../../../services/ocr/ocr.service";
+import type { R2Service } from "../../../services/r2/r2.service";
+import type { MemoryBankService } from "../memory-bank.service";
+import type { MerchantLearningService } from "../merchant/merchant-learning.service";
+import type { ReceiptConverterService } from "../receipt/receipt-converter.service";
 
 interface UnmatchedReceipt {
   id: string;
-  source: 'EMAIL' | 'UPLOAD' | 'GOOGLE_VOICE';
+  source: "EMAIL" | "UPLOAD" | "GOOGLE_VOICE";
   originalContent?: {
     from?: string;
     subject?: string;
@@ -50,7 +50,7 @@ interface UnmatchedReceipt {
 }
 
 interface ProcessReceiptOptions {
-  source: 'EMAIL' | 'UPLOAD' | 'GOOGLE_VOICE';
+  source: "EMAIL" | "UPLOAD" | "GOOGLE_VOICE";
   emailData?: {
     from: string;
     subject: string;
@@ -84,8 +84,9 @@ export class ReceiptBankService {
     private readonly r2Service: R2Service,
     private readonly receiptConverter: ReceiptConverterService,
     private readonly merchantLearning: MerchantLearningService,
-    @InjectModel('Receipt') private readonly receiptModel: Model<ReceiptDocument>,
-    @InjectModel(Merchant.name) private readonly merchantModel: Model<Merchant>
+    @InjectModel("Receipt")
+    private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel(Merchant.name) private readonly merchantModel: Model<Merchant>,
   ) {}
 
   /**
@@ -99,7 +100,7 @@ export class ReceiptBankService {
 
     const receipt: UnmatchedReceipt = {
       id: receiptId,
-      source: 'GOOGLE_VOICE',
+      source: "GOOGLE_VOICE",
       originalContent: {
         from,
         subject,
@@ -120,7 +121,7 @@ export class ReceiptBankService {
       // If we got OCR results, try to extract structured data
       if (processedContent.ocrResults) {
         receipt.metadata.extractedData = await this.extractStructuredData(
-          processedContent.ocrResults
+          processedContent.ocrResults,
         );
 
         // Store in database and update merchant data
@@ -131,8 +132,8 @@ export class ReceiptBankService {
     // Store in memory bank with 30-day TTL
     this.memoryBank.set(`receipt:${receiptId}`, receipt, {
       ttl: 30 * 24 * 60 * 60 * 1000, // 30 days
-      tags: ['receipt', 'unmatched', 'google-voice'],
-      source: 'google-voice',
+      tags: ["receipt", "unmatched", "google-voice"],
+      source: "google-voice",
     });
 
     return receiptId;
@@ -205,10 +206,14 @@ export class ReceiptBankService {
    * Extract items from receipt text
    */
   private extractItems(
-    text: string
+    text: string,
   ): Array<{ description: string; amount: number; category?: string }> {
-    const lines = text.split('\n');
-    const items: Array<{ description: string; amount: number; category?: string }> = [];
+    const lines = text.split("\n");
+    const items: Array<{
+      description: string;
+      amount: number;
+      category?: string;
+    }> = [];
 
     // Common patterns for item lines
     const itemPatterns = [
@@ -245,7 +250,7 @@ export class ReceiptBankService {
             // Determine which part is the description and which is the amount
             const isAmountFirst = /^[\d,.]+$/.test(part1);
             const description = isAmountFirst ? part2 : part1;
-            const amount = parseFloat((isAmountFirst ? part1 : part2).replace(/,/g, ''));
+            const amount = Number.parseFloat((isAmountFirst ? part1 : part2).replace(/,/g, ""));
 
             if (!isNaN(amount) && description) {
               items.push({
@@ -267,9 +272,9 @@ export class ReceiptBankService {
   /**
    * Process receipt URLs (download and screenshot)
    */
-  private async processReceiptUrls(urls: string[]): Promise<UnmatchedReceipt['processedContent']> {
+  private async processReceiptUrls(urls: string[]): Promise<UnmatchedReceipt["processedContent"]> {
     const browser = await this.getBrowser();
-    const processedContent: UnmatchedReceipt['processedContent'] = {
+    const processedContent: UnmatchedReceipt["processedContent"] = {
       receiptUrls: urls,
       screenshots: [],
     };
@@ -277,11 +282,11 @@ export class ReceiptBankService {
     for (const url of urls) {
       try {
         const page = await browser.newPage();
-        await page.goto(url, { waitUntil: 'networkidle0' });
+        await page.goto(url, { waitUntil: "networkidle0" });
 
         // Take a screenshot
         const screenshot = await page.screenshot({
-          type: 'png',
+          type: "png",
           fullPage: true,
         });
         processedContent.screenshots?.push(screenshot);
@@ -309,8 +314,8 @@ export class ReceiptBankService {
   private async getBrowser(): Promise<puppeteer.Browser> {
     if (!this.browser) {
       this.browser = await puppeteer.launch({
-        headless: 'new',
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: "new",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
       });
     }
     return this.browser;
@@ -328,7 +333,7 @@ export class ReceiptBankService {
    * Extract merchant name from OCR text
    */
   private extractMerchantName(text: string): string | undefined {
-    const lines = text.split('\n');
+    const lines = text.split("\n");
 
     // Common patterns for merchant names
     const patterns = [
@@ -348,14 +353,14 @@ export class ReceiptBankService {
     }
 
     // If no pattern matches, return first non-empty line
-    return lines.find(line => line.trim().length > 0);
+    return lines.find((line) => line.trim().length > 0);
   }
 
   /**
    * Extract amount from OCR text
    */
   private extractAmount(text: string): number | undefined {
-    const lines = text.split('\n');
+    const lines = text.split("\n");
 
     // Common patterns for total amounts
     const patterns = [
@@ -371,7 +376,7 @@ export class ReceiptBankService {
         const match = line.match(pattern);
         if (match?.[1]) {
           // Convert string amount to number, handling commas
-          return parseFloat(match[1].replace(/,/g, ''));
+          return Number.parseFloat(match[1].replace(/,/g, ""));
         }
       }
     }
@@ -383,7 +388,7 @@ export class ReceiptBankService {
    * Extract date from OCR text
    */
   private extractDate(text: string): Date | undefined {
-    const lines = text.split('\n');
+    const lines = text.split("\n");
 
     // Common date patterns
     const patterns = [
@@ -421,8 +426,8 @@ export class ReceiptBankService {
    */
   getUnmatchedReceipts(): UnmatchedReceipt[] {
     return this.memoryBank
-      .findByTags(['receipt', 'unmatched'])
-      .map(item => item.data as UnmatchedReceipt);
+      .findByTags(["receipt", "unmatched"])
+      .map((item) => item.data as UnmatchedReceipt);
   }
 
   /**
@@ -448,7 +453,7 @@ export class ReceiptBankService {
    * Get merchant suggestions for unmatched text
    */
   async getMerchantSuggestions(
-    text: string
+    text: string,
   ): Promise<Array<{ merchant: string; confidence: number }>> {
     return this.merchantLearning.suggestMerchants(text);
   }
@@ -459,7 +464,7 @@ export class ReceiptBankService {
   async provideMerchantFeedback(
     receiptId: string,
     correctMerchant: string,
-    isCorrect: boolean
+    isCorrect: boolean,
   ): Promise<void> {
     const receipt = await this.receiptModel.findById(receiptId);
     if (!receipt) return;
@@ -480,7 +485,7 @@ export class ReceiptBankService {
    */
   async processEmail(options: ProcessReceiptOptions): Promise<string> {
     if (!options.emailData) {
-      throw new Error('Email data is required');
+      throw new Error("Email data is required");
     }
 
     const receiptId = `email-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -488,7 +493,7 @@ export class ReceiptBankService {
 
     const receipt: UnmatchedReceipt = {
       id: receiptId,
-      source: 'EMAIL',
+      source: "EMAIL",
       originalContent: {
         from,
         subject,
@@ -503,10 +508,10 @@ export class ReceiptBankService {
     };
 
     // Process attachments
-    const processedContent: UnmatchedReceipt['processedContent'] = {
+    const processedContent: UnmatchedReceipt["processedContent"] = {
       receiptUrls: [],
       screenshots: [],
-      extractedText: '',
+      extractedText: "",
     };
 
     // Process each attachment
@@ -534,7 +539,7 @@ export class ReceiptBankService {
     // Extract structured data if we have OCR results
     if (processedContent.ocrResults) {
       receipt.metadata.extractedData = await this.extractStructuredData(
-        processedContent.ocrResults
+        processedContent.ocrResults,
       );
 
       // Store in database and update merchant data
@@ -544,8 +549,8 @@ export class ReceiptBankService {
     // Store in memory bank with 30-day TTL
     this.memoryBank.set(`receipt:${receiptId}`, receipt, {
       ttl: 30 * 24 * 60 * 60 * 1000, // 30 days
-      tags: ['receipt', 'unmatched', 'email'],
-      source: 'email',
+      tags: ["receipt", "unmatched", "email"],
+      source: "email",
     });
 
     return receiptId;
@@ -562,7 +567,7 @@ export class ReceiptBankService {
    * Check if attachment is a PDF
    */
   private isPDFAttachment(contentType: string): boolean {
-    return contentType === 'application/pdf';
+    return contentType === "application/pdf";
   }
 
   /**
@@ -578,7 +583,7 @@ export class ReceiptBankService {
       merchantName?: string;
       total?: number;
       date?: Date;
-    }
+    },
   ): number {
     let score = 0;
 
@@ -614,7 +619,7 @@ export class ReceiptBankService {
     // Check date proximity
     if (receipt.date && expense.date) {
       const daysDiff = Math.abs(
-        Math.round((receipt.date.getTime() - expense.date.getTime()) / (1000 * 60 * 60 * 24))
+        Math.round((receipt.date.getTime() - expense.date.getTime()) / (1000 * 60 * 60 * 24)),
       );
 
       if (daysDiff === 0) {
@@ -638,7 +643,7 @@ export class ReceiptBankService {
       amount: number;
       date: Date;
     },
-    receipts: Array<UnmatchedReceipt>
+    receipts: Array<UnmatchedReceipt>,
   ): Promise<UnmatchedReceipt | null> {
     let bestMatch: UnmatchedReceipt | null = null;
     let bestScore = 0;
@@ -675,7 +680,7 @@ export class ReceiptBankService {
     const cacheKey = `receipt:${receipt.id}`;
     await this.memoryBank.set(cacheKey, receipt, {
       ttl: 30 * 24 * 60 * 60 * 1000, // 30 days
-      tags: ['receipt', receipt.source.toLowerCase()],
+      tags: ["receipt", receipt.source.toLowerCase()],
       source: receipt.source.toLowerCase(),
     });
   }
@@ -684,10 +689,10 @@ export class ReceiptBankService {
    * Get cached receipts
    */
   private async getCachedReceipts(source?: string): Promise<UnmatchedReceipt[]> {
-    const tags = ['receipt'];
+    const tags = ["receipt"];
     if (source) {
       tags.push(source.toLowerCase());
     }
-    return this.memoryBank.findByTags(tags).map(item => item.data as UnmatchedReceipt);
+    return this.memoryBank.findByTags(tags).map((item) => item.data as UnmatchedReceipt);
   }
 }

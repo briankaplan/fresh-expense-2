@@ -1,13 +1,12 @@
-import React from 'react';
-import { Transaction } from '@fresh-expense/types';
-import { TransactionStatus } from '@fresh-expense/types';
+import type { Transaction } from "@fresh-expense/types";
+import type { TransactionStatus } from "@fresh-expense/types";
+import type React from "react";
 interface TransactionProcessorProps {
-    transaction: Transaction & {
-        status: TransactionStatus;
-    };
-    onProcessingComplete?: (updatedTransaction: Transaction) => void;
-    onError?: (error: Error) => void;
+  transaction: Transaction & {
+    status: TransactionStatus;
+  };
+  onProcessingComplete?: (updatedTransaction: Transaction) => void;
+  onError?: (error: Error) => void;
 }
 export declare const TransactionProcessor: React.FC<TransactionProcessorProps>;
-export {};
 //# sourceMappingURL=TransactionProcessor.d.ts.map

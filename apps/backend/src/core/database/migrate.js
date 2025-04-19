@@ -1,9 +1,9 @@
-const path = require('path');
+const path = require("path");
 
-const { database } = require('migrate-mongo');
+const { database } = require("migrate-mongo");
 
 // Load the config file
-require('../../migrate-mongo-config');
+require("../../migrate-mongo-config");
 
 async function runMigrations() {
   try {
@@ -12,22 +12,22 @@ async function runMigrations() {
 
     // Get migration status
     const migrated = await database.getMigratedVersions(db);
-    console.log('Already migrated:', migrated);
+    console.log("Already migrated:", migrated);
 
     // Run pending migrations
     const { migrated: newMigrations, fileName } = await database.up(db);
-    console.log('New migrations:', newMigrations);
+    console.log("New migrations:", newMigrations);
 
     // Close the connection
     await client.close();
 
     if (newMigrations.length > 0) {
-      console.log('Database migrations completed successfully');
+      console.log("Database migrations completed successfully");
     } else {
-      console.log('No pending migrations');
+      console.log("No pending migrations");
     }
   } catch (error) {
-    console.error('Error running migrations:', error);
+    console.error("Error running migrations:", error);
     process.exit(1);
   }
 }

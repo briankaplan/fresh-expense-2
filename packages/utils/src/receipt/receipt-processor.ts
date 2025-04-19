@@ -1,5 +1,5 @@
-import { Logger } from '@nestjs/common';
-import { ExtractedReceiptData, VerificationResult } from '@fresh-expense/types';
+import type { ExtractedReceiptData, VerificationResult } from "@fresh-expense/types";
+import { Logger } from "@nestjs/common";
 
 export class ReceiptProcessor {
   private readonly logger = new Logger(ReceiptProcessor.name);
@@ -60,14 +60,14 @@ export class ReceiptProcessor {
    * Extract merchant name from text
    */
   extractMerchantName(text: string): string | undefined {
-    const lines = text.split('\n');
+    const lines = text.split("\n");
     for (const line of lines) {
       const normalizedLine = line.trim().toLowerCase();
       if (
-        !normalizedLine.includes('total') &&
-        !normalizedLine.includes('amount') &&
-        !normalizedLine.includes('date') &&
-        !normalizedLine.includes('tax') &&
+        !normalizedLine.includes("total") &&
+        !normalizedLine.includes("amount") &&
+        !normalizedLine.includes("date") &&
+        !normalizedLine.includes("tax") &&
         normalizedLine.length > 2
       ) {
         return line.trim();
@@ -101,7 +101,7 @@ export class ReceiptProcessor {
       const match = text.match(pattern);
       if (match) {
         try {
-          return parseFloat(match[1].replace(/,/g, ''));
+          return Number.parseFloat(match[1].replace(/,/g, ""));
         } catch (error) {
           this.logger.warn(`Failed to parse amount: ${match[1]}`);
         }
@@ -116,7 +116,7 @@ export class ReceiptProcessor {
   normalizeMerchant(merchant: string): string {
     return merchant
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, '')
+      .replace(/[^a-z0-9]/g, "")
       .trim();
   }
 
@@ -197,7 +197,7 @@ export class ReceiptProcessor {
 
   private calculateItemsScore(extractedItems: string[], expectedItems: string[]): number {
     if (extractedItems.length != null || expectedItems.length != null) return 0;
-    const matches = extractedItems.filter(item => expectedItems.includes(item));
+    const matches = extractedItems.filter((item) => expectedItems.includes(item));
     return matches.length / Math.max(extractedItems.length, expectedItems.length);
   }
 }

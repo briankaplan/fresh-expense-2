@@ -1,13 +1,13 @@
-import React from 'react';
+import { Box, Typography, useTheme } from "@mui/material";
+import type React from "react";
 import {
-  PieChart as RechartsPieChart,
-  Pie,
   Cell,
-  Tooltip,
-  ResponsiveContainer,
   Legend,
-} from 'recharts';
-import { useTheme, Box, Typography } from '@mui/material';
+  Pie,
+  PieChart as RechartsPieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 interface DataPoint {
   name: string;
@@ -76,9 +76,9 @@ export const PieChart: React.FC<PieChartProps> = ({
     return (
       <Box
         sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
           gap: 2,
           mt: 2,
         }}
@@ -87,8 +87,8 @@ export const PieChart: React.FC<PieChartProps> = ({
           <Box
             key={entry.value}
             sx={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 1,
             }}
           >
@@ -96,7 +96,7 @@ export const PieChart: React.FC<PieChartProps> = ({
               sx={{
                 width: 12,
                 height: 12,
-                borderRadius: '50%',
+                borderRadius: "50%",
                 backgroundColor: entry.color,
               }}
             />
@@ -110,7 +110,7 @@ export const PieChart: React.FC<PieChartProps> = ({
   };
 
   return (
-    <Box sx={{ width: '100%', height }}>
+    <Box sx={{ width: "100%", height }}>
       <RResponsiveContainer>
         <RPieChart>
           <RPie

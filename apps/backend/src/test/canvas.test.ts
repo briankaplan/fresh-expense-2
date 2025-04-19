@@ -1,12 +1,12 @@
-import { createCanvas } from 'canvas';
+import { createCanvas } from "canvas";
 
-describe('Canvas Test', () => {
-  it('should create a canvas and draw on it', () => {
+describe("Canvas Test", () => {
+  it("should create a canvas and draw on it", () => {
     const canvas = createCanvas(200, 200);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     // Draw a simple rectangle
-    ctx.fillStyle = 'red';
+    ctx.fillStyle = "red";
     ctx.fillRect(10, 10, 50, 50);
 
     // Verify canvas was created

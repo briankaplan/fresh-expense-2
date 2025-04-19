@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { IReceipt } from '../../models/receipt.model';
-import { R2Service } from '../r2/r2.service';
-import { Receipt } from '@fresh-expense/types';
+import { Receipt } from "@fresh-expense/types";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
+import type { IReceipt } from "../../models/receipt.model";
+import type { R2Service } from "../r2/r2.service";
 
 interface CreateReceiptDto {
   file: Buffer;
@@ -24,8 +24,8 @@ interface UpdateReceiptDto {
 @Injectable()
 export class ReceiptService {
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<IReceipt>,
-    private r2Service: R2Service
+    @InjectModel("Receipt") private receiptModel: Model<IReceipt>,
+    private r2Service: R2Service,
   ) {}
 
   async create(dto: CreateReceiptDto): Promise<IReceipt> {
@@ -37,7 +37,7 @@ export class ReceiptService {
 
     // Generate and upload thumbnail
     const thumbnail = await this.r2Service.generateThumbnail(dto.file);
-    await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, 'image/jpeg');
+    await this.r2Service.uploadReceipt(thumbnail, r2ThumbnailKey, "image/jpeg");
 
     // Get signed URLs
     const fullImageUrl = await this.r2Service.getSignedUrl(r2Key);
@@ -69,7 +69,7 @@ export class ReceiptService {
     });
 
     if (!receipt) {
-      throw new NotFoundException('Receipt not found');
+      throw new NotFoundException("Receipt not found");
     }
 
     // Update signed URLs
@@ -107,14 +107,16 @@ export class ReceiptService {
         $set: {
           ...(dto.merchant && { merchant: dto.merchant }),
           ...(dto.amount && { amount: dto.amount }),
-          ...(dto.transactionId && { transactionId: new Types.ObjectId(dto.transactionId) }),
+          ...(dto.transactionId && {
+            transactionId: new Types.ObjectId(dto.transactionId),
+          }),
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!receipt) {
-      throw new NotFoundException('Receipt not found');
+      throw new NotFoundException("Receipt not found");
     }
 
     // Update signed URLs
@@ -131,7 +133,7 @@ export class ReceiptService {
     });
 
     if (!receipt) {
-      throw new NotFoundException('Receipt not found');
+      throw new NotFoundException("Receipt not found");
     }
 
     // Delete files from R2

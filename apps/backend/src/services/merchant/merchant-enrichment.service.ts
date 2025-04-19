@@ -1,28 +1,30 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { BaseService } from '../base.service';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { 
-  MerchantDocument, 
-  Transaction,
-  TransactionDocument,
+import {
+  type BaseTransactionData,
   Merchant,
-  TransactionSummary,
-  BaseTransactionData,
-  TransactionType
-} from '@fresh-expense/types';
-import { NotificationService } from '../notification/notification.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+  type MerchantDocument,
+  Transaction,
+  type TransactionDocument,
+  type TransactionSummary,
+  TransactionType,
+} from "@fresh-expense/types";
+import { Inject, Injectable } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectModel } from "@nestjs/mongoose";
+import type { Model } from "mongoose";
+import { BaseService } from "../base.service";
+import type { NotificationService } from "../notification/notification.service";
 
 @Injectable()
 export class MerchantEnrichmentService extends BaseService {
   constructor(
-    @InjectModel('Merchant') private readonly merchantModel: Model<MerchantDocument>,
-    @InjectModel('Transaction') private readonly transactionModel: Model<TransactionDocument>,
+    @InjectModel("Merchant")
+    private readonly merchantModel: Model<MerchantDocument>,
+    @InjectModel("Transaction")
+    private readonly transactionModel: Model<TransactionDocument>,
     protected readonly notificationService: NotificationService,
-    protected readonly eventEmitter: EventEmitter2
+    protected readonly eventEmitter: EventEmitter2,
   ) {
-    super(notificationService, eventEmitter, 'MerchantEnrichmentService');
+    super(notificationService, eventEmitter, "MerchantEnrichmentService");
   }
 
   async getPurchaseHistory(merchantId: string): Promise<TransactionSummary> {
@@ -36,7 +38,7 @@ export class MerchantEnrichmentService extends BaseService {
       .sort({ date: -1 })
       .exec();
 
-    const transactionData: BaseTransactionData[] = transactions.map(t => ({
+    const transactionData: BaseTransactionData[] = transactions.map((t) => ({
       id: t._id.toString(),
       accountId: t.accountId,
       amount: t.amount,
@@ -50,7 +52,7 @@ export class MerchantEnrichmentService extends BaseService {
       runningBalance: t.runningBalance,
       metadata: t.metadata,
       createdAt: t.createdAt,
-      updatedAt: t.updatedAt
+      updatedAt: t.updatedAt,
     }));
 
     // Calculate summary
@@ -58,20 +60,20 @@ export class MerchantEnrichmentService extends BaseService {
       totalTransactions: transactions.length,
       totalAmount: {
         value: transactions.reduce((sum, t) => sum + t.amount.value, 0),
-        currency: transactions[0]?.amount.currency || 'USD'
+        currency: transactions[0]?.amount.currency || "USD",
       },
       byCategory: {},
       byMerchant: {},
-      byType: {}
+      byType: {},
     };
 
     // Group by category
-    transactions.forEach(t => {
-      const category = t.category || 'uncategorized';
+    transactions.forEach((t) => {
+      const category = t.category || "uncategorized";
       if (!summary.byCategory[category]) {
         summary.byCategory[category] = {
           count: 0,
-          amount: { value: 0, currency: t.amount.currency }
+          amount: { value: 0, currency: t.amount.currency },
         };
       }
       summary.byCategory[category].count++;
@@ -79,12 +81,12 @@ export class MerchantEnrichmentService extends BaseService {
     });
 
     // Group by merchant
-    transactions.forEach(t => {
+    transactions.forEach((t) => {
       const merchantName = t.merchant.name;
       if (!summary.byMerchant[merchantName]) {
         summary.byMerchant[merchantName] = {
           count: 0,
-          amount: { value: 0, currency: t.amount.currency }
+          amount: { value: 0, currency: t.amount.currency },
         };
       }
       summary.byMerchant[merchantName].count++;
@@ -92,12 +94,12 @@ export class MerchantEnrichmentService extends BaseService {
     });
 
     // Group by type
-    transactions.forEach(t => {
+    transactions.forEach((t) => {
       const type = t.type;
       if (!summary.byType[type]) {
         summary.byType[type] = {
           count: 0,
-          amount: { value: 0, currency: t.amount.currency }
+          amount: { value: 0, currency: t.amount.currency },
         };
       }
       summary.byType[type].count++;

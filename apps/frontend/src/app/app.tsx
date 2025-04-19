@@ -1,6 +1,6 @@
-import { Layout } from 'antd';
-import { RouterProvider } from '@tanstack/react-router';
-import { router } from '@/router';
+import { router } from "@/router";
+import { RouterProvider } from "@tanstack/react-router";
+import { Layout } from "antd";
 
 const { Header, Content, Footer } = Layout;
 

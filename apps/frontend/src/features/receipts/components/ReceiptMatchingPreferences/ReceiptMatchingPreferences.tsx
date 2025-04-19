@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Slider,
-  Grid,
-  Switch,
   FormControlLabel,
-  Button,
-} from '@mui/material';
+  Grid,
+  Slider,
+  Switch,
+  Typography,
+} from "@mui/material";
+import type React from "react";
+import { useState } from "react";
 
 interface MatchingPreferences {
   weights: {
@@ -54,8 +55,8 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
   const [isEditing, setIsEditing] = useState(false);
 
   const handleWeightChange =
-    (key: keyof MatchingPreferences['weights']) => (_: Event, value: number | number[]) => {
-      setPreferences(prev => ({
+    (key: keyof MatchingPreferences["weights"]) => (_: Event, value: number | number[]) => {
+      setPreferences((prev) => ({
         ...prev,
         weights: {
           ...prev.weights,
@@ -65,8 +66,8 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
     };
 
   const handleThresholdChange =
-    (key: keyof Omit<MatchingPreferences, 'weights'>) => (_: Event, value: number | number[]) => {
-      setPreferences(prev => ({
+    (key: keyof Omit<MatchingPreferences, "weights">) => (_: Event, value: number | number[]) => {
+      setPreferences((prev) => ({
         ...prev,
         [key]: value as number,
       }));
@@ -83,7 +84,9 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Receipt Matching Preferences</Typography>
           <FormControlLabel
-            control={<Switch checked={isEditing} onChange={e => setIsEditing(e.target.checked)} />}
+            control={
+              <Switch checked={isEditing} onChange={(e) => setIsEditing(e.target.checked)} />
+            }
             label="Edit Preferences"
           />
         </Box>
@@ -98,7 +101,7 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
                 </Typography>
                 <Slider
                   value={value}
-                  onChange={handleWeightChange(key as keyof MatchingPreferences['weights'])}
+                  onChange={handleWeightChange(key as keyof MatchingPreferences["weights"])}
                   min={0}
                   max={1}
                   step={0.05}
@@ -113,7 +116,7 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
             <Typography gutterBottom>Amount Tolerance</Typography>
             <Slider
               value={preferences.amountTolerance}
-              onChange={handleThresholdChange('amountTolerance')}
+              onChange={handleThresholdChange("amountTolerance")}
               min={0}
               max={0.5}
               step={0.01}
@@ -126,7 +129,7 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
             <Typography gutterBottom>Date Range (Days)</Typography>
             <Slider
               value={preferences.dateRangeDays}
-              onChange={handleThresholdChange('dateRangeDays')}
+              onChange={handleThresholdChange("dateRangeDays")}
               min={1}
               max={7}
               step={1}
@@ -139,7 +142,7 @@ export const ReceiptMatchingPreferences: React.FC<ReceiptMatchingPreferencesProp
             <Typography gutterBottom>Merchant Match Threshold</Typography>
             <Slider
               value={preferences.merchantMatchThreshold}
-              onChange={handleThresholdChange('merchantMatchThreshold')}
+              onChange={handleThresholdChange("merchantMatchThreshold")}
               min={0.5}
               max={1}
               step={0.05}

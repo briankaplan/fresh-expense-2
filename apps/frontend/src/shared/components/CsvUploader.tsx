@@ -1,31 +1,32 @@
-import React, { useState, useCallback } from 'react';
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {
+  Alert,
   Box,
   Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Paper,
-  Typography,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Alert,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Chip,
-} from '@mui/material';
-import { useDropzone } from 'react-dropzone';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import Papa from 'papaparse';
-import { toast } from 'react-hot-toast';
+  Typography,
+} from "@mui/material";
+import Papa from "papaparse";
+import type React from "react";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { toast } from "react-hot-toast";
 
 interface CsvUploaderProps {
   onUploadComplete?: () => void;
-  type: 'expenses' | 'transactions';
+  type: "expenses" | "transactions";
 }
 
 interface PreviewData {
@@ -58,49 +59,49 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
   const [showPreview, setShowPreview] = useState(false);
 
   const validateHeaders = (headers: string[]) => {
-    const requiredFields = ['date', 'amount'];
-    const missingFields = requiredFields.filter(field => !headers.includes(field));
+    const requiredFields = ["date", "amount"];
+    const missingFields = requiredFields.filter((field) => !headers.includes(field));
     if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
     }
   };
 
   const validateRow = (row: Record<string, unknown>): PreviewData => {
     if (!row.date || !row.amount) {
-      throw new Error('Missing required fields in row');
+      throw new Error("Missing required fields in row");
     }
 
-    const amount = parseFloat(String(row.amount));
+    const amount = Number.parseFloat(String(row.amount));
     if (isNaN(amount)) {
-      throw new Error('Invalid amount format');
+      throw new Error("Invalid amount format");
     }
 
     return {
       ...row,
       amount,
-      date: new Date(String(row.date)).toISOString().split('T')[0],
+      date: new Date(String(row.date)).toISOString().split("T")[0],
     } as PreviewData;
   };
 
   const findMatches = async (validatedData: PreviewData[]) => {
     try {
-      const response = await fetch('/api/expenses/find-matches', {
-        method: 'POST',
+      const response = await fetch("/api/expenses/find-matches", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ data: validatedData }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to find matches');
+        throw new Error("Failed to find matches");
       }
 
       const matches = await response.json();
       setMatchResults(matches);
       return matches;
     } catch (error) {
-      console.error('Error finding matches:', error);
+      console.error("Error finding matches:", error);
       throw error;
     }
   };
@@ -109,35 +110,35 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
     setError(null);
     const file = acceptedFiles[0];
 
-    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-      setError('Please upload a CSV file');
+    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+      setError("Please upload a CSV file");
       return;
     }
 
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: async results => {
+      complete: async (results) => {
         try {
           if (results.data.length != null || !results.data[0]) {
-            throw new Error('CSV file is empty');
+            throw new Error("CSV file is empty");
           }
 
           const firstRow = results.data[0] as Record<string, unknown>;
           validateHeaders(Object.keys(firstRow));
 
-          const validatedData = (results.data as Record<string, unknown>[]).map(row =>
-            validateRow(row)
+          const validatedData = (results.data as Record<string, unknown>[]).map((row) =>
+            validateRow(row),
           );
           await findMatches(validatedData);
           setShowPreview(true);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Invalid CSV format');
+          setError(err instanceof Error ? err.message : "Invalid CSV format");
         }
       },
-      error: err => {
-        setError('Failed to parse CSV file');
-        console.error('CSV Parse Error:', err);
+      error: (err) => {
+        setError("Failed to parse CSV file");
+        console.error("CSV Parse Error:", err);
       },
     });
   }, []);
@@ -145,7 +146,7 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/csv': ['.csv'],
+      "text/csv": [".csv"],
     },
     maxFiles: 1,
   });
@@ -155,18 +156,18 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
       setIsLoading(true);
 
       // Only process matches that have a confidence score above threshold
-      const validMatches = matchResults.filter(match => match.matchConfidence >= 0.8);
+      const validMatches = matchResults.filter((match) => match.matchConfidence >= 0.8);
 
       const response = await fetch(`/api/expenses/enrich`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ matches: validMatches }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to enrich data');
+        throw new Error("Failed to enrich data");
       }
 
       const result = await response.json();
@@ -175,16 +176,16 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
       setMatchResults([]);
       onUploadComplete?.();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to enrich data');
+      toast.error(err instanceof Error ? err.message : "Failed to enrich data");
     } finally {
       setIsLoading(false);
     }
   };
 
   const getMatchConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.9) return 'success';
-    if (confidence >= 0.8) return 'warning';
-    return 'error';
+    if (confidence >= 0.9) return "success";
+    if (confidence >= 0.8) return "warning";
+    return "error";
   };
 
   return (
@@ -193,31 +194,31 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
         {...getRootProps()}
         sx={{
           p: 3,
-          border: '2px dashed',
-          borderColor: isDragActive ? 'primary.main' : 'grey.300',
-          bgcolor: isDragActive ? 'action.hover' : 'background.paper',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          '&:hover': {
-            borderColor: 'primary.main',
-            bgcolor: 'action.hover',
+          border: "2px dashed",
+          borderColor: isDragActive ? "primary.main" : "grey.300",
+          bgcolor: isDragActive ? "action.hover" : "background.paper",
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+          "&:hover": {
+            borderColor: "primary.main",
+            bgcolor: "action.hover",
           },
         }}
       >
         <input {...getInputProps()} />
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 2,
           }}
         >
-          <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main' }} />
+          <CloudUploadIcon sx={{ fontSize: 48, color: "primary.main" }} />
           <Typography variant="h6" align="center">
             {isDragActive
-              ? 'Drop the CSV file here'
-              : 'Drag and drop a CSV file here, or click to select'}
+              ? "Drop the CSV file here"
+              : "Drag and drop a CSV file here, or click to select"}
           </Typography>
           <Typography variant="body2" color="text.secondary" align="center">
             Upload CSV to enrich existing transactions with additional details
@@ -252,8 +253,8 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
                   <TableRow
                     key={index}
                     sx={{
-                      bgcolor: match.matchConfidence >= 0.8 ? 'success.light' : 'warning.light',
-                      '&:hover': { bgcolor: 'action.hover' },
+                      bgcolor: match.matchConfidence >= 0.8 ? "success.light" : "warning.light",
+                      "&:hover": { bgcolor: "action.hover" },
                     }}
                   >
                     <TableCell>
@@ -267,14 +268,14 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
                       {new Date(match.existingTransaction.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell>${match.existingTransaction.amount.toFixed(2)}</TableCell>
-                    <TableCell>{match.existingTransaction.description || '-'}</TableCell>
-                    <TableCell>{match.csvData.description || '-'}</TableCell>
-                    <TableCell>{match.csvData.category || '-'}</TableCell>
+                    <TableCell>{match.existingTransaction.description || "-"}</TableCell>
+                    <TableCell>{match.csvData.description || "-"}</TableCell>
+                    <TableCell>{match.csvData.category || "-"}</TableCell>
                     <TableCell>
                       {match.csvData.receiptUrl ? (
                         <Chip label="Has Receipt" color="primary" size="small" />
                       ) : (
-                        '-'
+                        "-"
                       )}
                     </TableCell>
                   </TableRow>
@@ -292,10 +293,12 @@ export const CsvUploader: React.FC<CsvUploaderProps> = ({ onUploadComplete }) =>
           <Button
             onClick={handleUpload}
             variant="contained"
-            disabled={isLoading || matchResults.filter(m => m.matchConfidence >= 0.8).length != null}
+            disabled={
+              isLoading || matchResults.filter((m) => m.matchConfidence >= 0.8).length != null
+            }
             startIcon={isLoading ? <CircularProgress size={20} /> : undefined}
           >
-            {isLoading ? 'Processing...' : 'Enrich Transactions'}
+            {isLoading ? "Processing..." : "Enrich Transactions"}
           </Button>
         </DialogActions>
       </Dialog>

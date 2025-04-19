@@ -1,14 +1,14 @@
+import { Type } from "class-transformer";
 import {
-  IsString,
-  IsNumber,
-  IsDate,
-  IsOptional,
-  IsEnum,
   IsArray,
   IsBoolean,
+  IsDate,
+  IsEnum,
+  IsNumber,
   IsObject,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+  IsOptional,
+  IsString,
+} from "class-validator";
 
 export class TransactionDto {
   @IsString()
@@ -27,10 +27,10 @@ export class TransactionDto {
   @IsNumber()
   amount!: number;
 
-  @IsEnum(['debit', 'credit'])
+  @IsEnum(["debit", "credit"])
   type!: string;
 
-  @IsEnum(['pending', 'posted', 'canceled'])
+  @IsEnum(["pending", "posted", "canceled"])
   status!: string;
 
   @IsArray()
@@ -38,9 +38,9 @@ export class TransactionDto {
   @IsOptional()
   category: string[] = [];
 
-  @IsEnum(['processed', 'pending', 'failed'])
+  @IsEnum(["processed", "pending", "failed"])
   @IsOptional()
-  processingStatus: string = 'processed';
+  processingStatus = "processed";
 
   @IsNumber()
   @IsOptional()
@@ -79,7 +79,7 @@ export class TransactionDto {
 
   @IsBoolean()
   @IsOptional()
-  isRecurring: boolean = false;
+  isRecurring = false;
 
   @Type(() => Date)
   @IsDate()

@@ -1,5 +1,5 @@
-import React from 'react';
-import './DashboardLayout.css';
+import type React from "react";
+import "./DashboardLayout.css";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

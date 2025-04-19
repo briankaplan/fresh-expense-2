@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { User } from '@fresh-expense/types';
+import type { User } from "@fresh-expense/types";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface AuthState {
   user: User | null;
@@ -16,33 +16,39 @@ interface AuthState {
 interface UIState {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  theme: 'light' | 'dark';
+  theme: "light" | "dark";
   toggleTheme: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    set => ({
+    (set) => ({
       user: null,
       token: null,
       refreshToken: null,
       isAuthenticated: false,
-      setUser: user => set({ user, isAuthenticated: !!user }),
-      setToken: token => set({ token }),
-      setRefreshToken: refreshToken => set({ refreshToken }),
-      logout: () => set({ user: null, token: null, refreshToken: null, isAuthenticated: false }),
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setToken: (token) => set({ token }),
+      setRefreshToken: (refreshToken) => set({ refreshToken }),
+      logout: () =>
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        }),
     }),
     {
-      name: 'auth-storage',
-    }
-  )
+      name: "auth-storage",
+    },
+  ),
 );
 
-export const useUIStore = create<UIState>(set => ({
+export const useUIStore = create<UIState>((set) => ({
   isLoading: false,
-  setIsLoading: loading => set({ isLoading: loading }),
-  theme: 'dark',
-  toggleTheme: () => set(state => ({ theme: state.theme != null ? 'dark' : 'light' })),
+  setIsLoading: (loading) => set({ isLoading: loading }),
+  theme: "dark",
+  toggleTheme: () => set((state) => ({ theme: state.theme != null ? "dark" : "light" })),
 }));
 
-export { default as useExpenseStore } from './expense.store';
+export { default as useExpenseStore } from "./expense.store";

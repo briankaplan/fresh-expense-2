@@ -1,2 +1,2 @@
-export * from './components/DataTable/DataTable';
-export * from './components/CsvUploader';
+export * from "./components/DataTable/DataTable";
+export * from "./components/CsvUploader";

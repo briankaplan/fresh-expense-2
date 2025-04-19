@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 export interface SpendingData {
   category: string;
@@ -28,22 +28,22 @@ export const useSpendingAnalytics = () => {
   const fetchAnalytics = async (startDate?: Date, endDate?: Date) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/analytics/spending', {
-        method: 'POST',
+      const response = await fetch("/api/analytics/spending", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ startDate, endDate }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch spending analytics');
+        throw new Error("Failed to fetch spending analytics");
       }
 
       const analyticsData = await response.json();
       setData(analyticsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }

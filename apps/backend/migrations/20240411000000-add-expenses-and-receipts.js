@@ -1,48 +1,48 @@
-const { CATEGORY_METADATA } = require('@fresh-expense/types');
+const { CATEGORY_METADATA } = require("@fresh-expense/types");
 
 module.exports = {
   async up(db) {
     // Create collections if they don't exist
-    await db.createCollection('expenses');
-    await db.createCollection('receipts');
-    await db.createCollection('categories');
-    await db.createCollection('tags');
+    await db.createCollection("expenses");
+    await db.createCollection("receipts");
+    await db.createCollection("categories");
+    await db.createCollection("tags");
 
     // Expenses Schema Validation
     await db.command({
-      collMod: 'expenses',
+      collMod: "expenses",
       validator: {
         $jsonSchema: {
-          bsonType: 'object',
-          required: ['userId', 'amount', 'date', 'description', 'categoryId'],
+          bsonType: "object",
+          required: ["userId", "amount", "date", "description", "categoryId"],
           properties: {
-            userId: { bsonType: 'objectId' },
-            companyId: { bsonType: 'objectId' },
-            amount: { bsonType: 'double' },
-            date: { bsonType: 'date' },
-            description: { bsonType: 'string' },
-            categoryId: { bsonType: 'objectId' },
+            userId: { bsonType: "objectId" },
+            companyId: { bsonType: "objectId" },
+            amount: { bsonType: "double" },
+            date: { bsonType: "date" },
+            description: { bsonType: "string" },
+            categoryId: { bsonType: "objectId" },
             tags: {
-              bsonType: 'array',
-              items: { bsonType: 'objectId' },
+              bsonType: "array",
+              items: { bsonType: "objectId" },
             },
-            receiptId: { bsonType: 'objectId' },
-            transactionId: { bsonType: 'string' },
-            status: { enum: ['pending', 'approved', 'rejected', 'reimbursed'] },
-            paymentMethod: { enum: ['cash', 'card', 'bank_transfer', 'other'] },
-            notes: { bsonType: 'string' },
+            receiptId: { bsonType: "objectId" },
+            transactionId: { bsonType: "string" },
+            status: { enum: ["pending", "approved", "rejected", "reimbursed"] },
+            paymentMethod: { enum: ["cash", "card", "bank_transfer", "other"] },
+            notes: { bsonType: "string" },
             location: {
-              bsonType: 'object',
+              bsonType: "object",
               properties: {
-                address: { bsonType: 'string' },
+                address: { bsonType: "string" },
                 coordinates: {
-                  bsonType: 'array',
-                  items: { bsonType: 'double' },
+                  bsonType: "array",
+                  items: { bsonType: "double" },
                 },
               },
             },
-            createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' },
+            createdAt: { bsonType: "date" },
+            updatedAt: { bsonType: "date" },
           },
         },
       },
@@ -50,42 +50,44 @@ module.exports = {
 
     // Receipts Schema Validation
     await db.command({
-      collMod: 'receipts',
+      collMod: "receipts",
       validator: {
         $jsonSchema: {
-          bsonType: 'object',
-          required: ['userId', 'fileUrl', 'mimeType'],
+          bsonType: "object",
+          required: ["userId", "fileUrl", "mimeType"],
           properties: {
-            userId: { bsonType: 'objectId' },
-            fileUrl: { bsonType: 'string' },
-            thumbnailUrl: { bsonType: 'string' },
-            mimeType: { bsonType: 'string' },
-            size: { bsonType: 'int' },
+            userId: { bsonType: "objectId" },
+            fileUrl: { bsonType: "string" },
+            thumbnailUrl: { bsonType: "string" },
+            mimeType: { bsonType: "string" },
+            size: { bsonType: "int" },
             metadata: {
-              bsonType: 'object',
+              bsonType: "object",
               properties: {
-                merchant: { bsonType: 'string' },
-                date: { bsonType: 'date' },
-                total: { bsonType: 'double' },
+                merchant: { bsonType: "string" },
+                date: { bsonType: "date" },
+                total: { bsonType: "double" },
                 items: {
-                  bsonType: 'array',
+                  bsonType: "array",
                   items: {
-                    bsonType: 'object',
+                    bsonType: "object",
                     properties: {
-                      description: { bsonType: 'string' },
-                      amount: { bsonType: 'double' },
-                      quantity: { bsonType: 'int' },
+                      description: { bsonType: "string" },
+                      amount: { bsonType: "double" },
+                      quantity: { bsonType: "int" },
                     },
                   },
                 },
-                taxAmount: { bsonType: 'double' },
-                tipAmount: { bsonType: 'double' },
+                taxAmount: { bsonType: "double" },
+                tipAmount: { bsonType: "double" },
               },
             },
-            ocrStatus: { enum: ['pending', 'processing', 'completed', 'failed'] },
-            ocrData: { bsonType: 'object' },
-            createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' },
+            ocrStatus: {
+              enum: ["pending", "processing", "completed", "failed"],
+            },
+            ocrData: { bsonType: "object" },
+            createdAt: { bsonType: "date" },
+            updatedAt: { bsonType: "date" },
           },
         },
       },
@@ -93,20 +95,20 @@ module.exports = {
 
     // Categories Schema Validation
     await db.command({
-      collMod: 'categories',
+      collMod: "categories",
       validator: {
         $jsonSchema: {
-          bsonType: 'object',
-          required: ['name', 'type'],
+          bsonType: "object",
+          required: ["name", "type"],
           properties: {
-            name: { bsonType: 'string' },
-            type: { enum: ['expense', 'income'] },
-            icon: { bsonType: 'string' },
-            color: { bsonType: 'string' },
-            parentId: { bsonType: 'objectId' },
-            isSystem: { bsonType: 'bool' },
-            createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' },
+            name: { bsonType: "string" },
+            type: { enum: ["expense", "income"] },
+            icon: { bsonType: "string" },
+            color: { bsonType: "string" },
+            parentId: { bsonType: "objectId" },
+            isSystem: { bsonType: "bool" },
+            createdAt: { bsonType: "date" },
+            updatedAt: { bsonType: "date" },
           },
         },
       },
@@ -114,17 +116,17 @@ module.exports = {
 
     // Tags Schema Validation
     await db.command({
-      collMod: 'tags',
+      collMod: "tags",
       validator: {
         $jsonSchema: {
-          bsonType: 'object',
-          required: ['name', 'userId'],
+          bsonType: "object",
+          required: ["name", "userId"],
           properties: {
-            name: { bsonType: 'string' },
-            userId: { bsonType: 'objectId' },
-            color: { bsonType: 'string' },
-            createdAt: { bsonType: 'date' },
-            updatedAt: { bsonType: 'date' },
+            name: { bsonType: "string" },
+            userId: { bsonType: "objectId" },
+            color: { bsonType: "string" },
+            createdAt: { bsonType: "date" },
+            updatedAt: { bsonType: "date" },
           },
         },
       },
@@ -132,34 +134,34 @@ module.exports = {
 
     // Create indexes
     await db
-      .collection('expenses')
+      .collection("expenses")
       .createIndexes([
         { key: { userId: 1 } },
         { key: { companyId: 1 } },
         { key: { categoryId: 1 } },
         { key: { date: -1 } },
         { key: { status: 1 } },
-        { key: { 'location.coordinates': '2dsphere' } },
+        { key: { "location.coordinates": "2dsphere" } },
       ]);
 
     await db
-      .collection('receipts')
+      .collection("receipts")
       .createIndexes([
         { key: { userId: 1 } },
         { key: { ocrStatus: 1 } },
-        { key: { 'metadata.merchant': 1 } },
-        { key: { 'metadata.date': -1 } },
+        { key: { "metadata.merchant": 1 } },
+        { key: { "metadata.date": -1 } },
       ]);
 
     await db
-      .collection('categories')
+      .collection("categories")
       .createIndexes([
         { key: { name: 1 }, unique: true },
         { key: { type: 1 } },
         { key: { parentId: 1 } },
       ]);
 
-    await db.collection('tags').createIndexes([{ key: { userId: 1, name: 1 }, unique: true }]);
+    await db.collection("tags").createIndexes([{ key: { userId: 1, name: 1 }, unique: true }]);
 
     // Insert default categories
     const defaultCategories = Object.entries(CATEGORY_METADATA).map(([type, metadata]) => ({
@@ -173,13 +175,13 @@ module.exports = {
       updatedAt: new Date(),
     }));
 
-    await db.collection('categories').insertMany(defaultCategories);
+    await db.collection("categories").insertMany(defaultCategories);
   },
 
   async down(db) {
-    await db.dropCollection('expenses');
-    await db.dropCollection('receipts');
-    await db.dropCollection('categories');
-    await db.dropCollection('tags');
+    await db.dropCollection("expenses");
+    await db.dropCollection("receipts");
+    await db.dropCollection("categories");
+    await db.dropCollection("tags");
   },
 };

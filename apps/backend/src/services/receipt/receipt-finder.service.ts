@@ -1,11 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { calculateReceiptMatchScore, ReceiptMatchScore } from '@fresh-expense/utils';
-import { CacheService } from '../cache/cache.service';
-import { ReceiptRepository } from '@fresh-expense/core';
-import { R2Service } from '../storage/r2.service';
+import type { ReceiptRepository } from "@fresh-expense/core";
+import type { ReceiptDocument } from "@fresh-expense/types";
+import { type ReceiptMatchScore, calculateReceiptMatchScore } from "@fresh-expense/utils";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
+import type { CacheService } from "../cache/cache.service";
+import type { R2Service } from "../storage/r2.service";
 
 export interface ReceiptSearchOptions {
   userId: string;
@@ -17,12 +17,12 @@ export interface ReceiptSearchOptions {
   endDate?: Date;
   categories?: string[];
   tags?: string[];
-  source?: 'CSV' | 'EMAIL' | 'GOOGLE_PHOTOS' | 'MANUAL';
+  source?: "CSV" | "EMAIL" | "GOOGLE_PHOTOS" | "MANUAL";
   fuzzyMatch?: boolean;
   limit?: number;
   offset?: number;
-  sortBy?: 'date' | 'amount' | 'merchant';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "date" | "amount" | "merchant";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface ReceiptMatchResult {
@@ -44,10 +44,10 @@ export class ReceiptFinderService {
   private readonly CACHE_TTL = 3600; // 1 hour
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
     private readonly r2Service: R2Service,
     private readonly cacheService: CacheService,
-    private readonly receiptRepository: ReceiptRepository
+    private readonly receiptRepository: ReceiptRepository,
   ) {}
 
   async findReceipts(options: ReceiptSearchOptions): Promise<ReceiptDocument[]> {
@@ -66,11 +66,11 @@ export class ReceiptFinderService {
       // Text search
       if (options.query) {
         if (options.fuzzyMatch) {
-          const searchRegex = new RegExp(options.query.split('').join('.*'), 'i');
+          const searchRegex = new RegExp(options.query.split("").join(".*"), "i");
           query.$or = [
             { merchant: searchRegex },
-            { 'metadata.text': searchRegex },
-            { 'ocrData.text': searchRegex },
+            { "metadata.text": searchRegex },
+            { "ocrData.text": searchRegex },
           ];
         } else {
           query.$text = { $search: options.query };
@@ -80,7 +80,7 @@ export class ReceiptFinderService {
       // Merchant search
       if (options.merchant) {
         if (options.fuzzyMatch) {
-          query.merchant = new RegExp(options.merchant.split('').join('.*'), 'i');
+          query.merchant = new RegExp(options.merchant.split("").join(".*"), "i");
         } else {
           query.merchant = options.merchant;
         }
@@ -146,14 +146,14 @@ export class ReceiptFinderService {
 
       return receipts;
     } catch (error) {
-      this.logger.error('Error finding receipts:', error);
+      this.logger.error("Error finding receipts:", error);
       throw error;
     }
   }
 
   async findSimilarReceipts(receipt: ReceiptDocument): Promise<ReceiptMatchResult[]> {
     if (!this.hasRequiredFields(receipt)) {
-      throw new Error('Receipt is missing required fields');
+      throw new Error("Receipt is missing required fields");
     }
 
     const cacheKey = `similar:${receipt._id}`;
@@ -162,7 +162,7 @@ export class ReceiptFinderService {
       return cachedResults;
     }
 
-    const merchantPattern = new RegExp(receipt.merchant.split('').join('.*'), 'i');
+    const merchantPattern = new RegExp(receipt.merchant.split("").join(".*"), "i");
 
     const query = {
       userId: receipt.userId,
@@ -203,7 +203,7 @@ export class ReceiptFinderService {
     try {
       const result: BatchOperationResult = {
         success: true,
-        message: 'Successfully deleted receipts',
+        message: "Successfully deleted receipts",
         affectedIds: [],
         errors: [],
       };
@@ -216,7 +216,7 @@ export class ReceiptFinderService {
           });
 
           if (!receipt) {
-            result.errors?.push({ id, error: 'Receipt not found' });
+            result.errors?.push({ id, error: "Receipt not found" });
             continue;
           }
 
@@ -240,7 +240,7 @@ export class ReceiptFinderService {
 
       return result;
     } catch (error) {
-      this.logger.error('Error in batch delete:', error);
+      this.logger.error("Error in batch delete:", error);
       throw error;
     }
   }
@@ -248,12 +248,12 @@ export class ReceiptFinderService {
   async batchCategorize(
     receiptIds: string[],
     userId: string,
-    category: string
+    category: string,
   ): Promise<BatchOperationResult> {
     try {
       const result: BatchOperationResult = {
         success: true,
-        message: 'Successfully categorized receipts',
+        message: "Successfully categorized receipts",
         affectedIds: [],
         errors: [],
       };
@@ -266,7 +266,7 @@ export class ReceiptFinderService {
           });
 
           if (!receipt) {
-            result.errors?.push({ id, error: 'Receipt not found' });
+            result.errors?.push({ id, error: "Receipt not found" });
             continue;
           }
 
@@ -284,7 +284,7 @@ export class ReceiptFinderService {
 
       return result;
     } catch (error) {
-      this.logger.error('Error in batch categorize:', error);
+      this.logger.error("Error in batch categorize:", error);
       throw error;
     }
   }
@@ -295,12 +295,12 @@ export class ReceiptFinderService {
       `receipt:${receipt._id}`,
       `user:${receipt.userId}:receipts`,
     ];
-    await Promise.all(cacheKeys.map(key => this.cacheService.delete(key)));
+    await Promise.all(cacheKeys.map((key) => this.cacheService.delete(key)));
   }
 
   private generateCacheKey(options: ReceiptSearchOptions): string {
     const keyParts = [
-      'receipts',
+      "receipts",
       options.userId,
       options.query,
       options.merchant,
@@ -308,8 +308,8 @@ export class ReceiptFinderService {
       options.maxAmount,
       options.startDate?.toISOString(),
       options.endDate?.toISOString(),
-      options.categories?.join(','),
-      options.tags?.join(','),
+      options.categories?.join(","),
+      options.tags?.join(","),
       options.source,
       options.fuzzyMatch,
       options.limit,
@@ -317,7 +317,7 @@ export class ReceiptFinderService {
       options.sortBy,
       options.sortOrder,
     ];
-    return keyParts.filter(Boolean).join(':');
+    return keyParts.filter(Boolean).join(":");
   }
 
   private async updateSignedUrls(receipts: ReceiptDocument[]): Promise<void> {
@@ -338,34 +338,34 @@ export class ReceiptFinderService {
       }
       if (result.receipt.r2ThumbnailKey) {
         result.receipt.thumbnailUrl = await this.r2Service.getSignedUrl(
-          result.receipt.r2ThumbnailKey
+          result.receipt.r2ThumbnailKey,
         );
       }
     }
   }
 
   private hasRequiredFields(
-    receipt: ReceiptDocument
+    receipt: ReceiptDocument,
   ): receipt is ReceiptDocument & { _id: Types.ObjectId } {
     return (
       receipt !== null &&
       receipt !== undefined &&
       receipt._id instanceof Types.ObjectId &&
-      typeof receipt.merchant === 'string' &&
+      typeof receipt.merchant === "string" &&
       receipt.merchant.length > 0 &&
-      typeof receipt.amount === 'number' &&
+      typeof receipt.amount === "number" &&
       receipt.date instanceof Date &&
       receipt.userId instanceof Types.ObjectId &&
-      typeof receipt.r2Key === 'string'
+      typeof receipt.r2Key === "string"
     );
   }
 
   private calculateMatchScore(
     receipt1: ReceiptDocument,
-    receipt2: ReceiptDocument
+    receipt2: ReceiptDocument,
   ): ReceiptMatchResult {
     if (!this.hasRequiredFields(receipt1) || !this.hasRequiredFields(receipt2)) {
-      throw new Error('Receipts missing required fields for comparison');
+      throw new Error("Receipts missing required fields for comparison");
     }
 
     const matchScore = calculateReceiptMatchScore(
@@ -380,10 +380,10 @@ export class ReceiptFinderService {
         merchantName: receipt2.merchant,
         amount: receipt2.amount,
         date: receipt2.date,
-        description: receipt2.description || '',
-        type: 'debit',
-        status: 'matched',
-      }
+        description: receipt2.description || "",
+        type: "debit",
+        status: "matched",
+      },
     );
 
     return {
@@ -397,14 +397,14 @@ export class ReceiptFinderService {
     try {
       const receipt = await this.receiptRepository.findById(id);
       if (!receipt || receipt.userId !== userId) {
-        throw new NotFoundException('Receipt not found');
+        throw new NotFoundException("Receipt not found");
       }
       return receipt;
     } catch (error: unknown) {
       if (error instanceof Error) {
         this.logger.error(`Error finding receipt by ID: ${error.message}`);
       }
-      throw new NotFoundException('Receipt not found');
+      throw new NotFoundException("Receipt not found");
     }
   }
 }

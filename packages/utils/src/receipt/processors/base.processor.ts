@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { SendgridDocument, SmsDocument } from '@fresh-expense/types';
+import type { SendgridDocument, SmsDocument } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
 
 export interface ProcessingResult {
   success: boolean;

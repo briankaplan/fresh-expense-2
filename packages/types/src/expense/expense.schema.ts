@@ -1,8 +1,8 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { BaseDocument } from '../schemas/base.schema';
-import { ExpenseCategory, ExpenseStatus } from '../lib/types';
-import { EXPENSE_CATEGORIES } from '../constants/category.constants';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { type Document, Types } from "mongoose";
+import { EXPENSE_CATEGORIES } from "../constants/category.constants";
+import { ExpenseCategory, ExpenseStatus } from "../lib/types";
+import type { BaseDocument } from "../schemas/base.schema";
 
 export type ExpenseDocument = Expense & Document;
 
@@ -14,10 +14,10 @@ export class Expense implements BaseDocument {
   deletedAt?: Date;
   isDeleted!: boolean;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
   userId!: Types.ObjectId | string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Company', index: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
   companyId!: Types.ObjectId | string;
 
   @Prop({ required: true })
@@ -27,7 +27,7 @@ export class Expense implements BaseDocument {
     required: true,
     type: {
       amount: { type: Number, required: true },
-      currency: { type: String, required: true, default: 'USD' },
+      currency: { type: String, required: true, default: "USD" },
     },
   })
   amount!: {
@@ -58,7 +58,7 @@ export class Expense implements BaseDocument {
   @Prop({ type: Date })
   reportedAt?: Date;
 
-  @Prop({ type: Types.ObjectId, ref: 'Receipt' })
+  @Prop({ type: Types.ObjectId, ref: "Receipt" })
   receiptId?: Types.ObjectId;
 
   @Prop({ type: String })
@@ -77,4 +77,4 @@ export class Expense implements BaseDocument {
   }
 }
 
-export const ExpenseSchema = SchemaFactory.createForClass(Expense); 
+export const ExpenseSchema = SchemaFactory.createForClass(Expense);

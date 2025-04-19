@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { MongoDBService } from '@/core/database/mongodb.service';
+import type { MongoDBService } from "@/core/database/mongodb.service";
+import type { BaseSchema } from "@/core/database/schemas/base.schema";
+import { EXPENSE_COLLECTION, type ExpenseSchema } from "@/core/database/schemas/expense.schema";
 import {
-  TransactionSchema,
   TRANSACTION_COLLECTION,
-} from '@/core/database/schemas/transaction.schema';
-import { ExpenseSchema, EXPENSE_COLLECTION } from '@/core/database/schemas/expense.schema';
-import { BaseSchema } from '@/core/database/schemas/base.schema';
-import { Collection } from 'mongodb';
+  type TransactionSchema,
+} from "@/core/database/schemas/transaction.schema";
+import { Injectable, Logger } from "@nestjs/common";
+import type { Collection } from "mongodb";
 
 @Injectable()
 export class ExpenseIntegrationService {
@@ -25,10 +25,13 @@ export class ExpenseIntegrationService {
   async createExpenseFromTransaction(
     transactionId: string,
     companyId: string,
-    userId: string
+    userId: string,
   ): Promise<ExpenseSchema> {
     const transactionCollection = await this.getTransactionCollection();
-    const transaction = await transactionCollection.findOne({ _id: transactionId, userId });
+    const transaction = await transactionCollection.findOne({
+      _id: transactionId,
+      userId,
+    });
 
     if (!transaction) {
       throw new Error(`Transaction ${transactionId} not found`);
@@ -47,9 +50,9 @@ export class ExpenseIntegrationService {
       date: transaction.date,
       tags: transaction.tags,
       transactionId: transaction._id,
-      status: 'pending',
-      paymentMethod: 'card', // Default to card since it's from Teller
-      currency: 'USD', // Default to USD, can be enhanced later
+      status: "pending",
+      paymentMethod: "card", // Default to card since it's from Teller
+      currency: "USD", // Default to USD, can be enhanced later
       metadata: {
         ...transaction.metadata,
         originalTransaction: transaction._id,
@@ -69,7 +72,7 @@ export class ExpenseIntegrationService {
           companyId,
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     return { ...expense, _id: result.insertedId } as ExpenseSchema;
@@ -101,7 +104,7 @@ export class ExpenseIntegrationService {
             companyId: undefined,
             updatedAt: new Date(),
           },
-        }
+        },
       ),
       expenseCollection.updateOne(
         { _id: expenseId },
@@ -110,7 +113,7 @@ export class ExpenseIntegrationService {
             transactionId: undefined,
             updatedAt: new Date(),
           },
-        }
+        },
       ),
     ]);
   }

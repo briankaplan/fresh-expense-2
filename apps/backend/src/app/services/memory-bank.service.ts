@@ -1,6 +1,6 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import * as path from "path";
+import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
+import * as fs from "fs/promises";
 
 interface MemoryItem<T> {
   data: T;
@@ -50,7 +50,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
   private readonly PERSIST_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.persistPath = path.join(process.cwd(), 'data', 'memory-bank', 'store.json');
+    this.persistPath = path.join(process.cwd(), "data", "memory-bank", "store.json");
   }
 
   async onModuleInit() {
@@ -75,15 +75,17 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
 
       // Start persistence interval
       this.persistInterval = setInterval(() => {
-        this.persistToDisk().catch(err => this.logger.error('Failed to persist memory bank:', err));
+        this.persistToDisk().catch((err) =>
+          this.logger.error("Failed to persist memory bank:", err),
+        );
       }, this.PERSIST_INTERVAL);
 
       // Start cleanup interval
       setInterval(() => this.cleanup(), 60 * 1000); // Every minute
 
-      this.logger.log('Memory bank initialized successfully');
+      this.logger.log("Memory bank initialized successfully");
     } catch (error) {
-      this.logger.error('Failed to initialize memory bank:', error);
+      this.logger.error("Failed to initialize memory bank:", error);
       throw error;
     }
   }
@@ -108,8 +110,8 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
     this.store.set(key, item);
 
     if (options.persist) {
-      this.persistToDisk().catch(err =>
-        this.logger.error(`Failed to persist data for key ${key}:`, err)
+      this.persistToDisk().catch((err) =>
+        this.logger.error(`Failed to persist data for key ${key}:`, err),
       );
     }
   }
@@ -171,7 +173,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
     const results: Array<{ key: string; data: any }> = [];
 
     for (const [key, item] of this.store.entries()) {
-      if (item.metadata.tags?.some(tag => tags.includes(tag))) {
+      if (item.metadata.tags?.some((tag) => tags.includes(tag))) {
         results.push({ key, data: item.data });
       }
     }
@@ -231,7 +233,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
       }
 
       // Count by tags
-      item.metadata.tags?.forEach(tag => {
+      item.metadata.tags?.forEach((tag) => {
         stats.byTag[tag] = (stats.byTag[tag] || 0) + 1;
       });
 
@@ -250,10 +252,10 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
   private async persistToDisk(): Promise<void> {
     try {
       const data = JSON.stringify(Array.from(this.store.entries()), null, 2);
-      await fs.writeFile(this.persistPath, data, 'utf8');
-      this.logger.debug('Memory bank persisted to disk');
+      await fs.writeFile(this.persistPath, data, "utf8");
+      this.logger.debug("Memory bank persisted to disk");
     } catch (error) {
-      this.logger.error('Failed to persist memory bank to disk:', error);
+      this.logger.error("Failed to persist memory bank to disk:", error);
       throw error;
     }
   }
@@ -269,11 +271,11 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
         .catch(() => false);
 
       if (!exists) {
-        this.logger.debug('No persisted memory bank found');
+        this.logger.debug("No persisted memory bank found");
         return;
       }
 
-      const data = await fs.readFile(this.persistPath, 'utf8');
+      const data = await fs.readFile(this.persistPath, "utf8");
       const entries = JSON.parse(data);
 
       // Restore dates
@@ -288,7 +290,7 @@ export class MemoryBankService implements OnModuleInit, OnModuleDestroy {
 
       this.logger.log(`Loaded ${entries.length} items from persisted memory bank`);
     } catch (error) {
-      this.logger.error('Failed to load memory bank from disk:', error);
+      this.logger.error("Failed to load memory bank from disk:", error);
       throw error;
     }
   }

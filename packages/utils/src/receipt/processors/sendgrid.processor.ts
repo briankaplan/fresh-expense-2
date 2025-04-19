@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { BaseReceiptProcessor, ProcessingResult, ProcessingOptions } from './base.processor';
-import { SendGridDocument, SendGridStatus } from '@fresh-expense/types';
+import { type SendGridDocument, SendGridStatus } from "@fresh-expense/types";
+import { Injectable } from "@nestjs/common";
+import {
+  BaseReceiptProcessor,
+  type ProcessingOptions,
+  type ProcessingResult,
+} from "./base.processor";
 
 @Injectable()
 export class SendGridProcessor extends BaseReceiptProcessor {
@@ -11,7 +15,7 @@ export class SendGridProcessor extends BaseReceiptProcessor {
     try {
       // Validate document
       if (options.validate && !this.validateDocument(doc)) {
-        return { success: false, error: 'Invalid document' };
+        return { success: false, error: "Invalid document" };
       }
 
       // Process attachments
@@ -46,8 +50,8 @@ export class SendGridProcessor extends BaseReceiptProcessor {
         steps: [
           ...(doc.processing?.steps || []),
           {
-            name: 'finalize',
-            status: 'matched',
+            name: "finalize",
+            status: "matched",
             completedAt: new Date(),
           },
         ],
@@ -57,17 +61,17 @@ export class SendGridProcessor extends BaseReceiptProcessor {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
 
   async processSMS(): Promise<ProcessingResult> {
-    throw new Error('SMS processing not supported by SendGrid processor');
+    throw new Error("SMS processing not supported by SendGrid processor");
   }
 
   protected async processAttachments(
-    attachments: SendGridDocument['attachments'],
+    attachments: SendGridDocument["attachments"],
     options: ProcessingOptions = {},
   ): Promise<ProcessingResult> {
     try {
@@ -83,7 +87,7 @@ export class SendGridProcessor extends BaseReceiptProcessor {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Attachment processing failed',
+        error: error instanceof Error ? error.message : "Attachment processing failed",
       };
     }
   }

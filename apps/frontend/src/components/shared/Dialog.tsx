@@ -1,23 +1,23 @@
+import { Close as CloseIcon } from "@mui/icons-material";
 import {
-  Dialog as MuiDialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   Box,
-  Typography,
-  IconButton,
+  Button,
   CircularProgress,
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
-import { ReactNode, useState } from 'react';
-import { useNotification } from './Notification';
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Dialog as MuiDialog,
+  Typography,
+} from "@mui/material";
+import { type ReactNode, useState } from "react";
+import { useNotification } from "./Notification";
 
 interface DialogAction {
   label: string;
   onClick: () => Promise<void> | void;
-  variant?: 'text' | 'outlined' | 'contained';
-  color?: 'primary' | 'secondary' | 'error' | 'success' | 'info' | 'warning';
+  variant?: "text" | "outlined" | "contained";
+  color?: "primary" | "secondary" | "error" | "success" | "info" | "warning";
   disabled?: boolean;
 }
 
@@ -27,7 +27,7 @@ interface DialogProps {
   title: string;
   children: ReactNode;
   actions?: DialogAction[];
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
   fullWidth?: boolean;
   loading?: boolean;
   showCloseButton?: boolean;
@@ -40,7 +40,7 @@ export function Dialog({
   title,
   children,
   actions = [],
-  maxWidth = 'sm',
+  maxWidth = "sm",
   fullWidth = true,
   loading = false,
   showCloseButton = true,
@@ -54,7 +54,7 @@ export function Dialog({
       setIsSubmitting(true);
       await action.onClick();
     } catch (error) {
-      showNotification(error instanceof Error ? error.message : 'An error occurred', 'error');
+      showNotification(error instanceof Error ? error.message : "An error occurred", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,9 +75,9 @@ export function Dialog({
       <DialogTitle>
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           <Typography variant="h6">{title}</Typography>
@@ -86,7 +86,7 @@ export function Dialog({
               aria-label="close"
               onClick={onClose}
               sx={{
-                color: theme => theme.palette.grey[500],
+                color: (theme) => theme.palette.grey[500],
               }}
             >
               <CloseIcon />
@@ -99,9 +99,9 @@ export function Dialog({
         {loading ? (
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
               minHeight: 200,
             }}
           >
@@ -118,8 +118,8 @@ export function Dialog({
             <Button
               key={index}
               onClick={() => handleAction(action)}
-              variant={action.variant || 'contained'}
-              color={action.color || 'primary'}
+              variant={action.variant || "contained"}
+              color={action.color || "primary"}
               disabled={action.disabled || isSubmitting}
             >
               {action.label}

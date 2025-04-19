@@ -1,7 +1,7 @@
-import axios from 'axios';
-import { Metrics, MetricsQueryParams, MetricsAggregation } from '@fresh-expense/types';
+import type { Metrics, MetricsAggregation, MetricsQueryParams } from "@fresh-expense/types";
+import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 class MetricsService {
   private readonly baseUrl = `${API_URL}/metrics`;
@@ -12,7 +12,9 @@ class MetricsService {
   }
 
   async findByType(type: string, params: MetricsQueryParams): Promise<Metrics[]> {
-    const response = await axios.get(`${this.baseUrl}/type/${type}`, { params });
+    const response = await axios.get(`${this.baseUrl}/type/${type}`, {
+      params,
+    });
     return response.data;
   }
 

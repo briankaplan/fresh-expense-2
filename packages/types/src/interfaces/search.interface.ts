@@ -21,4 +21,4 @@ export interface Search {
   };
   createdAt: Date;
   updatedAt: Date;
-} 
+}

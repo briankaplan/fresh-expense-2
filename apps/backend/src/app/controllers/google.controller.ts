@@ -1,14 +1,11 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
-import { GoogleService } from '../services/google.service';
-import { AuthGuard } from '@/modules/auth/auth.guard';
-
-
+import { AuthGuard } from "@/modules/auth/auth.guard";
+import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import type { GoogleService } from "../services/google.service";
 
 export class GoogleController {
   constructor(private readonly googleService: GoogleService) {}
 
-  
-  async getAuthUrl(@Query('email') email: string) {
+  async getAuthUrl(@Query("email") email: string) {
     try {
       const url = await this.googleService.getAuthUrl(email);
       return { success: true, url };
@@ -17,8 +14,7 @@ export class GoogleController {
     }
   }
 
-  
-  async handleAuthCallback(@Body('email') email: string, @Body('code') code: string) {
+  async handleAuthCallback(@Body("email") email: string, @Body("code") code: string) {
     try {
       const tokens = await this.googleService.handleAuthCallback(email, code);
       return { success: true, tokens };
@@ -27,8 +23,7 @@ export class GoogleController {
     }
   }
 
-  
-  async searchReceipts(@Query('email') email: string, @Query('query') query: string) {
+  async searchReceipts(@Query("email") email: string, @Query("query") query: string) {
     try {
       const messages = await this.googleService.searchGmailReceipts(email, query);
       return { success: true, messages };
@@ -37,8 +32,7 @@ export class GoogleController {
     }
   }
 
-  
-  async searchPhotos(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
+  async searchPhotos(@Query("startDate") startDate: string, @Query("endDate") endDate: string) {
     try {
       const photos = await this.googleService.searchPhotos(new Date(startDate), new Date(endDate));
       return { success: true, photos };

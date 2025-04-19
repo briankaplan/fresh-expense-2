@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsEnum, IsOptional, IsDate, IsObject } from 'class-validator';
-import { MetricType } from '@fresh-expense/types';
+import { MetricType } from "@fresh-expense/types";
+import { IsDate, IsEnum, IsNumber, IsObject, IsOptional, IsString } from "class-validator";
 
 export class CreateMetricsDto {
   @IsString()

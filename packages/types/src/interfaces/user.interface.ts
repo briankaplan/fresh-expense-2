@@ -1,11 +1,11 @@
-import { Document } from 'mongoose';
-import { UserRole, UserStatus } from '../lib/types';
-import { Currency, DateFormat, TimeZone } from '../schemas/settings.schema';
+import type { Document } from "mongoose";
+import type { UserRole, UserStatus } from "../lib/types";
+import type { Currency, DateFormat, TimeZone } from "../schemas/settings.schema";
 
 export interface NotificationSettings {
   email: {
     enabled: boolean;
-    frequency: 'instant' | 'daily' | 'weekly';
+    frequency: "instant" | "daily" | "weekly";
     types: string[];
   };
   push: {
@@ -19,15 +19,15 @@ export interface NotificationSettings {
 }
 
 export interface BudgetSettings {
-  defaultPeriod: 'monthly' | 'quarterly' | 'yearly';
+  defaultPeriod: "monthly" | "quarterly" | "yearly";
   rolloverEnabled: boolean;
   rolloverPeriod: number;
   alertThreshold: number;
-  alertFrequency: 'daily' | 'weekly' | 'monthly';
+  alertFrequency: "daily" | "weekly" | "monthly";
 }
 
 export interface ExportSettings {
-  format: 'csv' | 'excel' | 'pdf';
+  format: "csv" | "excel" | "pdf";
   includeReceipts: boolean;
   includeMetadata: boolean;
   compression: boolean;
@@ -43,9 +43,9 @@ export interface SecuritySettings {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   language: string;
-  defaultView: 'dashboard' | 'transactions' | 'budget';
+  defaultView: "dashboard" | "transactions" | "budget";
   pageSize: number;
   autoSave: boolean;
   tooltips: boolean;
@@ -69,7 +69,7 @@ export interface UserSettings {
     };
   };
   backup?: {
-    frequency: 'daily' | 'weekly' | 'monthly';
+    frequency: "daily" | "weekly" | "monthly";
     lastBackup?: Date;
     nextBackup?: Date;
     location: string;
@@ -95,7 +95,7 @@ export interface User {
   metadata?: Record<string, any>;
 }
 
-export interface UserDocument extends Omit<User, 'id'>, Document {}
+export interface UserDocument extends Omit<User, "id">, Document {}
 
 export interface UserContext {
   userId: string;
@@ -108,4 +108,4 @@ export interface AuthResponse {
   user: User;
   token: string;
   refreshToken: string;
-} 
+}

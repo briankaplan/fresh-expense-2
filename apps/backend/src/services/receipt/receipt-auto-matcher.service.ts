@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { ReceiptDocument } from '@fresh-expense/types';
-import { TransactionDocument } from '@fresh-expense/types';
-import { NotificationService } from '../notification/notification.service';
-import { stringSimilarity } from 'string-similarity';
-import { CircuitBreaker } from '@fresh-expense/utils';
-import { MetricsService } from '../metrics/metrics.service';
-import { CacheService } from '../cache/cache.service';
+import type { ReceiptDocument } from "@fresh-expense/types";
+import type { TransactionDocument } from "@fresh-expense/types";
+import { CircuitBreaker } from "@fresh-expense/utils";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { type Model, Types } from "mongoose";
+import { stringSimilarity } from "string-similarity";
+import type { CacheService } from "../cache/cache.service";
+import type { MetricsService } from "../metrics/metrics.service";
+import type { NotificationService } from "../notification/notification.service";
 
 interface MatchMetrics {
   successRate: number;
@@ -27,11 +27,12 @@ export class ReceiptAutoMatcherService {
   private readonly CACHE_TTL = 3600; // 1 hour
 
   constructor(
-    @InjectModel('Receipt') private receiptModel: Model<ReceiptDocument>,
-    @InjectModel('Transaction') private transactionModel: Model<TransactionDocument>,
+    @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
+    @InjectModel("Transaction")
+    private transactionModel: Model<TransactionDocument>,
     private notificationService: NotificationService,
     private metricsService: MetricsService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
   ) {
     this.circuitBreaker = new CircuitBreaker({
       failureThreshold: 5,
@@ -47,10 +48,10 @@ export class ReceiptAutoMatcherService {
         userId: transaction.userId.toString(),
         dateRange: {
           start: new Date(
-            transaction.date.getTime() - this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000
+            transaction.date.getTime() - this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000,
           ),
           end: new Date(
-            transaction.date.getTime() + this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000
+            transaction.date.getTime() + this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000,
           ),
         },
         amountRange: {
@@ -65,15 +66,15 @@ export class ReceiptAutoMatcherService {
         await this.processReceiptMatch(receipt, transaction);
       }
     } catch (error) {
-      this.logger.error('Error in onNewTransaction:', error);
-      this.metricsService.recordError('onNewTransaction', error);
+      this.logger.error("Error in onNewTransaction:", error);
+      this.metricsService.recordError("onNewTransaction", error);
       throw error;
     }
   }
 
   async periodicMatching(): Promise<void> {
     try {
-      this.logger.log('Starting periodic receipt matching');
+      this.logger.log("Starting periodic receipt matching");
 
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const unmatchedReceipts = await this.findUnmatchedReceipts({
@@ -85,11 +86,11 @@ export class ReceiptAutoMatcherService {
       // Process in batches
       for (let i = 0; i < unmatchedReceipts.length; i += this.BATCH_SIZE) {
         const batch = unmatchedReceipts.slice(i, i + this.BATCH_SIZE);
-        await Promise.all(batch.map(receipt => this.processReceipt(receipt)));
+        await Promise.all(batch.map((receipt) => this.processReceipt(receipt)));
       }
     } catch (error) {
-      this.logger.error('Error in periodicMatching:', error);
-      this.metricsService.recordError('periodicMatching', error);
+      this.logger.error("Error in periodicMatching:", error);
+      this.metricsService.recordError("periodicMatching", error);
       throw error;
     }
   }
@@ -100,10 +101,10 @@ export class ReceiptAutoMatcherService {
         userId: receipt.userId.toString(),
         dateRange: {
           start: new Date(
-            receipt.uploadDate.getTime() - this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000
+            receipt.uploadDate.getTime() - this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000,
           ),
           end: new Date(
-            receipt.uploadDate.getTime() + this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000
+            receipt.uploadDate.getTime() + this.DEFAULT_DATE_RANGE_DAYS * 24 * 60 * 60 * 1000,
           ),
         },
         amountRange: {
@@ -120,13 +121,13 @@ export class ReceiptAutoMatcherService {
       }
     } catch (error) {
       this.logger.error(`Error processing receipt ${receipt._id}:`, error);
-      this.metricsService.recordError('processReceipt', error);
+      this.metricsService.recordError("processReceipt", error);
     }
   }
 
   private async processReceiptMatch(
     receipt: ReceiptDocument,
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): Promise<{ matched: boolean; confidence: number }> {
     const startTime = Date.now();
     try {
@@ -149,15 +150,15 @@ export class ReceiptAutoMatcherService {
       this.metricsService.recordMatchAttempt(matchScore, Date.now() - startTime);
       return { matched: false, confidence: matchScore };
     } catch (error) {
-      this.logger.error('Error in processReceiptMatch:', error);
-      this.metricsService.recordError('processReceiptMatch', error);
+      this.logger.error("Error in processReceiptMatch:", error);
+      this.metricsService.recordError("processReceiptMatch", error);
       throw error;
     }
   }
 
   private async calculateMatchScore(
     receipt: ReceiptDocument,
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): Promise<number> {
     const preferences = receipt.matchingPreferences || {
       weights: {
@@ -195,7 +196,7 @@ export class ReceiptAutoMatcherService {
   private calculateAmountScore(
     receipt: ReceiptDocument,
     transaction: TransactionDocument,
-    tolerance: number = this.DEFAULT_AMOUNT_TOLERANCE
+    tolerance: number = this.DEFAULT_AMOUNT_TOLERANCE,
   ): number {
     const amountDiff = Math.abs(receipt.amount - transaction.amount);
     return 1 - amountDiff / Math.max(receipt.amount, transaction.amount);
@@ -204,7 +205,7 @@ export class ReceiptAutoMatcherService {
   private calculateDateScore(
     receipt: ReceiptDocument,
     transaction: TransactionDocument,
-    rangeDays: number = this.DEFAULT_DATE_RANGE_DAYS
+    rangeDays: number = this.DEFAULT_DATE_RANGE_DAYS,
   ): number {
     const dateDiff = Math.abs(receipt.uploadDate.getTime() - transaction.date.getTime());
     const maxDateDiff = rangeDays * 24 * 60 * 60 * 1000;
@@ -213,10 +214,10 @@ export class ReceiptAutoMatcherService {
 
   private calculateMerchantScore(
     receipt: ReceiptDocument,
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): number {
     const cachedScore = this.cacheService.get(
-      `merchant:${receipt.merchant}:${transaction.merchant}`
+      `merchant:${receipt.merchant}:${transaction.merchant}`,
     );
     if (cachedScore !== undefined) {
       return cachedScore;
@@ -224,20 +225,20 @@ export class ReceiptAutoMatcherService {
 
     const score = stringSimilarity.compareTwoStrings(
       receipt.merchant.toLowerCase(),
-      transaction.merchant?.toLowerCase() || ''
+      transaction.merchant?.toLowerCase() || "",
     );
 
     this.cacheService.set(
       `merchant:${receipt.merchant}:${transaction.merchant}`,
       score,
-      this.CACHE_TTL
+      this.CACHE_TTL,
     );
     return score;
   }
 
   private calculateLocationScore(
     receipt: ReceiptDocument,
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): number {
     if (!receipt.metadata?.location || !transaction.location) {
       return 0;
@@ -247,7 +248,7 @@ export class ReceiptAutoMatcherService {
       receipt.metadata.location.latitude,
       receipt.metadata.location.longitude,
       transaction.location.latitude,
-      transaction.location.longitude
+      transaction.location.longitude,
     );
 
     // Score decreases with distance, max score at 0km, 0 score at 10km
@@ -256,7 +257,7 @@ export class ReceiptAutoMatcherService {
 
   private calculateCategoryScore(
     receipt: ReceiptDocument,
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): number {
     if (!receipt.metadata?.category || !transaction.category) {
       return 0;
@@ -264,13 +265,13 @@ export class ReceiptAutoMatcherService {
 
     return stringSimilarity.compareTwoStrings(
       receipt.metadata.category.toLowerCase(),
-      transaction.category.toLowerCase()
+      transaction.category.toLowerCase(),
     );
   }
 
   private calculatePaymentMethodScore(
     receipt: ReceiptDocument,
-    transaction: TransactionDocument
+    transaction: TransactionDocument,
   ): number {
     if (!receipt.metadata?.paymentMethod || !transaction.paymentMethod) {
       return 0;
@@ -304,16 +305,16 @@ export class ReceiptAutoMatcherService {
   private async sendToReview(
     receipt: ReceiptDocument,
     transaction: TransactionDocument,
-    confidence: number
+    confidence: number,
   ): Promise<void> {
     await this.receiptModel.updateOne(
       { _id: receipt._id },
       {
         $set: {
-          matchStatus: 'review',
+          matchStatus: "review",
           matchConfidence: confidence,
         },
-      }
+      },
     );
 
     await this.notificationService.sendReviewNotification(receipt.userId.toString(), {
@@ -329,7 +330,7 @@ export class ReceiptAutoMatcherService {
   private async recordMatchAttempt(
     receipt: ReceiptDocument,
     transaction: TransactionDocument,
-    confidence: number
+    confidence: number,
   ): Promise<void> {
     const factors = {
       amount: this.calculateAmountScore(receipt, transaction),
@@ -352,24 +353,24 @@ export class ReceiptAutoMatcherService {
             factors,
           },
         },
-      }
+      },
     );
   }
 
   private async processMatch(
     receipt: ReceiptDocument,
     transaction: TransactionDocument,
-    confidence: number
+    confidence: number,
   ): Promise<void> {
     await this.receiptModel.updateOne(
       { _id: receipt._id },
       {
         $set: {
-          matchStatus: 'matched',
+          matchStatus: "matched",
           matchConfidence: confidence,
           transactionId: transaction._id,
         },
-      }
+      },
     );
 
     await this.notificationService.sendMatchNotification(receipt.userId.toString(), {
@@ -385,9 +386,9 @@ export class ReceiptAutoMatcherService {
   async getMatchMetrics(userId: string): Promise<MatchMetrics> {
     const receipts = await this.receiptModel.find({ userId }).exec();
 
-    const successfulMatches = receipts.filter(r => r.matchStatus != null);
+    const successfulMatches = receipts.filter((r) => r.matchStatus != null);
     const totalAttempts = receipts.reduce((sum, r) => sum + (r.matchHistory?.length || 0), 0);
-    const falsePositives = receipts.filter(r => r.userFeedback?.isCorrect != null).length;
+    const falsePositives = receipts.filter((r) => r.userFeedback?.isCorrect != null).length;
 
     return {
       successRate: successfulMatches.length / receipts.length,

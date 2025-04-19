@@ -1,5 +1,5 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography } from "@mui/material";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -41,28 +41,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return (
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '200px',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "200px",
             p: 3,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           <Typography variant="h6" color="error" gutterBottom>
-            {this.props.errorMessage || 'Something went wrong'}
+            {this.props.errorMessage || "Something went wrong"}
           </Typography>
           <Typography variant="body2" color="text.secondary" paragraph>
             {this.state.error?.message}
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={this.handleReset}
-            sx={{ mt: 2 }}
-          >
-            {this.props.resetButtonText || 'Try again'}
+          <Button variant="contained" color="primary" onClick={this.handleReset} sx={{ mt: 2 }}>
+            {this.props.resetButtonText || "Try again"}
           </Button>
         </Box>
       );

@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { Metrics, MetricType } from '@fresh-expense/types';
+import type { MetricType, Metrics } from "@fresh-expense/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document, Types } from "mongoose";
 
 @Schema({ timestamps: true })
 export class MetricsDocument extends Document implements Metrics {
@@ -9,7 +9,7 @@ export class MetricsDocument extends Document implements Metrics {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ required: true, enum: ['income', 'expense', 'savings'] })
+  @Prop({ required: true, enum: ["income", "expense", "savings"] })
   type: MetricType;
 
   @Prop({ required: true })

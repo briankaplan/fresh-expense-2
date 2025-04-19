@@ -1,7 +1,7 @@
-import { Filter, FindOptions } from 'mongodb';
-import { MongoDBService } from '../mongodb.service';
-import { BaseRepository } from './base.repository';
-import { ReceiptSchema, RECEIPT_COLLECTION } from '../schemas/receipt.schema';
+import { Filter, FindOptions } from "mongodb";
+import type { MongoDBService } from "../mongodb.service";
+import { RECEIPT_COLLECTION, type ReceiptSchema } from "../schemas/receipt.schema";
+import { BaseRepository } from "./base.repository";
 
 export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
   protected readonly collectionName = RECEIPT_COLLECTION;
@@ -30,29 +30,29 @@ export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
 
   async updateProcessingStatus(
     receiptId: string,
-    status: ReceiptSchema['processingStatus'],
-    errorMessage?: string
+    status: ReceiptSchema["processingStatus"],
+    errorMessage?: string,
   ): Promise<boolean> {
     return this.update(
       { _id: receiptId },
       {
         $set: {
           processingStatus: status,
-          isProcessed: status === 'completed',
-          errorMessage: status === 'failed' ? errorMessage : undefined,
+          isProcessed: status === "completed",
+          errorMessage: status === "failed" ? errorMessage : undefined,
         },
-      }
+      },
     );
   }
 
-  async updateOCRData(receiptId: string, ocrData: ReceiptSchema['ocrData']): Promise<boolean> {
+  async updateOCRData(receiptId: string, ocrData: ReceiptSchema["ocrData"]): Promise<boolean> {
     return this.update(
       { _id: receiptId },
       {
         $set: {
           ocrData,
         },
-      }
+      },
     );
   }
 
@@ -64,7 +64,7 @@ export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
   async getReceiptsByCategory(userId: string, category: string): Promise<ReceiptSchema[]> {
     return this.find({
       userId,
-      'items.category': category,
+      "items.category": category,
     });
   }
 }

@@ -1,7 +1,7 @@
-import { Schema, model, Document } from 'mongoose';
+import { type Document, Schema, model } from "mongoose";
 
 export interface IMetrics extends Document {
-  type: 'match_success' | 'match_attempt' | 'error';
+  type: "match_success" | "match_attempt" | "error";
   confidence?: number;
   processingTime?: number;
   context?: string;
@@ -16,7 +16,7 @@ const metricsSchema = new Schema<IMetrics>(
   {
     type: {
       type: String,
-      enum: ['match_success', 'match_attempt', 'error'],
+      enum: ["match_success", "match_attempt", "error"],
       required: true,
     },
     confidence: {
@@ -49,11 +49,11 @@ const metricsSchema = new Schema<IMetrics>(
         return ret;
       },
     },
-  }
+  },
 );
 
 // Add indexes for common queries
 metricsSchema.index({ type: 1, timestamp: -1 });
 metricsSchema.index({ context: 1, timestamp: -1 });
 
-export const Metrics = model<IMetrics>('Metrics', metricsSchema);
+export const Metrics = model<IMetrics>("Metrics", metricsSchema);

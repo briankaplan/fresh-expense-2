@@ -1,10 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Document } from 'mongoose';
-import { ReportDocument } from '@fresh-expense/types';;
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import type { ReportDocument } from "@fresh-expense/types";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { Document, type Model } from "mongoose";
+import type { CreateReportDto } from "./dto/create-report.dto";
+import type { UpdateReportDto } from "./dto/update-report.dto";
 
 interface ReportQuery {
   userId?: string;
@@ -19,7 +19,10 @@ interface ReportQuery {
 export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
-  constructor(@InjectModel(Report.name) private readonly reportModel: Model<ReportDocument>) {}
+  constructor(
+    @InjectModel(Report.name)
+    private readonly reportModel: Model<ReportDocument>,
+  ) {}
 
   async create(createReportDto: CreateReportDto): Promise<ReportDocument> {
     const createdReport = new this.reportModel(createReportDto);
@@ -68,7 +71,7 @@ export class ReportsService {
 
     try {
       // Update status to processing
-      await this.update(id, { status: 'matched' } as UpdateReportDto);
+      await this.update(id, { status: "matched" } as UpdateReportDto);
 
       // Generate report based on type
       let summary;
@@ -95,25 +98,24 @@ export class ReportsService {
 
       // Update report with results
       return this.update(id, {
-        status: 'matched',
+        status: "matched",
         summary,
         fileUrl,
       } as UpdateReportDto);
     } catch (error) {
       await this.update(id, {
-        status: 'matched',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "matched",
+        error: error instanceof Error ? error.message : "Unknown error",
       } as UpdateReportDto);
       throw error;
     }
   }
 
-  
   async processScheduledReports() {
     const scheduledReports = await this.reportModel
       .find({
         isScheduled: true,
-        status: { $ne: 'processing' },
+        status: { $ne: "processing" },
       })
       .exec();
 
@@ -171,6 +173,6 @@ export class ReportsService {
 
   private async generateReportFile(report: ReportDocument, summary: any): Promise<string> {
     // Implementation for file generation based on format
-    return 'https://example.com/reports/' + report._id + '.' + report.format;
+    return "https://example.com/reports/" + report._id + "." + report.format;
   }
 }
