@@ -1,4 +1,4 @@
-import { addDays, differenceInDays, format, isValid, parse, subDays } from "date-fns";
+import { addDays, differenceInDays, format, isValid, parse, subDays, parseISO } from "date-fns";
 
 /**
  * Format a date string
@@ -7,8 +7,13 @@ import { addDays, differenceInDays, format, isValid, parse, subDays } from "date
  * @returns The formatted date string
  */
 export function formatDate(date: string | Date, formatString = "MMM d, yyyy"): string {
-  const parsedDate = typeof date === "string" ? new Date(date) : date;
-  return format(parsedDate, formatString);
+  const d = typeof date === "string" ? parseISO(date) : date;
+  // Create a UTC date at midnight
+  const utcDate = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  // Adjust for local timezone offset to ensure consistent display
+  const offset = utcDate.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(utcDate.getTime() + offset);
+  return format(adjustedDate, formatString);
 }
 
 /**
@@ -47,9 +52,9 @@ export function isValidDate(dateString: string, formatString = "yyyy-MM-dd"): bo
  * @returns The new date
  */
 export function addDaysToDate(date: Date | string | number, days: number): Date {
-  const parsedDate =
-    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
-  return addDays(parsedDate, days);
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
 }
 
 /**
@@ -59,9 +64,9 @@ export function addDaysToDate(date: Date | string | number, days: number): Date 
  * @returns The new date
  */
 export function subtractDaysFromDate(date: Date | string | number, days: number): Date {
-  const parsedDate =
-    typeof date === "string" ? parse(date, "yyyy-MM-dd", new Date()) : new Date(date);
-  return subDays(parsedDate, days);
+  const d = new Date(date);
+  d.setDate(d.getDate() - days);
+  return d;
 }
 
 /**
