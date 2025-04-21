@@ -270,7 +270,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pnpm lint"
+      "pre-commit": "NODE_OPTIONS='--max-old-space-size=8192' pnpm lint"
     }
   }
 }
