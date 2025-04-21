@@ -264,8 +264,8 @@
     "typescript": "5.3.3"
   },
   "lint-staged": {
-    "**/*.ts": [
-      "eslint --fix"
+    "**/*.{ts,tsx,js,jsx,json,css,md}": [
+      "NODE_OPTIONS='--max-old-space-size=8192' eslint --fix --rule 'import/extensions: off' --rule 'import/no-unresolved: off'"
     ]
   },
   "husky": {
