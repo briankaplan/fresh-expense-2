@@ -8,10 +8,11 @@ import { google } from "googleapis";
 import { RateLimiter } from "limiter";
 import type { Model } from "mongoose";
 import { retry } from "ts-retry-promise";
-import type { OCRService } from "../../services/ocr/ocr.service";
-import type { R2Service } from "../../services/r2/r2.service";
+
 import { GoogleService } from "./google.service";
 import type { TokenManagerService } from "./token-manager.service";
+import type { OCRService } from "../../services/ocr/ocr.service";
+import type { R2Service } from "../../services/r2/r2.service";
 
 interface SearchFilters {
   dateFilter?: {

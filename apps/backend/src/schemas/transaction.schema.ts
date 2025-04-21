@@ -12,7 +12,7 @@ export class Transaction implements BaseDocument {
   deletedAt?: Date;
   isDeleted!: boolean;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Types.ObjectId, ref: "User" })
   userId!: string;
 
   @Prop({ required: true })
@@ -21,7 +21,7 @@ export class Transaction implements BaseDocument {
   @Prop({ required: true })
   amount!: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: "USD" })
   currency!: string;
 
   @Prop({ required: true })
@@ -76,9 +76,29 @@ export class Transaction implements BaseDocument {
     status: "pending" | "approved" | "rejected";
   }[];
 
+  @Prop()
+  location?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+
+  @Prop()
+  paymentMethod?: string;
+
   constructor(partial: Partial<Transaction>) {
     Object.assign(this, partial);
   }
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
+
+// Add indexes for common queries
+TransactionSchema.index({ userId: 1, date: -1 });
+TransactionSchema.index({ userId: 1, amount: 1 });
+TransactionSchema.index({ userId: 1, merchantName: 1 });
+TransactionSchema.index({ userId: 1, category: 1 });
+TransactionSchema.index({ userId: 1, paymentMethod: 1 });
+TransactionSchema.index({ userId: 1, location: "2dsphere" });
+TransactionSchema.index({ userId: 1, isRecurring: 1 });
+TransactionSchema.index({ userId: 1, isSplit: 1 });

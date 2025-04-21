@@ -1,7 +1,10 @@
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import type { Transaction, User } from "@fresh-expense/types";
 import { Controller, Get, HttpException, HttpStatus, UseGuards } from "@nestjs/common";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { TransactionService } from "../services/transaction/transaction.service";
+
 
 interface MonthlyStats {
   income: number;

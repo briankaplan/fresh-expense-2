@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Types } from "mongoose";
+
 import { Notification, type NotificationDocument } from "../models/notification.model";
 import type { NotificationRepository } from "../repositories/notification.repository";
 

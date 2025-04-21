@@ -1,3 +1,6 @@
+import { Injectable, Logger } from "@nestjs/common";
+import type { Collection } from "mongodb";
+
 import type { MongoDBService } from "@/core/database/mongodb.service";
 import type { BaseSchema } from "@/core/database/schemas/base.schema";
 import { EXPENSE_COLLECTION, type ExpenseSchema } from "@/core/database/schemas/expense.schema";
@@ -5,8 +8,6 @@ import {
   TRANSACTION_COLLECTION,
   type TransactionSchema,
 } from "@/core/database/schemas/transaction.schema";
-import { Injectable, Logger } from "@nestjs/common";
-import type { Collection } from "mongodb";
 
 @Injectable()
 export class ExpenseIntegrationService {

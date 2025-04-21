@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+
 import type { ReceiptFinderService } from "../../../services/receipt/receipt-finder.service";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 

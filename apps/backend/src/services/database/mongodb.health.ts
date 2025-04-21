@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { HealthCheckError, HealthIndicator, type HealthIndicatorResult } from "@nestjs/terminus";
+
 import type { MongoDBService } from "./mongodb.service";
 
 @Injectable()

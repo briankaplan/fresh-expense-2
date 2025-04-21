@@ -6,7 +6,29 @@
     "composite": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "noEmit": false
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ],
+      "@packages/*": [
+        "../../packages/*"
+      ]
+    }
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ],
+  "references": [
+    {
+      "path": "../../packages/types"
+    },
+    {
+      "path": "../../packages/utils"
+    }
+  ]
 }

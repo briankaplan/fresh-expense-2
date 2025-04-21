@@ -7,6 +7,7 @@ import {
   type UpdateQuery,
   type UpdateWriteOpResult,
 } from "mongoose";
+
 import { Expense } from "./expense.schema";
 
 interface ExpenseQueryOptions {

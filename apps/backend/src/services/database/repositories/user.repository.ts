@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { USER_COLLECTION, type UserSchema } from "../schemas/user.schema";
-import { BaseRepository } from "./base.repository";
 
 export class UserRepository extends BaseRepository<UserSchema> {
   protected readonly collectionName = USER_COLLECTION;

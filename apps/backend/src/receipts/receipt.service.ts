@@ -1,5 +1,6 @@
 import type { Receipt } from "@fresh-expense/types";
 import { Injectable } from "@nestjs/common";
+
 import type { R2Service } from "../storage/r2.service";
 
 @Injectable()

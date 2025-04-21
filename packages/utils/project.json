@@ -5,13 +5,15 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/vite:build",
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/packages/utils",
         "main": "packages/utils/src/index.ts",
         "tsConfig": "packages/utils/tsconfig.json",
-        "assets": ["packages/utils/*.md"]
+        "project": "packages/utils/package.json"
       }
     }
   }

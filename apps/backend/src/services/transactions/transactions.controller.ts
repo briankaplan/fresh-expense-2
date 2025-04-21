@@ -1,6 +1,3 @@
-import type { TransactionSchema } from "@/core/database/schemas/transaction.schema";
-import { CurrentUser } from "@/modules/auth/decorators/current-user.decorator";
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import { ApiResponse } from "@fresh-expense/types";
 import {
   Body,
@@ -15,8 +12,14 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { CreateTransactionDto } from "./dto/create-transaction.dto";
 import type { TransactionsService } from "./transactions.service";
+
+import type { TransactionSchema } from "@/core/database/schemas/transaction.schema";
+import { CurrentUser } from "@/modules/auth/decorators/current-user.decorator";
 
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

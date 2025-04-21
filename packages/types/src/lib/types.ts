@@ -1,18 +1,38 @@
+// Internal modules
+import { ExpenseCategory, ExpenseStatus, UserRole, UserStatus } from "./enums";
 import type { Receipt } from "../schemas/receipt.schema";
 import type { Column, ExtendedUser, TellerAccount, TellerTransaction } from "../teller.types";
-import { ExpenseCategory, ExpenseStatus, UserRole, UserStatus } from "./enums";
 
 export { UserRole, UserStatus, ExpenseStatus, ExpenseCategory };
 
 export interface Amount {
-  amount: number;
+  value: number;
   currency: string;
+}
+
+export interface Location {
+  address?: string;
+  city?: string;
+  region?: string;
+  country?: string;
+  postalCode?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+export interface Merchant {
+  name: string;
+  category?: string;
+  website?: string;
 }
 
 export interface Metadata {
   project?: string;
   department?: string;
   costCenter?: string;
+  paymentMethod?: string;
   [key: string]: any;
 }
 
@@ -27,7 +47,21 @@ export interface User {
 
 export interface UserSettings {
   theme?: "light" | "dark";
-  notifications?: boolean;
+  notifications?: {
+    email: {
+      enabled: boolean;
+      frequency: string;
+      types: string[];
+    };
+    push: {
+      enabled: boolean;
+      types: string[];
+    };
+    inApp: {
+      enabled: boolean;
+      types: string[];
+    };
+  };
   currency?: string;
   language?: string;
 }
@@ -35,13 +69,21 @@ export interface UserSettings {
 export interface Transaction {
   id: string;
   userId: string;
+  accountId: string;
   amount: Amount;
   date: Date;
   description: string;
-  category?: string;
-  merchant?: string;
-  status: string;
+  cleanDescription?: string;
+  category?: ExpenseCategory;
+  merchant: Merchant;
+  status: "pending" | "posted" | "canceled" | "matched";
+  type: "expense" | "income" | "transfer";
+  source: "teller" | "manual" | "import";
+  location?: Location;
   metadata?: Metadata;
+  runningBalance?: Amount;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ApiError {
@@ -78,7 +120,7 @@ export interface FilterOptions {
 /**
  * Utility type to convert TellerTransaction to our internal Transaction format
  */
-export type TellerTransactionToTransaction = Omit<Transaction, "id"> & {
+export type TellerTransactionToTransaction = Omit<Transaction, "id" | "userId"> & {
   tellerId: string;
   tellerAccountId: string;
 };

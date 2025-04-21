@@ -13,16 +13,27 @@
   },
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"],
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ],
       "cache": true
     },
     "test": {
-      "inputs": ["default", "^production"],
+      "inputs": [
+        "default",
+        "^production"
+      ],
       "cache": true
     },
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.cjs"
+      ],
       "cache": true
     },
     "e2e": {
@@ -30,7 +41,10 @@
     }
   },
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -41,27 +55,24 @@
     ],
     "sharedGlobals": []
   },
-  "plugins": ["@nx/webpack", "@nx/node", "@nx/vite"],
+  "plugins": [
+    "@nx/webpack",
+    "@nx/node",
+    "@nx/vite"
+  ],
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "test", "lint", "e2e"],
+        "cacheableOperations": [
+          "build",
+          "test",
+          "lint",
+          "e2e"
+        ],
         "cacheDirectory": "node_modules/.cache/nx",
         "parallel": 3
       }
-    }
-  },
-  "generators": {
-    "@nx/webpack:application": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "jest",
-      "e2eTestRunner": "none"
-    },
-    "@nx/node:application": {
-      "linter": "eslint",
-      "unitTestRunner": "jest"
     }
   }
 }

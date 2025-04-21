@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { SETTINGS_COLLECTION, type SettingsSchema } from "../schemas/settings.schema";
-import { BaseRepository } from "./base.repository";
 
 export class SettingsRepository extends BaseRepository<SettingsSchema> {
   protected readonly collectionName = SETTINGS_COLLECTION;

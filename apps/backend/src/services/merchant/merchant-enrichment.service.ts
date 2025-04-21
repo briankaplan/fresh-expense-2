@@ -6,11 +6,13 @@ import {
   type TransactionDocument,
   type TransactionSummary,
   TransactionType,
+  TransactionStatus,
 } from "@fresh-expense/types";
 import { Inject, Injectable } from "@nestjs/common";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import { BaseService } from "../base.service";
 import type { NotificationService } from "../notification/notification.service";
 
@@ -107,5 +109,13 @@ export class MerchantEnrichmentService extends BaseService {
     });
 
     return summary;
+  }
+
+  async enrichTransaction(transaction: {
+    type: TransactionType;
+    status: TransactionStatus;
+    // ... rest of the transaction
+  }) {
+    // ... implementation
   }
 }

@@ -1,5 +1,6 @@
 import type { ReceiptDocument } from "@fresh-expense/types";
 import { Injectable, Logger } from "@nestjs/common";
+
 import type { MerchantService } from "./merchant.service";
 import type { ReceiptMatcherService } from "./receipt-matcher.service";
 import type { SubscriptionService } from "./subscription.service";

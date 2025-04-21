@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { type Filter, FindOptions, type UpdateFilter } from "mongodb";
-import {
+import { type Filter, FindOptions, type UpdateFilter ,
   type Collection,
   type DeleteResult,
   Document,
@@ -8,10 +7,11 @@ import {
   ObjectId,
   type UpdateResult,
 } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { BaseSchema } from "../schemas/base.schema";
 import { NOTIFICATION_COLLECTION, type NotificationSchema } from "../schemas/notification.schema";
-import { BaseRepository } from "./base.repository";
 
 @Injectable()
 export class NotificationRepository extends BaseRepository<NotificationSchema> {

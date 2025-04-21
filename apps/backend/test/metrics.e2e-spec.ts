@@ -2,8 +2,9 @@ import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
 import type { Response } from "supertest";
-import { AppModule } from "../src/app.module";
+
 import { closeTestApp, createTestApp } from "./setup";
+import { AppModule } from "../src/app.module";
 
 describe("MetricsController (e2e)", () => {
   let app: INestApplication;

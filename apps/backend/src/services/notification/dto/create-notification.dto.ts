@@ -10,6 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
+
 import type { NotificationSchema } from "../../database/schemas/notification.schema";
 
 export class CreateNotificationDto {

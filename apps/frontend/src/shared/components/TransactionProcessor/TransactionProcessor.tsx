@@ -1,4 +1,4 @@
-import { Receipt, TellerAccount, TellerTransaction, type Transaction } from "@fresh-expense/types";
+import { Receipt, TellerAccount, TellerTransaction, type Transaction, TransactionType } from "@fresh-expense/types";
 import { CheckCircle as CheckCircleIcon, Warning as WarningIcon } from "@mui/icons-material";
 import {
   Alert,
@@ -18,7 +18,6 @@ import {
   TransactionMappingError,
   type TransactionStatus,
   TransactionValidationError,
-  categorizeTransactionType,
   formatTransactionAmount,
   getTransactionStatusLabel,
   needsReview,
@@ -29,6 +28,10 @@ interface TransactionProcessorProps {
   onProcessingComplete?: (updatedTransaction: Transaction) => void;
   onError?: (error: Error) => void;
 }
+
+const categorizeTransactionType = (transaction: { type: TransactionType }) => {
+  return transaction.type;
+};
 
 export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
   transaction,
@@ -90,7 +93,7 @@ export const TransactionProcessor: React.FC<TransactionProcessorProps> = ({
             <Typography variant="h6">{transaction.merchant}</Typography>
             <Typography
               variant="h6"
-              color={transactionType === "expense" ? "error" : "success.main"}
+              color={transactionType === TransactionType.EXPENSE ? "error" : "success.main"}
             >
               {formatTransactionAmount(transaction.amount)}
             </Typography>

@@ -9,6 +9,7 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
+
 import { CreateExpenseDto, ExpenseStatus, PaymentMethod } from "./create-expense.dto";
 
 export class UpdateExpenseDto extends PartialType(CreateExpenseDto) {

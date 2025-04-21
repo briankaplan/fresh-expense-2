@@ -1,9 +1,11 @@
-import type { ConfigService } from "@/core/config.service";
 import { Injectable } from "@nestjs/common";
+
+import { BaseAIService } from "./base-ai.service";
 import type { ErrorHandlerService } from "../error-handler.service";
 import type { LoggingService } from "../logging.service";
 import type { RateLimiterService } from "../rate-limiter.service";
-import { BaseAIService } from "./base-ai.service";
+
+import type { ConfigService } from "@/core/config.service";
 
 export interface SimilarityResult {
   score: number;

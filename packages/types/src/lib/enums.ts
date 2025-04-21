@@ -19,12 +19,19 @@ export enum ExpenseStatus {
 }
 
 export enum ExpenseCategory {
-  TRAVEL = "TRAVEL",
-  MEALS = "MEALS",
-  ENTERTAINMENT = "ENTERTAINMENT",
-  OFFICE_SUPPLIES = "OFFICE_SUPPLIES",
-  SOFTWARE = "SOFTWARE",
-  HARDWARE = "HARDWARE",
-  SERVICES = "SERVICES",
-  OTHER = "OTHER",
+  FOOD_AND_DINING = "Food & Dining",
+  SHOPPING = "Shopping",
+  TRANSPORTATION = "Transportation",
+  ENTERTAINMENT = "Entertainment",
+  UTILITIES = "Utilities",
+  HEALTHCARE = "Healthcare",
+  EDUCATION = "Education",
+  TRAVEL = "Travel",
+  PERSONAL_CARE = "Personal Care",
+  HOME_AND_GARDEN = "Home & Garden",
+  INSURANCE = "Insurance",
+  INVESTMENTS = "Investments",
+  GIFTS_AND_DONATIONS = "Gifts & Donations",
+  BUSINESS = "Business",
+  OTHER = "Other",
 }

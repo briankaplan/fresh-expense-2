@@ -1,39 +1,28 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "declaration": true,
-    "sourceMap": true,
-    "strict": true,
-    "baseUrl": ".",
-    "paths": {
-      "@fresh-expense/types": ["packages/types/src"],
-      "@fresh-expense/types/*": ["packages/types/src/*"],
-      "@fresh-expense/utils": ["packages/utils/src"],
-      "@fresh-expense/utils/*": ["packages/utils/src/*"],
-      "@fresh-expense/hooks": ["packages/hooks/src"],
-      "@fresh-expense/hooks/*": ["packages/hooks/src/*"],
-      "@fresh-expense/ui": ["packages/ui/src"],
-      "@fresh-expense/ui/*": ["packages/ui/src/*"]
-    },
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "jsx": "preserve",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@fresh-expense/types": [
+        "./packages/types/src"
+      ]
+    }
   },
-  "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/twilio.processor.*",
-    "**/twilio.processor.d.ts"
-  ],
-  "references": [
-    { "path": "packages/types" },
-    { "path": "packages/utils" },
-    { "path": "packages/hooks" },
-    { "path": "packages/ui" },
-    { "path": "apps/backend", "composite": true },
-    { "path": "apps/frontend", "composite": true }
+  "include": [
+    "apps",
+    "packages",
+    "vite.config.ts",
+    "vitest.config.ts",
+    ".eslintrc.cjs"
   ]
 }

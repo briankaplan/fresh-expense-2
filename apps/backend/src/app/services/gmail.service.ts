@@ -4,6 +4,7 @@ import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { Auth, type gmail_v1, google } from "googleapis";
 import { RateLimiter } from "limiter";
 import { retry } from "ts-retry-promise";
+
 import { GoogleService } from "./google.service";
 import type { TokenManagerService } from "./token-manager.service";
 

@@ -4,6 +4,7 @@
  */
 
 import type { User } from "./interfaces/user.interface";
+import { ExpenseCategory } from "./lib/enums";
 
 /**
  * Represents a bank account from Teller API
@@ -55,11 +56,11 @@ export interface TellerTransaction {
   status: "pending" | "posted" | "canceled" | "matched";
   merchant?: {
     name: string;
-    category?: string;
+    category?: ExpenseCategory;
     website?: string;
   };
   enrichment?: {
-    category?: string;
+    category?: ExpenseCategory;
     location?: {
       address?: string;
       city?: string;

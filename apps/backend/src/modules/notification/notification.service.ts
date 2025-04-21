@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import { Notification, type NotificationDocument } from "./notification.schema";
 
 @Injectable()

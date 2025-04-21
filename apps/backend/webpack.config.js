@@ -1,6 +1,7 @@
 const path = require("node:path");
 
 const { composePlugins, withNx } = require("@nx/webpack");
+const Dotenv = require("dotenv-webpack");
 const nodeExternals = require("webpack-node-externals");
 
 /**
@@ -20,6 +21,18 @@ module.exports = composePlugins(
     config.externals = [
       ...(config.externals || []),
       /^node:/, // Handle node built-in modules
+    ];
+
+    // Add dotenv plugin
+    config.plugins = [
+      ...(config.plugins || []),
+      new Dotenv({
+        path: path.resolve(__dirname, ".env.test"),
+        safe: true,
+        systemvars: true,
+        silent: false,
+        expand: false, // Disable variable expansion to prevent stack overflow
+      }),
     ];
 
     // Additional webpack configuration for Node.js

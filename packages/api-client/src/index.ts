@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@fresh-expense/constants";
-import type { Analytics, Company, Transaction, User } from "@fresh-expense/types";
+import type { Analytics, ICompany, Transaction, User } from "@fresh-expense/types";
 
 class ApiError extends Error {
   constructor(
@@ -110,18 +110,18 @@ class ApiClient {
   }
 
   // Company endpoints
-  async getCompanies(): Promise<Company[]> {
+  async getCompanies(): Promise<ICompany[]> {
     return this.request("/api/companies");
   }
 
-  async createCompany(company: Partial<Company>): Promise<Company> {
+  async createCompany(company: Partial<ICompany>): Promise<ICompany> {
     return this.request("/api/companies", {
       method: "POST",
       body: company,
     });
   }
 
-  async updateCompany(id: string, updates: Partial<Company>): Promise<Company> {
+  async updateCompany(id: string, updates: Partial<ICompany>): Promise<ICompany> {
     return this.request(`/api/companies/${id}`, {
       method: "PUT",
       body: updates,

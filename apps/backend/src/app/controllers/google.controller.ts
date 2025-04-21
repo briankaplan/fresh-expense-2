@@ -1,6 +1,8 @@
-import { AuthGuard } from "@/modules/auth/auth.guard";
 import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+
 import type { GoogleService } from "../services/google.service";
+
+import { AuthGuard } from "@/modules/auth/auth.guard";
 
 export class GoogleController {
   constructor(private readonly googleService: GoogleService) {}

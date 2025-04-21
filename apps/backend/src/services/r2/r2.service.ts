@@ -1,4 +1,5 @@
 import * as path from "node:path";
+
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -14,6 +15,7 @@ import { Types } from "mongoose";
 import sharp from "sharp";
 import { createWorker } from "tesseract.js";
 import { v4 as uuidv4 } from "uuid";
+
 import type { RateLimiterService } from "../rate-limiter.service";
 
 interface UploadResult {

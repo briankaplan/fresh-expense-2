@@ -3,6 +3,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import { Expense } from "../expense/schemas/expense.schema";
 
 interface TransactionQuery {

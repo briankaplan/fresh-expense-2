@@ -1,0 +1,31 @@
+# Build output
+dist/
+build/
+coverage/
+
+# Test files
+test/
+**/*.spec.ts
+**/*.test.ts
+**/*.e2e-spec.ts
+
+# Config files
+*.config.js
+*.config.ts
+webpack.config.js
+
+# Type definition files
+**/*.d.ts
+
+# Generated files
+src/generated/
+
+# Third party code
+node_modules/
+
+# Temporary ignore patterns while fixing issues
+src/services/**/*
+src/modules/**/*
+src/core/**/*
+src/shared/**/*
+src/workers/**/* 

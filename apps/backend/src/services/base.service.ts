@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
+
 import type { NotificationService } from "./notification/notification.service";
 
 export interface ServiceState {

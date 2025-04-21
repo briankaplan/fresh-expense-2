@@ -1,6 +1,6 @@
 import type { Transaction } from "@fresh-expense/types";
 import { describe, expect, it } from "vitest";
-import type { TellerTransaction } from "../index";
+
 import {
   isTellerTransaction,
   isTransaction,
@@ -8,6 +8,13 @@ import {
   validateTellerTransaction,
   validateTransaction,
 } from "./transaction-mappers";
+import {
+  TransactionStatus,
+  TransactionType,
+  TransactionSource,
+  TRANSACTION_CATEGORIES,
+} from "../constants/transaction.constants";
+import type { TellerTransaction } from "../index";
 
 describe("Transaction Validation and Mapping", () => {
   const validTellerTx: TellerTransaction = {
@@ -31,11 +38,11 @@ describe("Transaction Validation and Mapping", () => {
     status: "matched",
     merchant: {
       name: "Coffee Shop Inc",
-      category: "food_and_dining",
+      category: TRANSACTION_CATEGORIES[0],
       website: "https://coffeeshop.com",
     },
     enrichment: {
-      category: "food_and_dining",
+      category: TRANSACTION_CATEGORIES[0],
       location: {
         address: "123 Coffee St",
         city: "Seattle",
@@ -51,6 +58,7 @@ describe("Transaction Validation and Mapping", () => {
 
   const validTransaction: Transaction = {
     id: "tx-123",
+    userId: "user-123",
     accountId: "acc-123",
     date: new Date("2024-01-01"),
     description: "Coffee Shop",
@@ -63,15 +71,15 @@ describe("Transaction Validation and Mapping", () => {
       value: 100.0,
       currency: "USD",
     },
-    category: "food_and_dining",
+    category: TRANSACTION_CATEGORIES[0],
+    status: TransactionStatus.POSTED,
+    type: TransactionType.EXPENSE,
+    source: TransactionSource.TELLER,
     merchant: {
       name: "Coffee Shop Inc",
-      category: "food_and_dining",
+      category: TRANSACTION_CATEGORIES[0],
       website: "https://coffeeshop.com",
     },
-    status: "matched",
-    type: "expense",
-    source: "teller",
     location: {
       address: "123 Coffee St",
       city: "Seattle",
@@ -151,7 +159,7 @@ describe("Transaction Validation and Mapping", () => {
 
       const mapped = mapTellerToTransaction(minimalTx);
       expect(mapped.merchant.name).toBe(minimalTx.description.original);
-      expect(mapped.category).toBe("uncategorized");
+      expect(mapped.category).toBe(TRANSACTION_CATEGORIES[TRANSACTION_CATEGORIES.length - 1]);
       expect(mapped.location).toBeUndefined();
     });
   });
@@ -166,5 +174,25 @@ describe("Transaction Validation and Mapping", () => {
       expect(isTellerTransaction(validTellerTx)).toBe(true);
       expect(isTellerTransaction({ ...validTellerTx, id: undefined })).toBe(false);
     });
+  });
+});
+
+describe("Transaction Mappers", () => {
+  it("should validate TellerTransaction", () => {
+    const transaction: TellerTransaction = {
+      id: "123",
+      accountId: "456",
+      amount: 100,
+      date: new Date(),
+      description: "Test transaction",
+      category: TRANSACTION_CATEGORIES[0],
+      status: TransactionStatus.PENDING,
+      type: TransactionType.EXPENSE,
+      source: TransactionSource.TELLER,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    expect(isTellerTransaction(transaction)).toBe(true);
   });
 });

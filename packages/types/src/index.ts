@@ -2,11 +2,8 @@
 export * from "./lib/enums";
 
 // Feature-specific exports
-export {
-  ExpenseDocument,
-  ExpenseSchema,
-  Expense,
-} from "./expense/expense.schema";
+export type { ExpenseDocument } from "./expense/expense.schema";
+export { ExpenseSchema, Expense } from "./expense/expense.schema";
 
 export * from "./expense/index";
 export * from "./merchant/index";
@@ -19,111 +16,62 @@ export * from "./constants/index";
 export * from "./services/index";
 
 // Document and Schema exports
-export {
-  ReceiptDocument,
-  ReceiptSchema,
-  Receipt,
-} from "./schemas/receipt.schema";
+export type { ReceiptDocument } from "./schemas/receipt.schema";
+export { ReceiptSchema, Receipt } from "./schemas/receipt.schema";
 
-export {
-  TransactionDocument,
-  TransactionSchema,
-  Transaction as TransactionModel,
-} from "./schemas/transaction.schema";
+export type { TransactionDocument } from "./schemas/transaction.schema";
+export { TransactionSchema, Transaction } from "./schemas/transaction.schema";
+export type { Transaction as ITransaction } from "./interfaces/transaction.interface";
 
-export {
-  MerchantDocument,
-  MerchantSchema,
-  Merchant,
-} from "./schemas/merchant.schema";
+export type { MerchantDocument } from "./schemas/merchant.schema";
+export { MerchantSchema, Merchant } from "./schemas/merchant.schema";
 
-export {
-  UserDocument,
-  UserSchema,
-  User as UserModel,
-} from "./schemas/user.schema";
+export type { UserDocument } from "./schemas/user.schema";
+export { UserSchema, User } from "./schemas/user.schema";
+export type { User as IUser } from "./lib/types";
 
-export {
-  CategoryDocument,
-  CategorySchema,
-  Category,
-} from "./schemas/category.schema";
+export type { CategoryDocument } from "./schemas/category.schema";
+export { CategorySchema, Category } from "./schemas/category.schema";
 
-export {
-  BudgetDocument,
-  BudgetSchema,
-  Budget,
-} from "./schemas/budget.schema";
+export type { BudgetDocument } from "./schemas/budget.schema";
+export { BudgetSchema, Budget } from "./schemas/budget.schema";
 
-export {
-  ReportDocument,
-  ReportSchema,
-  Report,
-} from "./schemas/report.schema";
+export type { ReportDocument } from "./schemas/report.schema";
+export { ReportSchema, Report } from "./schemas/report.schema";
 
-export {
-  SubscriptionDocument,
-  SubscriptionSchema,
-  Subscription,
-} from "./schemas/subscription.schema";
+export type { SubscriptionDocument } from "./schemas/subscription.schema";
+export { SubscriptionSchema, Subscription } from "./schemas/subscription.schema";
 
-export {
-  AnalyticsDocument,
-  AnalyticsSchema,
-  Analytics,
-} from "./schemas/analytics.schema";
+export type { AnalyticsDocument } from "./schemas/analytics.schema";
+export { AnalyticsSchema, Analytics } from "./schemas/analytics.schema";
 
-export {
-  SearchDocument,
-  SearchSchema,
-  Search,
-} from "./schemas/search.schema";
+export type { SearchDocument } from "./schemas/search.schema";
+export { SearchSchema, Search } from "./schemas/search.schema";
 
-export {
-  AIModelDocument,
-  AIModelSchema,
-  AIModel,
-} from "./schemas/ai-model.schema";
+export type { AIModelDocument } from "./schemas/ai-model.schema";
+export { AIModelSchema, AIModel } from "./schemas/ai-model.schema";
 
-export {
-  OcrDocument,
-  OcrSchema,
-  OCR,
-} from "./schemas/ocr.schema";
+export type { OcrDocument } from "./schemas/ocr.schema";
+export { OcrSchema, OCR } from "./schemas/ocr.schema";
 
-export {
-  IntegrationDocument,
-  IntegrationSchema,
-  Integration,
-} from "./schemas/integration.schema";
+export type { IntegrationDocument } from "./schemas/integration.schema";
+export { IntegrationSchema, Integration } from "./schemas/integration.schema";
 
-export {
-  SettingsDocument,
-  SettingsSchema,
-  Settings,
-} from "./schemas/settings.schema";
+export type { SettingsDocument } from "./schemas/settings.schema";
+export { SettingsSchema, Settings } from "./schemas/settings.schema";
 
-export {
-  SendgridDocument,
-  SendgridSchema,
-  Sendgrid,
-} from "./schemas/sendgrid.schema";
-
-export {
-  TwilioDocument,
-  TwilioSchema,
-  Twilio,
-} from "./schemas/twilio.schema";
+export type { SendgridDocument } from "./schemas/sendgrid.schema";
+export { SendgridSchema, Sendgrid } from "./schemas/sendgrid.schema";
 
 // Additional type exports
-export {
+export type {
   ReceiptMetadata,
   ReceiptMatchResult,
   ReceiptProcessingOptions,
   ReceiptProcessingResult,
 } from "./receipt.types";
 
-export {
+export type {
   TellerAccount,
   TellerTransaction,
   TellerError,
@@ -132,21 +80,19 @@ export {
   TellerInstitution,
   TellerEnrollment,
   TellerQuery,
-  TELLER_TRANSACTION_TYPE_MAP,
-  TELLER_STATUS_MAP,
 } from "./teller.types";
 
+export { TELLER_TRANSACTION_TYPE_MAP, TELLER_STATUS_MAP } from "./teller.types";
+
 // Export enums and types
-export {
+export type {
   UserRole,
   UserStatus,
   ExpenseStatus,
   ExpenseCategory,
   Amount,
   Metadata,
-  User,
   UserSettings,
-  Transaction,
   ApiError,
   ApiResponse,
   PaginatedResponse,
@@ -156,3 +102,7 @@ export {
   CreateTransactionDto,
   UpdateTransactionDto,
 } from "./lib/types";
+
+// Company types
+export type { ICompany, CompanyOwned as CompanyOwnedInterface } from "./interfaces/company.interface";
+export * from "./schemas/company.schema";

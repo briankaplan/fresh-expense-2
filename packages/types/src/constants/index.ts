@@ -28,3 +28,6 @@ export const ERROR_MESSAGES = {
   VALIDATION_ERROR: "Validation error",
   INTERNAL_ERROR: "Internal server error",
 } as const;
+
+// Transaction constants
+export * from './transaction.constants';

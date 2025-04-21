@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { REPORT_COLLECTION, type ReportSchema } from "../schemas/report.schema";
-import { BaseRepository } from "./base.repository";
 
 export class ReportRepository extends BaseRepository<ReportSchema> {
   protected readonly collectionName = REPORT_COLLECTION;

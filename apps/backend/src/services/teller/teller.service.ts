@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as https from "node:https";
+
 import type {
   TellerAccount,
   TellerQuery,
@@ -14,6 +15,7 @@ import axios, { type AxiosInstance, AxiosError } from "axios";
 import { plainToClass } from "class-transformer";
 import { type ValidationError, validateOrReject } from "class-validator";
 import type { Model } from "mongoose";
+
 import { TransactionDto } from "../../dto/transaction.dto";
 
 @Injectable()

@@ -1,10 +1,10 @@
-import type { SendgridDocument, SmsDocument } from "@fresh-expense/types";
 import { Injectable } from "@nestjs/common";
+import type { SendgridDocument } from "@fresh-expense/types";
 
 export interface ProcessingResult {
   success: boolean;
   error?: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface ProcessingOptions {
@@ -15,21 +15,29 @@ export interface ProcessingOptions {
   forwardTo?: string[];
 }
 
+export enum ProcessorType {
+  SENDGRID = "sendgrid",
+}
+
 @Injectable()
 export abstract class BaseReceiptProcessor {
   abstract processSendGrid(
     doc: SendgridDocument,
     options?: ProcessingOptions,
   ): Promise<ProcessingResult>;
-  abstract processSMS(doc: SmsDocument, options?: ProcessingOptions): Promise<ProcessingResult>;
 
-  protected validateDocument(doc: SendgridDocument | SmsDocument): boolean {
+  abstract processReceipt(
+    doc: SendgridDocument,
+    options?: ProcessingOptions,
+  ): Promise<ProcessingResult>;
+
+  protected validateDocument(doc: SendgridDocument): boolean {
     // Basic validation that applies to both types
     return !!(doc.userId && doc.status && doc.metadata);
   }
 
   protected async processAttachments(
-    attachments: any[],
+    attachments: unknown[],
     options: ProcessingOptions = {},
   ): Promise<ProcessingResult> {
     // Common attachment processing logic
@@ -37,7 +45,7 @@ export abstract class BaseReceiptProcessor {
   }
 
   protected async enrichData(
-    doc: SendgridDocument | SmsDocument,
+    doc: SendgridDocument,
     options: ProcessingOptions = {},
   ): Promise<ProcessingResult> {
     // Common enrichment logic
@@ -45,7 +53,7 @@ export abstract class BaseReceiptProcessor {
   }
 
   protected async storeDocument(
-    doc: SendgridDocument | SmsDocument,
+    doc: SendgridDocument,
     options: ProcessingOptions = {},
   ): Promise<ProcessingResult> {
     // Common storage logic

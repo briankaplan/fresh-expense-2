@@ -1,4 +1,5 @@
-import type { Company, Transaction, User } from "@fresh-expense/types";
+import type { ICompany, Transaction, User } from "@fresh-expense/types";
+import { UserRole, ExpenseCategory, TransactionType, CompanyStatus, TransactionStatus } from "@fresh-expense/types";
 
 // Mock data generators
 export const createMockUser = (overrides?: Partial<User>): User => ({
@@ -6,47 +7,64 @@ export const createMockUser = (overrides?: Partial<User>): User => ({
   email: "test@example.com",
   firstName: "Test",
   lastName: "User",
-  isVerified: true,
-  isActive: true,
-  role: "user",
-  preferences: {
-    theme: "light",
+  role: UserRole.USER,
+  companies: ["company-123"],
+  password: "hashed_password",
+  isEmailVerified: true,
+  lastLoginAt: new Date(),
+  settings: {
+    language: "en",
+    timezone: "UTC",
     currency: "USD",
-    notifications: {
-      email: true,
-      push: true,
-    },
   },
+  createdAt: new Date(),
+  updatedAt: new Date(),
   ...overrides,
 });
 
 export const createMockTransaction = (overrides?: Partial<Transaction>): Transaction => ({
   id: "tx-123",
+  userId: "user-123",
   accountId: "acc-123",
   date: new Date(),
   description: "Test Transaction",
-  amount: { value: 100, currency: "USD" },
-  type: "debit",
-  status: "matched",
-  category: ["FOOD_AND_DINING"],
-  processingStatus: "processed",
+  amount: {
+    value: 100,
+    currency: "USD",
+  },
+  type: TransactionType.EXPENSE,
+  status: TransactionStatus.PENDING,
+  category: ExpenseCategory.OTHER,
+  merchant: {
+    name: "Test Merchant",
+  },
   source: "manual",
-  lastUpdated: new Date(),
-  isRecurring: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   ...overrides,
 });
 
-export const createMockCompany = (overrides?: Partial<Company>): Company => ({
+export const createMockCompany = (overrides?: Partial<ICompany>): ICompany => ({
   id: "company-123",
   userId: "user-123",
   name: "Test Company",
-  status: "matched",
+  description: "A test company",
+  industry: "Technology",
+  status: CompanyStatus.ACTIVE,
   settings: {
     currency: "USD",
-    timezone: "America/New_York",
-    dateFormat: "YYYY-MM-DD",
+    timezone: "UTC",
+    dateFormat: "MM/DD/YYYY",
+    fiscalYearStart: new Date(new Date().getFullYear(), 0, 1),
+    fiscalYearEnd: new Date(new Date().getFullYear(), 11, 31),
   },
   integrations: {},
+  metadata: {
+    createdBy: "user-123",
+    version: "1.0",
+  },
+  createdAt: new Date(),
+  updatedAt: new Date(),
   ...overrides,
 });
 

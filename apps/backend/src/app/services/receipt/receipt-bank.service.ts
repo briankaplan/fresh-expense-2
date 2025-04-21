@@ -2,6 +2,7 @@ import { type BaseTransactionData, Receipt, type ReceiptDocument } from "@fresh-
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { type Model, Types } from "mongoose";
+
 import type { OCRService } from "../../../services/ocr/ocr.service";
 import type { R2Service } from "../../../services/r2/r2.service";
 

@@ -1,14 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
     "composite": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "strictPropertyInitialization": false
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist"
   },
-  "references": [{ "path": "../types" }],
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/twilio.processor.ts"]
+  "include": [
+    "src"
+  ]
 }

@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { MERCHANT_COLLECTION, type MerchantSchema } from "../schemas/merchant.schema";
-import { BaseRepository } from "./base.repository";
 
 export class MerchantRepository extends BaseRepository<MerchantSchema> {
   protected readonly collectionName = MERCHANT_COLLECTION;

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+
 import type { NotificationService } from "./notification/notification.service";
 
 export enum ErrorType {

@@ -1,5 +1,6 @@
 import { ConfigService } from "@nestjs/config";
 import type { IndexDirection } from "mongodb";
+
 import { MongoDBService } from "../services/database/mongodb.service";
 
 interface IndexConfig {

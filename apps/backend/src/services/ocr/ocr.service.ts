@@ -4,6 +4,7 @@ import type { ConfigService } from "@nestjs/config";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import sharp from "sharp";
 import { PSM, createWorker } from "tesseract.js";
+
 import type { NotificationService } from "../notification/notification.service";
 
 @Injectable()

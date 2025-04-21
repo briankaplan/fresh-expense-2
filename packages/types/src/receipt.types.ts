@@ -1,4 +1,5 @@
 import type { Types } from "mongoose";
+
 import type { Receipt } from "./index";
 
 export interface ReceiptDocument extends Omit<Receipt, "id" | "_id"> {

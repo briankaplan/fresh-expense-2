@@ -3,6 +3,7 @@ import { getConnectionToken } from "@nestjs/mongoose";
 import { Test, type TestingModule } from "@nestjs/testing";
 import type { Connection } from "mongoose";
 import * as request from "supertest";
+
 import { AppModule } from "../src/app/app.module";
 
 describe("AuthController (e2e)", () => {

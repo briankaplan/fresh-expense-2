@@ -60,12 +60,12 @@ export class ReceiptService {
     @InjectModel(SettingsDocument.name)
     private readonly settingsModel: Model<SettingsDocument>,
     private readonly processorFactory: ProcessorFactory,
-  ) {}
+  ) { }
 
   async processSendGridMessage(messageId: string, options?: any): Promise<SendgridDocument> {
     try {
       const processor = this.processorFactory.createProcessor(ProcessorType.SENDGRID);
-      return await processor.processSMS(messageId, options);
+      return await processor.processSendGrid(messageId, options);
     } catch (error) {
       this.logger.error(`Error processing SendGrid message: ${error.message}`, error.stack);
       throw error;

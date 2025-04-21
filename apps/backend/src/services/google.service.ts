@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
 import { type gmail_v1, google } from "googleapis";
+
 import type { TokenManagerService } from "./token-manager.service";
 
 interface GooglePhotoMediaItem {

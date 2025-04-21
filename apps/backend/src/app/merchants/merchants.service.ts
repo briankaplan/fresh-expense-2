@@ -2,6 +2,7 @@ import type { MerchantDocument } from "@fresh-expense/types";
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import type { CreateMerchantDto } from "./dto/create-merchant.dto";
 import type { UpdateMerchantDto } from "./dto/update-merchant.dto";
 

@@ -1,5 +1,4 @@
-import type { BaseDocument } from "@fresh-expense/types";
-import type { FrequencyType, TransactionCategory } from "@fresh-expense/types";
+import type { BaseDocument , FrequencyType, TransactionCategory } from "@fresh-expense/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { type Document, Schema as MongooseSchema } from "mongoose";
 

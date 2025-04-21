@@ -1,5 +1,6 @@
 import type { MetricType } from "@expense/types";
 import { validate } from "class-validator";
+
 import { UpdateMetricsDto } from "./update-metrics.dto";
 
 describe("UpdateMetricsDto", () => {

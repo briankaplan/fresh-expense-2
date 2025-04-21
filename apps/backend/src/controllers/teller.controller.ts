@@ -1,4 +1,3 @@
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import {
   Controller,
   Get,
@@ -9,8 +8,12 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { TellerAccount, TellerQuery, TellerService } from "../services/teller/teller.service";
 import type { TellerSyncTask } from "../tasks/teller-sync.task";
+
 
 export class TellerController {
   private readonly logger = new Logger(TellerController.name);

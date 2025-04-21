@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import axios from "axios";
+
 import type { NotificationService } from "../notification/notification.service";
 
 interface CategorizationResult {

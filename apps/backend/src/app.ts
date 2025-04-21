@@ -1,8 +1,8 @@
 import cors from "cors";
 import express from "express";
 
-import { connectToDb } from "./db";
 import { setupDb } from "./db/setup";
+import { connectToDb } from "./db";
 import expensesRouter from "./routes/expenses";
 import transactionsRouter from "./routes/transactions";
 

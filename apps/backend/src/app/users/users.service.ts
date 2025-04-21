@@ -1,8 +1,10 @@
 import * as crypto from "node:crypto";
+
 import type { UserDocument } from "@fresh-expense/types";
 import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import type { CreateUserDto } from "./dto/create-user.dto";
 import type { UpdateUserDto } from "./dto/update-user.dto";
 

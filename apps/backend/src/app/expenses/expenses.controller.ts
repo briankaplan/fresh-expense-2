@@ -1,4 +1,3 @@
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import type { User } from "@fresh-expense/types";
 import {
   BadRequestException,
@@ -14,9 +13,13 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Request as ExpressRequest } from "express";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { CreateExpenseDto } from "./dto/create-expense.dto";
 import type { UpdateExpenseDto } from "./dto/update-expense.dto";
 import type { ExpensesService } from "./expenses.service";
+
 
 interface ExpenseQuery {
   startDate?: string;

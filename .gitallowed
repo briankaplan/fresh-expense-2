@@ -1,0 +1,30 @@
+# Environment files
+.env.example
+.env.development
+.env.production.template
+.env.test
+.env.temp
+apps/backend/.env.example
+apps/backend/.env.production
+apps/backend/.env.test
+apps/backend/config/.env.example
+apps/backend/config/development.env
+apps/backend/config/production.env
+apps/backend/config/test.env
+
+# Docker configuration
+docker-compose.yml
+docker-compose.prod.yml
+
+# Scripts
+scripts/generate-secrets.sh
+scripts/setup-env.sh
+scripts/setup-local-env.sh
+scripts/update-env.sh
+scripts/test-docker.sh
+
+# GitHub Actions
+.github/workflows/docker.yml
+
+# Documentation
+memory-bank/implementation/audit.md 

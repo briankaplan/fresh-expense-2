@@ -1,4 +1,5 @@
 import type { Document } from "mongoose";
+
 import type { MetricType } from "./metrics/metrics.enum";
 
 export interface Metrics {

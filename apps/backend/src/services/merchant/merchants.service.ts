@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { createPaginationParams, createSortOptions } from "@packages/utils";
 import type { Model } from "mongoose";
+
 import type { CreateMerchantDto } from "./dto/create-merchant.dto";
 import type { UpdateMerchantDto } from "./dto/update-merchant.dto";
 

@@ -20,22 +20,12 @@ export function formatCurrency(amount: number, currency = "USD", locale = "en-US
  * @returns The parsed number or NaN if invalid
  */
 export function parseCurrency(currencyString: string, currency = "USD", locale = "en-US"): number {
-  const formatter = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-  });
-  const parts = formatter.formatToParts(0);
-  const decimal = parts.find((part) => part.type != null)?.value || ".";
-  const group = parts.find((part) => part.type != null)?.value || ",";
-  const symbol = parts.find((part) => part.type != null)?.value || "$";
+  if (typeof currencyString !== 'string') return NaN;
 
-  const cleanString = currencyString
-    .replace(symbol, "")
-    .replace(new RegExp(`[${group}]`, "g"), "")
-    .replace(decimal, ".")
-    .trim();
+  // Match currency numbers with optional symbol and commas
+  const cleaned = currencyString.replace(/[^0-9.-]+/g, '');
 
-  return Number.parseFloat(cleanString);
+  return parseFloat(cleaned);
 }
 
 /**
@@ -102,12 +92,9 @@ export function calculatePercentageDifference(
  * @returns True if the string is a valid currency amount, false otherwise
  */
 export function isValidCurrency(amount: string, currency = "USD", locale = "en-US"): boolean {
-  try {
-    const parsed = parseCurrency(amount, currency, locale);
-    return !Number.isNaN(parsed);
-  } catch {
-    return false;
-  }
+  return /^-?\$?\d{1,3}(,\d{3})*(\.\d{1,2})?$/.test(
+    amount.replace(/\s/g, '')
+  );
 }
 
 /**

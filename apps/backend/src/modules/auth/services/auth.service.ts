@@ -6,6 +6,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import * as argon2 from "argon2";
 import type { Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+
 import type { EmailService } from "../../services/email/email.service";
 import type { ChangePasswordDto } from "../dto/change-password.dto";
 import type { LoginDto } from "../dto/login.dto";

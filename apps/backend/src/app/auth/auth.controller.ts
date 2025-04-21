@@ -1,9 +1,10 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Request, UseGuards } from "@nestjs/common";
-import type { UsersService } from "../users/users.service";
+
 import type { AuthService } from "./auth.service";
 import type { LoginDto } from "./dto/login.dto";
 import type { RegisterDto } from "./dto/register.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import type { UsersService } from "../users/users.service";
 
 export class AuthController {
   constructor(

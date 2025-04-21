@@ -1,9 +1,12 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
-    "types": ["jest", "node"]
+    "noEmit": true,
+    "module": "es2020",
+    "moduleResolution": "bundler"
   },
-  "include": ["jest.config.ts", "src/**/*.ts"]
+  "include": [
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

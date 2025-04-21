@@ -1,7 +1,10 @@
+import * as path from "path";
+
 import { Logger, type MiddlewareConsumer, Module, type NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ScheduleModule } from "@nestjs/schedule";
+
 import { AuthModule } from "./app/auth/auth.module";
 import { ExpensesModule } from "./app/expenses/expenses.module";
 import { MerchantsModule } from "./app/merchants/merchants.module";
@@ -25,7 +28,11 @@ import { TellerService } from "./services/teller/teller.service";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env",
+      envFilePath: process.env.NODE_ENV === "test" 
+        ? path.resolve(process.cwd(), "apps/backend/.env.test")
+        : path.resolve(process.cwd(), "apps/backend/.env"),
+      expandVariables: false, // Disable variable expansion to prevent stack overflow
+      cache: true,
     }),
     ScheduleModule.forRoot(),
     MongooseModule.forRootAsync({

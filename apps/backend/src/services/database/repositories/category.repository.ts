@@ -1,8 +1,9 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import type { BaseSchema } from "../schemas/base.schema";
 import { CATEGORY_COLLECTION, type CategorySchema } from "../schemas/category.schema";
-import { BaseRepository } from "./base.repository";
 
 export class CategoryRepository extends BaseRepository<CategorySchema> {
   protected readonly collectionName = CATEGORY_COLLECTION;

@@ -1,10 +1,9 @@
 import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+
 import { AuthGuard } from "../app/auth/guards/auth.guard";
 import type { ClassificationService } from "../services/ai/classification.service";
-import type { ExtractionService } from "../services/ai/extraction.service";
-import type { ExtractedReceiptInfo } from "../services/ai/extraction.service";
-import type { SimilarityService } from "../services/ai/similarity.service";
-import type { SimilarityResult } from "../services/ai/similarity.service";
+import type { ExtractionService , ExtractedReceiptInfo } from "../services/ai/extraction.service";
+import type { SimilarityService , SimilarityResult } from "../services/ai/similarity.service";
 
 export class AIController {
   constructor(

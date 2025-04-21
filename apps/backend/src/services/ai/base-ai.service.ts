@@ -1,9 +1,11 @@
-import type { ConfigService } from "@/core/config.service";
 import { Injectable } from "@nestjs/common";
 import axios, { type AxiosInstance } from "axios";
+
 import { type ErrorHandlerService, ErrorType } from "../error-handler.service";
 import type { LoggingService } from "../logging.service";
 import type { RateLimiterService } from "../rate-limiter.service";
+
+import type { ConfigService } from "@/core/config.service";
 
 @Injectable()
 export abstract class BaseAIService {

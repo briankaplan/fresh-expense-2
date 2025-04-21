@@ -1,5 +1,4 @@
-import type { ReceiptDocument } from "@fresh-expense/types";
-import { type BaseTransactionData, OCRResult } from "@fresh-expense/types";
+import type { ReceiptDocument , type BaseTransactionData, OCRResult, TransactionType } from "@fresh-expense/types";
 import {
   ReceiptMatchScore,
   calculateAmountMatchScore,
@@ -12,6 +11,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { type Model, Types } from "mongoose";
+
 import type { OCRService } from "../../services/ocr/ocr.service";
 import type { R2Service } from "../../services/r2/r2.service";
 
@@ -44,7 +44,7 @@ interface ReceiptData {
 }
 
 // Add new types for receipt-specific transactions
-type ReceiptTransactionType = "debit" | "credit" | "receipt";
+type ReceiptTransactionType = TransactionType.EXPENSE | TransactionType.INCOME | "receipt";
 type ReceiptTransactionStatus = "pending" | "posted" | "canceled" | "unmatched";
 
 // Extend BaseTransactionData for receipts
@@ -78,6 +78,15 @@ interface Receipt {
   }>;
 }
 
+interface ReceiptTransaction {
+  id: string;
+  date: Date;
+  amount: number;
+  description: string;
+  type: ReceiptTransactionType;
+  // ... rest of the interface
+}
+
 @Injectable()
 export class ReceiptBankService {
   private readonly logger = new Logger(ReceiptBankService.name);
@@ -86,7 +95,7 @@ export class ReceiptBankService {
     @InjectModel("Receipt") private receiptModel: Model<ReceiptDocument>,
     private readonly r2Service: R2Service,
     private readonly ocrService: OCRService,
-  ) {}
+  ) { }
 
   @Cron(CronExpression.EVERY_HOUR)
   async processUnmatchedReceipts() {

@@ -1,11 +1,14 @@
 import { createHash } from "node:crypto";
-import { getDb } from "@/core/database";
-import { validateRequest } from "@/shared/middleware/validateRequest";
+
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Router } from "express";
 import { ObjectId } from "mongodb";
 import fetch from "node-fetch";
 import { z } from "zod";
+
+import { validateRequest } from "@/shared/middleware/validateRequest";
+
+import { getDb } from "@/core/database";
 
 const router = Router();
 const s3Client = new S3Client({

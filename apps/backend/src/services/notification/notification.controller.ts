@@ -1,6 +1,3 @@
-import type { NotificationSchema } from "@/core/database/schemas/notification.schema";
-import { CurrentUser } from "@/modules/auth/decorators/current-user.decorator";
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import {
   Body,
   Controller,
@@ -13,8 +10,14 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { CreateNotificationDto } from "./dto/create-notification.dto";
 import type { NotificationService } from "./notification.service";
+
+import type { NotificationSchema } from "@/core/database/schemas/notification.schema";
+import { CurrentUser } from "@/modules/auth/decorators/current-user.decorator";
 
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}

@@ -4,10 +4,11 @@ import type { ConfigService } from "@nestjs/config";
 import type { JwtService } from "@nestjs/jwt";
 import * as argon2 from "argon2";
 import type { Request, Response } from "express";
-import type { UsersService } from "../users/users.service";
+
 import type { CreateUserDto } from "./dto/create-user.dto";
 import type { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
+import type { UsersService } from "../users/users.service";
 
 @Injectable()
 export class AuthService {

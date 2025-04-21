@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+
 import type { ReceiptService } from "./receipt.service";
 
 export class ReceiptController {

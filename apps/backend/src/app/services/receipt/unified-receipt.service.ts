@@ -3,11 +3,12 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectModel } from "@nestjs/mongoose";
 import { type Model, Types } from "mongoose";
+
+import type { ReceiptBankService } from "./receipt-bank.service";
 import type { OCRService } from "../../../services/ocr/ocr.service";
 import type { R2Service } from "../../../services/r2/r2.service";
 import type { MerchantLearningService } from "../merchant/merchant-learning.service";
 import type { UnifiedReceiptProcessorService } from "../unified-receipt-processor.service";
-import type { ReceiptBankService } from "./receipt-bank.service";
 
 export type ReceiptSource = "EMAIL" | "GOOGLE_PHOTOS" | "UPLOAD" | "CSV" | "MANUAL";
 

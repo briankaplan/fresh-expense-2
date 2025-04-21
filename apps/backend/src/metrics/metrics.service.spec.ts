@@ -2,6 +2,7 @@ import type { Metrics, MetricsQueryParams } from "@fresh-expense/types";
 import { getModelToken } from "@nestjs/mongoose";
 import { Test, type TestingModule } from "@nestjs/testing";
 import type { Model } from "mongoose";
+
 import { MetricsService } from "./metrics.service";
 
 describe("MetricsService", () => {

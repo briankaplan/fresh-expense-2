@@ -8,9 +8,10 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { AuthGuard } from "../auth/guards/auth.guard";
+
 import type { GoogleService } from "./services/google.service";
 import type { TokenManagerService } from "./services/token-manager.service";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 interface GoogleResponse<T> {
   success: boolean;

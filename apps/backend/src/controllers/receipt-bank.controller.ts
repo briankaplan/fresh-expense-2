@@ -1,4 +1,3 @@
-import { CurrentUser } from "@/shared/decorators/current-user.decorator";
 import {
   BadRequestException,
   Body,
@@ -17,8 +16,12 @@ import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import type { Model } from "mongoose";
+
+import { CurrentUser } from "@/shared/decorators/current-user.decorator";
+
 import type { ReceiptDocument } from "../models/receipt.model";
 import type { ReceiptBankService } from "../services/receipt/receipt-bank.service";
+
 
 export class ReceiptBankController {
   constructor(

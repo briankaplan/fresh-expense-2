@@ -2,6 +2,7 @@ import type { Transaction } from "@fresh-expense/types";
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import { TransactionSchema } from "../../schemas/transaction.schema";
 
 @Injectable()

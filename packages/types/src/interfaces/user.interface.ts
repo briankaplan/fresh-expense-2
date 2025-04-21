@@ -1,4 +1,5 @@
 import type { Document } from "mongoose";
+
 import type { UserRole, UserStatus } from "../lib/types";
 import type { Currency, DateFormat, TimeZone } from "../schemas/settings.schema";
 

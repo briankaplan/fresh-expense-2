@@ -3,6 +3,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
 import * as puppeteer from "puppeteer";
+
 import type { OCRService } from "../../../services/ocr/ocr.service";
 import type { R2Service } from "../../../services/r2/r2.service";
 import type { MemoryBankService } from "../memory-bank.service";

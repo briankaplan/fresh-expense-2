@@ -9,6 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from "class-validator";
+
 import { ReportFormat, ReportType } from "../schemas/report.schema";
 
 class ScheduleDto {

@@ -1,4 +1,3 @@
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import {
   Body,
   Controller,
@@ -10,9 +9,13 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { CreateMerchantDto } from "./dto/create-merchant.dto";
 import type { UpdateMerchantDto } from "./dto/update-merchant.dto";
 import type { MerchantsService } from "./merchants.service";
+
 
 export class MerchantsController {
   constructor(private readonly merchantsService: MerchantsService) {}

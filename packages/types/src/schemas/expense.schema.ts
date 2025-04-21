@@ -1,79 +1,60 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { type Document, Types } from "mongoose";
-import { EXPENSE_CATEGORIES } from "../constants/category.constants";
-import { ExpenseCategory, ExpenseStatus } from "../lib/types";
-import { BaseDocument } from "./base.schema";
+import type { Document, Types } from "mongoose";
+
+import type { BaseDocument } from "./base.schema";
+import type { CompanyType } from "./company.schema";
+import type { ExpenseMetadata } from "../interfaces/metadata";
 
 export type ExpenseDocument = Expense & Document;
 
 @Schema({ timestamps: true })
-export class Expense extends BaseDocument {
-  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
-  userId!: Types.ObjectId | string;
+export class Expense implements BaseDocument {
+    public _id!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt?: Date;
+    public isDeleted!: boolean;
+    public userId!: Types.ObjectId | string;
+    public companyType!: CompanyType;
+    public date!: Date;
+    public amount!: number;
+    public description!: string;
+    public category!: string;
+    public tags?: string[];
+    public status!: string;
+    public reportedAt?: Date;
+    public receiptId?: string;
+    public notes?: string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
-  companyId!: Types.ObjectId | string;
+    // Categorization metadata
+    public categorization?: {
+        confidence?: number;
+        suggestedCompanyType?: CompanyType;
+        suggestedCategory?: string;
+        matchedKeywords?: string[];
+        matchedMerchants?: string[];
+        lastUpdatedAt?: Date;
+    };
 
-  @Prop({ required: true })
-  date!: Date;
+    @Prop({ type: Object })
+    public metadata?: ExpenseMetadata;
 
-  @Prop({
-    required: true,
-    type: {
-      amount: { type: Number, required: true },
-      currency: { type: String, required: true, default: "USD" },
-    },
-  })
-  amount!: {
-    amount: number;
-    currency: string;
-  };
-
-  @Prop({ required: true })
-  description!: string;
-
-  @Prop({
-    type: String,
-    required: true,
-    enum: EXPENSE_CATEGORIES,
-  })
-  category!: string;
-
-  @Prop({ type: [String], default: [] })
-  tags!: string[];
-
-  @Prop({
-    required: true,
-    enum: ExpenseStatus,
-    default: ExpenseStatus.PENDING,
-  })
-  status!: ExpenseStatus;
-
-  @Prop({ type: Date })
-  reportedAt?: Date;
-
-  @Prop({ type: Types.ObjectId, ref: "Receipt" })
-  receiptId?: Types.ObjectId;
-
-  @Prop({ type: String })
-  notes?: string;
-
-  @Prop({ type: Object })
-  metadata?: {
-    project?: string;
-    department?: string;
-    costCenter?: string;
-    [key: string]: any;
-  };
+    constructor(partial: Partial<Expense>) {
+        Object.assign(this, partial);
+    }
 }
 
 export const ExpenseSchema = SchemaFactory.createForClass(Expense);
 
-// Indexes
-ExpenseSchema.index({ userId: 1, date: -1 });
-ExpenseSchema.index({ companyId: 1, date: -1 });
-ExpenseSchema.index({ status: 1 });
+// Add indexes
+ExpenseSchema.index({ userId: 1 });
+ExpenseSchema.index({ companyType: 1 });
+ExpenseSchema.index({ date: -1 });
+ExpenseSchema.index({ amount: 1 });
 ExpenseSchema.index({ category: 1 });
 ExpenseSchema.index({ tags: 1 });
-ExpenseSchema.index({ "amount.amount": 1 });
-ExpenseSchema.index({ "amount.currency": 1 });
+ExpenseSchema.index({ status: 1 });
+ExpenseSchema.index({ reportedAt: 1 });
+ExpenseSchema.index({ receiptId: 1 });
+ExpenseSchema.index({ "categorization.confidence": 1 });
+ExpenseSchema.index({ "categorization.suggestedCompanyType": 1 }); 

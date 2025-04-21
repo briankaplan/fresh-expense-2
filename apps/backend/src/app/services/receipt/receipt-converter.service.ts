@@ -5,6 +5,7 @@ import { PDFDocument } from "pdf-lib";
 import * as puppeteer from "puppeteer";
 import sharp from "sharp";
 import { createWorker } from "tesseract.js";
+
 import type { OCRService } from "../../../services/ocr/ocr.service";
 
 interface ConversionOptions {

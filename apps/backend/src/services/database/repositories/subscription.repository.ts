@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { SUBSCRIPTION_COLLECTION, type SubscriptionSchema } from "../schemas/subscription.schema";
-import { BaseRepository } from "./base.repository";
 
 export class SubscriptionRepository extends BaseRepository<SubscriptionSchema> {
   protected readonly collectionName = SUBSCRIPTION_COLLECTION;

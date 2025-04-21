@@ -1,8 +1,8 @@
 # Dependencies
-node_modules
+node_modules/
 
 # Testing
-coverage
+coverage/
 .nyc_output
 
 # Misc
@@ -27,8 +27,8 @@ tmp
 temp
 
 # Build output
-dist
-build
+dist/
+build/
 .next
 out
 
@@ -45,4 +45,21 @@ dist/
 build/
 out/
 .next/
-.cache/ 
+.cache/
+
+# Additional files
+*.js.map
+*.css
+*.scss
+*.json
+*.md
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot 

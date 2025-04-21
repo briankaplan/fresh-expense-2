@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { TRANSACTION_COLLECTION, type TransactionSchema } from "../schemas/transaction.schema";
-import { BaseRepository } from "./base.repository";
 
 export class TransactionRepository extends BaseRepository<TransactionSchema> {
   protected readonly collectionName = TRANSACTION_COLLECTION;

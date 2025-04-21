@@ -1,8 +1,22 @@
-import { ExpenseCategory } from "../lib/types";
+import { ExpenseCategory } from "../lib/enums";
 
-export const EXPENSE_CATEGORIES = Object.values(ExpenseCategory);
-
-export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+export const EXPENSE_CATEGORIES = [
+  "Food & Dining",
+  "Shopping",
+  "Transportation",
+  "Entertainment",
+  "Utilities",
+  "Healthcare",
+  "Education",
+  "Travel",
+  "Personal Care",
+  "Home & Garden",
+  "Insurance",
+  "Investments",
+  "Gifts & Donations",
+  "Business",
+  "Other",
+] as const;
 
 export const CATEGORY_ICONS: Record<ExpenseCategory, string> = {
   "Food & Dining": "restaurant",

@@ -1,24 +1,24 @@
-import { Receipt, Transaction } from "@fresh-expense/types";
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Metrics, MetricsSchema } from "../schemas/metrics.schema";
-import { Notification, NotificationSchema } from "../schemas/notification.schema";
-import { ReceiptSchema } from "../schemas/receipt.schema";
-import { TransactionSchema } from "../schemas/transaction.schema";
+
 import { TransactionsController } from "./transactions.controller";
 import { TransactionsService } from "./transactions.service";
+import { Metrics, MetricsSchema } from "../schemas/metrics.schema";
+import { Notification, NotificationSchema } from "../schemas/notification.schema";
+import { Receipt, ReceiptSchema } from "../schemas/receipt.schema";
+import { Transaction, TransactionSchema } from "../schemas/transaction.schema";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: "Transaction", schema: TransactionSchema },
-      { name: "Metrics", schema: MetricsSchema },
-      { name: "Receipt", schema: ReceiptSchema },
-      { name: "Notification", schema: NotificationSchema },
+      { name: Transaction.name, schema: TransactionSchema },
+      { name: Metrics.name, schema: MetricsSchema },
+      { name: Receipt.name, schema: ReceiptSchema },
+      { name: Notification.name, schema: NotificationSchema },
     ]),
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService],
   exports: [TransactionsService],
 })
-export class TransactionsModule {}
+export class TransactionsModule { }

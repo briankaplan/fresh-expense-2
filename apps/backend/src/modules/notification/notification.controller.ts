@@ -1,7 +1,8 @@
 import { User } from "@fresh-expense/types";
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../../guards/jwt-auth.guard";
+
 import type { NotificationService } from "./notification.service";
+import { JwtAuthGuard } from "../../guards/jwt-auth.guard";
 
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}

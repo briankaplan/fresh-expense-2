@@ -1,11 +1,13 @@
-import type { NotificationRepository } from "@/core/database/repositories/notification.repository";
-import type { NotificationSchema } from "@/core/database/schemas/notification.schema";
 import { Injectable, Logger } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import { Notification, type NotificationDocument } from "../../models/notification.model";
+
+import type { NotificationRepository } from "@/core/database/repositories/notification.repository";
+import type { NotificationSchema } from "@/core/database/schemas/notification.schema";
 
 export interface Notification {
   type: "success" | "error" | "info" | "warning";

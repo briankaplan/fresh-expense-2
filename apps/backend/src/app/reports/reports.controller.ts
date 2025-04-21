@@ -1,4 +1,3 @@
-import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
 import {
   Body,
   Controller,
@@ -10,9 +9,13 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+
+import { JwtAuthGuard } from "@/modules/auth/guards/jwt-auth.guard";
+
 import type { CreateReportDto } from "./dto/create-report.dto";
 import type { UpdateReportDto } from "./dto/update-report.dto";
 import type { ReportsService } from "./reports.service";
+
 
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}

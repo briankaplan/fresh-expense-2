@@ -13,6 +13,7 @@ import type {
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
+
 import type { MigrationDocument } from "./schemas/migration.schema";
 
 @Injectable()

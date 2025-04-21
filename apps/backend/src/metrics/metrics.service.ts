@@ -8,6 +8,7 @@ import type {
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model, PipelineStage } from "mongoose";
+
 import { type MetricsDocument, MetricsModel } from "./metrics.schema";
 
 @Injectable()

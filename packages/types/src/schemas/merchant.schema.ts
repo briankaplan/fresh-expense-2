@@ -1,68 +1,51 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { type Document, Types } from "mongoose";
-import { BaseDocument } from "./base.schema";
+import type { Document, Types } from "mongoose";
+
+import type { BaseDocument } from "./base.schema";
 
 export type MerchantDocument = Merchant & Document;
 
 @Schema({ timestamps: true })
-export class Merchant extends BaseDocument {
-  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
-  userId!: Types.ObjectId | string;
+export class Merchant implements BaseDocument {
+    public _id!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt?: Date;
+    public isDeleted!: boolean;
+    public userId!: Types.ObjectId | string;
+    public companyId?: Types.ObjectId | string;
+    public name!: string;
+    public category?: string;
+    public address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        country?: string;
+        postalCode?: string;
+    };
+    public contact?: {
+        phone?: string;
+        email?: string;
+        website?: string;
+    };
+    public tags?: string[];
 
-  @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
-  companyId!: Types.ObjectId | string;
+    @Prop({ type: Object })
+    public metadata?: Record<string, unknown>;
 
-  @Prop({ required: true })
-  name!: string;
-
-  @Prop({ type: String })
-  description?: string;
-
-  @Prop({ type: String })
-  website?: string;
-
-  @Prop({ type: String })
-  phone?: string;
-
-  @Prop({ type: String })
-  email?: string;
-
-  @Prop({ type: String })
-  address?: string;
-
-  @Prop({ type: String })
-  city?: string;
-
-  @Prop({ type: String })
-  state?: string;
-
-  @Prop({ type: String })
-  zipCode?: string;
-
-  @Prop({ type: String })
-  country?: string;
-
-  @Prop({ type: [String], default: [] })
-  categories!: string[];
-
-  @Prop({ type: Number, default: 0 })
-  transactionCount!: number;
-
-  @Prop({ type: Number, default: 0 })
-  totalSpent!: number;
-
-  @Prop({ type: Date })
-  lastTransactionDate?: Date;
-
-  @Prop({ type: Object })
-  metadata?: {
-    [key: string]: any;
-  };
+    constructor(partial: Partial<Merchant>) {
+        Object.assign(this, partial);
+    }
 }
 
 export const MerchantSchema = SchemaFactory.createForClass(Merchant);
 
-// Indexes
-MerchantSchema.index({ userId: 1, name: 1 }, { unique: true });
-MerchantSchema.index({ userId: 1, companyId: 1 });
-MerchantSchema.index({ userId: 1, categories: 1 });
+// Add indexes
+MerchantSchema.index({ userId: 1 });
+MerchantSchema.index({ companyId: 1 });
+MerchantSchema.index({ name: 1 });
+MerchantSchema.index({ category: 1 });
+MerchantSchema.index({ tags: 1 });
+MerchantSchema.index({ "address.city": 1 });
+MerchantSchema.index({ "address.state": 1 });
+MerchantSchema.index({ "address.country": 1 }); 

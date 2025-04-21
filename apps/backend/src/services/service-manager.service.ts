@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
+
 import { BaseService } from "./base.service";
 import type { NotificationService } from "./notification/notification.service";
 

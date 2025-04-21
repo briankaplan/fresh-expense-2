@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { type Document, Types } from "mongoose";
+
 import { EXPENSE_CATEGORIES } from "../constants/category.constants";
 import { ExpenseCategory, ExpenseStatus } from "../lib/types";
 import type { BaseDocument } from "../schemas/base.schema";
@@ -8,20 +9,20 @@ export type ExpenseDocument = Expense & Document;
 
 @Schema({ timestamps: true })
 export class Expense implements BaseDocument {
-  _id!: string;
-  createdAt!: Date;
-  updatedAt!: Date;
-  deletedAt?: Date;
-  isDeleted!: boolean;
+  public _id!: string;
+  public createdAt!: Date;
+  public updatedAt!: Date;
+  public deletedAt?: Date;
+  public isDeleted!: boolean;
 
   @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
-  userId!: Types.ObjectId | string;
+  public userId!: Types.ObjectId | string;
 
   @Prop({ required: true, type: Types.ObjectId, ref: "Company", index: true })
-  companyId!: Types.ObjectId | string;
+  public companyId!: Types.ObjectId | string;
 
   @Prop({ required: true })
-  date!: Date;
+  public date!: Date;
 
   @Prop({
     required: true,
@@ -30,42 +31,42 @@ export class Expense implements BaseDocument {
       currency: { type: String, required: true, default: "USD" },
     },
   })
-  amount!: {
+  public amount!: {
     amount: number;
     currency: string;
   };
 
   @Prop({ required: true })
-  description!: string;
+  public description!: string;
 
   @Prop({
     type: String,
     required: true,
     enum: EXPENSE_CATEGORIES,
   })
-  category!: string;
+  public category!: string;
 
   @Prop({ type: [String], default: [] })
-  tags!: string[];
+  public tags!: string[];
 
   @Prop({
     required: true,
     enum: ExpenseStatus,
     default: ExpenseStatus.PENDING,
   })
-  status!: ExpenseStatus;
+  public status!: ExpenseStatus;
 
   @Prop({ type: Date })
-  reportedAt?: Date;
+  public reportedAt?: Date;
 
   @Prop({ type: Types.ObjectId, ref: "Receipt" })
-  receiptId?: Types.ObjectId;
+  public receiptId?: Types.ObjectId;
 
   @Prop({ type: String })
-  notes?: string;
+  public notes?: string;
 
   @Prop({ type: Object })
-  metadata?: {
+  public metadata?: {
     project?: string;
     department?: string;
     costCenter?: string;

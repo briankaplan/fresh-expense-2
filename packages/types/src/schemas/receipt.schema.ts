@@ -1,71 +1,51 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { type Document, Types } from "mongoose";
-import type { ExpenseCategory } from "../lib/types";
+import type { Document, Types } from "mongoose";
+
 import type { BaseDocument } from "./base.schema";
+import type { ReceiptMetadata } from "../interfaces/metadata";
 
 export type ReceiptDocument = Receipt & Document;
 
 @Schema({ timestamps: true })
 export class Receipt implements BaseDocument {
-  _id!: string;
-  createdAt!: Date;
-  updatedAt!: Date;
-  deletedAt?: Date;
-  isDeleted!: boolean;
+    public _id!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt?: Date;
+    public isDeleted!: boolean;
+    public userId!: Types.ObjectId | string;
+    public companyId?: Types.ObjectId | string;
+    public expenseId?: Types.ObjectId | string;
+    public filename!: string;
+    public mimeType!: string;
+    public size!: number;
+    public status!: string;
+    public tags?: string[];
 
-  @Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
-  userId!: Types.ObjectId | string;
+    @Prop({ type: Object })
+    public metadata?: ReceiptMetadata;
 
-  @Prop({ required: true })
-  url!: string;
+    public processing?: {
+        startTime: Date;
+        endTime?: Date;
+        duration?: number;
+        status: string;
+        error?: string;
+    };
 
-  @Prop({ required: true })
-  filename!: string;
-
-  @Prop({ required: true })
-  mimeType!: string;
-
-  @Prop({ required: true })
-  size!: number;
-
-  @Prop({ type: String })
-  category?: ExpenseCategory;
-
-  @Prop({ required: true })
-  merchant!: string;
-
-  @Prop({ required: true })
-  amount!: number;
-
-  @Prop({ required: true })
-  date!: Date;
-
-  @Prop({ type: [String], default: [] })
-  tags!: string[];
-
-  @Prop({ type: Object, required: false })
-  ocrData?: {
-    text?: string;
-    confidence?: number;
-    items?: Array<{
-      description: string;
-      amount: number;
-    }>;
-  };
-
-  @Prop({ type: Object, required: false })
-  metadata?: Record<string, any>;
-
-  constructor(partial: Partial<Receipt>) {
-    Object.assign(this, partial);
-  }
+    constructor(partial: Partial<Receipt>) {
+        Object.assign(this, partial);
+    }
 }
 
 export const ReceiptSchema = SchemaFactory.createForClass(Receipt);
 
-// Indexes
-ReceiptSchema.index({ userId: 1, date: -1 });
-ReceiptSchema.index({ userId: 1, merchant: 1 });
-ReceiptSchema.index({ userId: 1, category: 1 });
-ReceiptSchema.index({ userId: 1, amount: 1 });
-ReceiptSchema.index({ userId: 1, tags: 1 });
+// Add indexes
+ReceiptSchema.index({ userId: 1 });
+ReceiptSchema.index({ companyId: 1 });
+ReceiptSchema.index({ expenseId: 1 });
+ReceiptSchema.index({ status: 1 });
+ReceiptSchema.index({ tags: 1 });
+ReceiptSchema.index({ "metadata.date": 1 });
+ReceiptSchema.index({ "metadata.total": 1 });
+ReceiptSchema.index({ "metadata.merchant": 1 }); 

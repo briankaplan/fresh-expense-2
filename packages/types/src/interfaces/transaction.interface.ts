@@ -1,4 +1,7 @@
-import type { TransactionStatus, TransactionType } from "../constants/transaction.constants";
+// Internal modules
+import type { TransactionStatus, TransactionType, TransactionSource, TransactionCategory } from "../constants/transaction.constants";
+import type { ExpenseCategory } from "../lib/types";
+import type { BaseDocument } from "../schemas/base.schema";
 
 export interface TransactionAmount {
   value: number;
@@ -15,7 +18,7 @@ export interface TransactionMerchant {
 export interface TransactionLocation {
   address?: string;
   city?: string;
-  region?: string;
+  state?: string;
   country?: string;
   postalCode?: string;
   coordinates?: {
@@ -33,25 +36,37 @@ export interface TransactionMetrics {
   trend?: "increasing" | "decreasing" | "stable";
 }
 
-export interface Transaction {
-  id: string;
-  accountId: string;
-  date: Date;
-  description: string;
-  cleanDescription?: string;
-  amount: TransactionAmount;
-  runningBalance?: TransactionAmount;
-  category: string;
-  merchant: TransactionMerchant;
-  status: TransactionStatus;
-  type: TransactionType;
-  source: "teller" | "manual" | "import";
-  location?: TransactionLocation;
-  metadata?: Record<string, unknown>;
-  metrics?: TransactionMetrics;
+export interface TransactionMetadata {
+  source: string;
+  originalId?: string;
+  rawData?: Record<string, any>;
+  processedAt?: Date;
+  confidence?: number;
   tags?: string[];
   notes?: string;
-  attachments?: string[];
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface Transaction extends BaseDocument {
+  userId: string;
+  accountId: string;
+  date: Date;
+  amount: TransactionAmount;
+  description: string;
+  cleanDescription?: string;
+  category: TransactionCategory;
+  merchant: TransactionMerchant;
+  tags: string[];
+  status: TransactionStatus;
+  type: TransactionType;
+  source: TransactionSource;
+  receipt?: {
+    id: string;
+    url: string;
+  };
+  metadata?: TransactionMetadata;
+  notes?: string;
+  location?: TransactionLocation;
+  isRecurring?: boolean;
+  recurringFrequency?: string;
+  recurringEndDate?: Date;
 }

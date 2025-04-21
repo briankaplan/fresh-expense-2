@@ -1,5 +1,6 @@
 import type { BaseTransactionData, ReceiptDocument } from "@fresh-expense/types";
 import { Test, type TestingModule } from "@nestjs/testing";
+
 import { ReceiptMatcherService } from "./receipt-matcher.service";
 
 describe("ReceiptMatcherService", () => {

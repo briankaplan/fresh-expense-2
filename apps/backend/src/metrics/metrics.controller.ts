@@ -6,10 +6,11 @@ import {
 } from "@fresh-expense/types";
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+
 import type { CreateMetricsDto } from "./dto/create-metrics.dto";
 import type { UpdateMetricsDto } from "./dto/update-metrics.dto";
 import type { MetricsService } from "./metrics.service";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
 @ApiTags("metrics")
 @ApiBearerAuth()

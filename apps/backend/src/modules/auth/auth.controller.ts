@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
+
 import type { AuthService } from "./auth.service";
 
 class RegisterDto {

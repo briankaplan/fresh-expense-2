@@ -1,10 +1,10 @@
+import { Receipt, type ReceiptDocument, Transaction , TransactionDocument } from "@fresh-expense/types";
 import { Injectable, Logger } from "@nestjs/common";
-const { parse } = require("csv-parse/sync");
-const { stringify } = require("csv-stringify/sync");
-import { Receipt, type ReceiptDocument, Transaction } from "@fresh-expense/types";
-import type { TransactionDocument } from "@fresh-expense/types";
 import { InjectModel } from "@nestjs/mongoose";
 import { Document, type Model } from "mongoose";
+
+const { parse } = require("csv-parse/sync");
+const { stringify } = require("csv-stringify/sync");
 
 interface CSVExpense {
   merchant: string;

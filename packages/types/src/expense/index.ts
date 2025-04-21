@@ -1,4 +1,5 @@
 import type { Types } from "mongoose";
+
 import type { ExpenseStatus } from "../lib/types";
 
 export interface ExpenseBase {

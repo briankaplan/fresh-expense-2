@@ -1,5 +1,4 @@
-import type { ReceiptDocument } from "@fresh-expense/types";
-import { Merchant, type MerchantDocument } from "@fresh-expense/types";
+import type { ReceiptDocument , Merchant, type MerchantDocument } from "@fresh-expense/types";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";

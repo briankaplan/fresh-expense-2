@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+
 import type { TransactionSchema } from "../../database/schemas/transaction.schema";
 
 export class CreateTransactionDto {

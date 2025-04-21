@@ -1,21 +1,73 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "fresh-expense-monorepo",
+  "name": "expense",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "workspaces": ["packages/*", "apps/*", "apps/workers/*"],
+  "type": "commonjs",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "overrides": {
-    "@nestjs/common": "10.0.0",
-    "@nestjs/core": "10.0.0",
-    "@nestjs/platform-express": "10.0.0",
-    "@nestjs/mongoose": "10.0.0",
-    "@nestjs/swagger": "7.4.2",
-    "@nestjs/passport": "10.0.3",
-    "@nestjs/terminus": "10.0.1",
-    "@nestjs/cache-manager": "2.3.0",
-    "mongoose": "7.6.8",
-    "reflect-metadata": "0.1.13"
+    "@nestjs/passport": {
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20"
+    },
+    "@nestjs/swagger": {
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20",
+      "@nestjs/mapped-types": "2.0.0"
+    },
+    "@nestjs/terminus": {
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20",
+      "@nestjs/mongoose": "11.0.0",
+      "@nestjs/typeorm": "11.0.0"
+    },
+    "@nestjs/cache-manager": {
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20"
+    },
+    "@nestjs-modules/ioredis": {
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20",
+      "@nestjs/mongoose": "11.0.0",
+      "@nestjs/terminus": "11.0.0",
+      "@nestjs/typeorm": "11.0.0"
+    },
+    "@nestjs/testing": {
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20",
+      "@nestjs/platform-express": "11.0.20"
+    },
+    "@nestjs/mapped-types": {
+      "@nestjs/common": "11.0.20"
+    },
+    "@nestjs/mongoose": {
+      "@nestjs/common": "11.0.20",
+      "mongoose": "7.8.4"
+    },
+    "@vitest/ui": {
+      "vite": "^5.0.0"
+    },
+    "@vitejs/plugin-react-swc": {
+      "@swc/core": "^1.3.94"
+    },
+    "@nx/webpack": {
+      "nx": "20.8.0"
+    },
+    "@nx/react": {
+      "nx": "20.8.0"
+    },
+    "@nx/linter": {
+      "nx": "19.8.4"
+    },
+    "@nestjs/common": "11.0.20",
+    "@nestjs/core": "11.0.20",
+    "@nestjs/platform-express": "11.0.20",
+    "mongoose": "7.8.4",
+    "reflect-metadata": "0.1.13",
+    "vitest": "1.6.1"
   },
   "repository": {
     "type": "git",
@@ -27,8 +79,8 @@
   },
   "scripts": {
     "build": "pnpm run build:packages && pnpm run build:apps",
-    "build:packages": "pnpm run build -w @fresh-expense/types -w @fresh-expense/utils -w @fresh-expense/hooks -w @fresh-expense/ui",
-    "build:apps": "pnpm run build -w apps/backend -w apps/frontend",
+    "build:packages": "pnpm -r --filter @fresh-expense/types --filter @fresh-expense/utils --filter @fresh-expense/hooks --filter @fresh-expense/ui run build",
+    "build:apps": "pnpm -r --filter @fresh-expense/backend --filter @fresh-expense/frontend run build",
     "start:dev": "pnpm --filter=./apps/backend dev",
     "start:dev:frontend": "pnpm --filter=./apps/frontend dev",
     "test": "pnpm test:backend && pnpm test:frontend",
@@ -39,21 +91,37 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "clean": "pnpm -r run clean"
+    "clean": "pnpm -r run clean",
+    "fix": "find . -type d -name dist -exec rm -rf {} + && pnpm exec eslint . --fix && pnpm exec prettier --write .",
+    "lint:big": "NODE_OPTIONS='--max-old-space-size=8192' eslint .",
+    "lint:fix:big": "NODE_OPTIONS='--max-old-space-size=8192' eslint . --fix",
+    "lint:fix:massive": "NODE_OPTIONS='--max-old-space-size=8192' eslint apps/backend/**/*.{ts,js} --fix",
+    "lint:workspaces": "node scripts/lint-workspaces.js",
+    "lint:fix:vars": "tsx scripts/fix-unused-vars.ts",
+    "lint:clean": "pnpm run lint:fix:massive && pnpm run lint:fix:vars"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.525.0",
     "@aws-sdk/s3-request-presigner": "3.525.0",
     "@cloudflare/workers-types": "^4.20250416.0",
-    "@nestjs-modules/ioredis": "^2.0.2",
-    "@nestjs/bull": "^11.0.2",
-    "@nestjs/common": "10.0.0",
+    "@nestjs-modules/ioredis": "2.0.2",
+    "@nestjs/bull": "11.0.2",
+    "@nestjs/cache-manager": "3.0.0",
+    "@nestjs/common": "11.0.20",
     "@nestjs/config": "4.0.2",
-    "@nestjs/core": "10.0.0",
-    "@nestjs/event-emitter": "^3.0.1",
-    "@nestjs/mongoose": "10.0.0",
-    "@nestjs/platform-express": "10.0.0",
+    "@nestjs/core": "11.0.20",
+    "@nestjs/event-emitter": "3.0.1",
+    "@nestjs/mapped-types": "2.0.0",
+    "@nestjs/mongoose": "11.0.0",
+    "@nestjs/passport": "11.0.0",
+    "@nestjs/platform-express": "11.0.20",
     "@nestjs/schedule": "5.0.1",
+    "@nestjs/swagger": "7.4.0",
+    "@nestjs/terminus": "11.0.0",
+    "@nestjs/testing": "11.0.0",
+    "@nestjs/typeorm": "11.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
     "compression": "1.7.4",
@@ -61,16 +129,19 @@
     "helmet": "7.1.0",
     "itty-router": "^5.0.18",
     "jsonwebtoken": "9.0.2",
-    "mongoose": "7.6.8",
     "node-cache": "^5.1.2",
     "node-fetch": "3.3.2",
     "nodemailer": "6.9.10",
     "pdf-img-convert": "1.2.1",
     "pdfkit": "0.14.0",
-    "reflect-metadata": "0.1.13",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-konva": "18.2.10",
+    "reflect-metadata": "^0.1.14",
     "sharp": "0.33.2",
     "string-similarity-js": "^2.1.4",
     "tesseract.js": "5.0.5",
+    "typeorm": "^0.3.20",
     "uuid": "9.0.1",
     "zod": "3.22.4"
   },
@@ -82,22 +153,28 @@
     "@babel/preset-typescript": "^7.27.0",
     "@babel/runtime": "^7.27.0",
     "@biomejs/biome": "^1.9.4",
+    "@eslint/eslintrc": "^3.3.1",
     "@google-cloud/storage": "^7.16.0",
-    "@nestjs/jwt": "^11.0.0",
-    "@nestjs/passport": "10.0.3",
-    "@nx/devkit": "18.0.0",
-    "@nx/eslint": "18.0.0",
-    "@nx/eslint-plugin": "18.0.0",
-    "@nx/jest": "18.0.0",
-    "@nx/js": "18.0.0",
-    "@nx/linter": "18.0.0",
-    "@nx/node": "18.0.0",
-    "@nx/react": "18.0.0",
-    "@nx/vite": "18.0.0",
-    "@nx/web": "18.0.0",
-    "@nx/webpack": "18.0.0",
-    "@nx/workspace": "18.0.0",
+    "@nestjs/jwt": "11.0.0",
+    "@nestjs/passport": "11.0.0",
+    "@nrwl/workspace": "^19.8.4",
+    "@nx/devkit": "20.8.0",
+    "@nx/eslint": "20.8.0",
+    "@nx/eslint-plugin": "20.8.0",
+    "@nx/jest": "20.8.0",
+    "@nx/js": "20.8.0",
+    "@nx/linter": "19.8.4",
+    "@nx/nest": "20.8.0",
+    "@nx/node": "20.8.0",
+    "@nx/react": "20.8.0",
+    "@nx/vite": "20.8.0",
+    "@nx/web": "20.8.0",
+    "@nx/webpack": "20.8.0",
+    "@nx/workspace": "20.8.0",
     "@octokit/rest": "^21.1.1",
+    "@swc-node/register": "~1.10.10",
+    "@swc/core": "^1.4.13",
+    "@swc/helpers": "~0.5.2",
     "@ts-morph/common": "^0.26.1",
     "@types/bcrypt": "5.0.2",
     "@types/chart.js": "^2.9.41",
@@ -111,7 +188,6 @@
     "@types/jsdom": "^21.1.7",
     "@types/jsonwebtoken": "9.0.5",
     "@types/mime-types": "^2.1.4",
-    "@types/mongodb": "^4.0.7",
     "@types/multer": "^1.4.12",
     "@types/node": "22.14.1",
     "@types/nodemailer": "6.4.14",
@@ -119,19 +195,23 @@
     "@types/pdfkit": "0.13.4",
     "@types/uuid": "9.0.8",
     "@types/xlsx": "^0.0.35",
-    "@typescript-eslint/eslint-plugin": "6.13.2",
-    "@typescript-eslint/parser": "6.13.2",
+    "@typescript-eslint/eslint-plugin": "6.20.0",
+    "@typescript-eslint/parser": "6.20.0",
     "@vitejs/plugin-react": "^4.4.0",
+    "@vitest/coverage-v8": "^1.6.1",
+    "@vitest/ui": "^1.6.1",
+    "autoprefixer": "^10.4.21",
     "canvas": "^3.1.0",
     "chalk": "^5.4.1",
     "chart.js": "^4.4.9",
     "dependency-cruiser": "^16.10.1",
     "dotenv": "^16.5.0",
+    "dotenv-webpack": "^8.1.0",
     "es-module-lexer": "^1.6.0",
     "eslint": "8.57.0",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-import-resolver-typescript": "^4.3.2",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint-config-prettier": "10.1.2",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "5.1.2",
@@ -149,23 +229,48 @@
     "jscpd": "^4.0.5",
     "lint-staged": "^15.5.1",
     "mongodb": "6.3.0",
-    "nx": "18.0.0",
+    "nx": "20.8.0",
+    "postcss": "^8.5.3",
     "prettier": "3.5.3",
     "prettier-plugin-packagejson": "^2.5.10",
+    "tailwindcss": "^4.1.4",
     "ts-morph": "^25.0.1",
     "ts-node": "10.9.2",
     "ts-prune": "^0.10.3",
     "tsx": "^4.19.3",
     "type-coverage": "^2.29.7",
-    "typescript": "5.8.3",
-    "vite-plugin-dts": "^4.5.3",
+    "typescript": "5.3.3",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.7.3",
     "vite-plugin-static-copy": "2.3.1",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.6.1",
     "webpack": "5.99.5"
   },
   "packageManager": "pnpm@8.15.4",
   "pnpm": {
     "overrides": {
-      "nx": "18.0.0"
+      "@nestjs/common": "11.0.20",
+      "@nestjs/core": "11.0.20",
+      "@nestjs/platform-express": "11.0.20",
+      "@nestjs/mongoose": "11.0.0",
+      "@nestjs/typeorm": "11.0.0",
+      "@nestjs/terminus": "11.0.0",
+      "@nestjs/swagger": "7.4.0"
+    }
+  },
+  "resolutions": {
+    "react": "^18.2.0",
+    "typescript": "5.3.3"
+  },
+  "lint-staged": {
+    "**/*.ts": [
+      "eslint --fix"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pnpm lint"
     }
   }
 }

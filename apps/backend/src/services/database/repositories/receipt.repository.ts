@@ -1,7 +1,8 @@
 import { Filter, FindOptions } from "mongodb";
+
+import { BaseRepository } from "./base.repository";
 import type { MongoDBService } from "../mongodb.service";
 import { RECEIPT_COLLECTION, type ReceiptSchema } from "../schemas/receipt.schema";
-import { BaseRepository } from "./base.repository";
 
 export class ReceiptRepository extends BaseRepository<ReceiptSchema> {
   protected readonly collectionName = RECEIPT_COLLECTION;

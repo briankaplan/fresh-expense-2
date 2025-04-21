@@ -1,4 +1,4 @@
-import type { Transaction, TransactionAmount, TransactionMerchant } from "@fresh-expense/types";
+// External modules
 import { Type } from "class-transformer";
 import {
   IsArray,
@@ -9,39 +9,44 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
+  IsObject,
 } from "class-validator";
+
+// Internal modules
+import { TransactionStatus, TransactionType, TransactionSource } from "../constants/transaction.constants";
+import type { Transaction, TransactionAmount, TransactionMerchant } from "../interfaces/transaction.interface";
 
 export class TransactionAmountDto implements TransactionAmount {
   @IsNumber()
-  value!: number;
+  public value!: number;
 
   @IsString()
-  currency!: string;
+  public currency!: string;
 }
 
 export class TransactionLocationDto {
   @IsString()
   @IsOptional()
-  address?: string;
+  public address?: string;
 
   @IsString()
   @IsOptional()
-  city?: string;
+  public city?: string;
 
   @IsString()
   @IsOptional()
-  state?: string;
+  public state?: string;
 
   @IsString()
   @IsOptional()
-  country?: string;
+  public country?: string;
 
   @IsString()
   @IsOptional()
-  postalCode?: string;
+  public postalCode?: string;
 
   @IsOptional()
-  coordinates?: {
+  public coordinates?: {
     latitude: number;
     longitude: number;
   };
@@ -49,272 +54,275 @@ export class TransactionLocationDto {
 
 export class TransactionMerchantDto implements TransactionMerchant {
   @IsString()
-  name!: string;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
-
-  @IsOptional()
-  @IsString()
-  website?: string;
+  public name!: string;
 
   @IsString()
   @IsOptional()
-  logo?: string;
+  public category?: string;
+
+  @IsString()
+  @IsOptional()
+  public website?: string;
+
+  @IsString()
+  @IsOptional()
+  public logo?: string;
 }
 
 export class TransactionMetadataDto {
   @IsString()
+  public source!: string;
+
+  @IsString()
   @IsOptional()
-  notes?: string;
+  public originalId?: string;
+
+  @IsObject()
+  @IsOptional()
+  public rawData?: Record<string, any>;
+
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  public processedAt?: Date;
+
+  @IsNumber()
+  @IsOptional()
+  public confidence?: number;
 
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  tags?: string[];
-
-  @IsBoolean()
-  @IsOptional()
-  isRecurring?: boolean;
+  public tags?: string[];
 
   @IsString()
   @IsOptional()
-  receiptId?: string;
-
-  @IsString()
-  @IsOptional()
-  subscriptionId?: string;
-
-  @ValidateNested()
-  @Type(() => TransactionLocationDto)
-  @IsOptional()
-  location?: TransactionLocationDto;
+  public notes?: string;
 }
 
 export class CreateTransactionDto {
   @IsString()
-  userId!: string;
+  public userId!: string;
 
   @IsString()
-  accountId!: string;
+  public accountId!: string;
 
   @IsString()
-  merchantName!: string;
+  public merchantName!: string;
 
   @IsNumber()
-  amount!: number;
+  public amount!: number;
 
   @IsDate()
   @Type(() => Date)
-  date!: Date;
+  public date!: Date;
 
   @IsString()
-  description!: string;
+  public description!: string;
 
-  @IsEnum(["debit", "credit"])
-  type!: "debit" | "credit";
+  @IsEnum(TransactionType)
+  public type!: TransactionType;
 
-  @IsEnum(["pending", "posted", "cancelled"])
-  status!: "pending" | "posted" | "cancelled";
+  @IsEnum(TransactionStatus)
+  public status!: TransactionStatus;
 
-  @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
-  company!: "Down Home" | "Music City Rodeo" | "Personal";
+  @IsEnum(TransactionSource)
+  public source!: TransactionSource;
 
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  tags?: string[];
+  public tags?: string[];
 
   @IsString()
   @IsOptional()
-  category?: string;
+  public category?: string;
 
   @IsString()
   @IsOptional()
-  subscriptionId?: string;
+  public subscriptionId?: string;
 
   @ValidateNested()
   @Type(() => TransactionMetadataDto)
   @IsOptional()
-  metadata?: TransactionMetadataDto;
+  public metadata?: TransactionMetadataDto;
 }
 
 export class UpdateTransactionDto {
   @IsString()
   @IsOptional()
-  userId?: string;
+  public userId?: string;
 
   @IsString()
   @IsOptional()
-  accountId?: string;
+  public accountId?: string;
 
   @IsString()
   @IsOptional()
-  merchantName?: string;
+  public merchantName?: string;
 
   @IsNumber()
   @IsOptional()
-  amount?: number;
+  public amount?: number;
 
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  date?: Date;
+  public date?: Date;
 
   @IsString()
   @IsOptional()
-  description?: string;
+  public description?: string;
 
-  @IsEnum(["debit", "credit"])
+  @IsEnum(TransactionType)
   @IsOptional()
-  type?: "debit" | "credit";
+  public type?: TransactionType;
 
-  @IsEnum(["pending", "posted", "cancelled"])
+  @IsEnum(TransactionStatus)
   @IsOptional()
-  status?: "pending" | "posted" | "cancelled";
+  public status?: TransactionStatus;
 
-  @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
+  @IsEnum(TransactionSource)
   @IsOptional()
-  company?: "Down Home" | "Music City Rodeo" | "Personal";
+  public source?: TransactionSource;
 
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  tags?: string[];
+  public tags?: string[];
 
   @IsString()
   @IsOptional()
-  category?: string;
+  public category?: string;
 
   @IsString()
   @IsOptional()
-  subscriptionId?: string;
+  public subscriptionId?: string;
 
   @ValidateNested()
   @Type(() => TransactionMetadataDto)
   @IsOptional()
-  metadata?: TransactionMetadataDto;
+  public metadata?: TransactionMetadataDto;
 }
 
 export class TransactionQueryDto {
-  startDate?: Date;
-  endDate?: Date;
-  minAmount?: number;
-  maxAmount?: number;
-  categories?: string[];
-  merchants?: string[];
-  types?: ("expense" | "income" | "transfer")[];
-  statuses?: ("pending" | "completed" | "cancelled")[];
-  sources?: ("teller" | "manual" | "import")[];
-  tags?: string[];
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortBy?: keyof Transaction;
-  sortOrder?: "asc" | "desc";
+  public startDate?: Date;
+  public endDate?: Date;
+  public minAmount?: number;
+  public maxAmount?: number;
+  public categories?: string[];
+  public merchants?: string[];
+  public types?: string[];
+  public statuses?: string[];
+  public sources?: string[];
+  public tags?: string[];
+  public search?: string;
+  public page?: number;
+  public limit?: number;
+  public sortBy?: string;
+  public sortOrder?: 'asc' | 'desc';
 }
 
 export class AICategorizationResultDto {
   @IsString()
-  category!: string;
+  public category!: string;
 
   @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
-  company!: "Down Home" | "Music City Rodeo" | "Personal";
+  public company!: "Down Home" | "Music City Rodeo" | "Personal";
 
   @IsArray()
   @IsString({ each: true })
-  tags!: string[];
+  public tags!: string[];
 
   @IsNumber()
-  confidence!: number;
+  public confidence!: number;
 
   @IsString()
-  description!: string;
+  public description!: string;
 }
 
 export class BulkUpdateTransactionDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateTransactionDto)
-  transactions!: UpdateTransactionDto[];
+  public transactions!: UpdateTransactionDto[];
 }
 
 export class AICategorizationRequestDto {
   @IsArray()
   @IsString({ each: true })
-  transactionIds!: string[];
+  public transactionIds!: string[];
 
   @IsOptional()
   @IsBoolean()
-  forceUpdate?: boolean;
+  public forceUpdate?: boolean;
 
   @IsOptional()
   @IsNumber()
-  confidenceThreshold?: number;
+  public confidenceThreshold?: number;
 }
 
 export class AICategorizationResponseDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AICategorizedTransactionDto)
-  results!: AICategorizedTransactionDto[];
+  public results!: AICategorizedTransactionDto[];
 
   @IsNumber()
-  totalProcessed!: number;
+  public totalProcessed!: number;
 
   @IsNumber()
-  totalUpdated!: number;
+  public totalUpdated!: number;
 
   @IsNumber()
-  averageConfidence!: number;
+  public averageConfidence!: number;
 }
 
 export class AICategorizedTransactionDto {
   @IsString()
-  transactionId!: string;
+  public transactionId!: string;
 
   @ValidateNested()
   @Type(() => AICategorizationResultDto)
-  categorization!: AICategorizationResultDto;
+  public categorization!: AICategorizationResultDto;
 
   @IsBoolean()
-  wasUpdated!: boolean;
+  public wasUpdated!: boolean;
 
   @IsOptional()
   @IsString()
-  error?: string;
+  public error?: string;
 }
 
 export class TransactionBatchUpdateDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TransactionUpdateDto)
-  updates!: TransactionUpdateDto[];
+  public updates!: TransactionUpdateDto[];
 }
 
 export class TransactionUpdateDto {
   @IsString()
-  transactionId!: string;
+  public transactionId!: string;
 
   @IsOptional()
   @IsString()
-  category?: string;
+  public category?: string;
 
   @IsOptional()
   @IsEnum(["Down Home", "Music City Rodeo", "Personal"])
-  company?: "Down Home" | "Music City Rodeo" | "Personal";
+  public company?: "Down Home" | "Music City Rodeo" | "Personal";
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  tags?: string[];
+  public tags?: string[];
 
   @IsOptional()
   @IsString()
-  description?: string;
+  public description?: string;
 
   @IsOptional()
   @IsNumber()
-  confidence?: number;
+  public confidence?: number;
 }

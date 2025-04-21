@@ -1,75 +1,48 @@
+// External modules
 import {
   type ApiResponse,
   Currency,
   type PaginatedResponse,
   type Transaction,
   type User,
-  UserRole,
-  UserStatus,
 } from "@fresh-expense/types";
 import { describe, expect, it } from "vitest";
+
+// Internal modules
+import { TransactionStatus, TransactionType, TransactionSource, TRANSACTION_CATEGORIES } from "../constants/transaction.constants";
+import { UserRole, UserStatus } from "../constants/user.constants";
 import type { Receipt } from "../schemas/receipt.schema";
 import { DateFormat, TimeZone } from "../schemas/settings.schema";
 
 describe("Type Definitions", () => {
   it("should validate User type", () => {
     const user: User = {
-      id: "123",
       email: "test@example.com",
-      password: "hashedPassword",
-      firstName: "John",
-      lastName: "Doe",
+      firstName: "Test",
+      lastName: "User",
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
-      companies: [],
-      settings: {
-        currency: Currency.USD,
-        dateFormat: DateFormat.MM_DD_YYYY,
-        timeZone: TimeZone.UTC,
-        notifications: {
-          email: {
-            enabled: true,
-            frequency: "daily",
-            types: ["transaction", "budget"],
-          },
-          push: {
-            enabled: true,
-            types: ["transaction"],
-          },
-          inApp: {
-            enabled: true,
-            types: ["transaction"],
-          },
-        },
-      },
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
     expect(user).toBeDefined();
   });
 
   it("should validate Transaction type", () => {
     const transaction: Transaction = {
-      id: "123",
       accountId: "123",
+      amount: 100,
       date: new Date(),
       description: "Test transaction",
-      amount: {
-        value: 100.0,
-        currency: Currency.USD,
-      },
-      category: "FOOD",
-      merchant: {
-        name: "Test Merchant",
-        category: "FOOD",
-      },
-      status: "pending",
-      type: "expense",
-      source: "manual",
-      tags: ["test"],
+      category: TRANSACTION_CATEGORIES[0],
+      status: TransactionStatus.PENDING,
+      type: TransactionType.EXPENSE,
+      source: TransactionSource.MANUAL,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
     expect(transaction).toBeDefined();
   });
 

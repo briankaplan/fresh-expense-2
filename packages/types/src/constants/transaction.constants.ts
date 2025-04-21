@@ -8,19 +8,21 @@ export enum TransactionStatus {
 }
 
 export enum TransactionType {
-  DEBIT = "debit",
-  CREDIT = "credit",
+  EXPENSE = "expense",
+  INCOME = "income",
   TRANSFER = "transfer",
-  PAYMENT = "payment",
   REFUND = "refund",
   FEE = "fee",
   INTEREST = "interest",
   ADJUSTMENT = "adjustment",
-  OTHER = "other",
+  OTHER = "other"
 }
 
-export const TRANSACTION_SOURCES = ["teller", "manual", "import"] as const;
-export type TransactionSource = (typeof TRANSACTION_SOURCES)[number];
+export enum TransactionSource {
+  TELLER = "teller",
+  MANUAL = "manual",
+  IMPORT = "import"
+}
 
 export const TRANSACTION_CATEGORIES = [
   "income",

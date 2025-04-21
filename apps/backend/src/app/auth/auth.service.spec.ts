@@ -5,6 +5,7 @@ import { getModelToken } from "@nestjs/mongoose";
 import { Test, type TestingModule } from "@nestjs/testing";
 import type { Model } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { AuthService } from "./auth.service";
 import type { LoginDto } from "./dto/login.dto";
 import type { RegisterDto } from "./dto/register.dto";

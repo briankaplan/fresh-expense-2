@@ -5,10 +5,11 @@ import { InjectModel } from "@nestjs/mongoose";
 import { RateLimiter } from "limiter";
 import { type Model, Schema as MongooseSchema } from "mongoose";
 import { retry } from "ts-retry-promise";
+
+import type { ReceiptConverterService } from "./receipt/receipt-converter.service";
 import type { OCRService } from "../../services/ocr/ocr.service";
 import type { R2Service } from "../../services/r2/r2.service";
 import type { GooglePhotosService } from "../services/google-photos.service";
-import type { ReceiptConverterService } from "./receipt/receipt-converter.service";
 
 interface ProcessReceiptOptions {
   source: "CSV" | "EMAIL" | "GOOGLE_PHOTOS" | "MANUAL" | "UPLOAD";
