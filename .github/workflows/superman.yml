@@ -13,6 +13,8 @@ jobs:
 
       - name: 🌟 Setup Node
         uses: actions/setup-node@v4
+      - name: Install pnpm
+        run: npm install -g pnpm
         with:
           node-version: 20
           cache: 'pnpm'
