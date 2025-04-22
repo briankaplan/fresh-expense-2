@@ -1,3 +1,7 @@
+on:
+  push:
+    branches:
+      - backup/pre-restructure-2
 name: CI for Backend
 
 on:
