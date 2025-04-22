@@ -1,0 +1,47 @@
+name: CI for Backend
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+      ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
+      R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      TELLER_APPLICATION_ID: ${{ secrets.TELLER_APPLICATION_ID }}
+      TELLER_SIGNING_SECRET: ${{ secrets.TELLER_SIGNING_SECRET }}
+      TELLER_SIGNING_KEY: ${{ secrets.TELLER_SIGNING_KEY }}
+      HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
+      # Add any other secrets here
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: 📦 Install dependencies
+        run: pnpm install
+
+      - name: 🧪 Build Backend
+        run: pnpm nx build backend
+
+      - name: 🚀 Start Backend (optional)
+        run: pnpm nx serve backend
+        # Or run tests/lint/etc
