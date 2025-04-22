@@ -27,6 +27,13 @@ jobs:
       # Add any other secrets here
 
     steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+
+    - name: Install dependencies
+      run: pnpm install
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
 
