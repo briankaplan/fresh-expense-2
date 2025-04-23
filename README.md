@@ -1,252 +1,227 @@
-# Fresh Expense - Modern Expense Management System
+# 🚀 Fresh Expense - Modern Expense Management System
 
-A comprehensive expense management solution built with React, TypeScript, and NestJS. Streamline your expense tracking with automated receipt processing, smart matching, and powerful reporting capabilities.
+[![CI](https://github.com/briankaplan/fresh-expense-2/actions/workflows/ci.yml/badge.svg)](https://github.com/briankaplan/fresh-expense-2/actions/workflows/ci.yml)
+[![Auto Clean Code](https://github.com/briankaplan/fresh-expense-2/actions/workflows/auto-clean-code.yml/badge.svg)](https://github.com/briankaplan/fresh-expense-2/actions/workflows/auto-clean-code.yml)
+[![Deploy](https://github.com/briankaplan/fresh-expense-2/actions/workflows/deploy.yml/badge.svg)](https://github.com/briankaplan/fresh-expense-2/actions/workflows/deploy.yml)
+[![Docker Publish](https://github.com/briankaplan/fresh-expense-2/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/briankaplan/fresh-expense-2/actions/workflows/docker-publish.yml)
+[![Cloudflare](https://github.com/briankaplan/fresh-expense-2/actions/workflows/cloudflare.yml/badge.svg)](https://github.com/briankaplan/fresh-expense-2/actions/workflows/cloudflare.yml)
 
-## Features
+Fresh Expense is a modern, full-stack expense management platform designed for automation, integration, and insights — powered by **NestJS**, **React**, and **Cloudflare**.
 
-### Expense Management
+---
 
-- Intuitive expense tracking and categorization
-- Bulk import/export capabilities
-- Smart categorization with machine learning
-- Multi-currency support with automatic conversion
+## ✨ Features
 
-### Receipt Bank
+### 💸 Expense Management
 
-- OCR-powered receipt scanning and data extraction
-- Automatic matching with transactions
-- Digital receipt storage with search capabilities
-- Receipt metadata management and tagging
+- Smart expense categorization (AI/ML)
+- Multi-currency support & auto-conversion
+- CSV, Excel, and PDF import/export
+- Recurring expense rules and workflows
 
-### Reports & Analytics
+### 🧾 Receipt Bank
 
-- Customizable report templates
-- Multiple export formats (PDF, CSV, Excel)
-- Scheduled report generation
-- Interactive dashboards and visualizations
+- OCR-powered receipt scanning
+- Automated matching to bank transactions
+- Searchable digital receipt vault
+- Metadata tagging and versioning
 
-### Integration & Automation
+### 📊 Reports & Analytics
 
-- Bank transaction sync
-- Email receipt forwarding
-- Automated expense matching
-- Scheduled data synchronization
+- Dynamic, customizable reports
+- Scheduled exports & alerts
+- Visual dashboards with insights
+- Team-based reporting views
 
-### User Management
+### 🔌 Integration & Automation
 
-- Role-based access control
-- Team expense management
+- Gmail integration for receipts
+- Teller API for bank transaction sync
+- Scheduled sync jobs & pipelines
+- Email parsing, PDF extraction, AI matching
+
+### 👥 User & Team Management
+
+- Role-based access control (RBAC)
 - Approval workflows
-- Audit logging
+- Multi-org support
+- Audit trails & history tracking
 
-## Technical Architecture
+---
 
-### Frontend
+## 🏗️ Architecture
 
-- React with TypeScript
-- Material-UI components
-- Redux for state management
-- React Query for data fetching
+| Layer     | Stack                            |
+|-----------|----------------------------------|
+| Frontend  | React, Vite, Tailwind, Zustand   |
+| Backend   | NestJS, MongoDB, Redis, JWT      |
+| Storage   | Cloudflare R2                    |
+| Infra     | GitHub Actions, Docker, Wrangler |
+| Testing   | Vitest, Jest, Playwright         |
 
-### Backend
+---
 
-- NestJS with TypeScript
-- MongoDB for data storage
-- Cloudflare R2 for file storage
-- Redis for caching
-
-### Services
-
-- OCR processing
-- PDF generation
-- Email delivery
-- Background job processing
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- MongoDB 6+
-- Redis 7+
-- Cloudflare R2 account
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/fresh-expense.git
-cd fresh-expense
-```
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-1. Set up environment variables:
-
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-1. Start development servers:
-
-```bash
-# Start backend
-npm run dev:backend
-
-# Start frontend
-npm run dev:frontend
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```text
 fresh-expense/
 ├── apps/
-│   ├── backend/           # NestJS backend application
-│   │   ├── src/
-│   │   │   ├── controllers/
-│   │   │   ├── services/
-│   │   │   ├── models/
-│   │   │   └── main.ts
-│   │   └── test/
-│   └── frontend/         # React frontend application
-│       ├── src/
-│       │   ├── components/
-│       │   ├── pages/
-│       │   ├── services/
-│       │   └── App.tsx
-│       └── test/
-├── libs/                 # Shared libraries
-├── tools/               # Development tools
-└── package.json
+│   ├── backend/        # NestJS app (API, auth, services)
+│   └── frontend/       # React app (UI, pages, components)
+├── libs/               # Shared modules (types, UI, utils)
+├── scripts/            # Migration, CLI, cleanup
+├── .github/workflows/  # CI/CD pipelines
+├── pnpm-lock.yaml      # Workspace lock file
+└── tsconfig.base.json  # Shared TypeScript config
 ```
 
-## Configuration
+---
 
-### Backend Configuration
+## ⚙️ Setup Instructions
 
-- Database connection
-- Storage credentials
-- API keys
-- Email settings
-- Security options
+### 🧰 Requirements
 
-### Frontend Configuration
+- Node.js v20+
+- PNPM v8+
+- MongoDB 6+
+- Redis 7+
+- Cloudflare Account (for R2 + Workers)
 
-- API endpoints
-- Storage URLs
-- Analytics IDs
-- Feature flags
+### 🚀 Quickstart
 
-## API Documentation
+```bash
+git clone https://github.com/briankaplan/fresh-expense-2.git
+cd fresh-expense-2
+pnpm install
+cp .env.example .env
+```
 
-API documentation is available at `/api/docs` when running the development server. The documentation includes:
+> Fill out `.env` with your credentials/secrets.
 
-- Endpoint descriptions
-- Request/response schemas
-- Authentication requirements
-- Example requests
+```bash
+# Start backend
+pnpm dev:backend
 
-## Testing
+# Start frontend
+pnpm dev:frontend
+```
 
-### Running Tests
+---
+
+## 🧪 Testing
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
-# Run backend tests
-npm run test:backend
-
-# Run frontend tests
-npm run test:frontend
-
-# Run E2E tests
-npm run test:e2e
+# Individual tests
+pnpm test:backend
+pnpm test:frontend
+pnpm test:e2e
 ```
-
-### Test Coverage
 
 ```bash
-# Generate coverage reports
-npm run test:coverage
+# Generate coverage
+pnpm test:coverage
 ```
 
-## Monitoring & Logging
+---
 
-### Performance Monitoring
+## 🔧 Environment Variables
 
-- API response times
-- Database query performance
-- Storage operations
-- Background job execution
+> For full config, check `.env.example`
 
-### Error Tracking
+### Backend
 
-- API errors
-- Processing failures
-- Integration issues
-- UI exceptions
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `ENCRYPTION_KEY`, `ENCRYPTION_IV`
+- Gmail OAuth tokens
+- R2 & Cloudflare credentials
 
-### Usage Analytics
+### Frontend
 
-- Active users
-- Feature usage
-- API calls
-- Storage utilization
+- `VITE_API_URL`
+- `VITE_GOOGLE_CLIENT_ID`
+- `VITE_GOOGLE_REDIRECT_URI`
 
-## Deployment
+---
 
-### Production Build
+## 🔄 CI/CD Workflows
+
+| Workflow            | Purpose                                  |
+|---------------------|------------------------------------------|
+| `ci.yml`            | Lint, test, and verify backend/frontend  |
+| `auto-clean-code.yml` | Auto-format, prune unused code         |
+| `deploy.yml`        | Full production deploy to Cloudflare     |
+| `docker-publish.yml`| Build & publish Docker images            |
+| `cloudflare.yml`    | Deploy backend to Workers, frontend to Pages |
+| `renovate.yml`      | Automated dependency upgrades            |
+
+---
+
+## 📦 Deployment
 
 ```bash
-# Build all applications
-npm run build
-
-# Build specific application
-npm run build:backend
-npm run build:frontend
+pnpm build              # Build all apps
+pnpm build:backend
+pnpm build:frontend
 ```
 
-### CI/CD Pipeline
+### Docker
 
-1. Code quality checks
-2. Unit tests
-3. Integration tests
-4. Build artifacts
-5. Deploy to staging
-6. Run E2E tests
-7. Deploy to production
+```bash
+docker build -t fresh-expense-backend ./apps/backend
+docker build -t fresh-expense-frontend ./apps/frontend
+```
 
-## License
+### Cloudflare
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```bash
+# Using Wrangler
+pnpm wrangler deploy
+```
 
-## Contributing
+---
+
+## 📊 Monitoring & Logs
+
+- **Cloudflare Logs**: Worker & API traffic
+- **Database Monitoring**: Slow queries, indexes
+- **Frontend Analytics**: (optional integration)
+- **Error Tracking**: Sentry / Cloudflare insights
+
+---
+
+## 📚 API Documentation
+
+When running locally:
+
+- Swagger: [`http://localhost:3000/api/docs`](http://localhost:3000/api/docs)
+- Postman Collection: coming soon...
+
+---
+
+## 🧠 Contributing
 
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create a new branch: `feat/my-feature`
+3. Make changes + tests
+4. Commit: `git commit -m "feat: add xyz"`
+5. Push and create PR 🙌
 
-## Support
+---
 
-For support, please:
+## 📝 License
 
-- Check the [documentation](docs/)
-- Open an issue
-- Contact [support@freshexpense.com](mailto:support@freshexpense.com)
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+---
 
-- OCR.space for receipt processing
-- Material-UI for components
-- NestJS team for the framework
-- Open source community
+## 🙏 Acknowledgements
+
+- 🧠 [NestJS](https://nestjs.com)
+- 📦 [PNPM](https://pnpm.io)
+- ☁️ [Cloudflare](https://cloudflare.com)
+- 📷 OCR.space
+- 🧪 Vitest, Playwright, Jest
